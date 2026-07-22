@@ -1,4 +1,5 @@
 import { times } from 'lodash-es';
+
 import { TILE_SIZE } from '../types';
 import { SPIKE_HEIGHT_FRACTION, SPIKE_PRONGS } from './constants';
 import type { Triangle } from './triangle';

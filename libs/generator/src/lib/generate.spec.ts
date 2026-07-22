@@ -1,20 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import {
-  dailyDate,
-  dailySeed,
-  generateLevel,
-  generateLevelSet,
-  levelSeed,
-} from './generate';
-import { createRng } from './rng';
-import { CHEST_ITEM_COUNT, ITEM_CATALOG, rollChestItems } from './items';
-import { TILE_SIZE, TILE_SOLID, TILE_SPIKE, type Level } from './types';
-import { maxJumpColumns } from './structures/grid';
+
 import {
   BASE_GROUND,
   INTRO_WIDTH,
-  LEVELS_PER_SEED,
   LEVEL_WIDTH,
+  LEVELS_PER_SEED,
   OUTRO_WIDTH,
   SECTOR_COUNT,
   SECTOR_WIDTH,
@@ -22,6 +12,17 @@ import {
   SPIKE_MIN_ENEMY_DISTANCE,
   SPIKE_MIN_GAP,
 } from './consts';
+import {
+  dailyDate,
+  dailySeed,
+  generateLevel,
+  generateLevelSet,
+  levelSeed,
+} from './generate';
+import { CHEST_ITEM_COUNT, ITEM_CATALOG, rollChestItems } from './items';
+import { createRng } from './rng';
+import { maxJumpColumns } from './structures/grid';
+import { type Level, TILE_SIZE, TILE_SOLID, TILE_SPIKE } from './types';
 
 function groundHeights(level: Level): number[] {
   const heights: number[] = [];
@@ -39,7 +40,8 @@ function groundHeights(level: Level): number[] {
 function countSpikes(level: Level): number {
   let count = 0;
   for (let y = 0; y < level.height; y++) {
-    for (let x = 0; x < level.width; x++) if (level.tiles[y][x] === TILE_SPIKE) count++;
+    for (let x = 0; x < level.width; x++)
+      if (level.tiles[y][x] === TILE_SPIKE) count++;
   }
   return count;
 }
@@ -115,11 +117,19 @@ function surfaceUnder(level: Level, centerX: number, fromY: number): Surface {
 }
 
 function keySurface(level: Level): Surface {
-  return surfaceUnder(level, level.key.x + level.key.width / 2, level.key.y + level.key.height);
+  return surfaceUnder(
+    level,
+    level.key.x + level.key.width / 2,
+    level.key.y + level.key.height,
+  );
 }
 
 function chestSurface(level: Level): Surface {
-  return surfaceUnder(level, level.chest.x + level.chest.width / 2, level.chest.y + level.chest.height);
+  return surfaceUnder(
+    level,
+    level.chest.x + level.chest.width / 2,
+    level.chest.y + level.chest.height,
+  );
 }
 
 function spawnSurface(level: Level): Surface {
@@ -129,7 +139,7 @@ function spawnSurface(level: Level): Surface {
 const SEEDS = Array.from({ length: 12 }, (_, i) => `sample-seed-${i}`);
 const ALL_LEVELS = Array.from({ length: LEVELS_PER_SEED }, (_, i) => i);
 const CASES: Array<[string, number]> = SEEDS.flatMap((seed) =>
-  ALL_LEVELS.map((d): [string, number] => [seed, d])
+  ALL_LEVELS.map((d): [string, number] => [seed, d]),
 );
 
 describe('generateLevel', () => {
@@ -139,88 +149,121 @@ describe('generateLevel', () => {
 
   it('produces different levels for different seeds and difficulties', () => {
     expect(JSON.stringify(generateLevel('seed-a', 0))).not.toEqual(
-      JSON.stringify(generateLevel('seed-b', 0))
+      JSON.stringify(generateLevel('seed-b', 0)),
     );
     expect(JSON.stringify(generateLevel('seed-a', 0))).not.toEqual(
-      JSON.stringify(generateLevel('seed-a', 5))
+      JSON.stringify(generateLevel('seed-a', 5)),
     );
   });
 
-  it.each(CASES)('lets the player reach key and chest, both ways, for %s level %i', (seed, d) => {
-    const level = generateLevel(levelSeed(seed, d), d);
-    const spawn = spawnSurface(level);
-    const key = keySurface(level);
-    const chest = chestSurface(level);
+  it.each(CASES)(
+    'lets the player reach key and chest, both ways, for %s level %i',
+    (seed, d) => {
+      const level = generateLevel(levelSeed(seed, d), d);
+      const spawn = spawnSurface(level);
+      const key = keySurface(level);
+      const chest = chestSurface(level);
 
-    const fromSpawn = reachableSurfaces(level, spawn);
-    expect(fromSpawn.has(`${key.c}:${key.r}`), 'spawn → key').toBe(true);
-    expect(fromSpawn.has(`${chest.c}:${chest.r}`), 'spawn → chest').toBe(true);
+      const fromSpawn = reachableSurfaces(level, spawn);
+      expect(fromSpawn.has(`${key.c}:${key.r}`), 'spawn → key').toBe(true);
+      expect(fromSpawn.has(`${chest.c}:${chest.r}`), 'spawn → chest').toBe(
+        true,
+      );
 
-    const fromChest = reachableSurfaces(level, chest);
-    expect(fromChest.has(`${key.c}:${key.r}`), 'chest → key').toBe(true);
-    const fromKey = reachableSurfaces(level, key);
-    expect(fromKey.has(`${chest.c}:${chest.r}`), 'key → chest').toBe(true);
-  });
+      const fromChest = reachableSurfaces(level, chest);
+      expect(fromChest.has(`${key.c}:${key.r}`), 'chest → key').toBe(true);
+      const fromKey = reachableSurfaces(level, key);
+      expect(fromKey.has(`${chest.c}:${chest.r}`), 'key → chest').toBe(true);
+    },
+  );
 
-  it.each(CASES)('is a fixed 120 tiles wide, in the intro/sectors/outro layout, for %s level %i', (seed, d) => {
-    const level = generateLevel(levelSeed(seed, d), d);
-    expect(level.width).toBe(LEVEL_WIDTH);
-    expect(INTRO_WIDTH + SECTOR_COUNT * SECTOR_WIDTH + OUTRO_WIDTH).toBe(LEVEL_WIDTH);
-  });
+  it.each(CASES)(
+    'is a fixed 120 tiles wide, in the intro/sectors/outro layout, for %s level %i',
+    (seed, d) => {
+      const level = generateLevel(levelSeed(seed, d), d);
+      expect(level.width).toBe(LEVEL_WIDTH);
+      expect(INTRO_WIDTH + SECTOR_COUNT * SECTOR_WIDTH + OUTRO_WIDTH).toBe(
+        LEVEL_WIDTH,
+      );
+    },
+  );
 
-  it.each(CASES)('starts every level with the identical flat intro for %s level %i', (seed, d) => {
-    const level = generateLevel(levelSeed(seed, d), d);
-    const heights = groundHeights(level);
-    const surfaceRow = level.height - BASE_GROUND;
-    for (let x = 1; x < INTRO_WIDTH; x++) {
-      expect(heights[x], `intro column ${x}`).toBe(BASE_GROUND);
-      for (let r = 0; r < surfaceRow; r++) {
-        expect(level.tiles[r][x], `floating tile at intro column ${x}`).not.toBe(TILE_SOLID);
-      }
-    }
-    expect(spawnSurface(level).r).toBe(surfaceRow);
-  });
-
-  it.each(CASES)('ends every level with the same flat chest-and-portal outro for %s level %i', (seed, d) => {
-    const level = generateLevel(levelSeed(seed, d), d);
-    const heights = groundHeights(level);
-    const outroStart = level.width - OUTRO_WIDTH;
-    const outroHeight = heights[outroStart];
-    for (let x = outroStart; x < level.width - 1; x++) {
-      expect(heights[x], `outro column ${x}`).toBe(outroHeight);
-    }
-    const groundTop = (level.height - outroHeight) * TILE_SIZE;
-    expect(level.chest.x).toBe((level.width - 9) * TILE_SIZE + 3);
-    expect(level.chest.y).toBe(groundTop - 22);
-    expect(level.portal.x).toBe((level.width - 4) * TILE_SIZE);
-    expect(level.portal.y).toBe(groundTop - 64);
-  });
-
-  it.each(CASES)('never lets connected ground step more than one tile for %s level %i', (seed, d) => {
-    const level = generateLevel(levelSeed(seed, d), d);
-    const heights = groundHeights(level);
-    for (let x = 1; x < level.width - 2; x++) {
-      if (heights[x] === 0 || heights[x + 1] === 0) continue;
-      if (heights[x] === level.height || heights[x + 1] === level.height) continue;
-      const rise = Math.abs(heights[x + 1] - heights[x]);
-      expect(rise, `rise of ${rise} at column ${x}`).toBeLessThanOrEqual(1);
-    }
-  });
-
-  it.each(CASES)('bridges every hole with a platform the player can cross for %s level %i', (seed, d) => {
-    const level = generateLevel(levelSeed(seed, d), d);
-    for (const run of holeRuns(level)) {
-      expect(run.start, `hole at ${run.start}`).toBeGreaterThanOrEqual(INTRO_WIDTH);
-      expect(run.start + run.width, `hole at ${run.start}`).toBeLessThanOrEqual(level.width - OUTRO_WIDTH);
-      let floating = 0;
-      for (let x = run.start; x < run.start + run.width; x++) {
-        for (let r = 0; r < level.height; r++) {
-          if (level.tiles[r][x] === TILE_SOLID) floating++;
+  it.each(CASES)(
+    'starts every level with the identical flat intro for %s level %i',
+    (seed, d) => {
+      const level = generateLevel(levelSeed(seed, d), d);
+      const heights = groundHeights(level);
+      const surfaceRow = level.height - BASE_GROUND;
+      for (let x = 1; x < INTRO_WIDTH; x++) {
+        expect(heights[x], `intro column ${x}`).toBe(BASE_GROUND);
+        for (let r = 0; r < surfaceRow; r++) {
+          expect(
+            level.tiles[r][x],
+            `floating tile at intro column ${x}`,
+          ).not.toBe(TILE_SOLID);
         }
       }
-      expect(floating, `no bridge over hole at ${run.start}`).toBeGreaterThan(0);
-    }
-  });
+      expect(spawnSurface(level).r).toBe(surfaceRow);
+    },
+  );
+
+  it.each(CASES)(
+    'ends every level with the same flat chest-and-portal outro for %s level %i',
+    (seed, d) => {
+      const level = generateLevel(levelSeed(seed, d), d);
+      const heights = groundHeights(level);
+      const outroStart = level.width - OUTRO_WIDTH;
+      const outroHeight = heights[outroStart];
+      for (let x = outroStart; x < level.width - 1; x++) {
+        expect(heights[x], `outro column ${x}`).toBe(outroHeight);
+      }
+      const groundTop = (level.height - outroHeight) * TILE_SIZE;
+      expect(level.chest.x).toBe((level.width - 9) * TILE_SIZE + 3);
+      expect(level.chest.y).toBe(groundTop - 22);
+      expect(level.portal.x).toBe((level.width - 4) * TILE_SIZE);
+      expect(level.portal.y).toBe(groundTop - 64);
+    },
+  );
+
+  it.each(CASES)(
+    'never lets connected ground step more than one tile for %s level %i',
+    (seed, d) => {
+      const level = generateLevel(levelSeed(seed, d), d);
+      const heights = groundHeights(level);
+      for (let x = 1; x < level.width - 2; x++) {
+        if (heights[x] === 0 || heights[x + 1] === 0) continue;
+        if (heights[x] === level.height || heights[x + 1] === level.height)
+          continue;
+        const rise = Math.abs(heights[x + 1] - heights[x]);
+        expect(rise, `rise of ${rise} at column ${x}`).toBeLessThanOrEqual(1);
+      }
+    },
+  );
+
+  it.each(CASES)(
+    'bridges every hole with a platform the player can cross for %s level %i',
+    (seed, d) => {
+      const level = generateLevel(levelSeed(seed, d), d);
+      for (const run of holeRuns(level)) {
+        expect(run.start, `hole at ${run.start}`).toBeGreaterThanOrEqual(
+          INTRO_WIDTH,
+        );
+        expect(
+          run.start + run.width,
+          `hole at ${run.start}`,
+        ).toBeLessThanOrEqual(level.width - OUTRO_WIDTH);
+        let floating = 0;
+        for (let x = run.start; x < run.start + run.width; x++) {
+          for (let r = 0; r < level.height; r++) {
+            if (level.tiles[r][x] === TILE_SOLID) floating++;
+          }
+        }
+        expect(floating, `no bridge over hole at ${run.start}`).toBeGreaterThan(
+          0,
+        );
+      }
+    },
+  );
 
   it('carves bottomless, bridged holes somewhere across a run', () => {
     let holes = 0;
@@ -229,7 +272,9 @@ describe('generateLevel', () => {
         holes += holeRuns(generateLevel(levelSeed(seed, d), d)).length;
       }
     }
-    expect(holes, 'holes should appear across a run of levels').toBeGreaterThan(0);
+    expect(holes, 'holes should appear across a run of levels').toBeGreaterThan(
+      0,
+    );
   });
 
   it('raises the ground for the rest of the level after a climbing structure', () => {
@@ -244,83 +289,122 @@ describe('generateLevel', () => {
         if (outroHeight < BASE_GROUND) anyBelowBase = true;
       }
     }
-    expect(rose, 'some level should end raised above the spawn height').toBe(true);
-    expect(anyBelowBase, 'the level never sinks below the spawn height').toBe(false);
+    expect(rose, 'some level should end raised above the spawn height').toBe(
+      true,
+    );
+    expect(anyBelowBase, 'the level never sinks below the spawn height').toBe(
+      false,
+    );
   });
 
-  it.each(CASES)('hides the key in the middle of the level for %s level %i', (seed, d) => {
-    const level = generateLevel(levelSeed(seed, d), d);
-    const column = Math.floor((level.key.x + level.key.width / 2) / TILE_SIZE);
-    expect(column).toBeGreaterThanOrEqual(Math.floor(level.width * 0.25));
-    expect(column).toBeLessThan(level.width - OUTRO_WIDTH);
-    expect(level.key.y).toBeGreaterThan(0);
-  });
+  it.each(CASES)(
+    'hides the key in the middle of the level for %s level %i',
+    (seed, d) => {
+      const level = generateLevel(levelSeed(seed, d), d);
+      const column = Math.floor(
+        (level.key.x + level.key.width / 2) / TILE_SIZE,
+      );
+      expect(column).toBeGreaterThanOrEqual(Math.floor(level.width * 0.25));
+      expect(column).toBeLessThan(level.width - OUTRO_WIDTH);
+      expect(level.key.y).toBeGreaterThan(0);
+    },
+  );
 
-  it.each(CASES)('spawns every enemy on solid ground inside the sector band for %s level %i', (seed, d) => {
-    const level = generateLevel(levelSeed(seed, d), d);
-    for (const enemy of level.enemies) {
-      const col = Math.floor(enemy.x / TILE_SIZE);
-      const row = Math.floor(enemy.y / TILE_SIZE);
-      expect(col, `enemy column ${col}`).toBeGreaterThanOrEqual(INTRO_WIDTH);
-      expect(col, `enemy column ${col}`).toBeLessThan(LEVEL_WIDTH - OUTRO_WIDTH);
-      expect(level.tiles[row][col]).not.toBe(TILE_SOLID);
-      expect(level.tiles[row + 1][col], `ground under enemy at ${col}`).toBe(TILE_SOLID);
-    }
-  });
+  it.each(CASES)(
+    'spawns every enemy on solid ground inside the sector band for %s level %i',
+    (seed, d) => {
+      const level = generateLevel(levelSeed(seed, d), d);
+      for (const enemy of level.enemies) {
+        const col = Math.floor(enemy.x / TILE_SIZE);
+        const row = Math.floor(enemy.y / TILE_SIZE);
+        expect(col, `enemy column ${col}`).toBeGreaterThanOrEqual(INTRO_WIDTH);
+        expect(col, `enemy column ${col}`).toBeLessThan(
+          LEVEL_WIDTH - OUTRO_WIDTH,
+        );
+        expect(level.tiles[row][col]).not.toBe(TILE_SOLID);
+        expect(level.tiles[row + 1][col], `ground under enemy at ${col}`).toBe(
+          TILE_SOLID,
+        );
+      }
+    },
+  );
 
   it('populates enemies across a run of levels', () => {
     let total = 0;
     for (const seed of SEEDS) {
-      for (const d of ALL_LEVELS) total += generateLevel(levelSeed(seed, d), d).enemies.length;
+      for (const d of ALL_LEVELS)
+        total += generateLevel(levelSeed(seed, d), d).enemies.length;
     }
     expect(total, 'enemies should appear across a run').toBeGreaterThan(0);
   });
 
-  it.each(CASES)('places every spike on flat ground with clearance, away from enemies, for %s level %i', (seed, d) => {
-    const level = generateLevel(levelSeed(seed, d), d);
-    const heights = groundHeights(level);
-    const enemyColumns = level.enemies.map((e) => Math.floor(e.x / TILE_SIZE));
-    for (let y = 0; y < level.height; y++) {
-      for (let x = 0; x < level.width; x++) {
-        if (level.tiles[y][x] !== TILE_SPIKE) continue;
-        expect(x).toBeGreaterThanOrEqual(INTRO_WIDTH);
-        expect(x).toBeLessThan(LEVEL_WIDTH - OUTRO_WIDTH);
-        expect(y + 1, `spike sits on the ground at ${x}`).toBe(level.height - heights[x]);
-        expect(heights[x - 1], `left footing at ${x}`).toBeGreaterThanOrEqual(heights[x]);
-        expect(heights[x + 1], `right footing at ${x}`).toBeGreaterThanOrEqual(heights[x]);
-        for (let r = y; r >= y - SPIKE_CLEARANCE; r--) {
-          expect(level.tiles[r][x], `clearance at row ${r}`).not.toBe(TILE_SOLID);
-        }
-        for (const ec of enemyColumns) {
-          expect(Math.abs(ec - x), `spike ${x} near enemy ${ec}`).toBeGreaterThanOrEqual(SPIKE_MIN_ENEMY_DISTANCE);
-        }
-      }
-    }
-  });
-
-  it.each(CASES)('keeps at least SPIKE_MIN_GAP ground blocks between spikes for %s level %i', (seed, d) => {
-    const level = generateLevel(levelSeed(seed, d), d);
-    const spikeColumns: number[] = [];
-    for (let x = 0; x < level.width; x++) {
-      for (let y = 0; y < level.height; y++) {
-        if (level.tiles[y][x] === TILE_SPIKE) {
-          spikeColumns.push(x);
-          break;
-        }
-      }
-    }
-    for (let i = 1; i < spikeColumns.length; i++) {
-      const gap = spikeColumns[i] - spikeColumns[i - 1] - 1;
-      expect(gap, `gap between spikes at ${spikeColumns[i - 1]} and ${spikeColumns[i]}`).toBeGreaterThanOrEqual(
-        SPIKE_MIN_GAP
+  it.each(CASES)(
+    'places every spike on flat ground with clearance, away from enemies, for %s level %i',
+    (seed, d) => {
+      const level = generateLevel(levelSeed(seed, d), d);
+      const heights = groundHeights(level);
+      const enemyColumns = level.enemies.map((e) =>
+        Math.floor(e.x / TILE_SIZE),
       );
-    }
-  });
+      for (let y = 0; y < level.height; y++) {
+        for (let x = 0; x < level.width; x++) {
+          if (level.tiles[y][x] !== TILE_SPIKE) continue;
+          expect(x).toBeGreaterThanOrEqual(INTRO_WIDTH);
+          expect(x).toBeLessThan(LEVEL_WIDTH - OUTRO_WIDTH);
+          expect(y + 1, `spike sits on the ground at ${x}`).toBe(
+            level.height - heights[x],
+          );
+          expect(heights[x - 1], `left footing at ${x}`).toBeGreaterThanOrEqual(
+            heights[x],
+          );
+          expect(
+            heights[x + 1],
+            `right footing at ${x}`,
+          ).toBeGreaterThanOrEqual(heights[x]);
+          for (let r = y; r >= y - SPIKE_CLEARANCE; r--) {
+            expect(level.tiles[r][x], `clearance at row ${r}`).not.toBe(
+              TILE_SOLID,
+            );
+          }
+          for (const ec of enemyColumns) {
+            expect(
+              Math.abs(ec - x),
+              `spike ${x} near enemy ${ec}`,
+            ).toBeGreaterThanOrEqual(SPIKE_MIN_ENEMY_DISTANCE);
+          }
+        }
+      }
+    },
+  );
+
+  it.each(CASES)(
+    'keeps at least SPIKE_MIN_GAP ground blocks between spikes for %s level %i',
+    (seed, d) => {
+      const level = generateLevel(levelSeed(seed, d), d);
+      const spikeColumns: number[] = [];
+      for (let x = 0; x < level.width; x++) {
+        for (let y = 0; y < level.height; y++) {
+          if (level.tiles[y][x] === TILE_SPIKE) {
+            spikeColumns.push(x);
+            break;
+          }
+        }
+      }
+      for (let i = 1; i < spikeColumns.length; i++) {
+        const gap = spikeColumns[i] - spikeColumns[i - 1] - 1;
+        expect(
+          gap,
+          `gap between spikes at ${spikeColumns[i - 1]} and ${spikeColumns[i]}`,
+        ).toBeGreaterThanOrEqual(SPIKE_MIN_GAP);
+      }
+    },
+  );
 
   it('scatters spikes across a run of levels', () => {
     let total = 0;
     for (const seed of SEEDS) {
-      for (const d of ALL_LEVELS) total += countSpikes(generateLevel(levelSeed(seed, d), d));
+      for (const d of ALL_LEVELS)
+        total += countSpikes(generateLevel(levelSeed(seed, d), d));
     }
     expect(total, 'spikes should appear across a run').toBeGreaterThan(0);
   });
@@ -341,9 +425,13 @@ describe('generateLevel', () => {
   it.each(SEEDS)('offers five distinct chest items for %s', (seed) => {
     const { chestItems } = generateLevel(seed, 2);
     expect(chestItems).toHaveLength(CHEST_ITEM_COUNT);
-    expect(new Set(chestItems.map((item) => item.id)).size).toBe(CHEST_ITEM_COUNT);
+    expect(new Set(chestItems.map((item) => item.id)).size).toBe(
+      CHEST_ITEM_COUNT,
+    );
     for (const item of chestItems) {
-      expect(ITEM_CATALOG.some((entry) => entry.item.id === item.id)).toBe(true);
+      expect(ITEM_CATALOG.some((entry) => entry.item.id === item.id)).toBe(
+        true,
+      );
     }
   });
 });
@@ -352,7 +440,9 @@ describe('generateLevelSet', () => {
   it('produces eight distinct levels, deterministically', () => {
     const levels = generateLevelSet('run-seed');
     expect(levels).toHaveLength(LEVELS_PER_SEED);
-    expect(new Set(levels.map((l) => JSON.stringify(l))).size).toBe(LEVELS_PER_SEED);
+    expect(new Set(levels.map((l) => JSON.stringify(l))).size).toBe(
+      LEVELS_PER_SEED,
+    );
     expect(levels).toEqual(generateLevelSet('run-seed'));
   });
 });
@@ -366,12 +456,14 @@ describe('dailyDate', () => {
 
 describe('dailySeed', () => {
   it('is a 14-character hash of letters and numbers', () => {
-    expect(dailySeed(new Date())).toMatch(/^[A-Z0-9]{14}$/);
-    expect(dailySeed(new Date(Date.UTC(2026, 6, 19)))).toMatch(/^[A-Z0-9]{14}$/);
+    expect(dailySeed(new Date())).toMatch(/^[\dA-Z]{14}$/);
+    expect(dailySeed(new Date(Date.UTC(2026, 6, 19)))).toMatch(/^[\dA-Z]{14}$/);
   });
 
   it('is deterministic for a given date', () => {
-    expect(dailySeed(new Date(Date.UTC(2026, 6, 19)))).toBe(dailySeed(new Date(Date.UTC(2026, 6, 19))));
+    expect(dailySeed(new Date(Date.UTC(2026, 6, 19)))).toBe(
+      dailySeed(new Date(Date.UTC(2026, 6, 19))),
+    );
   });
 
   it('is unique across three years of consecutive dates', () => {
@@ -386,7 +478,9 @@ describe('dailySeed', () => {
 
 describe('rollChestItems', () => {
   it('is deterministic for the same rng seed', () => {
-    expect(rollChestItems(createRng('roll'))).toEqual(rollChestItems(createRng('roll')));
+    expect(rollChestItems(createRng('roll'))).toEqual(
+      rollChestItems(createRng('roll')),
+    );
   });
 });
 

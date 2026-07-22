@@ -1,8 +1,13 @@
 import type { Rect } from '@mander/generator';
-import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../state';
-import type { Player } from '../state';
 
-export function isIntersecting(player: Player, rect: Rect, padding: number): boolean {
+import type { Player } from '../state';
+import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../state';
+
+export function isIntersecting(
+  player: Player,
+  rect: Rect,
+  padding: number,
+): boolean {
   return (
     player.x - padding < rect.x + rect.width &&
     player.x + PLAYER_WIDTH + padding > rect.x &&

@@ -1,14 +1,15 @@
 import { filter, map, some } from 'lodash-es';
+
 import { overlapsSpike, stepEnemy, stepPlayer } from '../physics';
+import type { GameState } from '../state';
 import {
+  capabilitiesFor,
+  createPlayer,
   ENEMY_HEIGHT,
   ENEMY_WIDTH,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
-  capabilitiesFor,
-  createPlayer,
 } from '../state';
-import type { GameState } from '../state';
 import { hasFallenIntoPit } from './has-fallen-into-pit';
 import { isIntersecting } from './is-intersecting';
 import { isTouchingEnemy } from './is-touching-enemy';
@@ -24,18 +25,27 @@ export function tick(state: GameState, deltaSeconds: number): GameState {
     state.player,
     state.input,
     capabilitiesFor(state.inventory),
-    deltaSeconds
+    deltaSeconds,
   );
 
   const enemies = filter(
-    map(state.enemies, (enemy) => stepEnemy(state.level, enemy, player, deltaSeconds)),
-    (enemy) => !overlapsSpike(state.level, enemy.x, enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT)
+    map(state.enemies, (enemy) =>
+      stepEnemy(state.level, enemy, player, deltaSeconds),
+    ),
+    (enemy) =>
+      !overlapsSpike(state.level, enemy.x, enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT),
   );
 
   let deaths = state.deaths;
   if (
     hasFallenIntoPit(state.level, player) ||
-    overlapsSpike(state.level, player.x, player.y, PLAYER_WIDTH, PLAYER_HEIGHT) ||
+    overlapsSpike(
+      state.level,
+      player.x,
+      player.y,
+      PLAYER_WIDTH,
+      PLAYER_HEIGHT,
+    ) ||
     some(enemies, (enemy) => isTouchingEnemy(player, enemy))
   ) {
     player = createPlayer(state.level);
@@ -48,9 +58,11 @@ export function tick(state: GameState, deltaSeconds: number): GameState {
     enemies,
     deaths,
     time: state.time + deltaSeconds,
-    hasKey: state.hasKey || isIntersecting(player, state.level.key, PICKUP_RANGE),
+    hasKey:
+      state.hasKey || isIntersecting(player, state.level.key, PICKUP_RANGE),
     nearChest:
-      !state.chestOpened && isIntersecting(player, state.level.chest, INTERACT_RANGE),
+      !state.chestOpened &&
+      isIntersecting(player, state.level.chest, INTERACT_RANGE),
     nearPortal: isIntersecting(player, state.level.portal, INTERACT_RANGE),
   };
 }

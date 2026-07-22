@@ -1,2 +1,2 @@
-export * from './keyboard';
 export * from './create-keyboard';
+export * from './keyboard';

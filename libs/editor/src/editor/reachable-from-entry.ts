@@ -1,5 +1,9 @@
+import {
+  maxJumpColumns,
+  type Structure,
+  structureSurfaces,
+} from '@mander/generator';
 import { findIndex, forEach, map } from 'lodash-es';
-import { maxJumpColumns, structureSurfaces, type Structure } from '@mander/generator';
 
 export function reachableFromEntry(grid: Structure): {
   surfaces: ReturnType<typeof structureSurfaces>;

@@ -1,7 +1,10 @@
 import { maxJumpColumns } from './max-jump-columns';
 import type { Surface } from './surface';
 
-export function reachable(surfaces: Surface[], startIndex: number): Set<number> {
+export function reachable(
+  surfaces: Surface[],
+  startIndex: number,
+): Set<number> {
   const visited = new Set<number>([startIndex]);
   const queue = [startIndex];
   while (queue.length > 0) {

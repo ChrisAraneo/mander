@@ -17,15 +17,16 @@ defineEmits<{ choose: [index: number]; close: [] }>();
           :key="index"
           class="card"
           :class="item.rarity"
-          @click="$emit('choose', index)"
-        >
+          @click="$emit('choose', index)">
           <span class="rarity">{{ item.rarity }}</span>
           <span class="name">{{ item.name }}</span>
           <span class="description">{{ item.description }}</span>
         </button>
       </div>
 
-      <button class="ghost" @click="$emit('close')">Leave it for now (Esc)</button>
+      <button class="ghost" @click="$emit('close')">
+        Leave it for now (Esc)
+      </button>
     </div>
   </div>
 </template>
@@ -56,7 +57,10 @@ defineEmits<{ choose: [index: number]; close: [] }>();
   color: inherit;
   text-align: center;
   cursor: pointer;
-  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+  transition:
+    transform 0.12s ease,
+    border-color 0.12s ease,
+    box-shadow 0.12s ease;
 }
 
 .card:hover,

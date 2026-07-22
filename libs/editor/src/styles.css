@@ -21,7 +21,12 @@ body {
   margin: 0;
   background: linear-gradient(180deg, #1b2033, #11141f);
   color: var(--text);
-  font: 14px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  font:
+    14px/1.5 system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    sans-serif;
   min-height: 100vh;
 }
 
@@ -80,7 +85,9 @@ button {
   padding: 7px 12px;
   cursor: pointer;
   font-size: 13px;
-  transition: border-color 0.15s, background 0.15s;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
 }
 
 button:hover {
@@ -197,7 +204,7 @@ textarea.output,
 textarea.loader {
   width: 100%;
   resize: vertical;
-  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
   font-size: 12px;
   line-height: 1.4;
 }

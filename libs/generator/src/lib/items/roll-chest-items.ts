@@ -1,6 +1,7 @@
 import { clone, sumBy } from 'lodash-es';
-import type { Item } from '../types';
+
 import type { Rng } from '../rng';
+import type { Item } from '../types';
 import type { CatalogEntry } from './catalog-entry';
 import { CHEST_ITEM_COUNT } from './constants';
 import { ITEM_CATALOG } from './item-catalog';
@@ -11,8 +12,8 @@ export function rollChestItems(rng: Rng): Item[] {
   while (rolled.length < CHEST_ITEM_COUNT && pool.length > 0) {
     let remainingWeight = rng.next() * sumBy(pool, 'weight');
     let chosenIndex = 0;
-    for (let poolIndex = 0; poolIndex < pool.length; poolIndex++) {
-      remainingWeight -= pool[poolIndex].weight;
+    for (const [poolIndex, element] of pool.entries()) {
+      remainingWeight -= element.weight;
       if (remainingWeight <= 0) {
         chosenIndex = poolIndex;
         break;

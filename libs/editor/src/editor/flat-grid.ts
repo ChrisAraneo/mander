@@ -1,5 +1,11 @@
+import {
+  BLOCK,
+  SECTOR_WIDTH,
+  type Structure,
+  STRUCTURE_HEIGHT,
+} from '@mander/generator';
 import { fill } from 'lodash-es';
-import { BLOCK, SECTOR_WIDTH, STRUCTURE_HEIGHT, type Structure } from '@mander/generator';
+
 import { airGrid } from './air-grid';
 
 export function flatGrid(): Structure {

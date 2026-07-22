@@ -1,8 +1,14 @@
+import { type Level, TILE_SIZE } from '@mander/generator';
 import { chain } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { TILE_SIZE, type Level } from '@mander/generator';
-import { ENEMY_HEIGHT, ENEMY_JUMP_VELOCITY, ENEMY_MOVE_SPEED, ENEMY_WIDTH } from '../state';
+
 import type { Enemy, Player } from '../state';
+import {
+  ENEMY_HEIGHT,
+  ENEMY_JUMP_VELOCITY,
+  ENEMY_MOVE_SPEED,
+  ENEMY_WIDTH,
+} from '../state';
 import { GRAVITY, MAX_TICK_SECONDS, TERMINAL_VELOCITY } from './constants';
 import { resolveLanding } from './landing';
 import { ledgeAhead } from './ledge-ahead';
@@ -16,13 +22,22 @@ const enemyHop = (
   grounded: boolean,
   vy: number,
   enemy: Enemy,
-  player: Player
+  player: Player,
 ): { vy: number; grounded: boolean } =>
   match({ grounded, overhead: playerOverhead(enemy, player) })
-    .with({ grounded: true, overhead: true }, () => ({ vy: -ENEMY_JUMP_VELOCITY, grounded: false }))
+    .with({ grounded: true, overhead: true }, () => ({
+      vy: -ENEMY_JUMP_VELOCITY,
+      grounded: false,
+    }))
     .otherwise(() => ({ vy, grounded }));
 
-const enemyTurn = (level: Level, x: number, y: number, facing: 1 | -1, grounded: boolean): 1 | -1 =>
+const enemyTurn = (
+  level: Level,
+  x: number,
+  y: number,
+  facing: 1 | -1,
+  grounded: boolean,
+): 1 | -1 =>
   match({
     grounded,
     obstacle:
@@ -45,24 +60,34 @@ const toEnemy = (
   facing: 1 | -1,
   grounded: boolean,
   enemy: Enemy,
-  level: Level
+  level: Level,
 ): Enemy =>
   match(y > (level.height + 2) * TILE_SIZE)
-    .with(true, (): Enemy => ({ ...enemy, x: enemy.homeX, y: enemy.homeY, vx: 0, vy: 0, grounded: false }))
-    .otherwise(
-      (): Enemy => ({
-        x,
-        y,
-        vx: facing * ENEMY_MOVE_SPEED,
-        vy,
-        facing,
-        grounded,
-        homeX: enemy.homeX,
-        homeY: enemy.homeY,
-      })
-    );
+    .with(true, (): Enemy => ({
+      ...enemy,
+      x: enemy.homeX,
+      y: enemy.homeY,
+      vx: 0,
+      vy: 0,
+      grounded: false,
+    }))
+    .otherwise((): Enemy => ({
+      x,
+      y,
+      vx: facing * ENEMY_MOVE_SPEED,
+      vy,
+      facing,
+      grounded,
+      homeX: enemy.homeX,
+      homeY: enemy.homeY,
+    }));
 
-export const stepEnemy = (level: Level, enemy: Enemy, player: Player, elapsedSeconds: number): Enemy =>
+export const stepEnemy = (
+  level: Level,
+  enemy: Enemy,
+  player: Player,
+  elapsedSeconds: number,
+): Enemy =>
   chain({
     deltaSeconds: Math.min(elapsedSeconds, MAX_TICK_SECONDS),
     x: enemy.x,
@@ -72,8 +97,14 @@ export const stepEnemy = (level: Level, enemy: Enemy, player: Player, elapsedSec
     grounded: enemy.grounded,
   })
     .thru((s) => ({ ...s, ...enemyHop(s.grounded, s.vy, enemy, player) }))
-    .thru((s) => ({ ...s, facing: enemyTurn(level, s.x, s.y, s.facing, s.grounded) }))
-    .thru((s) => ({ ...s, vy: Math.min(s.vy + GRAVITY * s.deltaSeconds, TERMINAL_VELOCITY) }))
+    .thru((s) => ({
+      ...s,
+      facing: enemyTurn(level, s.x, s.y, s.facing, s.grounded),
+    }))
+    .thru((s) => ({
+      ...s,
+      vy: Math.min(s.vy + GRAVITY * s.deltaSeconds, TERMINAL_VELOCITY),
+    }))
     .thru((s) => ({
       ...s,
       horizontal: moveHorizontal(
@@ -82,18 +113,31 @@ export const stepEnemy = (level: Level, enemy: Enemy, player: Player, elapsedSec
         s.y,
         ENEMY_WIDTH,
         ENEMY_HEIGHT,
-        s.facing * ENEMY_MOVE_SPEED * s.deltaSeconds
+        s.facing * ENEMY_MOVE_SPEED * s.deltaSeconds,
       ),
     }))
-    .thru((s) => ({ ...s, x: s.horizontal.position, facing: turnOnBlock(s.horizontal.isBlocked, s.facing) }))
     .thru((s) => ({
       ...s,
-      vertical: moveVertical(level, s.x, s.y, ENEMY_WIDTH, ENEMY_HEIGHT, s.vy * s.deltaSeconds),
+      x: s.horizontal.position,
+      facing: turnOnBlock(s.horizontal.isBlocked, s.facing),
+    }))
+    .thru((s) => ({
+      ...s,
+      vertical: moveVertical(
+        level,
+        s.x,
+        s.y,
+        ENEMY_WIDTH,
+        ENEMY_HEIGHT,
+        s.vy * s.deltaSeconds,
+      ),
     }))
     .thru((s) => ({
       ...s,
       y: s.vertical.position,
       ...resolveLanding(s.vertical.isBlocked, s.vy > 0, s.grounded, s.vy),
     }))
-    .thru((s): Enemy => toEnemy(s.x, s.y, s.vy, s.facing, s.grounded, enemy, level))
+    .thru((s): Enemy =>
+      toEnemy(s.x, s.y, s.vy, s.facing, s.grounded, enemy, level),
+    )
     .value();

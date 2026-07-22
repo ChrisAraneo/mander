@@ -1,6 +1,7 @@
+import { TILE_SIZE } from '@mander/generator';
 import { chain, floor } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { TILE_SIZE } from '@mander/generator';
+
 import type { AxisMove } from './axis-move';
 import { EPSILON, SUBSTEP } from './internal-constants';
 
@@ -11,12 +12,25 @@ export interface Sweep {
   collides: (position: number) => boolean;
 }
 
-const blockedPosition = (nextPosition: number, direction: number, size: number): number =>
+const blockedPosition = (
+  nextPosition: number,
+  direction: number,
+  size: number,
+): number =>
   match(direction > 0)
-    .with(true, () => floor((nextPosition + size - EPSILON) / TILE_SIZE) * TILE_SIZE - size)
+    .with(
+      true,
+      () =>
+        floor((nextPosition + size - EPSILON) / TILE_SIZE) * TILE_SIZE - size,
+    )
     .otherwise(() => (floor(nextPosition / TILE_SIZE) + 1) * TILE_SIZE);
 
-const advance = (config: Sweep, direction: number, current: number, remaining: number): AxisMove =>
+const advance = (
+  config: Sweep,
+  direction: number,
+  current: number,
+  remaining: number,
+): AxisMove =>
   match(remaining === 0)
     .with(true, (): AxisMove => ({ position: current, isBlocked: false }))
     .otherwise((): AxisMove =>
@@ -28,9 +42,11 @@ const advance = (config: Sweep, direction: number, current: number, remaining: n
               position: blockedPosition(nextPosition, direction, config.size),
               isBlocked: true,
             }))
-            .otherwise((): AxisMove => advance(config, direction, nextPosition, remaining - step))
+            .otherwise((): AxisMove =>
+              advance(config, direction, nextPosition, remaining - step),
+            ),
         )
-        .value()
+        .value(),
     );
 
 export const sweep = (config: Sweep): AxisMove =>

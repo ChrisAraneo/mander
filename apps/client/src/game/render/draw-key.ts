@@ -1,6 +1,9 @@
 import type { GameState } from '@mander/engine';
 
-export function drawKey(context: CanvasRenderingContext2D, state: GameState): void {
+export function drawKey(
+  context: CanvasRenderingContext2D,
+  state: GameState,
+): void {
   if (state.hasKey) return;
   const key = state.level.key;
   const bob = Math.sin(state.time * 3) * 3;

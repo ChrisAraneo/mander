@@ -1,3 +1,3 @@
 export * from './constants';
-export * from './structure-difficulty';
 export * from './structure';
+export * from './structure-difficulty';

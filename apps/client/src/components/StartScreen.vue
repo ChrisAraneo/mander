@@ -20,7 +20,9 @@ function resetSave(): void {
 <template>
   <div class="start">
     <h1>MANDER</h1>
-    <p class="tagline">One run a day. Eight levels, each harder than the last.</p>
+    <p class="tagline">
+      One run a day. Eight levels, each harder than the last.
+    </p>
 
     <div class="daily-card">
       <span class="label">Today's run</span>
@@ -31,16 +33,25 @@ function resetSave(): void {
       </button>
     </div>
 
-    <div v-if="save.completedLevels.length || save.inventory.length" class="save-info">
+    <div
+      v-if="save.completedLevels.length || save.inventory.length"
+      class="save-info">
       <p>
-        {{ save.completedLevels.length }} level{{ save.completedLevels.length === 1 ? '' : 's' }}
+        {{ save.completedLevels.length }} level{{
+          save.completedLevels.length === 1 ? '' : 's'
+        }}
         completed ·
-        {{ save.inventory.length }} item{{ save.inventory.length === 1 ? '' : 's' }} collected
+        {{ save.inventory.length }} item{{
+          save.inventory.length === 1 ? '' : 's'
+        }}
+        collected
       </p>
       <button class="ghost" @click="resetSave">Reset save</button>
     </div>
 
-    <p class="controls">A / D move · Space jump · E interact · Esc close · R respawn</p>
+    <p class="controls">
+      A / D move · Space jump · E interact · Esc close · R respawn
+    </p>
   </div>
 </template>
 

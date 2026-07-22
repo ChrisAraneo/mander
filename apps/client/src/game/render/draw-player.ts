@@ -1,6 +1,10 @@
-import { PLAYER_HEIGHT, PLAYER_WIDTH, type Player } from '@mander/engine';
+import { type Player, PLAYER_HEIGHT, PLAYER_WIDTH } from '@mander/engine';
 
-export function drawPlayer(context: CanvasRenderingContext2D, player: Player, time: number): void {
+export function drawPlayer(
+  context: CanvasRenderingContext2D,
+  player: Player,
+  time: number,
+): void {
   const centerX = player.x + PLAYER_WIDTH / 2;
   const centerY = player.y + PLAYER_HEIGHT / 2;
   const isRunning = Math.abs(player.vx) > 1 && player.grounded;

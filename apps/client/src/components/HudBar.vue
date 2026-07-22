@@ -20,23 +20,28 @@ const time = computed(() => {
     <div class="group">
       <span class="logo">MANDER</span>
       <span class="chip" :title="`Seed: ${seed}`">{{ seed }}</span>
-      <span class="chip">Level {{ state.levelIndex + 1 }}/{{ LEVELS_PER_SEED }}</span>
+      <span class="chip"
+        >Level {{ state.levelIndex + 1 }}/{{ LEVELS_PER_SEED }}</span
+      >
       <span class="chip">{{ time }}</span>
-      <span v-if="state.deaths > 0" class="chip deaths">✕ {{ state.deaths }}</span>
+      <span v-if="state.deaths > 0" class="chip deaths"
+        >✕ {{ state.deaths }}</span
+      >
       <span class="chip key" :class="{ found: state.hasKey }">
         {{ state.hasKey ? '🔑 Key found' : '🔒 No key' }}
       </span>
     </div>
 
     <div class="group">
-      <span v-if="state.inventory.length === 0" class="empty">No items yet</span>
+      <span v-if="state.inventory.length === 0" class="empty"
+        >No items yet</span
+      >
       <span
         v-for="(item, index) in state.inventory"
         :key="index"
         class="item"
         :class="item.rarity"
-        :title="item.description"
-      >
+        :title="item.description">
         {{ item.name }}
       </span>
       <button class="ghost" @click="$emit('exit')">Exit</button>

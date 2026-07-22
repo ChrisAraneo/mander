@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { rollStructure, structurePool } from './structures';
-import { HARD_STRUCTURES, NORMAL_STRUCTURES } from './library';
+
+import { SECTOR_WIDTH, STRUCTURE_HEIGHT } from '../consts';
+import { createRng } from '../rng';
 import {
   formatStructure,
   groundHeight,
@@ -9,9 +10,9 @@ import {
   structureIsCrossable,
   structureIssues,
 } from './grid';
-import { createRng } from '../rng';
+import { HARD_STRUCTURES, NORMAL_STRUCTURES } from './library';
+import { rollStructure, structurePool } from './structures';
 import { AIR, BLOCK, ENEMY, type Structure } from './types';
-import { SECTOR_WIDTH, STRUCTURE_HEIGHT } from '../consts';
 
 describe('maxJumpColumns', () => {
   it('mirrors the engine jump arc: easy drops, harder climbs, nothing past a rise of 3', () => {
@@ -55,7 +56,8 @@ describe('structure library', () => {
         expect(grid).toHaveLength(STRUCTURE_HEIGHT);
         for (const row of grid) {
           expect(row).toHaveLength(SECTOR_WIDTH);
-          for (const cell of row) expect(cell === AIR || cell === BLOCK || cell === ENEMY).toBe(true);
+          for (const cell of row)
+            expect(cell === AIR || cell === BLOCK || cell === ENEMY).toBe(true);
         }
       }
     });
@@ -131,7 +133,7 @@ describe('structureIssues', () => {
 describe('formatStructure', () => {
   it('round-trips to a paste-ready literal that parses back to the same grid', () => {
     const grid = NORMAL_STRUCTURES[3];
-    const json = formatStructure(grid).replace(/,(\s*[\]])/g, '$1');
+    const json = formatStructure(grid).replaceAll(/,(\s*])/g, '$1');
     expect(JSON.parse(json) as Structure).toEqual(grid);
   });
 });

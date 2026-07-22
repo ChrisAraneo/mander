@@ -9,9 +9,17 @@ body {
 }
 
 body {
-  background: radial-gradient(1200px 700px at 50% -10%, #1d2740 0%, #10141c 60%);
+  background: radial-gradient(
+    1200px 700px at 50% -10%,
+    #1d2740 0%,
+    #10141c 60%
+  );
   color: #e8eef6;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    sans-serif;
   min-height: 100vh;
 }
 
@@ -45,7 +53,9 @@ input:focus {
   background: #f4762c;
   color: #16100b;
   font-weight: 700;
-  transition: filter 0.12s ease, transform 0.12s ease;
+  transition:
+    filter 0.12s ease,
+    transform 0.12s ease;
 }
 
 .primary:hover {
@@ -59,7 +69,9 @@ input:focus {
   border: 1px solid #33445a;
   background: transparent;
   color: #9fb0c3;
-  transition: border-color 0.12s ease, color 0.12s ease;
+  transition:
+    border-color 0.12s ease,
+    color 0.12s ease;
 }
 
 .ghost:hover {

@@ -8,7 +8,8 @@ export const OUTRO_WIDTH = 20;
 export const SECTOR_WIDTH = 20;
 export const SECTOR_COUNT = 4;
 
-export const LEVEL_WIDTH = INTRO_WIDTH + SECTOR_COUNT * SECTOR_WIDTH + OUTRO_WIDTH;
+export const LEVEL_WIDTH =
+  INTRO_WIDTH + SECTOR_COUNT * SECTOR_WIDTH + OUTRO_WIDTH;
 
 export const STRUCTURE_HEIGHT = 8;
 

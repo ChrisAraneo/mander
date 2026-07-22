@@ -13,7 +13,9 @@ const canvas = ref<HTMLCanvasElement | null>(null);
 const { state, dispatch, nextLevel } = useGame(props.seed, canvas);
 
 const isRunFinished = computed(
-  () => state.value.status === 'complete' && state.value.levelIndex >= LEVELS_PER_SEED - 1
+  () =>
+    state.value.status === 'complete' &&
+    state.value.levelIndex >= LEVELS_PER_SEED - 1,
 );
 
 const hint = computed(() => {
@@ -41,19 +43,24 @@ const hint = computed(() => {
         v-if="state.status === 'chest'"
         :items="state.level.chestItems"
         @choose="(index) => dispatch({ type: 'CHOOSE_ITEM', index })"
-        @close="dispatch({ type: 'CLOSE' })"
-      />
+        @close="dispatch({ type: 'CLOSE' })" />
 
       <div v-if="state.status === 'complete'" class="overlay">
         <div v-if="isRunFinished" class="panel">
           <h2>Run complete!</h2>
-          <p>All {{ LEVELS_PER_SEED }} levels of “{{ seed }}” are behind you.</p>
-          <button class="primary" @click="$emit('exit')">Back to the start</button>
+          <p>
+            All {{ LEVELS_PER_SEED }} levels of “{{ seed }}” are behind you.
+          </p>
+          <button class="primary" @click="$emit('exit')">
+            Back to the start
+          </button>
         </div>
         <div v-else class="panel">
           <h2>Level {{ state.levelIndex + 1 }} complete!</h2>
           <p>The portal hums and pulls you onward.</p>
-          <button class="primary" @click="nextLevel">Enter level {{ state.levelIndex + 2 }}</button>
+          <button class="primary" @click="nextLevel">
+            Enter level {{ state.levelIndex + 2 }}
+          </button>
         </div>
       </div>
     </div>

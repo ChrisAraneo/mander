@@ -1,4 +1,5 @@
 import type { Level } from '@mander/generator';
+
 import type { Player } from './player';
 
 export function createPlayer(level: Level): Player {

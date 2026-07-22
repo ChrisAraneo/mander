@@ -1,6 +1,9 @@
 import type { GameState } from '@mander/engine';
 
-export function drawChest(context: CanvasRenderingContext2D, state: GameState): void {
+export function drawChest(
+  context: CanvasRenderingContext2D,
+  state: GameState,
+): void {
   const chest = state.level.chest;
 
   context.save();

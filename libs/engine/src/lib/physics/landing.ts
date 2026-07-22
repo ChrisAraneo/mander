@@ -9,7 +9,7 @@ export const resolveLanding = (
   blocked: boolean,
   falling: boolean,
   grounded: boolean,
-  vy: number
+  vy: number,
 ): Landing =>
   match({ blocked, falling })
     .with({ blocked: true, falling: true }, () => ({ grounded: true, vy: 0 }))

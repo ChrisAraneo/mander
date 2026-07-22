@@ -1,20 +1,21 @@
 import {
-  Subject,
+  type Action,
+  createInitialState,
+  type GameState,
+  reduce,
+} from '@mander/engine';
+import { generateLevel, LEVELS_PER_SEED, levelSeed } from '@mander/generator';
+import {
   animationFrames,
   map,
   merge,
   pairwise,
   scan,
+  Subject,
   type Subscription,
 } from 'rxjs';
-import { onMounted, onUnmounted, shallowRef, type Ref } from 'vue';
-import {
-  createInitialState,
-  reduce,
-  type Action,
-  type GameState,
-} from '@mander/engine';
-import { LEVELS_PER_SEED, generateLevel, levelSeed } from '@mander/generator';
+import { onMounted, onUnmounted, type Ref, shallowRef } from 'vue';
+
 import { createKeyboard, type Keyboard } from '../input';
 import { renderGame } from '../render';
 import {
@@ -28,17 +29,17 @@ import type { GameController } from './game-controller';
 
 export function useGame(
   baseSeed: string,
-  canvas: Ref<HTMLCanvasElement | null>
+  canvas: Ref<HTMLCanvasElement | null>,
 ): GameController {
   const save = loadSave();
   const startIndex = Math.min(
     firstUncompletedIndex(baseSeed, save.completedLevels),
-    LEVELS_PER_SEED - 1
+    LEVELS_PER_SEED - 1,
   );
   const initial = createInitialState(
     generateLevel(levelSeed(baseSeed, startIndex), startIndex),
     startIndex,
-    save.inventory
+    save.inventory,
   );
 
   const state = shallowRef(initial);
@@ -54,12 +55,10 @@ export function useGame(
 
     const tick$ = animationFrames().pipe(
       pairwise(),
-      map(
-        ([previous, current]): Action => ({
-          type: 'TICK',
-          deltaSeconds: (current.timestamp - previous.timestamp) / 1000,
-        })
-      )
+      map(([previous, current]): Action => ({
+        type: 'TICK',
+        deltaSeconds: (current.timestamp - previous.timestamp) / 1000,
+      })),
     );
 
     subscription = merge(tick$, activeKeyboard.actions$, actions$)

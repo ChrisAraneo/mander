@@ -1,4 +1,5 @@
 import type { Level } from '@mander/generator';
+
 import type { AxisMove } from './axis-move';
 import { overlapsSolid } from './overlaps-solid';
 import { sweep } from './sweep';
@@ -9,11 +10,12 @@ export const moveHorizontal = (
   originY: number,
   width: number,
   height: number,
-  delta: number
+  delta: number,
 ): AxisMove =>
   sweep({
     origin: originX,
     delta,
     size: width,
-    collides: (position) => overlapsSolid(level, position, originY, width, height),
+    collides: (position) =>
+      overlapsSolid(level, position, originY, width, height),
   });

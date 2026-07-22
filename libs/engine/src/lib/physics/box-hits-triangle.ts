@@ -1,5 +1,5 @@
-import { chain, every, map, range } from 'lodash-es';
 import type { Triangle } from '@mander/generator';
+import { chain, every, map, range } from 'lodash-es';
 
 interface Vec {
   x: number;
@@ -27,10 +27,14 @@ const project = (axis: Axis, points: readonly Vec[]): Span =>
     .thru((values) => ({ min: Math.min(...values), max: Math.max(...values) }))
     .value();
 
-const separated = (a: Span, b: Span): boolean => a.max <= b.min || a.min >= b.max;
+const separated = (a: Span, b: Span): boolean =>
+  a.max <= b.min || a.min >= b.max;
 
-const overlapsOn = (axis: Axis, triangle: Triangle, corners: readonly Vec[]): boolean =>
-  !separated(project(axis, triangle), project(axis, corners));
+const overlapsOn = (
+  axis: Axis,
+  triangle: Triangle,
+  corners: readonly Vec[],
+): boolean => !separated(project(axis, triangle), project(axis, corners));
 
 const edgeAxes = (triangle: Triangle): Axis[] =>
   map(range(3), (edge) => ({
@@ -38,9 +42,17 @@ const edgeAxes = (triangle: Triangle): Axis[] =>
     ny: triangle[(edge + 1) % 3].x - triangle[edge].x,
   }));
 
-const candidateAxes = (triangle: Triangle): Axis[] => [...AABB_AXES, ...edgeAxes(triangle)];
+const candidateAxes = (triangle: Triangle): Axis[] => [
+  ...AABB_AXES,
+  ...edgeAxes(triangle),
+];
 
-const boxCorners = (left: number, top: number, width: number, height: number): Vec[] => [
+const boxCorners = (
+  left: number,
+  top: number,
+  width: number,
+  height: number,
+): Vec[] => [
   { x: left, y: top },
   { x: left + width, y: top },
   { x: left + width, y: top + height },
@@ -52,8 +64,12 @@ export const boxHitsTriangle = (
   boxTop: number,
   boxWidth: number,
   boxHeight: number,
-  triangle: Triangle
+  triangle: Triangle,
 ): boolean =>
   chain(boxCorners(boxLeft, boxTop, boxWidth, boxHeight))
-    .thru((corners) => every(candidateAxes(triangle), (axis) => overlapsOn(axis, triangle, corners)))
+    .thru((corners) =>
+      every(candidateAxes(triangle), (axis) =>
+        overlapsOn(axis, triangle, corners),
+      ),
+    )
     .value();

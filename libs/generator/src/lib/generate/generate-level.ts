@@ -1,39 +1,41 @@
 import { clamp, filter, floor, map, some } from 'lodash-es';
+
 import {
   BASE_GROUND,
+  HARD_SPIKE_CHANCE_MULTIPLIER,
   INTRO_WIDTH,
-  LEVELS_PER_SEED,
   LEVEL_HEIGHT,
   LEVEL_WIDTH,
+  LEVELS_PER_SEED,
   OUTRO_WIDTH,
   SECTOR_COUNT,
   SECTOR_WIDTH,
-  HARD_SPIKE_CHANCE_MULTIPLIER,
   SPIKE_CLEARANCE,
   SPIKE_MIN_ENEMY_DISTANCE,
   SPIKE_MIN_GAP,
   SPIKE_SPAWN_CHANCE,
 } from '../consts';
-import { createRng } from '../rng';
 import { rollChestItems } from '../items';
+import { createRng } from '../rng';
 import { groundHeight } from '../structures/grid';
 import { rollStructure } from '../structures/structures';
 import { BLOCK, ENEMY, type StructureDifficulty } from '../structures/types';
 import {
+  type Level,
+  type Point,
+  type Tile,
   TILE_EMPTY,
   TILE_SIZE,
   TILE_SOLID,
   TILE_SPIKE,
-  type Level,
-  type Point,
-  type Tile,
 } from '../types';
 import type { Platform } from './platform';
 
 export function generateLevel(seed: string, difficulty = 0): Level {
   const rng = createRng(seed);
   const difficultyIndex = clamp(floor(difficulty), 0, LEVELS_PER_SEED - 1);
-  const structureDifficulty: StructureDifficulty = difficultyIndex <= 3 ? 'normal' : 'hard';
+  const structureDifficulty: StructureDifficulty =
+    difficultyIndex <= 3 ? 'normal' : 'hard';
   const width = LEVEL_WIDTH;
 
   const ground: number[] = new Array(width).fill(BASE_GROUND);
@@ -64,7 +66,10 @@ export function generateLevel(seed: string, difficulty = 0): Level {
             });
           }
         } else if (cell === ENEMY) {
-          enemies.push({ x: (cursor + column) * TILE_SIZE, y: absoluteRow * TILE_SIZE });
+          enemies.push({
+            x: (cursor + column) * TILE_SIZE,
+            y: absoluteRow * TILE_SIZE,
+          });
         }
       }
     }
@@ -95,14 +100,17 @@ export function generateLevel(seed: string, difficulty = 0): Level {
     tiles[row][width - 1] = TILE_SOLID;
   }
 
-  const groundTop = (column: number): number => (LEVEL_HEIGHT - ground[column]) * TILE_SIZE;
+  const groundTop = (column: number): number =>
+    (LEVEL_HEIGHT - ground[column]) * TILE_SIZE;
 
   const keyZoneStart = Math.max(INTRO_WIDTH, floor(width * 0.25));
   const keyZoneEnd = width - OUTRO_WIDTH;
   const keyPerches = filter(
     platforms,
     (platform) =>
-      !platform.overHole && platform.column >= keyZoneStart && platform.column < keyZoneEnd
+      !platform.overHole &&
+      platform.column >= keyZoneStart &&
+      platform.column < keyZoneEnd,
   );
   let keyColumn: number;
   let keySupportTop: number;
@@ -115,28 +123,44 @@ export function generateLevel(seed: string, difficulty = 0): Level {
     for (let column = keyZoneStart; column < keyZoneEnd; column++) {
       if (ground[column] !== 0) groundColumns.push(column);
     }
-    keyColumn = groundColumns.length > 0 ? rng.pick(groundColumns) : INTRO_WIDTH;
+    keyColumn =
+      groundColumns.length > 0 ? rng.pick(groundColumns) : INTRO_WIDTH;
     keySupportTop = groundTop(keyColumn);
   }
 
   const enemyColumns = map(enemies, (enemy) => floor(enemy.x / TILE_SIZE));
   const spikeChance =
-    SPIKE_SPAWN_CHANCE * (structureDifficulty === 'hard' ? HARD_SPIKE_CHANCE_MULTIPLIER : 1);
+    SPIKE_SPAWN_CHANCE *
+    (structureDifficulty === 'hard' ? HARD_SPIKE_CHANCE_MULTIPLIER : 1);
   let lastSpikeColumn = -SPIKE_MIN_GAP;
   for (let column = INTRO_WIDTH; column < width - OUTRO_WIDTH; column++) {
     const columnHeight = ground[column];
-    if (columnHeight <= 0 || ground[column - 1] < columnHeight || ground[column + 1] < columnHeight) {
+    if (
+      columnHeight <= 0 ||
+      ground[column - 1] < columnHeight ||
+      ground[column + 1] < columnHeight
+    ) {
       continue;
     }
     if (column - lastSpikeColumn <= SPIKE_MIN_GAP) continue;
     if (Math.abs(column - keyColumn) < 2) continue;
-    if (some(enemyColumns, (enemyColumn) => Math.abs(enemyColumn - column) < SPIKE_MIN_ENEMY_DISTANCE)) {
+    if (
+      some(
+        enemyColumns,
+        (enemyColumn) =>
+          Math.abs(enemyColumn - column) < SPIKE_MIN_ENEMY_DISTANCE,
+      )
+    ) {
       continue;
     }
 
     const spikeRow = LEVEL_HEIGHT - columnHeight - 1;
     let isClear = true;
-    for (let row = spikeRow; row >= spikeRow - SPIKE_CLEARANCE && isClear; row--) {
+    for (
+      let row = spikeRow;
+      row >= spikeRow - SPIKE_CLEARANCE && isClear;
+      row--
+    ) {
       if (row < 0 || tiles[row][column] !== TILE_EMPTY) isClear = false;
     }
     if (!isClear) continue;

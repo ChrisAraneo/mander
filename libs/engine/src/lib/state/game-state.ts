@@ -1,4 +1,5 @@
 import type { Item, Level } from '@mander/generator';
+
 import type { Enemy } from './enemy';
 import type { GameStatus } from './game-status';
 import type { InputState } from './input-state';

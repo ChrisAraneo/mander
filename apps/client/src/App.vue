@@ -9,7 +9,11 @@ const activeSeed = ref<string | null>(null);
 <template>
   <main class="app">
     <StartScreen v-if="activeSeed === null" @start="activeSeed = $event" />
-    <GameView v-else :key="activeSeed" :seed="activeSeed" @exit="activeSeed = null" />
+    <GameView
+      v-else
+      :key="activeSeed"
+      :seed="activeSeed"
+      @exit="activeSeed = null" />
   </main>
 </template>
 

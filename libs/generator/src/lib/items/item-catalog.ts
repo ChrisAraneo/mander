@@ -10,7 +10,7 @@ export const ITEM_CATALOG: readonly CatalogEntry[] = [
       rarity: 'common',
       effect: { kind: 'none' },
     },
-    26
+    26,
   ),
   entry(
     {
@@ -20,7 +20,7 @@ export const ITEM_CATALOG: readonly CatalogEntry[] = [
       rarity: 'common',
       effect: { kind: 'none' },
     },
-    26
+    26,
   ),
   entry(
     {
@@ -30,7 +30,7 @@ export const ITEM_CATALOG: readonly CatalogEntry[] = [
       rarity: 'common',
       effect: { kind: 'none' },
     },
-    26
+    26,
   ),
   entry(
     {
@@ -40,7 +40,7 @@ export const ITEM_CATALOG: readonly CatalogEntry[] = [
       rarity: 'common',
       effect: { kind: 'none' },
     },
-    26
+    26,
   ),
   entry(
     {
@@ -50,7 +50,7 @@ export const ITEM_CATALOG: readonly CatalogEntry[] = [
       rarity: 'common',
       effect: { kind: 'none' },
     },
-    26
+    26,
   ),
   entry(
     {
@@ -60,7 +60,7 @@ export const ITEM_CATALOG: readonly CatalogEntry[] = [
       rarity: 'common',
       effect: { kind: 'none' },
     },
-    26
+    26,
   ),
   entry(
     {
@@ -70,7 +70,7 @@ export const ITEM_CATALOG: readonly CatalogEntry[] = [
       rarity: 'common',
       effect: { kind: 'none' },
     },
-    26
+    26,
   ),
   entry(
     {
@@ -80,17 +80,18 @@ export const ITEM_CATALOG: readonly CatalogEntry[] = [
       rarity: 'common',
       effect: { kind: 'speed', percent: 3 },
     },
-    22
+    22,
   ),
   entry(
     {
       id: 'river-skimmers',
       name: 'River Skimmers',
-      description: 'Light shoes that barely touch the ground. +5% movement speed.',
+      description:
+        'Light shoes that barely touch the ground. +5% movement speed.',
       rarity: 'rare',
       effect: { kind: 'speed', percent: 5 },
     },
-    14
+    14,
   ),
   entry(
     {
@@ -100,6 +101,6 @@ export const ITEM_CATALOG: readonly CatalogEntry[] = [
       rarity: 'epic',
       effect: { kind: 'speed', percent: 7 },
     },
-    8
+    8,
   ),
 ];

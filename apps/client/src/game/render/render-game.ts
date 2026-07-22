@@ -1,6 +1,7 @@
-import { clamp, forEach, round } from 'lodash-es';
+import { type GameState, PLAYER_HEIGHT, PLAYER_WIDTH } from '@mander/engine';
 import { TILE_SIZE } from '@mander/generator';
-import { PLAYER_HEIGHT, PLAYER_WIDTH, type GameState } from '@mander/engine';
+import { clamp, forEach, round } from 'lodash-es';
+
 import { VIEW_HEIGHT, VIEW_WIDTH } from './constants';
 import { drawChest } from './draw-chest';
 import { drawEnemy } from './draw-enemy';
@@ -11,17 +12,20 @@ import { drawPortal } from './draw-portal';
 import { drawSky } from './draw-sky';
 import { drawTiles } from './draw-tiles';
 
-export function renderGame(context: CanvasRenderingContext2D, state: GameState): void {
+export function renderGame(
+  context: CanvasRenderingContext2D,
+  state: GameState,
+): void {
   const { level, player } = state;
   const cameraX = clamp(
     player.x + PLAYER_WIDTH / 2 - VIEW_WIDTH / 2,
     0,
-    Math.max(0, level.width * TILE_SIZE - VIEW_WIDTH)
+    Math.max(0, level.width * TILE_SIZE - VIEW_WIDTH),
   );
   const cameraY = clamp(
     player.y + PLAYER_HEIGHT / 2 - VIEW_HEIGHT / 2,
     0,
-    Math.max(0, level.height * TILE_SIZE - VIEW_HEIGHT)
+    Math.max(0, level.height * TILE_SIZE - VIEW_HEIGHT),
   );
 
   drawSky(context);

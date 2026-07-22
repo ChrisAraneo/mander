@@ -1,3 +1,4 @@
+import type { Enemy, Player } from '../state';
 import {
   ENEMY_HEIGHT,
   ENEMY_HITBOX_INSET,
@@ -8,7 +9,6 @@ import {
   PLAYER_HITBOX_INSET_X,
   PLAYER_WIDTH,
 } from '../state';
-import type { Enemy, Player } from '../state';
 
 export function isTouchingEnemy(player: Player, enemy: Enemy): boolean {
   const playerLeft = player.x + PLAYER_HITBOX_INSET_X;

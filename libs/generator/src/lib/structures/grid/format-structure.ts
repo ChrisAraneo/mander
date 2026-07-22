@@ -1,4 +1,5 @@
 import { join, map } from 'lodash-es';
+
 import type { Structure } from '../types';
 
 export function formatStructure(grid: Structure): string {

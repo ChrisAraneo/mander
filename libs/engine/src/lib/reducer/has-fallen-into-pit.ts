@@ -1,4 +1,5 @@
-import { TILE_SIZE, type Level } from '@mander/generator';
+import { type Level, TILE_SIZE } from '@mander/generator';
+
 import type { Player } from '../state';
 
 export function hasFallenIntoPit(level: Level, player: Player): boolean {

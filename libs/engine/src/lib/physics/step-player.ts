@@ -1,8 +1,9 @@
+import type { Level } from '@mander/generator';
 import { chain } from 'lodash-es';
 import { match } from 'ts-pattern';
-import type { Level } from '@mander/generator';
-import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../state';
+
 import type { InputState, Player, PlayerCapabilities } from '../state';
+import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../state';
 import { GRAVITY, MAX_TICK_SECONDS, TERMINAL_VELOCITY } from './constants';
 import { resolveLanding } from './landing';
 import { moveHorizontal } from './move-horizontal';
@@ -25,10 +26,13 @@ const afterJump = (
   base: { vy: number; grounded: boolean },
   input: InputState,
   player: Player,
-  capabilities: PlayerCapabilities
+  capabilities: PlayerCapabilities,
 ): { vy: number; grounded: boolean } =>
   match({ wants: player.jumpQueued || input.jump, grounded: base.grounded })
-    .with({ wants: true, grounded: true }, () => ({ vy: -capabilities.jumpVelocity, grounded: false }))
+    .with({ wants: true, grounded: true }, () => ({
+      vy: -capabilities.jumpVelocity,
+      grounded: false,
+    }))
     .otherwise(() => base);
 
 const gravityFor = (vy: number, input: InputState): number =>
@@ -46,7 +50,7 @@ export const stepPlayer = (
   player: Player,
   input: InputState,
   capabilities: PlayerCapabilities,
-  elapsedSeconds: number
+  elapsedSeconds: number,
 ): Player =>
   chain({
     deltaSeconds: Math.min(elapsedSeconds, MAX_TICK_SECONDS),
@@ -56,15 +60,30 @@ export const stepPlayer = (
       ...s,
       vx: s.direction * capabilities.moveSpeed,
       facing: facingFor(s.direction, player.facing),
-      ...afterJump({ vy: player.vy, grounded: player.grounded }, input, player, capabilities),
+      ...afterJump(
+        { vy: player.vy, grounded: player.grounded },
+        input,
+        player,
+        capabilities,
+      ),
     }))
     .thru((s) => ({
       ...s,
-      vy: Math.min(s.vy + gravityFor(s.vy, input) * s.deltaSeconds, TERMINAL_VELOCITY),
+      vy: Math.min(
+        s.vy + gravityFor(s.vy, input) * s.deltaSeconds,
+        TERMINAL_VELOCITY,
+      ),
     }))
     .thru((s) => ({
       ...s,
-      horizontal: moveHorizontal(level, player.x, player.y, PLAYER_WIDTH, PLAYER_HEIGHT, s.vx * s.deltaSeconds),
+      horizontal: moveHorizontal(
+        level,
+        player.x,
+        player.y,
+        PLAYER_WIDTH,
+        PLAYER_HEIGHT,
+        s.vx * s.deltaSeconds,
+      ),
     }))
     .thru((s) => ({
       ...s,
@@ -73,22 +92,27 @@ export const stepPlayer = (
     }))
     .thru((s) => ({
       ...s,
-      vertical: moveVertical(level, s.nextX, player.y, PLAYER_WIDTH, PLAYER_HEIGHT, s.vy * s.deltaSeconds),
+      vertical: moveVertical(
+        level,
+        s.nextX,
+        player.y,
+        PLAYER_WIDTH,
+        PLAYER_HEIGHT,
+        s.vy * s.deltaSeconds,
+      ),
     }))
     .thru((s) => ({
       ...s,
       nextY: s.vertical.position,
       ...resolveLanding(s.vertical.isBlocked, s.vy > 0, s.grounded, s.vy),
     }))
-    .thru(
-      (s): Player => ({
-        x: s.nextX,
-        y: s.nextY,
-        vx: s.vxOut,
-        vy: s.vy,
-        grounded: s.grounded,
-        facing: s.facing,
-        jumpQueued: false,
-      })
-    )
+    .thru((s): Player => ({
+      x: s.nextX,
+      y: s.nextY,
+      vx: s.vxOut,
+      vy: s.vy,
+      grounded: s.grounded,
+      facing: s.facing,
+      jumpQueued: false,
+    }))
     .value();

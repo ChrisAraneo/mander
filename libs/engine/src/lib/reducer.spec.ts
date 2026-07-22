@@ -1,27 +1,28 @@
-import { describe, expect, it } from 'vitest';
 import {
-  TILE_EMPTY,
-  TILE_SIZE,
-  TILE_SOLID,
-  TILE_SPIKE,
   type Item,
   type Level,
   type Point,
   type Tile,
+  TILE_EMPTY,
+  TILE_SIZE,
+  TILE_SOLID,
+  TILE_SPIKE,
 } from '@mander/generator';
-import { reduce } from './reducer';
+import { describe, expect, it } from 'vitest';
+
+import type { Action } from './actions';
 import { overlapsSpike } from './physics';
+import { reduce } from './reducer';
 import {
+  capabilitiesFor,
+  createInitialState,
   ENEMY_HEIGHT,
   ENEMY_JUMP_VELOCITY,
   ENEMY_WIDTH,
+  type GameState,
   MAX_SPEED_BONUS_PERCENT,
   PLAYER_HEIGHT,
-  capabilitiesFor,
-  createInitialState,
-  type GameState,
 } from './state';
-import type { Action } from './actions';
 
 const WIDTH = 30;
 const HEIGHT = 15;
@@ -46,7 +47,9 @@ const CARDS: Item[] = [
 function testLevel(enemies: Point[] = []): Level {
   const tiles: Tile[][] = [];
   for (let y = 0; y < HEIGHT; y++) {
-    const row: Tile[] = new Array(WIDTH).fill(y >= 12 ? TILE_SOLID : TILE_EMPTY);
+    const row: Tile[] = Array.from({ length: WIDTH }).fill(
+      y >= 12 ? TILE_SOLID : TILE_EMPTY,
+    );
     row[0] = TILE_SOLID;
     row[WIDTH - 1] = TILE_SOLID;
     tiles.push(row);
@@ -192,7 +195,9 @@ describe('jumping', () => {
       }
     }
     expect(landed).toBe(true);
-    expect(rejumped, 'a held jump bounces again after touching down').toBe(true);
+    expect(rejumped, 'a held jump bounces again after touching down').toBe(
+      true,
+    );
   });
 
   it('makes short taps jump lower than held presses', () => {
@@ -223,7 +228,7 @@ describe('jumping', () => {
     ]);
     expect(overCap.moveSpeed).toBeCloseTo(
       base.moveSpeed * (1 + MAX_SPEED_BONUS_PERCENT / 100),
-      5
+      5,
     );
     expect(overCap.jumpVelocity).toBe(base.jumpVelocity);
   });
@@ -306,7 +311,11 @@ describe('portal and level loading', () => {
     state = { ...state, hasKey: true };
     state = act(state, { type: 'INTERACT' });
     state = act(state, { type: 'CHOOSE_ITEM', index: 3 });
-    state = act(state, { type: 'LOAD_LEVEL', level: testLevel(), levelIndex: 1 });
+    state = act(state, {
+      type: 'LOAD_LEVEL',
+      level: testLevel(),
+      levelIndex: 1,
+    });
 
     expect(state.levelIndex).toBe(1);
     expect(state.status).toBe('playing');
@@ -322,7 +331,8 @@ describe('enemies', () => {
   const ENEMY_SPAWN: Point = { x: 5 * TILE_SIZE, y: 11 * TILE_SIZE };
   const floorEnemyY = SURFACE - ENEMY_HEIGHT;
 
-  const withEnemy = (): GameState => createInitialState(testLevel([ENEMY_SPAWN]), 0, []);
+  const withEnemy = (): GameState =>
+    createInitialState(testLevel([ENEMY_SPAWN]), 0, []);
 
   it('paces back and forth, turning at walls and platform edges without falling', () => {
     let state = withEnemy();
@@ -338,7 +348,9 @@ describe('enemies', () => {
       minX = Math.min(minX, enemy.x);
       maxX = Math.max(maxX, enemy.x);
     }
-    expect(facings.has(1) && facings.has(-1), 'turned around both ways').toBe(true);
+    expect(facings.has(1) && facings.has(-1), 'turned around both ways').toBe(
+      true,
+    );
     expect(maxX - minX, 'actually paced a distance').toBeGreaterThan(TILE_SIZE);
   });
 
@@ -348,7 +360,15 @@ describe('enemies', () => {
     const enemy = state.enemies[0];
     expect(enemy.grounded).toBe(true);
 
-    state = { ...state, player: { ...state.player, x: enemy.x, y: enemy.y - 3 * TILE_SIZE, vy: 0 } };
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        x: enemy.x,
+        y: enemy.y - 3 * TILE_SIZE,
+        vy: 0,
+      },
+    };
     state = tick(state);
     expect(state.enemies[0].vy, 'the enemy launched upward').toBeLessThan(0);
 
@@ -359,15 +379,24 @@ describe('enemies', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
-    state = { ...state, player: { ...state.player, x: enemy.x + ENEMY_WIDTH, y: enemy.y, vy: 0 } };
+    state = {
+      ...state,
+      player: { ...state.player, x: enemy.x + ENEMY_WIDTH, y: enemy.y, vy: 0 },
+    };
     state = tick(state);
-    expect(state.enemies[0].grounded, 'did not hop from mere proximity').toBe(true);
+    expect(state.enemies[0].grounded, 'did not hop from mere proximity').toBe(
+      true,
+    );
   });
 
   it('spawns the new levels enemies on LOAD_LEVEL', () => {
     let state = withEnemy();
     expect(state.enemies).toHaveLength(1);
-    state = act(state, { type: 'LOAD_LEVEL', level: testLevel([ENEMY_SPAWN, ENEMY_SPAWN]), levelIndex: 1 });
+    state = act(state, {
+      type: 'LOAD_LEVEL',
+      level: testLevel([ENEMY_SPAWN, ENEMY_SPAWN]),
+      levelIndex: 1,
+    });
     expect(state.enemies).toHaveLength(2);
   });
 
@@ -379,7 +408,10 @@ describe('enemies', () => {
 
   it('kills the player who walks into a spike', () => {
     let state = createInitialState(withSpike(6), 0, []);
-    state = { ...state, player: { ...state.player, x: 6 * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT } };
+    state = {
+      ...state,
+      player: { ...state.player, x: 6 * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT },
+    };
     const before = state.deaths;
     state = tick(state);
     expect(state.deaths).toBe(before + 1);
@@ -395,7 +427,9 @@ describe('enemies', () => {
       maxRight = Math.max(maxRight, state.enemies[0].x + ENEMY_WIDTH);
     }
     expect(maxRight, 'paced toward the spike').toBeGreaterThan(7 * TILE_SIZE);
-    expect(maxRight, 'never reached the spike column').toBeLessThanOrEqual(9 * TILE_SIZE);
+    expect(maxRight, 'never reached the spike column').toBeLessThanOrEqual(
+      9 * TILE_SIZE,
+    );
   });
 
   it('kills an enemy that ends up on a spike', () => {
@@ -409,7 +443,10 @@ describe('enemies', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
-    state = { ...state, player: { ...state.player, x: enemy.x, y: enemy.y, vy: 0 } };
+    state = {
+      ...state,
+      player: { ...state.player, x: enemy.x, y: enemy.y, vy: 0 },
+    };
     const before = state.deaths;
     state = tick(state);
     expect(state.deaths).toBe(before + 1);
@@ -419,7 +456,14 @@ describe('enemies', () => {
 
   it('does not kill a player kept apart by the pit', () => {
     let state = withEnemy();
-    state = { ...state, player: { ...state.player, x: 15 * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT } };
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        x: 15 * TILE_SIZE,
+        y: SURFACE - PLAYER_HEIGHT,
+      },
+    };
     const deaths = state.deaths;
     for (let i = 0; i < 120; i++) state = tick(state);
     expect(state.deaths).toBe(deaths);
@@ -431,14 +475,32 @@ describe('enemies', () => {
     const px = 6 * TILE_SIZE;
     state = {
       ...state,
-      player: { ...state.player, x: px, y: SURFACE - PLAYER_HEIGHT, vx: 0, vy: 0, grounded: true },
+      player: {
+        ...state.player,
+        x: px,
+        y: SURFACE - PLAYER_HEIGHT,
+        vx: 0,
+        vy: 0,
+        grounded: true,
+      },
       enemies: [
-        { x: px + 17, y: floorEnemyY, vx: 0, vy: 0, facing: 1, grounded: true, homeX: px + 17, homeY: floorEnemyY },
+        {
+          x: px + 17,
+          y: floorEnemyY,
+          vx: 0,
+          vy: 0,
+          facing: 1,
+          grounded: true,
+          homeX: px + 17,
+          homeY: floorEnemyY,
+        },
       ],
     };
     const before = state.deaths;
     state = tick(state);
-    expect(state.deaths, 'grazing the bounding boxes is not lethal').toBe(before);
+    expect(state.deaths, 'grazing the bounding boxes is not lethal').toBe(
+      before,
+    );
   });
 });
 
@@ -453,16 +515,22 @@ describe('precise spike collision', () => {
 
   it('is not triggered by the clear air above the prongs', () => {
     const level = spikeLevel(COL);
-    expect(overlapsSpike(level, LEFT, 11 * TILE_SIZE, TILE_SIZE, 6)).toBe(false);
+    expect(overlapsSpike(level, LEFT, 11 * TILE_SIZE, TILE_SIZE, 6)).toBe(
+      false,
+    );
   });
 
   it('is triggered when the box reaches down into the prongs', () => {
     const level = spikeLevel(COL);
-    expect(overlapsSpike(level, LEFT, 11 * TILE_SIZE + 23, TILE_SIZE, 6)).toBe(true);
+    expect(overlapsSpike(level, LEFT, 11 * TILE_SIZE + 23, TILE_SIZE, 6)).toBe(
+      true,
+    );
   });
 
   it('is not triggered in the notch between two prongs', () => {
     const level = spikeLevel(COL);
-    expect(overlapsSpike(level, LEFT + 8, 11 * TILE_SIZE + 9, 5, 6)).toBe(false);
+    expect(overlapsSpike(level, LEFT + 8, 11 * TILE_SIZE + 9, 5, 6)).toBe(
+      false,
+    );
   });
 });

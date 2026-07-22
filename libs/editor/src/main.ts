@@ -1,5 +1,6 @@
 import './styles.css';
+
 import { mountEditor } from './editor';
 
-const app = document.getElementById('app');
+const app = document.querySelector('#app');
 if (app) mountEditor(app);

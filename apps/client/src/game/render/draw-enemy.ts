@@ -1,9 +1,15 @@
-import { ENEMY_HEIGHT, ENEMY_WIDTH, type Enemy } from '@mander/engine';
+import { type Enemy, ENEMY_HEIGHT, ENEMY_WIDTH } from '@mander/engine';
 
-export function drawEnemy(context: CanvasRenderingContext2D, enemy: Enemy, time: number): void {
+export function drawEnemy(
+  context: CanvasRenderingContext2D,
+  enemy: Enemy,
+  time: number,
+): void {
   const centerX = enemy.x + ENEMY_WIDTH / 2;
   const centerY = enemy.y + ENEMY_HEIGHT / 2;
-  const wobble = enemy.grounded ? Math.sin(time * 9 + enemy.homeX * 0.2) * 1.2 : 0;
+  const wobble = enemy.grounded
+    ? Math.sin(time * 9 + enemy.homeX * 0.2) * 1.2
+    : 0;
   const halfWidth = ENEMY_WIDTH / 2;
   const halfHeight = ENEMY_HEIGHT / 2;
 
@@ -17,7 +23,13 @@ export function drawEnemy(context: CanvasRenderingContext2D, enemy: Enemy, time:
 
   context.fillStyle = '#b5473f';
   context.beginPath();
-  context.roundRect(-halfWidth + 2, -halfHeight + 2, ENEMY_WIDTH - 4, ENEMY_HEIGHT - 4, 6);
+  context.roundRect(
+    -halfWidth + 2,
+    -halfHeight + 2,
+    ENEMY_WIDTH - 4,
+    ENEMY_HEIGHT - 4,
+    6,
+  );
   context.fill();
 
   context.fillStyle = '#d5695f';

@@ -1,17 +1,18 @@
-import { concat, fill, filter, floor, forEach, map } from 'lodash-es';
 import {
   AIR,
   BLOCK,
   ENEMY,
+  formatStructure,
   HARD_STRUCTURES,
   NORMAL_STRUCTURES,
   SECTOR_WIDTH,
+  type Structure,
   STRUCTURE_HEIGHT,
-  formatStructure,
   structureExitLift,
   structureIssues,
-  type Structure,
 } from '@mander/generator';
+import { concat, fill, filter, floor, forEach, map } from 'lodash-es';
+
 import { airGrid } from './air-grid';
 import { clone } from './clone';
 import { CELL, COLORS, TOOLS } from './constants';
@@ -35,7 +36,11 @@ export function mountEditor(root: HTMLElement): void {
   canvas.style.height = `${cssHeight}px`;
 
   const status = createElement('div', { className: 'status' });
-  const output = createElement('textarea', { className: 'output', readOnly: true, spellcheck: false });
+  const output = createElement('textarea', {
+    className: 'output',
+    readOnly: true,
+    spellcheck: false,
+  });
   const loader = createElement('textarea', {
     className: 'loader',
     spellcheck: false,
@@ -120,9 +125,17 @@ export function mountEditor(root: HTMLElement): void {
 
     forEach(surfaces, (surface, surfaceIndex) => {
       const row = STRUCTURE_HEIGHT - 1 - surface.height;
-      context.fillStyle = reached[surfaceIndex] ? COLORS.reachable : COLORS.stranded;
+      context.fillStyle = reached[surfaceIndex]
+        ? COLORS.reachable
+        : COLORS.stranded;
       context.beginPath();
-      context.arc(surface.col * CELL + CELL / 2, row * CELL + 7, 3.5, 0, Math.PI * 2);
+      context.arc(
+        surface.col * CELL + CELL / 2,
+        row * CELL + 7,
+        3.5,
+        0,
+        Math.PI * 2,
+      );
       context.fill();
     });
   }
@@ -137,21 +150,33 @@ export function mountEditor(root: HTMLElement): void {
       const lift = structureExitLift(grid);
       status.className = 'status ok';
       status.replaceChildren(
-        createElement('div', { className: 'headline', textContent: '✓ Valid structure' }),
+        createElement('div', {
+          className: 'headline',
+          textContent: '✓ Valid structure',
+        }),
         createElement('div', {
           className: 'meta',
-          textContent:
-            `Crossable both ways. Exit raises the rest of the level by ${lift} tile${lift === 1 ? '' : 's'}.` +
-            (strandedCount > 0
+          textContent: `Crossable both ways. Exit raises the rest of the level by ${lift} tile${lift === 1 ? '' : 's'}.${
+            strandedCount > 0
               ? ` (${strandedCount} platform${strandedCount === 1 ? '' : 's'} unreachable from the entry.)`
-              : ''),
-        })
+              : ''
+          }`,
+        }),
       );
     } else {
       status.className = 'status bad';
       status.replaceChildren(
-        createElement('div', { className: 'headline', textContent: '✗ Not usable yet' }),
-        createElement('ul', {}, ...map(issues, (issue) => createElement('li', { textContent: issue })))
+        createElement('div', {
+          className: 'headline',
+          textContent: '✗ Not usable yet',
+        }),
+        createElement(
+          'ul',
+          {},
+          ...map(issues, (issue) =>
+            createElement('li', { textContent: issue }),
+          ),
+        ),
       );
     }
   }
@@ -162,9 +187,19 @@ export function mountEditor(root: HTMLElement): void {
 
   function cellAt(event: PointerEvent): { row: number; column: number } | null {
     const rect = canvas.getBoundingClientRect();
-    const column = floor(((event.clientX - rect.left) / rect.width) * SECTOR_WIDTH);
-    const row = floor(((event.clientY - rect.top) / rect.height) * STRUCTURE_HEIGHT);
-    if (column < 0 || column >= SECTOR_WIDTH || row < 0 || row >= STRUCTURE_HEIGHT) return null;
+    const column = floor(
+      ((event.clientX - rect.left) / rect.width) * SECTOR_WIDTH,
+    );
+    const row = floor(
+      ((event.clientY - rect.top) / rect.height) * STRUCTURE_HEIGHT,
+    );
+    if (
+      column < 0 ||
+      column >= SECTOR_WIDTH ||
+      row < 0 ||
+      row >= STRUCTURE_HEIGHT
+    )
+      return null;
     return { row, column };
   }
 
@@ -210,20 +245,30 @@ export function mountEditor(root: HTMLElement): void {
   }
 
   const examples: Array<{ label: string; grid: Structure }> = concat(
-    map(NORMAL_STRUCTURES, (structure, index) => ({ label: `Normal ${index + 1}`, grid: structure })),
-    map(HARD_STRUCTURES, (structure, index) => ({ label: `Hard ${index + 1}`, grid: structure }))
+    map(NORMAL_STRUCTURES, (structure, index) => ({
+      label: `Normal ${index + 1}`,
+      grid: structure,
+    })),
+    map(HARD_STRUCTURES, (structure, index) => ({
+      label: `Hard ${index + 1}`,
+      grid: structure,
+    })),
   );
   const examplesSelect = createElement(
     'select',
     {},
     createElement('option', { value: '', textContent: 'Load an example…' }),
     ...map(examples, (example, index) =>
-      createElement('option', { value: String(index), textContent: example.label })
-    )
+      createElement('option', {
+        value: String(index),
+        textContent: example.label,
+      }),
+    ),
   );
   examplesSelect.addEventListener('change', () => {
     const index = Number(examplesSelect.value);
-    if (examplesSelect.value !== '' && examples[index]) load(examples[index].grid);
+    if (examplesSelect.value !== '' && examples[index])
+      load(examples[index].grid);
     examplesSelect.value = '';
   });
 
@@ -234,10 +279,10 @@ export function mountEditor(root: HTMLElement): void {
       onclick: () => {
         tool = toolOption.value;
         forEach(toolButtons, (button, buttonIndex) =>
-          button.classList.toggle('active', TOOLS[buttonIndex].value === tool)
+          button.classList.toggle('active', TOOLS[buttonIndex].value === tool),
         );
       },
-    })
+    }),
   );
   toolButtons[0].classList.add('active');
 
@@ -247,7 +292,10 @@ export function mountEditor(root: HTMLElement): void {
     createElement('span', { className: 'toollabel', textContent: 'Paint:' }),
     ...toolButtons,
     createElement('span', { className: 'spacer' }),
-    createElement('button', { textContent: 'Flat', onclick: () => load(flatGrid()) }),
+    createElement('button', {
+      textContent: 'Flat',
+      onclick: () => load(flatGrid()),
+    }),
     createElement('button', {
       textContent: 'Fill ground',
       onclick: () => {
@@ -255,15 +303,18 @@ export function mountEditor(root: HTMLElement): void {
         refresh();
       },
     }),
-    createElement('button', { textContent: 'Clear', onclick: () => load(airGrid()) }),
-    examplesSelect
+    createElement('button', {
+      textContent: 'Clear',
+      onclick: () => load(airGrid()),
+    }),
+    examplesSelect,
   );
 
   const validationPanel = createElement(
     'div',
     { className: 'panel' },
     createElement('h2', { textContent: 'Validation' }),
-    status
+    status,
   );
 
   const outputPanel = createElement(
@@ -279,9 +330,13 @@ export function mountEditor(root: HTMLElement): void {
     createElement(
       'div',
       { className: 'row' },
-      createElement('button', { className: 'primary', textContent: 'Copy', onclick: copyOutput }),
-      toast
-    )
+      createElement('button', {
+        className: 'primary',
+        textContent: 'Copy',
+        onclick: copyOutput,
+      }),
+      toast,
+    ),
   );
 
   const loadButton = createElement('button', {
@@ -292,7 +347,8 @@ export function mountEditor(root: HTMLElement): void {
         load(parsed);
         loader.value = '';
       } else {
-        toast.textContent = "Couldn't read that — expected a grid of 0s and 1s.";
+        toast.textContent =
+          "Couldn't read that — expected a grid of 0s and 1s.";
         window.setTimeout(() => (toast.textContent = ''), 2500);
       }
     },
@@ -302,7 +358,7 @@ export function mountEditor(root: HTMLElement): void {
     { className: 'panel' },
     createElement('h2', { textContent: 'Load / edit existing' }),
     loader,
-    createElement('div', { className: 'row' }, loadButton)
+    createElement('div', { className: 'row' }, loadButton),
   );
 
   const legend = createElement(
@@ -313,11 +369,27 @@ export function mountEditor(root: HTMLElement): void {
     swatch(COLORS.pit, 'bottomless pit column'),
     swatch(COLORS.reachable, 'surface reachable from entry'),
     swatch(COLORS.stranded, 'surface stranded'),
-    createElement('span', {}, 'gold line = ground level (enters flush on the left, exits on the right)')
+    createElement(
+      'span',
+      {},
+      'gold line = ground level (enters flush on the left, exits on the right)',
+    ),
   );
 
-  const stage = createElement('div', { className: 'stage' }, toolbar, canvas, legend);
-  const side = createElement('div', { className: 'side' }, validationPanel, outputPanel, loadPanel);
+  const stage = createElement(
+    'div',
+    { className: 'stage' },
+    toolbar,
+    canvas,
+    legend,
+  );
+  const side = createElement(
+    'div',
+    { className: 'side' },
+    validationPanel,
+    outputPanel,
+    loadPanel,
+  );
 
   root.replaceChildren(
     createElement(
@@ -330,10 +402,10 @@ export function mountEditor(root: HTMLElement): void {
         createElement('p', {
           textContent:
             'Paint blocks to design a 20-wide level chunk. The bottom row is the ground line: solid = ground, gaps = bottomless pits, blocks floating above bridge them. Stack the right edge up to make the structure exit higher. Drop enemies with the Enemy tool — each needs a block directly beneath it to patrol on. Click or drag to paint; click a matching cell to clear it.',
-        })
+        }),
       ),
-      createElement('div', { className: 'layout' }, stage, side)
-    )
+      createElement('div', { className: 'layout' }, stage, side),
+    ),
   );
 
   refresh();
