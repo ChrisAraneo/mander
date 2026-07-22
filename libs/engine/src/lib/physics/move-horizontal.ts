@@ -1,32 +1,19 @@
-import { floor } from 'lodash-es';
-import { TILE_SIZE, type Level } from '@mander/generator';
+import type { Level } from '@mander/generator';
 import type { AxisMove } from './axis-move';
-import { EPSILON, SUBSTEP } from './internal-constants';
 import { overlapsSolid } from './overlaps-solid';
+import { sweep } from './sweep';
 
-export function moveHorizontal(
+export const moveHorizontal = (
   level: Level,
   originX: number,
   originY: number,
   width: number,
   height: number,
   delta: number
-): AxisMove {
-  let current = originX;
-  let remaining = delta;
-  const direction = Math.sign(delta);
-  while (remaining !== 0) {
-    const step = direction * Math.min(Math.abs(remaining), SUBSTEP);
-    const nextPosition = current + step;
-    if (overlapsSolid(level, nextPosition, originY, width, height)) {
-      const position =
-        direction > 0
-          ? floor((nextPosition + width - EPSILON) / TILE_SIZE) * TILE_SIZE - width
-          : (floor(nextPosition / TILE_SIZE) + 1) * TILE_SIZE;
-      return { position, isBlocked: true };
-    }
-    current = nextPosition;
-    remaining -= step;
-  }
-  return { position: current, isBlocked: false };
-}
+): AxisMove =>
+  sweep({
+    origin: originX,
+    delta,
+    size: width,
+    collides: (position) => overlapsSolid(level, position, originY, width, height),
+  });

@@ -1,49 +1,59 @@
+import { chain, every, map, range } from 'lodash-es';
 import type { Triangle } from '@mander/generator';
 
-export function boxHitsTriangle(
+interface Vec {
+  x: number;
+  y: number;
+}
+
+interface Axis {
+  nx: number;
+  ny: number;
+}
+
+interface Span {
+  min: number;
+  max: number;
+}
+
+const AABB_AXES: Axis[] = [
+  { nx: 1, ny: 0 },
+  { nx: 0, ny: 1 },
+];
+
+const project = (axis: Axis, points: readonly Vec[]): Span =>
+  chain(points)
+    .map((point) => point.x * axis.nx + point.y * axis.ny)
+    .thru((values) => ({ min: Math.min(...values), max: Math.max(...values) }))
+    .value();
+
+const separated = (a: Span, b: Span): boolean => a.max <= b.min || a.min >= b.max;
+
+const overlapsOn = (axis: Axis, triangle: Triangle, corners: readonly Vec[]): boolean =>
+  !separated(project(axis, triangle), project(axis, corners));
+
+const edgeAxes = (triangle: Triangle): Axis[] =>
+  map(range(3), (edge) => ({
+    nx: triangle[edge].y - triangle[(edge + 1) % 3].y,
+    ny: triangle[(edge + 1) % 3].x - triangle[edge].x,
+  }));
+
+const candidateAxes = (triangle: Triangle): Axis[] => [...AABB_AXES, ...edgeAxes(triangle)];
+
+const boxCorners = (left: number, top: number, width: number, height: number): Vec[] => [
+  { x: left, y: top },
+  { x: left + width, y: top },
+  { x: left + width, y: top + height },
+  { x: left, y: top + height },
+];
+
+export const boxHitsTriangle = (
   boxLeft: number,
   boxTop: number,
   boxWidth: number,
   boxHeight: number,
   triangle: Triangle
-): boolean {
-  const boxRight = boxLeft + boxWidth;
-  const boxBottom = boxTop + boxHeight;
-
-  const triangleLeft = Math.min(triangle[0].x, triangle[1].x, triangle[2].x);
-  const triangleRight = Math.max(triangle[0].x, triangle[1].x, triangle[2].x);
-  if (triangleRight <= boxLeft || triangleLeft >= boxRight) return false;
-  const triangleTop = Math.min(triangle[0].y, triangle[1].y, triangle[2].y);
-  const triangleBottom = Math.max(triangle[0].y, triangle[1].y, triangle[2].y);
-  if (triangleBottom <= boxTop || triangleTop >= boxBottom) return false;
-
-  const corners = [
-    [boxLeft, boxTop],
-    [boxRight, boxTop],
-    [boxRight, boxBottom],
-    [boxLeft, boxBottom],
-  ] as const;
-  for (let edgeIndex = 0; edgeIndex < 3; edgeIndex++) {
-    const start = triangle[edgeIndex];
-    const end = triangle[(edgeIndex + 1) % 3];
-    const normalX = start.y - end.y;
-    const normalY = end.x - start.x;
-
-    let triangleMin = Infinity;
-    let triangleMax = -Infinity;
-    for (const point of triangle) {
-      const projection = point.x * normalX + point.y * normalY;
-      if (projection < triangleMin) triangleMin = projection;
-      if (projection > triangleMax) triangleMax = projection;
-    }
-    let boxMin = Infinity;
-    let boxMax = -Infinity;
-    for (const [cornerX, cornerY] of corners) {
-      const projection = cornerX * normalX + cornerY * normalY;
-      if (projection < boxMin) boxMin = projection;
-      if (projection > boxMax) boxMax = projection;
-    }
-    if (triangleMax <= boxMin || triangleMin >= boxMax) return false;
-  }
-  return true;
-}
+): boolean =>
+  chain(boxCorners(boxLeft, boxTop, boxWidth, boxHeight))
+    .thru((corners) => every(candidateAxes(triangle), (axis) => overlapsOn(axis, triangle, corners)))
+    .value();

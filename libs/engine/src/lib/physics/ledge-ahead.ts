@@ -1,10 +1,5 @@
-import { floor } from 'lodash-es';
-import { TILE_SIZE, isSolid, type Level } from '@mander/generator';
-import { ENEMY_HEIGHT, ENEMY_WIDTH } from '../state';
+import { isSolid, type Level } from '@mander/generator';
+import { belowRow, probeColumn } from './enemy-probe';
 
-export function ledgeAhead(level: Level, originX: number, originY: number, facing: 1 | -1): boolean {
-  const probeX = facing > 0 ? originX + ENEMY_WIDTH + 1 : originX - 1;
-  const column = floor(probeX / TILE_SIZE);
-  const belowRow = floor((originY + ENEMY_HEIGHT + 2) / TILE_SIZE);
-  return !isSolid(level, column, belowRow);
-}
+export const ledgeAhead = (level: Level, originX: number, originY: number, facing: 1 | -1): boolean =>
+  !isSolid(level, probeColumn(originX, facing), belowRow(originY));

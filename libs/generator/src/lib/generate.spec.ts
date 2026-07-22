@@ -20,6 +20,7 @@ import {
   SECTOR_WIDTH,
   SPIKE_CLEARANCE,
   SPIKE_MIN_ENEMY_DISTANCE,
+  SPIKE_MIN_GAP,
 } from './consts';
 
 function groundHeights(level: Level): number[] {
@@ -294,6 +295,25 @@ describe('generateLevel', () => {
           expect(Math.abs(ec - x), `spike ${x} near enemy ${ec}`).toBeGreaterThanOrEqual(SPIKE_MIN_ENEMY_DISTANCE);
         }
       }
+    }
+  });
+
+  it.each(CASES)('keeps at least SPIKE_MIN_GAP ground blocks between spikes for %s level %i', (seed, d) => {
+    const level = generateLevel(levelSeed(seed, d), d);
+    const spikeColumns: number[] = [];
+    for (let x = 0; x < level.width; x++) {
+      for (let y = 0; y < level.height; y++) {
+        if (level.tiles[y][x] === TILE_SPIKE) {
+          spikeColumns.push(x);
+          break;
+        }
+      }
+    }
+    for (let i = 1; i < spikeColumns.length; i++) {
+      const gap = spikeColumns[i] - spikeColumns[i - 1] - 1;
+      expect(gap, `gap between spikes at ${spikeColumns[i - 1]} and ${spikeColumns[i]}`).toBeGreaterThanOrEqual(
+        SPIKE_MIN_GAP
+      );
     }
   });
 

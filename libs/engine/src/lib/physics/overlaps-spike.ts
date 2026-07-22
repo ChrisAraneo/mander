@@ -1,26 +1,20 @@
-import { floor } from 'lodash-es';
-import { TILE_SIZE, isSpike, spikeTriangles, type Level } from '@mander/generator';
+import { some } from 'lodash-es';
+import { isSpike, spikeTriangles, type Level } from '@mander/generator';
 import { boxHitsTriangle } from './box-hits-triangle';
-import { EPSILON } from './internal-constants';
+import { tileRange } from './tile-range';
 
-export function overlapsSpike(
+export const overlapsSpike = (
   level: Level,
   boxLeft: number,
   boxTop: number,
   boxWidth: number,
   boxHeight: number
-): boolean {
-  const firstTileX = floor(boxLeft / TILE_SIZE);
-  const lastTileX = floor((boxLeft + boxWidth - EPSILON) / TILE_SIZE);
-  const firstTileY = floor(boxTop / TILE_SIZE);
-  const lastTileY = floor((boxTop + boxHeight - EPSILON) / TILE_SIZE);
-  for (let tileY = firstTileY; tileY <= lastTileY; tileY++) {
-    for (let tileX = firstTileX; tileX <= lastTileX; tileX++) {
-      if (!isSpike(level, tileX, tileY)) continue;
-      for (const triangle of spikeTriangles(tileX, tileY)) {
-        if (boxHitsTriangle(boxLeft, boxTop, boxWidth, boxHeight, triangle)) return true;
-      }
-    }
-  }
-  return false;
-}
+): boolean =>
+  some(tileRange(boxTop, boxHeight), (tileY) =>
+    some(tileRange(boxLeft, boxWidth), (tileX) =>
+      isSpike(level, tileX, tileY) &&
+      some(spikeTriangles(tileX, tileY), (triangle) =>
+        boxHitsTriangle(boxLeft, boxTop, boxWidth, boxHeight, triangle)
+      )
+    )
+  );

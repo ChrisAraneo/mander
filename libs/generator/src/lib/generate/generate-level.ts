@@ -128,7 +128,7 @@ export function generateLevel(seed: string, difficulty = 0): Level {
     if (columnHeight <= 0 || ground[column - 1] < columnHeight || ground[column + 1] < columnHeight) {
       continue;
     }
-    if (column - lastSpikeColumn < SPIKE_MIN_GAP) continue;
+    if (column - lastSpikeColumn <= SPIKE_MIN_GAP) continue;
     if (Math.abs(column - keyColumn) < 2) continue;
     if (some(enemyColumns, (enemyColumn) => Math.abs(enemyColumn - column) < SPIKE_MIN_ENEMY_DISTANCE)) {
       continue;
