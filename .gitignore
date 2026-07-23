@@ -4,3 +4,4 @@ dist
 .nx/workspace-data
 *.local
 .DS_Store
+*.log
