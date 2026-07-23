@@ -4,7 +4,7 @@ export interface Enemy {
   vx: number;
   vy: number;
   facing: 1 | -1;
-  grounded: boolean;
+  isGrounded: boolean;
   homeX: number;
   homeY: number;
 }

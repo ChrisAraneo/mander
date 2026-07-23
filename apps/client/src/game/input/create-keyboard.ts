@@ -5,15 +5,18 @@ import { Subject } from 'rxjs';
 import { BINDINGS } from './bindings';
 import type { Keyboard } from './keyboard';
 
-export function createKeyboard(): Keyboard {
+export const createKeyboard = (): Keyboard => {
   const actions = new Subject<Action>();
+  const bindingByCode = new Map(
+    BINDINGS.map((binding) => [binding.code, binding]),
+  );
 
   const keydown$ = fromEvent<KeyboardEvent>(window, 'keydown');
   const keyup$ = fromEvent<KeyboardEvent>(window, 'keyup');
 
   const subscription: Subscription = merge(keydown$, keyup$).subscribe(
     (event) => {
-      const binding = BINDINGS[event.code];
+      const binding = bindingByCode.get(event.code);
       if (!binding) return;
       event.preventDefault();
       if (event.type === 'keydown') {
@@ -31,4 +34,4 @@ export function createKeyboard(): Keyboard {
       actions.complete();
     },
   };
-}
+};

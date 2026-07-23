@@ -1,4 +1,5 @@
 import { concat } from 'lodash-es';
+import { match } from 'ts-pattern';
 
 import type { Action } from '../actions';
 import type { GameState } from '../state';
@@ -6,83 +7,83 @@ import { createEnemies, createPlayer } from '../state';
 import { tick } from './tick';
 import { withInput } from './with-input';
 
-export function reduce(state: GameState, action: Action): GameState {
-  switch (action.type) {
-    case 'TICK': {
-      return tick(state, action.deltaSeconds);
-    }
+const startJump = (state: GameState): GameState => {
+  if (state.input.isJump) return state;
+  return {
+    ...withInput(state, { isJump: true }),
+    player:
+      state.status === 'playing'
+        ? { ...state.player, isJumpQueued: true }
+        : state.player,
+  };
+};
 
-    case 'MOVE_LEFT_START': {
-      return withInput(state, { left: true });
-    }
-    case 'MOVE_LEFT_STOP': {
-      return withInput(state, { left: false });
-    }
-    case 'MOVE_RIGHT_START': {
-      return withInput(state, { right: true });
-    }
-    case 'MOVE_RIGHT_STOP': {
-      return withInput(state, { right: false });
-    }
+const interact = (state: GameState): GameState => {
+  if (state.status !== 'playing') return state;
+  if (state.isNearChest && state.hasKey) return { ...state, status: 'chest' };
+  if (state.isNearPortal) return { ...state, status: 'complete' };
+  return state;
+};
 
-    case 'JUMP_START': {
-      if (state.input.jump) return state;
-      return {
-        ...withInput(state, { jump: true }),
-        player:
-          state.status === 'playing'
-            ? { ...state.player, jumpQueued: true }
-            : state.player,
-      };
-    }
-    case 'JUMP_STOP': {
-      return withInput(state, { jump: false });
-    }
+const chooseItem = (state: GameState, index: number): GameState => {
+  if (state.status !== 'chest') return state;
+  const items = state.level.chestItems;
+  if (index < 0 || index >= items.length) return state;
+  return {
+    ...state,
+    status: 'playing',
+    isChestOpened: true,
+    isNearChest: false,
+    inventory: concat(state.inventory, items[index]),
+  };
+};
 
-    case 'INTERACT': {
-      if (state.status !== 'playing') return state;
-      if (state.nearChest && state.hasKey) return { ...state, status: 'chest' };
-      if (state.nearPortal) return { ...state, status: 'complete' };
-      return state;
-    }
+const close = (state: GameState): GameState => {
+  if (state.status !== 'chest') return state;
+  return { ...state, status: 'playing' };
+};
 
-    case 'CHOOSE_ITEM': {
-      if (state.status !== 'chest') return state;
-      const item = state.level.chestItems[action.index];
-      if (!item) return state;
-      return {
-        ...state,
-        status: 'playing',
-        chestOpened: true,
-        nearChest: false,
-        inventory: concat(state.inventory, item),
-      };
-    }
+const respawn = (state: GameState): GameState => {
+  if (state.status !== 'playing') return state;
+  return { ...state, player: createPlayer(state.level) };
+};
 
-    case 'CLOSE': {
-      if (state.status !== 'chest') return state;
-      return { ...state, status: 'playing' };
-    }
+const loadLevel = (
+  state: GameState,
+  level: GameState['level'],
+  levelIndex: number,
+): GameState => ({
+  ...state,
+  level,
+  levelIndex,
+  player: createPlayer(level),
+  enemies: createEnemies(level),
+  status: 'playing',
+  hasKey: false,
+  isChestOpened: false,
+  isNearChest: false,
+  isNearPortal: false,
+  time: 0,
+});
 
-    case 'RESPAWN': {
-      if (state.status !== 'playing') return state;
-      return { ...state, player: createPlayer(state.level) };
-    }
-
-    case 'LOAD_LEVEL': {
-      return {
-        ...state,
-        level: action.level,
-        levelIndex: action.levelIndex,
-        player: createPlayer(action.level),
-        enemies: createEnemies(action.level),
-        status: 'playing',
-        hasKey: false,
-        chestOpened: false,
-        nearChest: false,
-        nearPortal: false,
-        time: 0,
-      };
-    }
-  }
-}
+export const reduce = (state: GameState, action: Action): GameState =>
+  match(action)
+    .with({ type: 'TICK' }, ({ deltaSeconds }) => tick(state, deltaSeconds))
+    .with({ type: 'MOVE_LEFT_START' }, () => withInput(state, { isLeft: true }))
+    .with({ type: 'MOVE_LEFT_STOP' }, () => withInput(state, { isLeft: false }))
+    .with({ type: 'MOVE_RIGHT_START' }, () =>
+      withInput(state, { isRight: true }),
+    )
+    .with({ type: 'MOVE_RIGHT_STOP' }, () =>
+      withInput(state, { isRight: false }),
+    )
+    .with({ type: 'JUMP_START' }, () => startJump(state))
+    .with({ type: 'JUMP_STOP' }, () => withInput(state, { isJump: false }))
+    .with({ type: 'INTERACT' }, () => interact(state))
+    .with({ type: 'CHOOSE_ITEM' }, ({ index }) => chooseItem(state, index))
+    .with({ type: 'CLOSE' }, () => close(state))
+    .with({ type: 'RESPAWN' }, () => respawn(state))
+    .with({ type: 'LOAD_LEVEL' }, ({ level, levelIndex }) =>
+      loadLevel(state, level, levelIndex),
+    )
+    .exhaustive();

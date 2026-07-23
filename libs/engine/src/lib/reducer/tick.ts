@@ -17,7 +17,7 @@ import { isTouchingEnemy } from './is-touching-enemy';
 const INTERACT_RANGE = 12;
 const PICKUP_RANGE = 4;
 
-export function tick(state: GameState, deltaSeconds: number): GameState {
+export const tick = (state: GameState, deltaSeconds: number): GameState => {
   if (state.status !== 'playing') return state;
 
   let player = stepPlayer(
@@ -60,9 +60,9 @@ export function tick(state: GameState, deltaSeconds: number): GameState {
     time: state.time + deltaSeconds,
     hasKey:
       state.hasKey || isIntersecting(player, state.level.key, PICKUP_RANGE),
-    nearChest:
-      !state.chestOpened &&
+    isNearChest:
+      !state.isChestOpened &&
       isIntersecting(player, state.level.chest, INTERACT_RANGE),
-    nearPortal: isIntersecting(player, state.level.portal, INTERACT_RANGE),
+    isNearPortal: isIntersecting(player, state.level.portal, INTERACT_RANGE),
   };
-}
+};

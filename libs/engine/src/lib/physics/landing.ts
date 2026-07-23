@@ -1,19 +1,19 @@
 import { match } from 'ts-pattern';
 
 export interface Landing {
-  grounded: boolean;
+  isGrounded: boolean;
   vy: number;
 }
 
 export const resolveLanding = (
-  blocked: boolean,
-  falling: boolean,
-  grounded: boolean,
+  isBlocked: boolean,
+  isFalling: boolean,
+  isGrounded: boolean,
   vy: number,
 ): Landing =>
-  match({ blocked, falling })
-    .with({ blocked: true, falling: true }, () => ({ grounded: true, vy: 0 }))
-    .with({ blocked: true, falling: false }, () => ({ grounded, vy: 0 }))
-    .with({ blocked: false, falling: true }, () => ({ grounded: false, vy }))
-    .with({ blocked: false, falling: false }, () => ({ grounded, vy }))
+  match({ isBlocked, isFalling })
+    .with({ isBlocked: true, isFalling: true }, () => ({ isGrounded: true, vy: 0 }))
+    .with({ isBlocked: true, isFalling: false }, () => ({ isGrounded, vy: 0 }))
+    .with({ isBlocked: false, isFalling: true }, () => ({ isGrounded: false, vy }))
+    .with({ isBlocked: false, isFalling: false }, () => ({ isGrounded, vy }))
     .exhaustive();

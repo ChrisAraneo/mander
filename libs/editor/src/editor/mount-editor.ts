@@ -22,7 +22,7 @@ import { parseGrid } from './parse-grid';
 import { reachableFromEntry } from './reachable-from-entry';
 import { swatch } from './swatch';
 
-export function mountEditor(root: HTMLElement): void {
+export const mountEditor = (root: HTMLElement): void => {
   let grid = flatGrid();
 
   const canvas = createElement('canvas');
@@ -48,7 +48,7 @@ export function mountEditor(root: HTMLElement): void {
   });
   const toast = createElement('div', { className: 'toast' });
 
-  function draw(): void {
+  const draw = (): void => {
     const { surfaces, reached } = reachableFromEntry(grid);
     context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
     context.clearRect(0, 0, cssWidth, cssHeight);
@@ -140,7 +140,7 @@ export function mountEditor(root: HTMLElement): void {
     });
   }
 
-  function refresh(): void {
+  const refresh = (): void => {
     draw();
     output.value = formatStructure(grid);
     const issues = structureIssues(grid);
@@ -185,7 +185,9 @@ export function mountEditor(root: HTMLElement): void {
   let isPainting = false;
   let paintValue: number = BLOCK;
 
-  function cellAt(event: PointerEvent): { row: number; column: number } | null {
+  const cellAt = (
+    event: PointerEvent,
+  ): { row: number; column: number } | null => {
     const rect = canvas.getBoundingClientRect();
     const column = floor(
       ((event.clientX - rect.left) / rect.width) * SECTOR_WIDTH,
@@ -203,7 +205,7 @@ export function mountEditor(root: HTMLElement): void {
     return { row, column };
   }
 
-  function paint(row: number, column: number): void {
+  const paint = (row: number, column: number): void => {
     if (grid[row][column] === paintValue) return;
     grid[row][column] = paintValue;
     refresh();
@@ -228,12 +230,12 @@ export function mountEditor(root: HTMLElement): void {
   canvas.addEventListener('pointerup', stopPainting);
   canvas.addEventListener('pointercancel', stopPainting);
 
-  function load(nextGrid: Structure): void {
+  const load = (nextGrid: Structure): void => {
     grid = clone(nextGrid);
     refresh();
   }
 
-  async function copyOutput(): Promise<void> {
+  const copyOutput = async (): Promise<void> => {
     try {
       await navigator.clipboard.writeText(output.value);
     } catch {

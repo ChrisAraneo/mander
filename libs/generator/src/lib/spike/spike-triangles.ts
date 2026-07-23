@@ -4,7 +4,7 @@ import { TILE_SIZE } from '../types';
 import { SPIKE_HEIGHT_FRACTION, SPIKE_PRONGS } from './constants';
 import type { Triangle } from './triangle';
 
-export function spikeTriangles(tileX: number, tileY: number): Triangle[] {
+export const spikeTriangles = (tileX: number, tileY: number): Triangle[] => {
   const left = tileX * TILE_SIZE;
   const base = tileY * TILE_SIZE + TILE_SIZE;
   const prongWidth = TILE_SIZE / SPIKE_PRONGS;
@@ -18,4 +18,4 @@ export function spikeTriangles(tileX: number, tileY: number): Triangle[] {
       { x: prongLeft + prongWidth, y: base },
     ];
   });
-}
+};

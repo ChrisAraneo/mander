@@ -4,11 +4,15 @@ import { STORAGE_KEY } from './constants';
 import { emptySave } from './empty-save';
 import type { SaveData } from './save-data';
 
-export function loadSave(): SaveData {
+const isSaveShape = (value: unknown): value is Partial<SaveData> =>
+  typeof value === 'object' && value !== null;
+
+export const loadSave = (): SaveData => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return emptySave();
-    const parsed = JSON.parse(raw) as Partial<SaveData>;
+    const parsed: unknown = JSON.parse(raw);
+    if (!isSaveShape(parsed)) return emptySave();
     return {
       inventory: isArray(parsed.inventory) ? parsed.inventory : [],
       completedLevels: isArray(parsed.completedLevels)
@@ -19,4 +23,4 @@ export function loadSave(): SaveData {
   } catch {
     return emptySave();
   }
-}
+};

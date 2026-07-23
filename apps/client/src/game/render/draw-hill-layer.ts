@@ -1,13 +1,13 @@
 import { VIEW_HEIGHT, VIEW_WIDTH } from './constants';
 
-export function drawHillLayer(
+export const drawHillLayer = (
   context: CanvasRenderingContext2D,
   cameraX: number,
   parallax: number,
   color: string,
   amplitude: number,
   baseline: number,
-): void {
+): void => {
   context.fillStyle = color;
   context.beginPath();
   context.moveTo(0, VIEW_HEIGHT);
@@ -21,4 +21,4 @@ export function drawHillLayer(
   context.lineTo(VIEW_WIDTH, VIEW_HEIGHT);
   context.closePath();
   context.fill();
-}
+};

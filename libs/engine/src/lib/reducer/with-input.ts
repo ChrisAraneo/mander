@@ -1,8 +1,6 @@
 import type { GameState, InputState } from '../state';
 
-export function withInput(
+export const withInput = (
   state: GameState,
   patch: Partial<InputState>,
-): GameState {
-  return { ...state, input: { ...state.input, ...patch } };
-}
+): GameState => ({ ...state, input: { ...state.input, ...patch } });

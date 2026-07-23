@@ -7,17 +7,18 @@ import type { PlayerCapabilities } from './player-capabilities';
 const BASE_MOVE_SPEED = 210;
 const BASE_JUMP_VELOCITY = 700;
 
-export function capabilitiesFor(
+export const capabilitiesFor = (
   inventory: readonly Item[],
-): PlayerCapabilities {
+): PlayerCapabilities => {
   const speedPercent = Math.min(
     MAX_SPEED_BONUS_PERCENT,
-    sumBy(inventory, (item) =>
-      item.effect.kind === 'speed' ? item.effect.percent : 0,
-    ),
+    sumBy(inventory, (item) => {
+      if (item.effect.kind === 'speed') return item.effect.percent;
+      return 0;
+    }),
   );
   return {
     moveSpeed: BASE_MOVE_SPEED * (1 + speedPercent / 100),
     jumpVelocity: BASE_JUMP_VELOCITY,
   };
-}
+};

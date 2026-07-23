@@ -10,7 +10,7 @@ import {
   PLAYER_WIDTH,
 } from '../state';
 
-export function isTouchingEnemy(player: Player, enemy: Enemy): boolean {
+export const isTouchingEnemy = (player: Player, enemy: Enemy): boolean => {
   const playerLeft = player.x + PLAYER_HITBOX_INSET_X;
   const playerRight = player.x + PLAYER_WIDTH - PLAYER_HITBOX_INSET_X;
   const playerTop = player.y + PLAYER_HITBOX_INSET_TOP;
@@ -27,4 +27,4 @@ export function isTouchingEnemy(player: Player, enemy: Enemy): boolean {
     playerTop < enemyBottom &&
     playerBottom > enemyTop
   );
-}
+};

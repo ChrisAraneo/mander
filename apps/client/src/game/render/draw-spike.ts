@@ -1,10 +1,10 @@
 import { spikeTriangles } from '@mander/generator';
 
-export function drawSpike(
+export const drawSpike = (
   context: CanvasRenderingContext2D,
   tileX: number,
   tileY: number,
-): void {
+): void => {
   context.strokeStyle = '#333a4f';
   context.lineWidth = 1;
   for (const [left, apex, right] of spikeTriangles(tileX, tileY)) {
@@ -25,4 +25,4 @@ export function drawSpike(
     context.fill();
     context.stroke();
   }
-}
+};

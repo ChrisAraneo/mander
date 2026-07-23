@@ -28,12 +28,12 @@ const WIDTH = 30;
 const HEIGHT = 15;
 const SURFACE = 12 * TILE_SIZE;
 
-const item = (id: string, effect: Item['effect'] = { kind: 'none' }): Item => ({
+const item = (id: string, effect?: Item['effect']): Item => ({
   id,
   name: id,
   description: id,
   rarity: 'common',
-  effect,
+  effect: effect ?? { kind: 'none' },
 });
 
 const CARDS: Item[] = [
@@ -44,12 +44,11 @@ const CARDS: Item[] = [
   item('card-4'),
 ];
 
-function testLevel(enemies: Point[] = []): Level {
+const testLevel = (enemies: Point[] = []): Level => {
   const tiles: Tile[][] = [];
   for (let y = 0; y < HEIGHT; y++) {
-    const row: Tile[] = Array.from({ length: WIDTH }).fill(
-      y >= 12 ? TILE_SOLID : TILE_EMPTY,
-    );
+    const fillTile: Tile = y >= 12 ? TILE_SOLID : TILE_EMPTY;
+    const row: Tile[] = Array.from({ length: WIDTH }, () => fillTile);
     row[0] = TILE_SOLID;
     row[WIDTH - 1] = TILE_SOLID;
     tiles.push(row);
@@ -70,7 +69,7 @@ function testLevel(enemies: Point[] = []): Level {
     chestItems: CARDS,
     enemies,
   };
-}
+};
 
 const DELTA_SECONDS = 1 / 60;
 
@@ -78,37 +77,37 @@ const act = (state: GameState, action: Action) => reduce(state, action);
 const tick = (state: GameState) =>
   reduce(state, { type: 'TICK', deltaSeconds: DELTA_SECONDS });
 
-function tickN(state: GameState, n: number): GameState {
+const tickN = (state: GameState, n: number): GameState => {
   let next = state;
   for (let i = 0; i < n; i++) next = tick(next);
   return next;
-}
+};
 
-function settledAt(x: number, inventory: Item[] = []): GameState {
+const settledAt = (x: number, inventory: Item[] = []): GameState => {
   const state = createInitialState(testLevel(), 0, inventory);
   state.player.x = x;
   state.player.y = SURFACE - PLAYER_HEIGHT;
   return tick(state);
-}
+};
 
-function jumpApex(start: GameState, holdTicks: number): number {
+const jumpApex = (start: GameState, holdTicks: number): number => {
   let state = act(start, { type: 'JUMP_START' });
   let apex = state.player.y;
   for (let i = 0; i < 300; i++) {
     if (i === holdTicks) state = act(state, { type: 'JUMP_STOP' });
     state = tick(state);
     apex = Math.min(apex, state.player.y);
-    if (state.player.grounded && i > 2) break;
+    if (state.player.isGrounded && i > 2) break;
   }
   return apex;
-}
+};
 
 describe('movement actions', () => {
   it('applies gravity until the player lands', () => {
     let state = createInitialState(testLevel(), 0, []);
-    expect(state.player.grounded).toBe(false);
+    expect(state.player.isGrounded).toBe(false);
     state = tickN(state, 60);
-    expect(state.player.grounded).toBe(true);
+    expect(state.player.isGrounded).toBe(true);
     expect(state.player.y).toBe(SURFACE - PLAYER_HEIGHT);
     expect(state.player.vy).toBe(0);
   });
@@ -160,7 +159,7 @@ describe('jumping', () => {
     state = act(state, { type: 'JUMP_START' });
     state = tick(state);
     expect(state.player.vy).toBeLessThan(0);
-    expect(state.player.grounded).toBe(false);
+    expect(state.player.isGrounded).toBe(false);
 
     state = act(state, { type: 'JUMP_STOP' });
     const risingVy = state.player.vy;
@@ -184,18 +183,18 @@ describe('jumping', () => {
   it('re-jumps on landing while the jump button stays held', () => {
     let state = settledAt(3 * TILE_SIZE);
     state = act(state, { type: 'JUMP_START' });
-    let landed = false;
-    let rejumped = false;
+    let hasLanded = false;
+    let hasRejumped = false;
     for (let i = 0; i < 200; i++) {
       state = tick(state);
-      if (state.player.grounded) landed = true;
-      else if (landed && state.player.vy < 0) {
-        rejumped = true;
+      if (state.player.isGrounded) hasLanded = true;
+      else if (hasLanded && state.player.vy < 0) {
+        hasRejumped = true;
         break;
       }
     }
-    expect(landed).toBe(true);
-    expect(rejumped, 'a held jump bounces again after touching down').toBe(
+    expect(hasLanded).toBe(true);
+    expect(hasRejumped, 'a held jump bounces again after touching down').toBe(
       true,
     );
   });
@@ -245,7 +244,7 @@ describe('key and chest', () => {
 
   it('keeps the chest locked without the key', () => {
     let state = settledAt(20 * TILE_SIZE - 20);
-    expect(state.nearChest).toBe(true);
+    expect(state.isNearChest).toBe(true);
     expect(state.hasKey).toBe(false);
     state = act(state, { type: 'INTERACT' });
     expect(state.status).toBe('playing');
@@ -261,16 +260,16 @@ describe('key and chest', () => {
     state = act(state, { type: 'MOVE_RIGHT_START' });
     const frozen = tick(state);
     expect(frozen.player).toEqual(state.player);
-    expect(frozen.input.right).toBe(true);
+    expect(frozen.input.isRight).toBe(true);
     state = act(state, { type: 'MOVE_RIGHT_STOP' });
 
     state = act(state, { type: 'CHOOSE_ITEM', index: 1 });
     expect(state.status).toBe('playing');
-    expect(state.chestOpened).toBe(true);
+    expect(state.isChestOpened).toBe(true);
     expect(state.inventory.map((i) => i.id)).toEqual(['card-1']);
 
     state = tick(state);
-    expect(state.nearChest).toBe(false);
+    expect(state.isNearChest).toBe(false);
     const again = act(state, { type: 'INTERACT' });
     expect(again.status).toBe('playing');
     expect(again.inventory).toHaveLength(1);
@@ -282,10 +281,10 @@ describe('key and chest', () => {
     state = act(state, { type: 'INTERACT' });
     state = act(state, { type: 'CLOSE' });
     expect(state.status).toBe('playing');
-    expect(state.chestOpened).toBe(false);
+    expect(state.isChestOpened).toBe(false);
     expect(state.inventory).toHaveLength(0);
     state = tick(state);
-    expect(state.nearChest).toBe(true);
+    expect(state.isNearChest).toBe(true);
   });
 
   it('ignores CHOOSE_ITEM with an invalid index', () => {
@@ -300,7 +299,7 @@ describe('key and chest', () => {
 describe('portal and level loading', () => {
   it('completes the level through the portal, even without the key', () => {
     let state = settledAt(25 * TILE_SIZE - 10);
-    expect(state.nearPortal).toBe(true);
+    expect(state.isNearPortal).toBe(true);
     state = act(state, { type: 'INTERACT' });
     expect(state.status).toBe('complete');
     expect(tick(state)).toEqual(state);
@@ -320,7 +319,7 @@ describe('portal and level loading', () => {
     expect(state.levelIndex).toBe(1);
     expect(state.status).toBe('playing');
     expect(state.hasKey).toBe(false);
-    expect(state.chestOpened).toBe(false);
+    expect(state.isChestOpened).toBe(false);
     expect(state.time).toBe(0);
     expect(state.player.x).toBe(state.level.spawn.x);
     expect(state.inventory.map((i) => i.id)).toEqual(['card-3']);
@@ -328,11 +327,11 @@ describe('portal and level loading', () => {
 });
 
 describe('enemies', () => {
-  const ENEMY_SPAWN: Point = { x: 5 * TILE_SIZE, y: 11 * TILE_SIZE };
+  const enemySpawn: Point = { x: 5 * TILE_SIZE, y: 11 * TILE_SIZE };
   const floorEnemyY = SURFACE - ENEMY_HEIGHT;
 
   const withEnemy = (): GameState =>
-    createInitialState(testLevel([ENEMY_SPAWN]), 0, []);
+    createInitialState(testLevel([enemySpawn]), 0, []);
 
   it('paces back and forth, turning at walls and platform edges without falling', () => {
     let state = withEnemy();
@@ -342,7 +341,7 @@ describe('enemies', () => {
     for (let i = 0; i < 500; i++) {
       state = tick(state);
       const enemy = state.enemies[0];
-      expect(enemy.grounded, `grounded at tick ${i}`).toBe(true);
+      expect(enemy.isGrounded, `isGrounded at tick ${i}`).toBe(true);
       expect(enemy.y, `on the floor at tick ${i}`).toBe(floorEnemyY);
       facings.add(enemy.facing);
       minX = Math.min(minX, enemy.x);
@@ -358,7 +357,7 @@ describe('enemies', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
-    expect(enemy.grounded).toBe(true);
+    expect(enemy.isGrounded).toBe(true);
 
     state = {
       ...state,
@@ -384,7 +383,7 @@ describe('enemies', () => {
       player: { ...state.player, x: enemy.x + ENEMY_WIDTH, y: enemy.y, vy: 0 },
     };
     state = tick(state);
-    expect(state.enemies[0].grounded, 'did not hop from mere proximity').toBe(
+    expect(state.enemies[0].isGrounded, 'did not hop from mere proximity').toBe(
       true,
     );
   });
@@ -394,7 +393,7 @@ describe('enemies', () => {
     expect(state.enemies).toHaveLength(1);
     state = act(state, {
       type: 'LOAD_LEVEL',
-      level: testLevel([ENEMY_SPAWN, ENEMY_SPAWN]),
+      level: testLevel([enemySpawn, enemySpawn]),
       levelIndex: 1,
     });
     expect(state.enemies).toHaveLength(2);
@@ -419,7 +418,7 @@ describe('enemies', () => {
   });
 
   it('turns enemies back at a spike and keeps them alive', () => {
-    let state = createInitialState(withSpike(9, [ENEMY_SPAWN]), 0, []);
+    let state = createInitialState(withSpike(9, [enemySpawn]), 0, []);
     let maxRight = 0;
     for (let i = 0; i < 400; i++) {
       state = tick(state);
@@ -433,7 +432,7 @@ describe('enemies', () => {
   });
 
   it('kills an enemy that ends up on a spike', () => {
-    let state = createInitialState(withSpike(5, [ENEMY_SPAWN]), 0, []);
+    let state = createInitialState(withSpike(5, [enemySpawn]), 0, []);
     expect(state.enemies).toHaveLength(1);
     state = tick(state);
     expect(state.enemies).toHaveLength(0);
@@ -471,7 +470,7 @@ describe('enemies', () => {
 
   it('spares a player only grazing an enemy, when the drawn bodies never touch', () => {
     let state = withEnemy();
-    const floorEnemyY = SURFACE - ENEMY_HEIGHT;
+    const enemyFloorY = SURFACE - ENEMY_HEIGHT;
     const px = 6 * TILE_SIZE;
     state = {
       ...state,
@@ -481,18 +480,18 @@ describe('enemies', () => {
         y: SURFACE - PLAYER_HEIGHT,
         vx: 0,
         vy: 0,
-        grounded: true,
+        isGrounded: true,
       },
       enemies: [
         {
           x: px + 17,
-          y: floorEnemyY,
+          y: enemyFloorY,
           vx: 0,
           vy: 0,
           facing: 1,
-          grounded: true,
+          isGrounded: true,
           homeX: px + 17,
-          homeY: floorEnemyY,
+          homeY: enemyFloorY,
         },
       ],
     };
@@ -504,32 +503,33 @@ describe('enemies', () => {
   });
 });
 
+const spikeLevel = (col: number): Level => {
+  const level = testLevel();
+  level.tiles[11][col] = TILE_SPIKE;
+  return level;
+};
+
 describe('precise spike collision', () => {
-  const spikeLevel = (col: number): Level => {
-    const level = testLevel();
-    level.tiles[11][col] = TILE_SPIKE;
-    return level;
-  };
-  const COL = 6;
-  const LEFT = COL * TILE_SIZE;
+  const col = 6;
+  const left = col * TILE_SIZE;
 
   it('is not triggered by the clear air above the prongs', () => {
-    const level = spikeLevel(COL);
-    expect(overlapsSpike(level, LEFT, 11 * TILE_SIZE, TILE_SIZE, 6)).toBe(
+    const level = spikeLevel(col);
+    expect(overlapsSpike(level, left, 11 * TILE_SIZE, TILE_SIZE, 6)).toBe(
       false,
     );
   });
 
   it('is triggered when the box reaches down into the prongs', () => {
-    const level = spikeLevel(COL);
-    expect(overlapsSpike(level, LEFT, 11 * TILE_SIZE + 23, TILE_SIZE, 6)).toBe(
+    const level = spikeLevel(col);
+    expect(overlapsSpike(level, left, 11 * TILE_SIZE + 23, TILE_SIZE, 6)).toBe(
       true,
     );
   });
 
   it('is not triggered in the notch between two prongs', () => {
-    const level = spikeLevel(COL);
-    expect(overlapsSpike(level, LEFT + 8, 11 * TILE_SIZE + 9, 5, 6)).toBe(
+    const level = spikeLevel(col);
+    expect(overlapsSpike(level, left + 8, 11 * TILE_SIZE + 9, 5, 6)).toBe(
       false,
     );
   });

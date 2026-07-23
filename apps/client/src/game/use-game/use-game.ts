@@ -9,6 +9,7 @@ import {
   animationFrames,
   map,
   merge,
+  type Observable,
   pairwise,
   scan,
   Subject,
@@ -27,20 +28,48 @@ import {
 import { firstUncompletedIndex } from './first-uncompleted-index';
 import type { GameController } from './game-controller';
 
-export function useGame(
-  baseSeed: string,
-  canvas: Ref<HTMLCanvasElement | null>,
-): GameController {
+const startState = (baseSeed: string): GameState => {
   const save = loadSave();
   const startIndex = Math.min(
     firstUncompletedIndex(baseSeed, save.completedLevels),
     LEVELS_PER_SEED - 1,
   );
-  const initial = createInitialState(
+  return createInitialState(
     generateLevel(levelSeed(baseSeed, startIndex), startIndex),
     startIndex,
     save.inventory,
   );
+};
+
+const tickStream = (): Observable<Action> =>
+  animationFrames().pipe(
+    pairwise(),
+    map(([previous, current]): Action => ({
+      type: 'TICK',
+      deltaSeconds: (current.timestamp - previous.timestamp) / 1000,
+    })),
+  );
+
+const syncDebugGlobals = (
+  next: GameState,
+  dispatch: (action: Action) => void,
+): void => {
+  if (!import.meta.env.DEV) return;
+  Object.assign(window, { manderState: next, manderDispatch: dispatch });
+};
+
+const persistProgress = (previous: GameState, next: GameState): void => {
+  if (next.inventory !== previous.inventory) saveInventory(next.inventory);
+  if (next.status === 'complete' && previous.status !== 'complete') {
+    markLevelCompleted(next.level.seed);
+  }
+};
+
+export const useGame = (
+  baseSeed: string,
+  canvas: Ref<HTMLCanvasElement | null>,
+): GameController => {
+  const initial = startState(baseSeed);
 
   const state = shallowRef(initial);
   const actions$ = new Subject<Action>();
@@ -51,35 +80,15 @@ export function useGame(
     const context = canvas.value?.getContext('2d');
     if (!context) return;
     saveLastSeed(baseSeed);
-    const activeKeyboard = (keyboard = createKeyboard());
+    keyboard = createKeyboard();
 
-    const tick$ = animationFrames().pipe(
-      pairwise(),
-      map(([previous, current]): Action => ({
-        type: 'TICK',
-        deltaSeconds: (current.timestamp - previous.timestamp) / 1000,
-      })),
-    );
-
-    subscription = merge(tick$, activeKeyboard.actions$, actions$)
+    subscription = merge(tickStream(), keyboard.actions$, actions$)
       .pipe(scan(reduce, initial))
       .subscribe((next) => {
         const previous = state.value;
         state.value = next;
-        if (import.meta.env.DEV) {
-          const devWindow = window as {
-            __manderState?: GameState;
-            __manderDispatch?: (action: Action) => void;
-          };
-          devWindow.__manderState = next;
-          devWindow.__manderDispatch = (action) => actions$.next(action);
-        }
-        if (next.inventory !== previous.inventory) {
-          saveInventory(next.inventory);
-        }
-        if (next.status === 'complete' && previous.status !== 'complete') {
-          markLevelCompleted(next.level.seed);
-        }
+        syncDebugGlobals(next, (action) => actions$.next(action));
+        persistProgress(previous, next);
         renderGame(context, next);
       });
   });
@@ -102,4 +111,4 @@ export function useGame(
       });
     },
   };
-}
+};

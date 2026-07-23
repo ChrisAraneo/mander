@@ -6,9 +6,8 @@ import { enemiesHaveFooting } from './enemies-have-footing';
 import { groundHeight } from './ground-height';
 import { structureIsCrossable } from './structure-is-crossable';
 
-export function structureIssues(grid: Structure): string[] {
+const structureShapeIssues = (grid: Structure): string[] => {
   const issues: string[] = [];
-  if (grid.length === 0) return ['grid is empty'];
   if (!every(grid, (row) => row.length === SECTOR_WIDTH)) {
     issues.push(`every row must be ${SECTOR_WIDTH} cells wide`);
   }
@@ -19,8 +18,15 @@ export function structureIssues(grid: Structure): string[] {
   ) {
     issues.push('cells must be 0 (air), 1 (block) or 2 (enemy)');
   }
-  if (issues.length > 0) return issues;
+  return issues;
+};
 
+export const structureIssues = (grid: Structure): string[] => {
+  if (grid.length === 0) return ['grid is empty'];
+  const shapeIssues = structureShapeIssues(grid);
+  if (shapeIssues.length > 0) return shapeIssues;
+
+  const issues: string[] = [];
   if (groundHeight(grid, 0) !== 1) {
     issues.push(
       'the left edge must be flush ground: only the bottom-left cell a block',
@@ -40,4 +46,4 @@ export function structureIssues(grid: Structure): string[] {
     );
   }
   return issues;
-}
+};

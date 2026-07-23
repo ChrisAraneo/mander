@@ -4,7 +4,7 @@ import { mulberry32 } from './mulberry32';
 import type { Rng } from './rng';
 import { xmur3 } from './xmur3';
 
-export function createRng(seed: string): Rng {
+export const createRng = (seed: string): Rng => {
   const next = mulberry32(xmur3(seed)());
   return {
     next,
@@ -18,4 +18,4 @@ export function createRng(seed: string): Rng {
       return values[floor(next() * values.length)];
     },
   };
-}
+};

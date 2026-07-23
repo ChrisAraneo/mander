@@ -13,10 +13,10 @@ export interface GameState {
   input: InputState;
   status: GameStatus;
   hasKey: boolean;
-  chestOpened: boolean;
+  isChestOpened: boolean;
   inventory: Item[];
-  nearChest: boolean;
-  nearPortal: boolean;
+  isNearChest: boolean;
+  isNearPortal: boolean;
   time: number;
   deaths: number;
 }

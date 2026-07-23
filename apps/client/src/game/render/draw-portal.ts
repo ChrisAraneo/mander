@@ -1,18 +1,13 @@
 import type { GameState } from '@mander/engine';
+import type { Rect } from '@mander/generator';
 
-export function drawPortal(
+const drawPortalCore = (
   context: CanvasRenderingContext2D,
-  state: GameState,
-): void {
-  const portal = state.level.portal;
-  const centerX = portal.x + portal.width / 2;
-  const centerY = portal.y + portal.height / 2;
-  const pulse = 1 + Math.sin(state.time * 3) * 0.05;
-
-  context.save();
-  context.shadowColor = '#a678ff';
-  context.shadowBlur = state.nearPortal ? 30 : 14;
-
+  portal: Rect,
+  centerX: number,
+  centerY: number,
+  pulse: number,
+): void => {
   const swirl = context.createRadialGradient(
     centerX,
     centerY,
@@ -36,11 +31,20 @@ export function drawPortal(
     Math.PI * 2,
   );
   context.fill();
+};
 
+const drawPortalRings = (
+  context: CanvasRenderingContext2D,
+  portal: Rect,
+  centerX: number,
+  centerY: number,
+  pulse: number,
+  time: number,
+): void => {
   context.strokeStyle = '#b98cff';
   context.lineWidth = 3;
   for (let ringIndex = 0; ringIndex < 3; ringIndex++) {
-    const angle = state.time * 2 + (ringIndex * Math.PI * 2) / 3;
+    const angle = time * 2 + (ringIndex * Math.PI * 2) / 3;
     context.beginPath();
     context.ellipse(
       centerX,
@@ -53,5 +57,22 @@ export function drawPortal(
     );
     context.stroke();
   }
+};
+
+export const drawPortal = (
+  context: CanvasRenderingContext2D,
+  state: GameState,
+): void => {
+  const portal = state.level.portal;
+  const centerX = portal.x + portal.width / 2;
+  const centerY = portal.y + portal.height / 2;
+  const pulse = 1 + Math.sin(state.time * 3) * 0.05;
+
+  context.save();
+  context.shadowColor = '#a678ff';
+  context.shadowBlur = state.isNearPortal ? 30 : 14;
+
+  drawPortalCore(context, portal, centerX, centerY, pulse);
+  drawPortalRings(context, portal, centerX, centerY, pulse, state.time);
   context.restore();
-}
+};

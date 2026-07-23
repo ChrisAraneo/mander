@@ -4,8 +4,9 @@ import {
   type Structure,
   STRUCTURE_HEIGHT,
 } from '@mander/generator';
-import { fill, times } from 'lodash-es';
+import { times } from 'lodash-es';
 
-export function airGrid(): Structure {
-  return times(STRUCTURE_HEIGHT, () => fill(new Array(SECTOR_WIDTH), AIR));
-}
+export const airGrid = (): Structure =>
+  times(STRUCTURE_HEIGHT, () =>
+    Array.from({ length: SECTOR_WIDTH }, (): number => AIR),
+  );

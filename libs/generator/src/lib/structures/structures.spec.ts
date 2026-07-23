@@ -27,17 +27,18 @@ describe('maxJumpColumns', () => {
   });
 });
 
-function maxBridgeHeight(grid: Structure): number {
+const maxBridgeHeight = (grid: Structure): number => {
   const rows = grid.length;
   let max = 0;
   for (let c = 0; c < SECTOR_WIDTH; c++) {
-    if (groundHeight(grid, c) !== 0) continue;
-    for (let r = 0; r < rows; r++) {
-      if (grid[r][c] === BLOCK) max = Math.max(max, rows - 1 - r);
+    if (groundHeight(grid, c) === 0) {
+      for (let r = 0; r < rows; r++) {
+        if (grid[r][c] === BLOCK) max = Math.max(max, rows - 1 - r);
+      }
     }
   }
   return max;
-}
+};
 
 const POOLS: Array<[string, readonly Structure[]]> = [
   ['normal', NORMAL_STRUCTURES],
@@ -71,26 +72,39 @@ describe('structure library', () => {
   });
 
   it('makes the hard pool climb steeper and jump higher than the normal pool', () => {
-    const normalLift = Math.max(...NORMAL_STRUCTURES.map(structureExitLift));
-    const hardLift = Math.max(...HARD_STRUCTURES.map(structureExitLift));
+    const normalLift = Math.max(
+      ...NORMAL_STRUCTURES.map((grid) => structureExitLift(grid)),
+    );
+    const hardLift = Math.max(
+      ...HARD_STRUCTURES.map((grid) => structureExitLift(grid)),
+    );
     expect(normalLift).toBeLessThanOrEqual(2);
     expect(hardLift).toBeGreaterThanOrEqual(3);
 
-    const normalBridge = Math.max(...NORMAL_STRUCTURES.map(maxBridgeHeight));
-    const hardBridge = Math.max(...HARD_STRUCTURES.map(maxBridgeHeight));
+    const normalBridge = Math.max(
+      ...NORMAL_STRUCTURES.map((grid) => maxBridgeHeight(grid)),
+    );
+    const hardBridge = Math.max(
+      ...HARD_STRUCTURES.map((grid) => maxBridgeHeight(grid)),
+    );
     expect(normalBridge).toBeLessThanOrEqual(2);
     expect(hardBridge).toBeGreaterThanOrEqual(3);
   });
 });
 
-describe('structureIssues', () => {
-  const rowOfAir = () => new Array(SECTOR_WIDTH).fill(AIR);
-  const flatGrid = (): Structure => {
-    const grid = Array.from({ length: STRUCTURE_HEIGHT }, rowOfAir);
-    grid[STRUCTURE_HEIGHT - 1] = new Array(SECTOR_WIDTH).fill(BLOCK);
-    return grid;
-  };
+const rowOfAir = (): number[] =>
+  Array.from({ length: SECTOR_WIDTH }, (): number => AIR);
 
+const flatGrid = (): Structure => {
+  const grid = Array.from({ length: STRUCTURE_HEIGHT }, rowOfAir);
+  grid[STRUCTURE_HEIGHT - 1] = Array.from(
+    { length: SECTOR_WIDTH },
+    (): number => BLOCK,
+  );
+  return grid;
+};
+
+describe('structureIssues', () => {
   it('accepts a plain flat grid', () => {
     expect(structureIssues(flatGrid())).toEqual([]);
   });
@@ -133,8 +147,12 @@ describe('structureIssues', () => {
 describe('formatStructure', () => {
   it('round-trips to a paste-ready literal that parses back to the same grid', () => {
     const grid = NORMAL_STRUCTURES[3];
-    const json = formatStructure(grid).replaceAll(/,(\s*])/g, '$1');
-    expect(JSON.parse(json) as Structure).toEqual(grid);
+    const json = formatStructure(grid).replaceAll(
+      /,(?<trailing>\s*\])/gu,
+      '$<trailing>',
+    );
+    const parsed: unknown = JSON.parse(json);
+    expect(parsed).toEqual(grid);
   });
 });
 

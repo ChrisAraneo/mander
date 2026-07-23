@@ -1,5 +1,5 @@
 export interface InputState {
-  left: boolean;
-  right: boolean;
-  jump: boolean;
+  isLeft: boolean;
+  isRight: boolean;
+  isJump: boolean;
 }

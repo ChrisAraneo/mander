@@ -1,8 +1,9 @@
 import { HARD_STRUCTURES, NORMAL_STRUCTURES } from '../library';
 import type { Structure, StructureDifficulty } from '../types';
 
-export function structurePool(
+export const structurePool = (
   difficulty: StructureDifficulty,
-): readonly Structure[] {
-  return difficulty === 'hard' ? HARD_STRUCTURES : NORMAL_STRUCTURES;
-}
+): readonly Structure[] => {
+  if (difficulty === 'hard') return HARD_STRUCTURES;
+  return NORMAL_STRUCTURES;
+};

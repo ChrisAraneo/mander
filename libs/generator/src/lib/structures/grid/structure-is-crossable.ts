@@ -5,7 +5,7 @@ import type { Structure } from '../types';
 import { reachable } from './reachable';
 import { structureSurfaces } from './structure-surfaces';
 
-export function structureIsCrossable(grid: Structure): boolean {
+export const structureIsCrossable = (grid: Structure): boolean => {
   const surfaces = structureSurfaces(grid);
   const entryIndex = findIndex(surfaces, (surface) => surface.col === 0);
   const exitIndex = findIndex(
@@ -17,4 +17,4 @@ export function structureIsCrossable(grid: Structure): boolean {
     reachable(surfaces, entryIndex).has(exitIndex) &&
     reachable(surfaces, exitIndex).has(entryIndex)
   );
-}
+};

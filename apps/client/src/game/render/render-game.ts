@@ -12,11 +12,11 @@ import { drawPortal } from './draw-portal';
 import { drawSky } from './draw-sky';
 import { drawTiles } from './draw-tiles';
 
-export function renderGame(
+export const renderGame = (
   context: CanvasRenderingContext2D,
   state: GameState,
-): void {
-  const { level, player } = state;
+): void => {
+  const { level, player, enemies, time } = state;
   const cameraX = clamp(
     player.x + PLAYER_WIDTH / 2 - VIEW_WIDTH / 2,
     0,
@@ -38,7 +38,7 @@ export function renderGame(
   drawKey(context, state);
   drawChest(context, state);
   drawPortal(context, state);
-  forEach(state.enemies, (enemy) => drawEnemy(context, enemy, state.time));
-  drawPlayer(context, player, state.time);
+  forEach(enemies, (enemy) => drawEnemy(context, enemy, time));
+  drawPlayer(context, player, time);
   context.restore();
-}
+};

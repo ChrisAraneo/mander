@@ -1,3 +1,2 @@
-export function levelSeed(baseSeed: string, levelIndex: number): string {
-  return `${baseSeed}#${levelIndex}`;
-}
+export const levelSeed = (baseSeed: string, levelIndex: number): string =>
+  `${baseSeed}#${levelIndex}`;

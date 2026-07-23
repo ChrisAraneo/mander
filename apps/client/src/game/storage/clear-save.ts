@@ -1,7 +1,9 @@
 import { STORAGE_KEY } from './constants';
 
-export function clearSave(): void {
+export const clearSave = (): void => {
   try {
     localStorage.removeItem(STORAGE_KEY);
-  } catch {}
-}
+  } catch {
+    // Ignore storage errors (e.g. localStorage unavailable or full).
+  }
+};

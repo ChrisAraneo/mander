@@ -1,8 +1,10 @@
 import { STORAGE_KEY } from './constants';
 import type { SaveData } from './save-data';
 
-export function persist(save: SaveData): void {
+export const persist = (save: SaveData): void => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(save));
-  } catch {}
-}
+  } catch {
+    // Ignore storage errors (e.g. localStorage unavailable or full).
+  }
+};

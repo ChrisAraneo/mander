@@ -24,7 +24,7 @@ import { createRng } from './rng';
 import { maxJumpColumns } from './structures/grid';
 import { type Level, TILE_SIZE, TILE_SOLID, TILE_SPIKE } from './types';
 
-function groundHeights(level: Level): number[] {
+const groundHeights = (level: Level): number[] => {
   const heights: number[] = [];
   for (let x = 0; x < level.width; x++) {
     let h = 0;
@@ -35,23 +35,23 @@ function groundHeights(level: Level): number[] {
     heights.push(h);
   }
   return heights;
-}
+};
 
-function countSpikes(level: Level): number {
+const countSpikes = (level: Level): number => {
   let count = 0;
   for (let y = 0; y < level.height; y++) {
     for (let x = 0; x < level.width; x++)
       if (level.tiles[y][x] === TILE_SPIKE) count++;
   }
   return count;
-}
+};
 
 interface HoleRun {
   start: number;
   width: number;
 }
 
-function holeRuns(level: Level): HoleRun[] {
+const holeRuns = (level: Level): HoleRun[] => {
   const heights = groundHeights(level);
   const runs: HoleRun[] = [];
   let start = -1;
@@ -64,23 +64,26 @@ function holeRuns(level: Level): HoleRun[] {
     }
   }
   return runs;
-}
+};
 
 interface Surface {
   c: number;
   r: number;
 }
 
-function reachableSurfaces(level: Level, from: Surface): Set<string> {
+const reachableSurfaces = (level: Level, from: Surface): Set<string> => {
   const surfaces: Surface[] = [];
   const byId = new Map<string, Surface>();
   for (let c = 1; c < level.width - 1; c++) {
     for (let r = 0; r < level.height; r++) {
-      if (level.tiles[r][c] !== TILE_SOLID) continue;
-      if (r > 0 && level.tiles[r - 1][c] === TILE_SOLID) continue;
-      const surface = { c, r };
-      surfaces.push(surface);
-      byId.set(`${c}:${r}`, surface);
+      const isTop =
+        level.tiles[r][c] === TILE_SOLID &&
+        (r === 0 || level.tiles[r - 1][c] !== TILE_SOLID);
+      if (isTop) {
+        const surface = { c, r };
+        surfaces.push(surface);
+        byId.set(`${c}:${r}`, surface);
+      }
     }
   }
 
@@ -92,55 +95,88 @@ function reachableSurfaces(level: Level, from: Surface): Set<string> {
   queue.push(from);
 
   while (queue.length > 0) {
-    const current = queue.shift()!;
+    const current = queue.shift();
+    if (!current) break;
     for (const target of surfaces) {
       const id = `${target.c}:${target.r}`;
-      if (visited.has(id)) continue;
       const dc = Math.abs(target.c - current.c);
-      if (dc === 0 || dc > 6) continue;
-      const rise = current.r - target.r;
-      if (dc <= maxJumpColumns(rise)) {
+      if (
+        !visited.has(id) &&
+        dc > 0 &&
+        dc <= 6 &&
+        dc <= maxJumpColumns(current.r - target.r)
+      ) {
         visited.add(id);
         queue.push(target);
       }
     }
   }
   return visited;
-}
+};
 
-function surfaceUnder(level: Level, centerX: number, fromY: number): Surface {
+const surfaceUnder = (
+  level: Level,
+  centerX: number,
+  fromY: number,
+): Surface => {
   const c = Math.floor(centerX / TILE_SIZE);
   for (let r = Math.floor(fromY / TILE_SIZE); r < level.height; r++) {
     if (level.tiles[r][c] === TILE_SOLID) return { c, r };
   }
   throw new Error(`no surface under column ${c}`);
-}
+};
 
-function keySurface(level: Level): Surface {
-  return surfaceUnder(
+const keySurface = (level: Level): Surface =>
+  surfaceUnder(
     level,
     level.key.x + level.key.width / 2,
     level.key.y + level.key.height,
   );
-}
 
-function chestSurface(level: Level): Surface {
-  return surfaceUnder(
+const chestSurface = (level: Level): Surface =>
+  surfaceUnder(
     level,
     level.chest.x + level.chest.width / 2,
     level.chest.y + level.chest.height,
   );
-}
 
-function spawnSurface(level: Level): Surface {
-  return surfaceUnder(level, level.spawn.x, level.spawn.y);
-}
+const spawnSurface = (level: Level): Surface =>
+  surfaceUnder(level, level.spawn.x, level.spawn.y);
 
 const SEEDS = Array.from({ length: 12 }, (_, i) => `sample-seed-${i}`);
 const ALL_LEVELS = Array.from({ length: LEVELS_PER_SEED }, (_, i) => i);
 const CASES: Array<[string, number]> = SEEDS.flatMap((seed) =>
   ALL_LEVELS.map((d): [string, number] => [seed, d]),
 );
+
+const expectValidSpike = (
+  level: Level,
+  heights: number[],
+  enemyColumns: number[],
+  x: number,
+  y: number,
+): void => {
+  expect(x).toBeGreaterThanOrEqual(INTRO_WIDTH);
+  expect(x).toBeLessThan(LEVEL_WIDTH - OUTRO_WIDTH);
+  expect(y + 1, `spike sits on the ground at ${x}`).toBe(
+    level.height - heights[x],
+  );
+  expect(heights[x - 1], `left footing at ${x}`).toBeGreaterThanOrEqual(
+    heights[x],
+  );
+  expect(heights[x + 1], `right footing at ${x}`).toBeGreaterThanOrEqual(
+    heights[x],
+  );
+  for (let r = y; r >= y - SPIKE_CLEARANCE; r--) {
+    expect(level.tiles[r][x], `clearance at row ${r}`).not.toBe(TILE_SOLID);
+  }
+  for (const ec of enemyColumns) {
+    expect(
+      Math.abs(ec - x),
+      `spike ${x} near enemy ${ec}`,
+    ).toBeGreaterThanOrEqual(SPIKE_MIN_ENEMY_DISTANCE);
+  }
+};
 
 describe('generateLevel', () => {
   it('is deterministic for the same seed and difficulty', () => {
@@ -231,11 +267,13 @@ describe('generateLevel', () => {
       const level = generateLevel(levelSeed(seed, d), d);
       const heights = groundHeights(level);
       for (let x = 1; x < level.width - 2; x++) {
-        if (heights[x] === 0 || heights[x + 1] === 0) continue;
-        if (heights[x] === level.height || heights[x + 1] === level.height)
-          continue;
-        const rise = Math.abs(heights[x + 1] - heights[x]);
-        expect(rise, `rise of ${rise} at column ${x}`).toBeLessThanOrEqual(1);
+        const isPit = heights[x] === 0 || heights[x + 1] === 0;
+        const isWall =
+          heights[x] === level.height || heights[x + 1] === level.height;
+        if (!isPit && !isWall) {
+          const rise = Math.abs(heights[x + 1] - heights[x]);
+          expect(rise, `rise of ${rise} at column ${x}`).toBeLessThanOrEqual(1);
+        }
       }
     },
   );
@@ -278,21 +316,21 @@ describe('generateLevel', () => {
   });
 
   it('raises the ground for the rest of the level after a climbing structure', () => {
-    let rose = false;
-    let anyBelowBase = false;
+    let hasRisen = false;
+    let hasAnyBelowBase = false;
     for (const seed of SEEDS) {
       for (const d of ALL_LEVELS) {
         const level = generateLevel(levelSeed(seed, d), d);
         const heights = groundHeights(level);
         const outroHeight = heights[level.width - OUTRO_WIDTH];
-        if (outroHeight > BASE_GROUND) rose = true;
-        if (outroHeight < BASE_GROUND) anyBelowBase = true;
+        if (outroHeight > BASE_GROUND) hasRisen = true;
+        if (outroHeight < BASE_GROUND) hasAnyBelowBase = true;
       }
     }
-    expect(rose, 'some level should end raised above the spawn height').toBe(
+    expect(hasRisen, 'some level should end raised above the spawn height').toBe(
       true,
     );
-    expect(anyBelowBase, 'the level never sinks below the spawn height').toBe(
+    expect(hasAnyBelowBase, 'the level never sinks below the spawn height').toBe(
       false,
     );
   });
@@ -348,29 +386,8 @@ describe('generateLevel', () => {
       );
       for (let y = 0; y < level.height; y++) {
         for (let x = 0; x < level.width; x++) {
-          if (level.tiles[y][x] !== TILE_SPIKE) continue;
-          expect(x).toBeGreaterThanOrEqual(INTRO_WIDTH);
-          expect(x).toBeLessThan(LEVEL_WIDTH - OUTRO_WIDTH);
-          expect(y + 1, `spike sits on the ground at ${x}`).toBe(
-            level.height - heights[x],
-          );
-          expect(heights[x - 1], `left footing at ${x}`).toBeGreaterThanOrEqual(
-            heights[x],
-          );
-          expect(
-            heights[x + 1],
-            `right footing at ${x}`,
-          ).toBeGreaterThanOrEqual(heights[x]);
-          for (let r = y; r >= y - SPIKE_CLEARANCE; r--) {
-            expect(level.tiles[r][x], `clearance at row ${r}`).not.toBe(
-              TILE_SOLID,
-            );
-          }
-          for (const ec of enemyColumns) {
-            expect(
-              Math.abs(ec - x),
-              `spike ${x} near enemy ${ec}`,
-            ).toBeGreaterThanOrEqual(SPIKE_MIN_ENEMY_DISTANCE);
+          if (level.tiles[y][x] === TILE_SPIKE) {
+            expectValidSpike(level, heights, enemyColumns, x, y);
           }
         }
       }
@@ -456,8 +473,8 @@ describe('dailyDate', () => {
 
 describe('dailySeed', () => {
   it('is a 14-character hash of letters and numbers', () => {
-    expect(dailySeed(new Date())).toMatch(/^[\dA-Z]{14}$/);
-    expect(dailySeed(new Date(Date.UTC(2026, 6, 19)))).toMatch(/^[\dA-Z]{14}$/);
+    expect(dailySeed(new Date())).toMatch(/^[\dA-Z]{14}$/u);
+    expect(dailySeed(new Date(Date.UTC(2026, 6, 19)))).toMatch(/^[\dA-Z]{14}$/u);
   });
 
   it('is deterministic for a given date', () => {

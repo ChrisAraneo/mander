@@ -3,7 +3,7 @@ export interface Player {
   y: number;
   vx: number;
   vy: number;
-  grounded: boolean;
+  isGrounded: boolean;
   facing: 1 | -1;
-  jumpQueued: boolean;
+  isJumpQueued: boolean;
 }

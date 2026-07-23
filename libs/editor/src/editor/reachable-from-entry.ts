@@ -5,10 +5,12 @@ import {
 } from '@mander/generator';
 import { findIndex, forEach, map } from 'lodash-es';
 
-export function reachableFromEntry(grid: Structure): {
+export const reachableFromEntry = (
+  grid: Structure,
+): {
   surfaces: ReturnType<typeof structureSurfaces>;
   reached: boolean[];
-} {
+} => {
   const surfaces = structureSurfaces(grid);
   const reached = map(surfaces, () => false);
   const entryIndex = findIndex(surfaces, (surface) => surface.col === 0);
@@ -16,7 +18,9 @@ export function reachableFromEntry(grid: Structure): {
     reached[entryIndex] = true;
     const queue = [entryIndex];
     while (queue.length > 0) {
-      const current = surfaces[queue.shift()!];
+      const currentIndex = queue.shift();
+      if (typeof currentIndex !== 'number') break;
+      const current = surfaces[currentIndex];
       forEach(surfaces, (target, index) => {
         if (reached[index]) return;
         const columnDistance = Math.abs(target.col - current.col);

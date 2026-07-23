@@ -1,4 +1,4 @@
-export function xmur3(input: string): () => number {
+export const xmur3 = (input: string): (() => number) => {
   let hashState = 1_779_033_703 ^ input.length;
   for (let index = 0; index < input.length; index++) {
     hashState = Math.imul(hashState ^ input.charCodeAt(index), 3_432_918_353);
@@ -10,4 +10,4 @@ export function xmur3(input: string): () => number {
     hashState ^= hashState >>> 16;
     return hashState >>> 0;
   };
-}
+};

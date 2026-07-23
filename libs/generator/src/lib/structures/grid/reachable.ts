@@ -1,14 +1,16 @@
 import { maxJumpColumns } from './max-jump-columns';
 import type { Surface } from './surface';
 
-export function reachable(
+export const reachable = (
   surfaces: Surface[],
   startIndex: number,
-): Set<number> {
+): Set<number> => {
   const visited = new Set<number>([startIndex]);
   const queue = [startIndex];
   while (queue.length > 0) {
-    const current = surfaces[queue.shift()!];
+    const currentIndex = queue.shift();
+    if (typeof currentIndex !== 'number') break;
+    const current = surfaces[currentIndex];
     surfaces.forEach((target, index) => {
       if (visited.has(index)) return;
       const columnDistance = Math.abs(target.col - current.col);
@@ -20,4 +22,4 @@ export function reachable(
     });
   }
   return visited;
-}
+};

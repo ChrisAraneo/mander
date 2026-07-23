@@ -1,6 +1,6 @@
 import { BLOCK, type Structure } from '../types';
 
-export function groundHeight(grid: Structure, column: number): number {
+export const groundHeight = (grid: Structure, column: number): number => {
   let stackedBlocks = 0;
   for (
     let row = grid.length - 1;
@@ -10,4 +10,4 @@ export function groundHeight(grid: Structure, column: number): number {
     stackedBlocks++;
   }
   return stackedBlocks;
-}
+};

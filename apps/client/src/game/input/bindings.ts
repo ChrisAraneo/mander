@@ -1,27 +1,35 @@
 import type { KeyBinding } from './key-binding';
 
-export const BINDINGS: Record<string, KeyBinding> = {
-  ArrowLeft: {
+export const BINDINGS: KeyBinding[] = [
+  {
+    code: 'ArrowLeft',
     start: { type: 'MOVE_LEFT_START' },
     stop: { type: 'MOVE_LEFT_STOP' },
   },
-  KeyA: {
+  {
+    code: 'KeyA',
     start: { type: 'MOVE_LEFT_START' },
     stop: { type: 'MOVE_LEFT_STOP' },
   },
-  ArrowRight: {
+  {
+    code: 'ArrowRight',
     start: { type: 'MOVE_RIGHT_START' },
     stop: { type: 'MOVE_RIGHT_STOP' },
   },
-  KeyD: {
+  {
+    code: 'KeyD',
     start: { type: 'MOVE_RIGHT_START' },
     stop: { type: 'MOVE_RIGHT_STOP' },
   },
-  ArrowUp: { start: { type: 'JUMP_START' }, stop: { type: 'JUMP_STOP' } },
-  KeyW: { start: { type: 'JUMP_START' }, stop: { type: 'JUMP_STOP' } },
-  Space: { start: { type: 'JUMP_START' }, stop: { type: 'JUMP_STOP' } },
-  KeyE: { start: { type: 'INTERACT' } },
-  Enter: { start: { type: 'INTERACT' } },
-  Escape: { start: { type: 'CLOSE' } },
-  KeyR: { start: { type: 'RESPAWN' } },
-};
+  {
+    code: 'ArrowUp',
+    start: { type: 'JUMP_START' },
+    stop: { type: 'JUMP_STOP' },
+  },
+  { code: 'KeyW', start: { type: 'JUMP_START' }, stop: { type: 'JUMP_STOP' } },
+  { code: 'Space', start: { type: 'JUMP_START' }, stop: { type: 'JUMP_STOP' } },
+  { code: 'KeyE', start: { type: 'INTERACT' } },
+  { code: 'Enter', start: { type: 'INTERACT' } },
+  { code: 'Escape', start: { type: 'CLOSE' } },
+  { code: 'KeyR', start: { type: 'RESPAWN' } },
+];

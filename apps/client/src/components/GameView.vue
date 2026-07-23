@@ -20,12 +20,12 @@ const isRunFinished = computed(
 
 const hint = computed(() => {
   if (state.value.status !== 'playing') return null;
-  if (state.value.nearChest) {
+  if (state.value.isNearChest) {
     return state.value.hasKey
       ? 'Press E to open the chest'
       : 'The chest is locked — find the key!';
   }
-  if (state.value.nearPortal) return 'Press E to enter the portal';
+  if (state.value.isNearPortal) return 'Press E to enter the portal';
   return null;
 });
 </script>

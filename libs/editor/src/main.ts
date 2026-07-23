@@ -2,5 +2,5 @@ import './styles.css';
 
 import { mountEditor } from './editor';
 
-const app = document.querySelector('#app');
-if (app) mountEditor(app);
+const APP = document.querySelector<HTMLElement>('#app');
+if (APP) mountEditor(APP);
