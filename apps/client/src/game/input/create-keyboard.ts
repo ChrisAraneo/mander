@@ -1,9 +1,12 @@
 import type { Action } from '@mander/engine';
 import { fromEvent, merge, type Subscription } from 'rxjs';
 import { Subject } from 'rxjs';
+import { match, P } from 'ts-pattern';
 
 import { BINDINGS } from './bindings';
 import type { Keyboard } from './keyboard';
+
+const { nullish } = P;
 
 export const createKeyboard = (): Keyboard => {
   const actions = new Subject<Action>();
@@ -15,16 +18,23 @@ export const createKeyboard = (): Keyboard => {
   const keyup$ = fromEvent<KeyboardEvent>(window, 'keyup');
 
   const subscription: Subscription = merge(keydown$, keyup$).subscribe(
-    (event) => {
-      const binding = bindingByCode.get(event.code);
-      if (!binding) return;
-      event.preventDefault();
-      if (event.type === 'keydown') {
-        if (!event.repeat) actions.next(binding.start);
-      } else if (binding.stop) {
-        actions.next(binding.stop);
-      }
-    },
+    (event) =>
+      match(bindingByCode.get(event.code))
+        .with(nullish, () => undefined)
+        .otherwise((binding) => {
+          event.preventDefault();
+          return match(event.type)
+            .with('keydown', () =>
+              match(event.repeat)
+                .with(true, () => undefined)
+                .otherwise(() => actions.next(binding.start)),
+            )
+            .otherwise(() =>
+              match(binding.stop)
+                .with(nullish, () => undefined)
+                .otherwise((stop) => actions.next(stop)),
+            );
+        }),
   );
 
   return {

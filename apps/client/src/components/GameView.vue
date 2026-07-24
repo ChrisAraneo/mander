@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { LEVELS_PER_SEED } from '@mander/generator';
+import { match } from 'ts-pattern';
 import { useGame } from '../game/use-game';
 import ChestModal from './ChestModal.vue';
 import HudBar from './HudBar.vue';
@@ -17,16 +18,23 @@ const isRunFinished = computed(
     state.value.levelIndex >= LEVELS_PER_SEED - 1,
 );
 
-const hint = computed(() => {
-  if (state.value.status !== 'PLAYING') return null;
-  if (state.value.isNearChest) {
-    return state.value.hasKey
-      ? 'Press E to open the chest'
-      : 'The chest is locked — find the key!';
-  }
-  if (state.value.isNearPortal) return 'Press E to enter the portal';
-  return null;
-});
+const hint = computed(() =>
+  match(state.value.status)
+    .with('PLAYING', () =>
+      match(state.value.isNearChest)
+        .with(true, () =>
+          match(state.value.hasKey)
+            .with(true, () => 'Press E to open the chest')
+            .otherwise(() => 'The chest is locked — find the key!'),
+        )
+        .otherwise(() =>
+          match(state.value.isNearPortal)
+            .with(true, () => 'Press E to enter the portal')
+            .otherwise(() => null),
+        ),
+    )
+    .otherwise(() => null),
+);
 </script>
 
 <template>

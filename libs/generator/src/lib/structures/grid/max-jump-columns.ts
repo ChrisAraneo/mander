@@ -1,8 +1,11 @@
-export const maxJumpColumns = (rise: number): number => {
-  if (rise <= -1) return 6;
-  if (rise === 0) return 5;
-  if (rise === 1 || rise === 2) return 4;
-  if (rise === 3) return 3;
-  if (rise === 4) return 2;
-  return 0;
-};
+import { match, P } from 'ts-pattern';
+
+export const maxJumpColumns = (rise: number): number =>
+  match(rise)
+    .with(P.number.lte(-1), () => 6)
+    .with(0, () => 5)
+    .with(1, () => 4)
+    .with(2, () => 4)
+    .with(3, () => 3)
+    .with(4, () => 2)
+    .otherwise(() => 0);

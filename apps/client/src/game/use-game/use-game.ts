@@ -16,6 +16,7 @@ import {
   type Subscription,
 } from 'rxjs';
 import { onMounted, onUnmounted, type Ref, shallowRef } from 'vue';
+import { match, P } from 'ts-pattern';
 
 import { createKeyboard, type Keyboard } from '../input';
 import { renderGame, syncViewport } from '../render';
@@ -53,16 +54,20 @@ const tickStream = (): Observable<Action> =>
 const syncDebugGlobals = (
   next: GameState,
   dispatch: (action: Action) => void,
-): void => {
-  if (!import.meta.env.DEV) return;
-  Object.assign(window, { manderState: next, manderDispatch: dispatch });
-};
+): void =>
+  match(import.meta.env.DEV)
+    .with(true, () => {
+      Object.assign(window, { manderState: next, manderDispatch: dispatch });
+    })
+    .otherwise(() => undefined);
 
 const persistProgress = (previous: GameState, next: GameState): void => {
-  if (next.inventory !== previous.inventory) saveInventory(next.inventory);
-  if (next.status === 'COMPLETE' && previous.status !== 'COMPLETE') {
-    markLevelCompleted(next.level.seed);
-  }
+  match(next.inventory !== previous.inventory)
+    .with(true, () => saveInventory(next.inventory))
+    .otherwise(() => undefined);
+  match(next.status === 'COMPLETE' && previous.status !== 'COMPLETE')
+    .with(true, () => markLevelCompleted(next.level.seed))
+    .otherwise(() => undefined);
 };
 
 export const useGame = (
@@ -79,19 +84,25 @@ export const useGame = (
   onMounted(() => {
     const element = canvas.value;
     const context = element?.getContext('2d');
-    if (!element || !context) return;
-    saveLastSeed(baseSeed);
-    keyboard = createKeyboard();
+    match({ element, context })
+      .with(
+        { element: P.nonNullable, context: P.nonNullable },
+        ({ element, context }) => {
+          saveLastSeed(baseSeed);
+          keyboard = createKeyboard();
 
-    subscription = merge(tickStream(), keyboard.actions$, actions$)
-      .pipe(scan(reduce, initial))
-      .subscribe((next) => {
-        const previous = state.value;
-        state.value = next;
-        syncDebugGlobals(next, (action) => actions$.next(action));
-        persistProgress(previous, next);
-        renderGame(context, next, syncViewport(element));
-      });
+          subscription = merge(tickStream(), keyboard.actions$, actions$)
+            .pipe(scan(reduce, initial))
+            .subscribe((next) => {
+              const previous = state.value;
+              state.value = next;
+              syncDebugGlobals(next, (action) => actions$.next(action));
+              persistProgress(previous, next);
+              renderGame(context, next, syncViewport(element));
+            });
+        },
+      )
+      .otherwise(() => undefined);
   });
 
   onUnmounted(() => {
@@ -104,12 +115,15 @@ export const useGame = (
     dispatch: (action) => actions$.next(action),
     nextLevel: () => {
       const index = state.value.levelIndex + 1;
-      if (index >= LEVELS_PER_SEED) return;
-      actions$.next({
-        type: 'LOAD_LEVEL',
-        level: generateLevel(levelSeed(baseSeed, index), index, baseSeed),
-        levelIndex: index,
-      });
+      match(index >= LEVELS_PER_SEED)
+        .with(true, () => undefined)
+        .otherwise(() =>
+          actions$.next({
+            type: 'LOAD_LEVEL',
+            level: generateLevel(levelSeed(baseSeed, index), index, baseSeed),
+            levelIndex: index,
+          }),
+        );
     },
   };
 };

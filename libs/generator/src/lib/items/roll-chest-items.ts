@@ -1,4 +1,5 @@
-import { sumBy } from 'lodash-es';
+import { chain, findIndex, reduce, sumBy } from 'lodash-es';
+import { match } from 'ts-pattern';
 
 import type { Rng } from '../rng';
 import type { Item } from '../types';
@@ -6,21 +7,55 @@ import type { CatalogEntry } from './catalog-entry';
 import { CHEST_ITEM_COUNT } from './constants';
 import { ITEM_CATALOG } from './item-catalog';
 
-export const rollChestItems = (rng: Rng): Item[] => {
-  const pool: CatalogEntry[] = [...ITEM_CATALOG];
-  const rolled: Item[] = [];
-  while (rolled.length < CHEST_ITEM_COUNT && pool.length > 0) {
-    let remainingWeight = rng.next() * sumBy(pool, 'weight');
-    let chosenIndex = 0;
-    for (const [poolIndex, element] of pool.entries()) {
-      remainingWeight -= element.weight;
-      if (remainingWeight <= 0) {
-        chosenIndex = poolIndex;
-        break;
-      }
-    }
-    rolled.push(pool[chosenIndex].item);
-    pool.splice(chosenIndex, 1);
-  }
-  return rolled;
-};
+const cumulativeRemainders = (
+  pool: readonly CatalogEntry[],
+  target: number,
+): number[] =>
+  reduce(
+    pool,
+    (remainders, entry) => [
+      ...remainders,
+      (remainders.at(-1) ?? target) - entry.weight,
+    ],
+    [] as number[],
+  );
+
+const pickWeightedIndex = (rng: Rng, pool: readonly CatalogEntry[]): number =>
+  Math.max(
+    findIndex(
+      cumulativeRemainders(pool, rng.next() * sumBy(pool, 'weight')),
+      (remaining) => remaining <= 0,
+    ),
+    0,
+  );
+
+const withoutIndex = <Value>(values: readonly Value[], index: number): Value[] => [
+  ...values.slice(0, index),
+  ...values.slice(index + 1),
+];
+
+const shouldStopDrawing = (
+  pool: readonly CatalogEntry[],
+  drawn: readonly Item[],
+): boolean => drawn.length >= CHEST_ITEM_COUNT || pool.length === 0;
+
+const drawItems = (
+  rng: Rng,
+  pool: readonly CatalogEntry[],
+  drawn: readonly Item[],
+): Item[] =>
+  match(shouldStopDrawing(pool, drawn))
+    .with(true, () => [...drawn])
+    .otherwise(() =>
+      chain(pickWeightedIndex(rng, pool))
+        .thru((index) =>
+          drawItems(
+            rng,
+            withoutIndex(pool, index),
+            [...drawn, pool[index].item],
+          ),
+        )
+        .value(),
+    );
+
+export const rollChestItems = (rng: Rng): Item[] => drawItems(rng, ITEM_CATALOG, []);

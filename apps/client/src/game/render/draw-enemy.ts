@@ -1,4 +1,5 @@
 import { type Enemy, ENEMY_HEIGHT, ENEMY_WIDTH } from '@mander/engine';
+import { match } from 'ts-pattern';
 
 const drawEnemyBody = (
   context: CanvasRenderingContext2D,
@@ -57,9 +58,9 @@ export const drawEnemy = (
 ): void => {
   const centerX = enemy.x + ENEMY_WIDTH / 2;
   const centerY = enemy.y + ENEMY_HEIGHT / 2;
-  const wobble = enemy.isGrounded
-    ? Math.sin(time * 9 + enemy.homeX * 0.2) * 1.2
-    : 0;
+  const wobble = match(enemy.isGrounded)
+    .with(true, () => Math.sin(time * 9 + enemy.homeX * 0.2) * 1.2)
+    .otherwise(() => 0);
   const halfWidth = ENEMY_WIDTH / 2;
   const halfHeight = ENEMY_HEIGHT / 2;
 

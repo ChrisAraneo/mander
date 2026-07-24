@@ -1,4 +1,5 @@
 import { round } from 'lodash-es';
+import { match } from 'ts-pattern';
 
 import { VIEW_HEIGHT, VIEW_WIDTH } from './constants';
 import type { Viewport } from './viewport';
@@ -11,8 +12,16 @@ const resizeToDisplay = (
 ): void => {
   const deviceWidth = round(cssWidth * pixelRatio);
   const deviceHeight = round(cssHeight * pixelRatio);
-  if (canvas.width !== deviceWidth) canvas.width = deviceWidth;
-  if (canvas.height !== deviceHeight) canvas.height = deviceHeight;
+  match(canvas.width !== deviceWidth)
+    .with(true, () => {
+      canvas.width = deviceWidth;
+    })
+    .otherwise(() => undefined);
+  match(canvas.height !== deviceHeight)
+    .with(true, () => {
+      canvas.height = deviceHeight;
+    })
+    .otherwise(() => undefined);
 };
 
 /**

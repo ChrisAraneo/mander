@@ -1,4 +1,5 @@
 import { type Player, PLAYER_HEIGHT, PLAYER_WIDTH } from '@mander/engine';
+import { match } from 'ts-pattern';
 
 const HALF_HEIGHT = PLAYER_HEIGHT / 2;
 const HEAD_RADIUS = 7;
@@ -13,13 +14,15 @@ const drawPlayerLegs = (
   swing: number,
 ): void => {
   context.fillStyle = '#3F5A86';
-  if (isGrounded) {
-    context.fillRect(-7 + swing / 2, LEG_TOP, 5, LEG_HEIGHT);
-    context.fillRect(2 - swing / 2, LEG_TOP, 5, LEG_HEIGHT);
-  } else {
-    context.fillRect(-7, LEG_TOP, 5, LEG_HEIGHT - 3);
-    context.fillRect(2, LEG_TOP + 3, 5, LEG_HEIGHT - 3);
-  }
+  match(isGrounded)
+    .with(true, () => {
+      context.fillRect(-7 + swing / 2, LEG_TOP, 5, LEG_HEIGHT);
+      context.fillRect(2 - swing / 2, LEG_TOP, 5, LEG_HEIGHT);
+    })
+    .otherwise(() => {
+      context.fillRect(-7, LEG_TOP, 5, LEG_HEIGHT - 3);
+      context.fillRect(2, LEG_TOP + 3, 5, LEG_HEIGHT - 3);
+    });
 };
 
 const drawPlayerBody = (
@@ -68,7 +71,9 @@ export const drawPlayer = (
   const centerX = player.x + PLAYER_WIDTH / 2;
   const centerY = player.y + PLAYER_HEIGHT / 2;
   const isRunning = Math.abs(player.vx) > 1 && player.isGrounded;
-  const swing = isRunning ? Math.sin(time * 14) * 5 : 0;
+  const swing = match(isRunning)
+    .with(true, () => Math.sin(time * 14) * 5)
+    .otherwise(() => 0);
 
   context.save();
   context.translate(centerX, centerY);

@@ -1,25 +1,48 @@
+import { chain } from 'lodash-es';
+import { match, P } from 'ts-pattern';
+
 import { maxJumpColumns } from './max-jump-columns';
 import type { Surface } from './surface';
+
+const isReachableStep = (
+  from: Surface,
+  target: Surface,
+): boolean => {
+  const columnDistance = Math.abs(target.col - from.col);
+  return (
+    columnDistance >= 1 &&
+    columnDistance <= 6 &&
+    columnDistance <= maxJumpColumns(target.height - from.height)
+  );
+};
+
+const stepsFrom = (
+  surfaces: Surface[],
+  visited: ReadonlySet<number>,
+  fromIndex: number,
+): number[] =>
+  chain(surfaces)
+    .map((target, index) => ({ index, target }))
+    .filter(({ index }) => !visited.has(index))
+    .filter(({ target }) => isReachableStep(surfaces[fromIndex], target))
+    .map(({ index }) => index)
+    .value();
+
+const expand = (
+  surfaces: Surface[],
+  visited: ReadonlySet<number>,
+  frontier: number[],
+): Set<number> =>
+  match(
+    chain(frontier)
+      .flatMap((fromIndex) => stepsFrom(surfaces, visited, fromIndex))
+      .uniq()
+      .value(),
+  )
+    .with(P.when((next: number[]) => next.length === 0), () => new Set(visited))
+    .otherwise((next) => expand(surfaces, new Set([...visited, ...next]), next));
 
 export const reachable = (
   surfaces: Surface[],
   startIndex: number,
-): Set<number> => {
-  const visited = new Set<number>([startIndex]);
-  const queue = [startIndex];
-  while (queue.length > 0) {
-    const currentIndex = queue.shift();
-    if (typeof currentIndex !== 'number') break;
-    const current = surfaces[currentIndex];
-    surfaces.forEach((target, index) => {
-      if (visited.has(index)) return;
-      const columnDistance = Math.abs(target.col - current.col);
-      if (columnDistance < 1 || columnDistance > 6) return;
-      if (columnDistance <= maxJumpColumns(target.height - current.height)) {
-        visited.add(index);
-        queue.push(index);
-      }
-    });
-  }
-  return visited;
-};
+): Set<number> => expand(surfaces, new Set([startIndex]), [startIndex]);

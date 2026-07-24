@@ -14,6 +14,7 @@ import {
   structureIssues,
 } from '@mander/generator';
 import { concat, fill, filter, floor, forEach, map } from 'lodash-es';
+import { match, P } from 'ts-pattern';
 
 import { airGrid } from './air-grid';
 import { clone } from './clone';
@@ -24,6 +25,20 @@ import { flatGrid } from './flat-grid';
 import { parseGrid } from './parse-grid';
 import { reachableFromEntry } from './reachable-from-entry';
 import { swatch } from './swatch';
+
+const plural = (count: number, noun: string): string =>
+  match(count)
+    .with(1, () => noun)
+    .otherwise(() => `${noun}s`);
+
+const strandedNote = (strandedCount: number): string =>
+  match(strandedCount > 0)
+    .with(
+      true,
+      () =>
+        ` (${strandedCount} ${plural(strandedCount, 'platform')} unreachable from the entry.)`,
+    )
+    .otherwise(() => '');
 
 export const mountEditor = (root: HTMLElement): void => {
   let grid = flatGrid();
@@ -58,42 +73,39 @@ export const mountEditor = (root: HTMLElement): void => {
   const refresh = (): void => {
     draw();
     output.value = formatStructure(grid);
-    const issues = structureIssues(grid);
-    if (issues.length === 0) {
-      const { reached } = reachableFromEntry(grid);
-      const strandedCount = filter(reached, (isReached) => !isReached).length;
-      const lift = structureExitLift(grid);
-      status.className = 'status ok';
-      status.replaceChildren(
-        createElement('div', {
-          className: 'headline',
-          textContent: '✓ Valid structure',
-        }),
-        createElement('div', {
-          className: 'meta',
-          textContent: `Crossable both ways. Exit raises the rest of the level by ${lift} tile${lift === 1 ? '' : 's'}.${
-            strandedCount > 0
-              ? ` (${strandedCount} platform${strandedCount === 1 ? '' : 's'} unreachable from the entry.)`
-              : ''
-          }`,
-        }),
-      );
-    } else {
-      status.className = 'status bad';
-      status.replaceChildren(
-        createElement('div', {
-          className: 'headline',
-          textContent: '✗ Not usable yet',
-        }),
-        createElement(
-          'ul',
-          {},
-          ...map(issues, (issue) =>
-            createElement('li', { textContent: issue }),
+    match(structureIssues(grid))
+      .with([], () => {
+        const { reached } = reachableFromEntry(grid);
+        const strandedCount = filter(reached, (isReached) => !isReached).length;
+        const lift = structureExitLift(grid);
+        status.className = 'status ok';
+        status.replaceChildren(
+          createElement('div', {
+            className: 'headline',
+            textContent: '✓ Valid structure',
+          }),
+          createElement('div', {
+            className: 'meta',
+            textContent: `Crossable both ways. Exit raises the rest of the level by ${lift} ${plural(lift, 'tile')}.${strandedNote(strandedCount)}`,
+          }),
+        );
+      })
+      .otherwise((issues) => {
+        status.className = 'status bad';
+        status.replaceChildren(
+          createElement('div', {
+            className: 'headline',
+            textContent: '✗ Not usable yet',
+          }),
+          createElement(
+            'ul',
+            {},
+            ...map(issues, (issue) =>
+              createElement('li', { textContent: issue }),
+            ),
           ),
-        ),
-      );
-    }
+        );
+      });
   }
 
   let tool: number = BLOCK;
@@ -110,35 +122,46 @@ export const mountEditor = (root: HTMLElement): void => {
     const row = floor(
       ((event.clientY - rect.top) / rect.height) * STRUCTURE_HEIGHT,
     );
-    if (
-      column < 0 ||
-      column >= SECTOR_WIDTH ||
-      row < 0 ||
-      row >= STRUCTURE_HEIGHT
+    return match(
+      column >= 0 &&
+        column < SECTOR_WIDTH &&
+        row >= 0 &&
+        row < STRUCTURE_HEIGHT,
     )
-      return null;
-    return { row, column };
+      .with(true, () => ({ row, column }))
+      .otherwise(() => null);
   }
 
   const paint = (row: number, column: number): void => {
-    if (grid[row][column] === paintValue) return;
-    grid[row][column] = paintValue;
-    refresh();
+    match(grid[row][column] === paintValue)
+      .with(true, () => undefined)
+      .otherwise(() => {
+        grid[row][column] = paintValue;
+        refresh();
+      });
   }
 
-  canvas.addEventListener('pointerdown', (event) => {
-    const cell = cellAt(event);
-    if (!cell) return;
-    isPainting = true;
-    paintValue = grid[cell.row][cell.column] === tool ? AIR : tool;
-    canvas.setPointerCapture(event.pointerId);
-    paint(cell.row, cell.column);
-  });
-  canvas.addEventListener('pointermove', (event) => {
-    if (!isPainting) return;
-    const cell = cellAt(event);
-    if (cell) paint(cell.row, cell.column);
-  });
+  canvas.addEventListener('pointerdown', (event) =>
+    match(cellAt(event))
+      .with(P.nullish, () => undefined)
+      .otherwise((cell) => {
+        isPainting = true;
+        paintValue = match(grid[cell.row][cell.column] === tool)
+          .with(true, (): number => AIR)
+          .otherwise((): number => tool);
+        canvas.setPointerCapture(event.pointerId);
+        paint(cell.row, cell.column);
+      }),
+  );
+  canvas.addEventListener('pointermove', (event) =>
+    match(isPainting)
+      .with(false, () => undefined)
+      .otherwise(() =>
+        match(cellAt(event))
+          .with(P.nullish, () => undefined)
+          .otherwise((cell) => paint(cell.row, cell.column)),
+      ),
+  );
   const stopPainting = () => {
     isPainting = false;
   };
@@ -150,15 +173,24 @@ export const mountEditor = (root: HTMLElement): void => {
     refresh();
   }
 
-  const copyOutput = async (): Promise<void> => {
-    try {
-      await navigator.clipboard.writeText(output.value);
-    } catch {
-      output.select();
-      document.execCommand('copy');
-    }
-    toast.textContent = 'Copied! Paste it into a pool in structures/library.ts';
+  const showToast = (message: string): void => {
+    toast.textContent = message;
     window.setTimeout(() => (toast.textContent = ''), 2500);
+  };
+
+  // `.catch` rather than ramda's tryCatch: writeText rejects asynchronously,
+  // and tryCatch only intercepts synchronous throws.
+  const writeClipboard = (): Promise<void> =>
+    Promise.resolve()
+      .then(() => navigator.clipboard.writeText(output.value))
+      .catch(() => {
+        output.select();
+        document.execCommand('copy');
+      });
+
+  const copyOutput = async (): Promise<void> => {
+    await writeClipboard();
+    showToast('Copied! Paste it into a pool in structures/library.ts');
   }
 
   const examples: Array<{ label: string; grid: Structure }> = concat(
@@ -184,8 +216,9 @@ export const mountEditor = (root: HTMLElement): void => {
   );
   examplesSelect.addEventListener('change', () => {
     const index = Number(examplesSelect.value);
-    if (examplesSelect.value !== '' && examples[index])
-      load(examples[index].grid);
+    match(examplesSelect.value !== '' && Boolean(examples[index]))
+      .with(true, () => load(examples[index].grid))
+      .otherwise(() => undefined);
     examplesSelect.value = '';
   });
 
@@ -258,17 +291,15 @@ export const mountEditor = (root: HTMLElement): void => {
 
   const loadButton = createElement('button', {
     textContent: 'Load from text',
-    onclick: () => {
-      const parsed = parseGrid(loader.value);
-      if (parsed) {
-        load(parsed);
-        loader.value = '';
-      } else {
-        toast.textContent =
-          "Couldn't read that — expected a grid of 0s and 1s.";
-        window.setTimeout(() => (toast.textContent = ''), 2500);
-      }
-    },
+    onclick: () =>
+      match(parseGrid(loader.value))
+        .with(P.nullish, () =>
+          showToast("Couldn't read that — expected a grid of 0s and 1s."),
+        )
+        .otherwise((parsed) => {
+          load(parsed);
+          loader.value = '';
+        }),
   });
   const loadPanel = createElement(
     'div',

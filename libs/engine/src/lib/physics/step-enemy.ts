@@ -18,10 +18,10 @@ import { playerOverhead } from './player-overhead';
 import { spikeAhead } from './spike-ahead';
 import { wallAhead } from './wall-ahead';
 
-const opposite = (facing: 1 | -1): 1 | -1 => {
-  if (facing === 1) return -1;
-  return 1;
-};
+const opposite = (facing: 1 | -1): 1 | -1 =>
+  match(facing)
+    .with(1, (): 1 | -1 => -1)
+    .otherwise((): 1 | -1 => 1);
 
 const enemyHop = (
   isGrounded: boolean,

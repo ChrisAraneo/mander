@@ -1,8 +1,8 @@
 import { padStart } from 'lodash-es';
 
-export const dailyDate = (date = new Date()): string => {
-  const year = date.getUTCFullYear();
-  const month = padStart(String(date.getUTCMonth() + 1), 2, '0');
-  const day = padStart(String(date.getUTCDate()), 2, '0');
-  return `${year}-${month}-${day}`;
-};
+const pad2 = (value: number): string => padStart(String(value), 2, '0');
+
+export const dailyDate = (date = new Date()): string =>
+  [date.getUTCFullYear(), pad2(date.getUTCMonth() + 1), pad2(date.getUTCDate())].join(
+    '-',
+  );

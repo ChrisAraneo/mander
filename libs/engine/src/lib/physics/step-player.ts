@@ -20,10 +20,12 @@ const horizontalDirection = (input: InputState): number =>
 const facingFor = (direction: number, current: 1 | -1): 1 | -1 =>
   match(direction)
     .with(0, () => current)
-    .otherwise((): 1 | -1 => {
-      if (direction < 0) return -1;
-      return 1;
-    });
+    .otherwise(
+      (): 1 | -1 =>
+        match(direction < 0)
+          .with(true, (): 1 | -1 => -1)
+          .otherwise((): 1 | -1 => 1),
+    );
 
 const afterJump = (
   base: { vy: number; isGrounded: boolean },

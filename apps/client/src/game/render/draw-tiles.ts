@@ -4,7 +4,8 @@ import {
   TILE_SOLID,
   TILE_SPIKE,
 } from '@mander/generator';
-import { ceil, floor } from 'lodash-es';
+import { ceil, floor, forEach, range } from 'lodash-es';
+import { match, P } from 'ts-pattern';
 
 import { drawSpike } from './draw-spike';
 import { solidAt } from './solid-at';
@@ -24,12 +25,14 @@ const drawSolidTile = (
   context.fillRect(pixelX, pixelY + TILE_SIZE - 3, TILE_SIZE, 3);
   context.fillRect(pixelX + TILE_SIZE - 2, pixelY, 2, TILE_SIZE);
 
-  if (!solidAt(level, column, row - 1)) {
-    context.fillStyle = level.palette.blockCap;
-    context.fillRect(pixelX, pixelY, TILE_SIZE, 7);
-    context.fillStyle = level.palette.blockCapHighlight;
-    context.fillRect(pixelX, pixelY, TILE_SIZE, 3);
-  }
+  match(solidAt(level, column, row - 1))
+    .with(false, () => {
+      context.fillStyle = level.palette.blockCap;
+      context.fillRect(pixelX, pixelY, TILE_SIZE, 7);
+      context.fillStyle = level.palette.blockCapHighlight;
+      context.fillRect(pixelX, pixelY, TILE_SIZE, 3);
+    })
+    .otherwise(() => undefined);
 };
 
 export const drawTiles = (
@@ -50,14 +53,18 @@ export const drawTiles = (
     ceil((cameraY + viewport.height) / TILE_SIZE) + 1,
   );
 
-  for (let column = firstColumn; column <= lastColumn; column++) {
-    for (let row = firstRow; row <= lastRow; row++) {
-      const tile = level.tiles[row][column];
-      if (tile === TILE_SPIKE) {
-        drawSpike(context, column, row);
-      } else if (tile === TILE_SOLID) {
-        drawSolidTile(context, level, column, row);
-      }
-    }
-  }
+  forEach(range(firstColumn, lastColumn + 1), (column) =>
+    forEach(range(firstRow, lastRow + 1), (row) =>
+      match(level.tiles[row][column])
+        .with(
+          P.when((tile) => tile === TILE_SPIKE),
+          () => drawSpike(context, column, row),
+        )
+        .with(
+          P.when((tile) => tile === TILE_SOLID),
+          () => drawSolidTile(context, level, column, row),
+        )
+        .otherwise(() => undefined),
+    ),
+  );
 };

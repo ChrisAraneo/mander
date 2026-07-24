@@ -10,7 +10,8 @@ import {
   STRUCTURE_HEIGHT,
   surfaceHasHeadroom,
 } from '@mander/generator';
-import { forEach } from 'lodash-es';
+import { forEach, range } from 'lodash-es';
+import { match } from 'ts-pattern';
 
 import { CELL, COLORS } from './constants';
 import { reachableFromEntry } from './reachable-from-entry';
@@ -23,17 +24,22 @@ export interface EditorView {
 
 type Surfaces = ReturnType<typeof reachableFromEntry>['surfaces'];
 
+const COLUMNS = range(SECTOR_WIDTH);
+const ROWS = range(STRUCTURE_HEIGHT);
+
 const drawPits = (
   context: CanvasRenderingContext2D,
   grid: Structure,
   view: EditorView,
 ): void => {
-  for (let column = 0; column < SECTOR_WIDTH; column++) {
-    if (grid[STRUCTURE_HEIGHT - 1][column] === AIR) {
-      context.fillStyle = COLORS.pit;
-      context.fillRect(column * CELL, 0, CELL, view.cssHeight);
-    }
-  }
+  forEach(COLUMNS, (column) =>
+    match(grid[STRUCTURE_HEIGHT - 1][column])
+      .with(AIR, () => {
+        context.fillStyle = COLORS.pit;
+        context.fillRect(column * CELL, 0, CELL, view.cssHeight);
+      })
+      .otherwise(() => undefined),
+  );
 };
 
 const drawBlockCell = (
@@ -46,21 +52,25 @@ const drawBlockCell = (
   const pixelY = row * CELL;
   context.fillStyle = COLORS.block;
   context.fillRect(pixelX + 1, pixelY + 1, CELL - 2, CELL - 2);
-  if (row === 0 || grid[row - 1][column] === AIR) {
-    context.fillStyle = COLORS.cap;
-    context.fillRect(pixelX + 1, pixelY + 1, CELL - 2, 4);
-  }
+  match(row === 0 || grid[row - 1][column] === AIR)
+    .with(true, () => {
+      context.fillStyle = COLORS.cap;
+      context.fillRect(pixelX + 1, pixelY + 1, CELL - 2, 4);
+    })
+    .otherwise(() => undefined);
 };
 
 const drawBlocks = (
   context: CanvasRenderingContext2D,
   grid: Structure,
 ): void => {
-  for (let row = 0; row < STRUCTURE_HEIGHT; row++) {
-    for (let column = 0; column < SECTOR_WIDTH; column++) {
-      if (grid[row][column] === BLOCK) drawBlockCell(context, grid, row, column);
-    }
-  }
+  forEach(ROWS, (row) =>
+    forEach(COLUMNS, (column) =>
+      match(grid[row][column])
+        .with(BLOCK, () => drawBlockCell(context, grid, row, column))
+        .otherwise(() => undefined),
+    ),
+  );
 };
 
 const drawEnemyEyes = (
@@ -91,26 +101,39 @@ const drawEnemyMarker = (
   context.roundRect(pixelX + 6, pixelY + 6, CELL - 12, CELL - 12, 5);
   context.fill();
   drawEnemyEyes(context, pixelX + CELL / 2, pixelY + CELL / 2);
-  if (isStranded) {
-    context.strokeStyle = COLORS.stranded;
-    context.lineWidth = 2;
-    context.strokeRect(pixelX + 2, pixelY + 2, CELL - 4, CELL - 4);
-  }
+  match(isStranded)
+    .with(true, () => {
+      context.strokeStyle = COLORS.stranded;
+      context.lineWidth = 2;
+      context.strokeRect(pixelX + 2, pixelY + 2, CELL - 4, CELL - 4);
+    })
+    .otherwise(() => undefined);
 };
+
+const isEnemyStranded = (
+  grid: Structure,
+  row: number,
+  column: number,
+): boolean => row + 1 >= STRUCTURE_HEIGHT || grid[row + 1][column] !== BLOCK;
 
 const drawEnemies = (
   context: CanvasRenderingContext2D,
   grid: Structure,
 ): void => {
-  for (let row = 0; row < STRUCTURE_HEIGHT; row++) {
-    for (let column = 0; column < SECTOR_WIDTH; column++) {
-      if (grid[row][column] === ENEMY) {
-        const isStranded =
-          row + 1 >= STRUCTURE_HEIGHT || grid[row + 1][column] !== BLOCK;
-        drawEnemyMarker(context, column * CELL, row * CELL, isStranded);
-      }
-    }
-  }
+  forEach(ROWS, (row) =>
+    forEach(COLUMNS, (column) =>
+      match(grid[row][column])
+        .with(ENEMY, () =>
+          drawEnemyMarker(
+            context,
+            column * CELL,
+            row * CELL,
+            isEnemyStranded(grid, row, column),
+          ),
+        )
+        .otherwise(() => undefined),
+    ),
+  );
 };
 
 const drawGridLines = (
@@ -120,14 +143,14 @@ const drawGridLines = (
   context.strokeStyle = COLORS.line;
   context.lineWidth = 1;
   context.beginPath();
-  for (let column = 0; column <= SECTOR_WIDTH; column++) {
+  forEach(range(SECTOR_WIDTH + 1), (column) => {
     context.moveTo(column * CELL + 0.5, 0);
     context.lineTo(column * CELL + 0.5, view.cssHeight);
-  }
-  for (let row = 0; row <= STRUCTURE_HEIGHT; row++) {
+  });
+  forEach(range(STRUCTURE_HEIGHT + 1), (row) => {
     context.moveTo(0, row * CELL + 0.5);
     context.lineTo(view.cssWidth, row * CELL + 0.5);
-  }
+  });
   context.stroke();
 };
 
@@ -150,11 +173,17 @@ const drawSurfaces = (
 ): void => {
   forEach(surfaces, (surface, surfaceIndex) => {
     const row = STRUCTURE_HEIGHT - 1 - surface.height;
-    context.fillStyle = reached[surfaceIndex]
-      ? COLORS.reachable
-      : COLORS.stranded;
+    context.fillStyle = match(reached[surfaceIndex])
+      .with(true, () => COLORS.reachable)
+      .otherwise(() => COLORS.stranded);
     context.beginPath();
-    context.arc(surface.col * CELL + CELL / 2, row * CELL + 7, 3.5, 0, Math.PI * 2);
+    context.arc(
+      surface.col * CELL + CELL / 2,
+      row * CELL + 7,
+      3.5,
+      0,
+      Math.PI * 2,
+    );
     context.fill();
   });
 };
@@ -165,16 +194,19 @@ const drawCrampedHeadroom = (
   surfaces: Surfaces,
 ): void => {
   context.fillStyle = COLORS.cramped;
-  forEach(surfaces, (surface) => {
-    if (surfaceHasHeadroom(grid, surface)) return;
-    const row = STRUCTURE_HEIGHT - 1 - surface.height;
-    context.fillRect(
-      surface.col * CELL,
-      (row - PLAYER_CLEARANCE) * CELL,
-      CELL,
-      PLAYER_CLEARANCE * CELL,
-    );
-  });
+  forEach(surfaces, (surface) =>
+    match(surfaceHasHeadroom(grid, surface))
+      .with(true, () => undefined)
+      .otherwise(() => {
+        const row = STRUCTURE_HEIGHT - 1 - surface.height;
+        context.fillRect(
+          surface.col * CELL,
+          (row - PLAYER_CLEARANCE) * CELL,
+          CELL,
+          PLAYER_CLEARANCE * CELL,
+        );
+      }),
+  );
 };
 
 const drawPlayerGhost = (context: CanvasRenderingContext2D): void => {

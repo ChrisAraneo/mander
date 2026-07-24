@@ -1,5 +1,7 @@
 import type { GameState } from '@mander/engine';
 import type { Rect } from '@mander/generator';
+import { forEach, range } from 'lodash-es';
+import { match } from 'ts-pattern';
 
 const drawPortalCore = (
   context: CanvasRenderingContext2D,
@@ -43,7 +45,7 @@ const drawPortalRings = (
 ): void => {
   context.strokeStyle = '#B98CFF';
   context.lineWidth = 3;
-  for (let ringIndex = 0; ringIndex < 3; ringIndex++) {
+  forEach(range(3), (ringIndex) => {
     const angle = time * 2 + (ringIndex * Math.PI * 2) / 3;
     context.beginPath();
     context.ellipse(
@@ -56,7 +58,7 @@ const drawPortalRings = (
       angle + Math.PI * 0.6,
     );
     context.stroke();
-  }
+  });
 };
 
 export const drawPortal = (
@@ -70,7 +72,9 @@ export const drawPortal = (
 
   context.save();
   context.shadowColor = '#A678FF';
-  context.shadowBlur = state.isNearPortal ? 30 : 14;
+  context.shadowBlur = match(state.isNearPortal)
+    .with(true, () => 30)
+    .otherwise(() => 14);
 
   drawPortalCore(context, portal, centerX, centerY, pulse);
   drawPortalRings(context, portal, centerX, centerY, pulse, state.time);
