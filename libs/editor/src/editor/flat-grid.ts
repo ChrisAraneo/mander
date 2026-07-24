@@ -9,6 +9,9 @@ import { airGrid } from './air-grid';
 
 export const flatGrid = (): Structure => {
   const grid = airGrid();
-  grid[STRUCTURE_HEIGHT - 1] = Array.from({ length: SECTOR_WIDTH }, (): number => BLOCK);
+  grid[STRUCTURE_HEIGHT - 1] = Array.from(
+    { length: SECTOR_WIDTH },
+    (): number => BLOCK,
+  );
   return grid;
 };

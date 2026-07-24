@@ -328,12 +328,14 @@ describe('generateLevel', () => {
         if (outroHeight < BASE_GROUND) hasAnyBelowBase = true;
       }
     }
-    expect(hasRisen, 'some level should end raised above the spawn height').toBe(
-      true,
-    );
-    expect(hasAnyBelowBase, 'the level never sinks below the spawn height').toBe(
-      false,
-    );
+    expect(
+      hasRisen,
+      'some level should end raised above the spawn height',
+    ).toBe(true);
+    expect(
+      hasAnyBelowBase,
+      'the level never sinks below the spawn height',
+    ).toBe(false);
   });
 
   it.each(CASES)(
@@ -495,7 +497,9 @@ describe('dailyDate', () => {
 describe('dailySeed', () => {
   it('is a 14-character hash of letters and numbers', () => {
     expect(dailySeed(new Date())).toMatch(/^[\dA-Z]{14}$/u);
-    expect(dailySeed(new Date(Date.UTC(2026, 6, 19)))).toMatch(/^[\dA-Z]{14}$/u);
+    expect(dailySeed(new Date(Date.UTC(2026, 6, 19)))).toMatch(
+      /^[\dA-Z]{14}$/u,
+    );
   });
 
   it('is deterministic for a given date', () => {

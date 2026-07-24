@@ -106,7 +106,7 @@ export const mountEditor = (root: HTMLElement): void => {
           ),
         );
       });
-  }
+  };
 
   let tool: number = BLOCK;
   let isPainting = false;
@@ -130,7 +130,7 @@ export const mountEditor = (root: HTMLElement): void => {
     )
       .with(true, () => ({ row, column }))
       .otherwise(() => null);
-  }
+  };
 
   const paint = (row: number, column: number): void => {
     match(grid[row][column] === paintValue)
@@ -139,7 +139,7 @@ export const mountEditor = (root: HTMLElement): void => {
         grid[row][column] = paintValue;
         refresh();
       });
-  }
+  };
 
   canvas.addEventListener('pointerdown', (event) =>
     match(cellAt(event))
@@ -171,7 +171,7 @@ export const mountEditor = (root: HTMLElement): void => {
   const load = (nextGrid: Structure): void => {
     grid = clone(nextGrid);
     refresh();
-  }
+  };
 
   const showToast = (message: string): void => {
     toast.textContent = message;
@@ -191,7 +191,7 @@ export const mountEditor = (root: HTMLElement): void => {
   const copyOutput = async (): Promise<void> => {
     await writeClipboard();
     showToast('Copied! Paste it into a pool in structures/library.ts');
-  }
+  };
 
   const examples: Array<{ label: string; grid: Structure }> = concat(
     map(NORMAL_STRUCTURES, (structure, index) => ({
@@ -361,4 +361,4 @@ export const mountEditor = (root: HTMLElement): void => {
   );
 
   refresh();
-}
+};

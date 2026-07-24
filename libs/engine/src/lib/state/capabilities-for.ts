@@ -8,9 +8,7 @@ import type { PlayerCapabilities } from './player-capabilities';
 
 const BASE_MOVE_SPEED = 210;
 
-const BASE_JUMP_VELOCITY = Math.sqrt(
-  2 * GRAVITY * MAX_JUMP_TILES * TILE_SIZE,
-);
+const BASE_JUMP_VELOCITY = Math.sqrt(2 * GRAVITY * MAX_JUMP_TILES * TILE_SIZE);
 
 export const capabilitiesFor = (
   inventory: readonly Item[],

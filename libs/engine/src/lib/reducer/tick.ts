@@ -39,7 +39,13 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
           stepEnemy(state.level, enemy, steppedPlayer, deltaSeconds),
         ),
         (enemy) =>
-          !overlapsSpike(state.level, enemy.x, enemy.y, ENEMY_WIDTH, ENEMY_HEIGHT),
+          !overlapsSpike(
+            state.level,
+            enemy.x,
+            enemy.y,
+            ENEMY_WIDTH,
+            ENEMY_HEIGHT,
+          ),
       );
 
       const hasDied =
@@ -61,7 +67,9 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
             deaths: state.deaths + 1,
           }),
         )
-        .otherwise((): Outcome => ({ player: steppedPlayer, deaths: state.deaths }));
+        .otherwise(
+          (): Outcome => ({ player: steppedPlayer, deaths: state.deaths }),
+        );
 
       return {
         ...state,
@@ -74,7 +82,11 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         isNearChest:
           !state.isChestOpened &&
           isIntersecting(player, state.level.chest, INTERACT_RANGE),
-        isNearPortal: isIntersecting(player, state.level.portal, INTERACT_RANGE),
+        isNearPortal: isIntersecting(
+          player,
+          state.level.portal,
+          INTERACT_RANGE,
+        ),
       };
     })
     .otherwise((): GameState => state);

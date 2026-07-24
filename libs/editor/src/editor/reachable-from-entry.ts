@@ -41,8 +41,13 @@ const expand = (
       .uniq()
       .value(),
   )
-    .with(P.when((next: number[]) => next.length === 0), () => new Set(visited))
-    .otherwise((next) => expand(surfaces, new Set([...visited, ...next]), next));
+    .with(
+      P.when((next: number[]) => next.length === 0),
+      () => new Set(visited),
+    )
+    .otherwise((next) =>
+      expand(surfaces, new Set([...visited, ...next]), next),
+    );
 
 export const reachableFromEntry = (
   grid: Structure,

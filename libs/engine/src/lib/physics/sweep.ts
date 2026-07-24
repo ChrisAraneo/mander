@@ -33,20 +33,29 @@ const advance = (
 ): AxisMove =>
   match(remaining === 0)
     .with(true, (): AxisMove => ({ position: current, isBlocked: false }))
-    .otherwise((): AxisMove =>
-      chain(direction * Math.min(Math.abs(remaining), SUBSTEP))
-        .thru((step) => ({ step, nextPosition: current + step }))
-        .thru(({ step, nextPosition }) =>
-          match(config.collides(nextPosition))
-            .with(true, (): AxisMove => ({
-              position: blockedPosition(nextPosition, direction, config.size),
-              isBlocked: true,
-            }))
-            .otherwise((): AxisMove =>
-              advance(config, direction, nextPosition, remaining - step),
-            ),
-        )
-        .value(),
+    .otherwise(
+      (): AxisMove =>
+        chain(direction * Math.min(Math.abs(remaining), SUBSTEP))
+          .thru((step) => ({ step, nextPosition: current + step }))
+          .thru(({ step, nextPosition }) =>
+            match(config.collides(nextPosition))
+              .with(
+                true,
+                (): AxisMove => ({
+                  position: blockedPosition(
+                    nextPosition,
+                    direction,
+                    config.size,
+                  ),
+                  isBlocked: true,
+                }),
+              )
+              .otherwise(
+                (): AxisMove =>
+                  advance(config, direction, nextPosition, remaining - step),
+              ),
+          )
+          .value(),
     );
 
 export const sweep = (config: Sweep): AxisMove =>

@@ -33,7 +33,13 @@ export const renderGame = (
   context.setTransform(viewport.scale, 0, 0, viewport.scale, 0, 0);
   drawSky(context, level.palette, viewport);
   forEach(HILL_LAYERS, (layer, index) =>
-    drawHillLayer(context, cameraX, layer, level.palette.hills[index], viewport),
+    drawHillLayer(
+      context,
+      cameraX,
+      layer,
+      level.palette.hills[index],
+      viewport,
+    ),
   );
 
   context.save();

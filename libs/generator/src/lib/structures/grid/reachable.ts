@@ -4,10 +4,7 @@ import { match, P } from 'ts-pattern';
 import { maxJumpColumns } from './max-jump-columns';
 import type { Surface } from './surface';
 
-const isReachableStep = (
-  from: Surface,
-  target: Surface,
-): boolean => {
+const isReachableStep = (from: Surface, target: Surface): boolean => {
   const columnDistance = Math.abs(target.col - from.col);
   return (
     columnDistance >= 1 &&
@@ -39,8 +36,13 @@ const expand = (
       .uniq()
       .value(),
   )
-    .with(P.when((next: number[]) => next.length === 0), () => new Set(visited))
-    .otherwise((next) => expand(surfaces, new Set([...visited, ...next]), next));
+    .with(
+      P.when((next: number[]) => next.length === 0),
+      () => new Set(visited),
+    )
+    .otherwise((next) =>
+      expand(surfaces, new Set([...visited, ...next]), next),
+    );
 
 export const reachable = (
   surfaces: Surface[],

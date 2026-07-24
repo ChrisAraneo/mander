@@ -34,7 +34,12 @@ import { rollPalette } from '../palette';
 import { createRng, type Rng } from '../rng';
 import { groundHeight } from '../structures/grid';
 import { rollStructure } from '../structures/structures';
-import { BLOCK, ENEMY, type Structure, type StructureDifficulty } from '../structures/types';
+import {
+  BLOCK,
+  ENEMY,
+  type Structure,
+  type StructureDifficulty,
+} from '../structures/types';
 import {
   type Level,
   type Point,
@@ -109,7 +114,11 @@ interface ColumnResult {
   enemies: Point[];
 }
 
-const columnGround = (grid: Structure, column: number, baseline: number): number =>
+const columnGround = (
+  grid: Structure,
+  column: number,
+  baseline: number,
+): number =>
   match(groundHeight(grid, column))
     .with(0, () => 0)
     .otherwise((stacked) => baseline + stacked - 1);
@@ -245,9 +254,18 @@ const tileAt = (
   width: number,
 ): Tile =>
   match(true)
-    .with(P.when(() => isWallColumn(column, width)), (): Tile => TILE_SOLID)
-    .with(P.when(() => row >= LEVEL_HEIGHT - ground[column]), (): Tile => TILE_SOLID)
-    .with(P.when(() => platformCells.has(`${row}:${column}`)), (): Tile => TILE_SOLID)
+    .with(
+      P.when(() => isWallColumn(column, width)),
+      (): Tile => TILE_SOLID,
+    )
+    .with(
+      P.when(() => row >= LEVEL_HEIGHT - ground[column]),
+      (): Tile => TILE_SOLID,
+    )
+    .with(
+      P.when(() => platformCells.has(`${row}:${column}`)),
+      (): Tile => TILE_SOLID,
+    )
     .otherwise((): Tile => TILE_EMPTY);
 
 const paintTiles = (
@@ -267,7 +285,9 @@ const paintTiles = (
       .value(),
   );
   return map(range(LEVEL_HEIGHT), (row) =>
-    map(range(width), (column) => tileAt(row, column, ground, platformCells, width)),
+    map(range(width), (column) =>
+      tileAt(row, column, ground, platformCells, width),
+    ),
   );
 };
 
@@ -276,15 +296,22 @@ const keyZoneStart = (width: number): number =>
 
 const keyZoneEnd = (width: number): number => width - OUTRO_WIDTH;
 
-const keyPerches = (platforms: Platform[], start: number, end: number): Platform[] =>
+const keyPerches = (
+  platforms: Platform[],
+  start: number,
+  end: number,
+): Platform[] =>
   filter(
     platforms,
     (platform) =>
       !platform.isOverHole && platform.column >= start && platform.column < end,
   );
 
-const keyGroundColumns = (ground: number[], start: number, end: number): number[] =>
-  filter(range(start, end), (column) => ground[column] !== 0);
+const keyGroundColumns = (
+  ground: number[],
+  start: number,
+  end: number,
+): number[] => filter(range(start, end), (column) => ground[column] !== 0);
 
 const placeKey = (
   rng: Rng,
@@ -336,7 +363,8 @@ const canPlaceSpike = (
     Math.abs(column - keyColumn) >= 2 &&
     !some(
       enemyColumns,
-      (enemyColumn) => Math.abs(enemyColumn - column) < SPIKE_MIN_ENEMY_DISTANCE,
+      (enemyColumn) =>
+        Math.abs(enemyColumn - column) < SPIKE_MIN_ENEMY_DISTANCE,
     )
   );
 };
@@ -369,7 +397,13 @@ const placeSpikes = (
     (acc: SpikeAccumulator, column): SpikeAccumulator => {
       const spikeRow = LEVEL_HEIGHT - ground[column] - 1;
       const placed =
-        canPlaceSpike(ground, enemyColumns, keyColumn, acc.lastSpikeColumn, column) &&
+        canPlaceSpike(
+          ground,
+          enemyColumns,
+          keyColumn,
+          acc.lastSpikeColumn,
+          column,
+        ) &&
         hasSpikeClearance(tiles, column, spikeRow) &&
         rng.chance(spikeChance);
       return match(placed)
@@ -454,7 +488,13 @@ export const generateLevel = (
   const groundTop = (column: number): number =>
     (LEVEL_HEIGHT - terrain.ground[column]) * TILE_SIZE;
 
-  const placement = placeKey(rng, terrain.platforms, terrain.ground, width, groundTop);
+  const placement = placeKey(
+    rng,
+    terrain.platforms,
+    terrain.ground,
+    width,
+    groundTop,
+  );
   const spikes = placeSpikes(
     rng,
     baseTiles,

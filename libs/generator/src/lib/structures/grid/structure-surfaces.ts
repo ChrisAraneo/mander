@@ -5,8 +5,7 @@ import { BLOCK, type Structure } from '../types';
 import type { Surface } from './surface';
 
 const isTopBlock = (grid: Structure, row: number, column: number): boolean =>
-  grid[row][column] === BLOCK &&
-  (row === 0 || grid[row - 1][column] !== BLOCK);
+  grid[row][column] === BLOCK && (row === 0 || grid[row - 1][column] !== BLOCK);
 
 export const structureSurfaces = (grid: Structure): Surface[] =>
   flatMap(range(grid.length), (row) =>

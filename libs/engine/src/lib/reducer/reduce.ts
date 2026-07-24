@@ -21,17 +21,19 @@ const startJump = (state: GameState): GameState =>
 
 const interact = (state: GameState): GameState =>
   match(state.status)
-    .with('PLAYING', (): GameState =>
-      match({ isNearChest: state.isNearChest, hasKey: state.hasKey })
-        .with(
-          { isNearChest: true, hasKey: true },
-          (): GameState => ({ ...state, status: 'CHEST' }),
-        )
-        .otherwise(() =>
-          match(state.isNearPortal)
-            .with(true, (): GameState => ({ ...state, status: 'COMPLETE' }))
-            .otherwise((): GameState => state),
-        ),
+    .with(
+      'PLAYING',
+      (): GameState =>
+        match({ isNearChest: state.isNearChest, hasKey: state.hasKey })
+          .with(
+            { isNearChest: true, hasKey: true },
+            (): GameState => ({ ...state, status: 'CHEST' }),
+          )
+          .otherwise(() =>
+            match(state.isNearPortal)
+              .with(true, (): GameState => ({ ...state, status: 'COMPLETE' }))
+              .otherwise((): GameState => state),
+          ),
     )
     .otherwise((): GameState => state);
 

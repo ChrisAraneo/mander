@@ -228,7 +228,8 @@ describe('jumping', () => {
   });
 
   it('clears the tallest climb the generator hands out, and no more', () => {
-    const rise = SURFACE - PLAYER_HEIGHT - jumpApex(settledAt(3 * TILE_SIZE), 100);
+    const rise =
+      SURFACE - PLAYER_HEIGHT - jumpApex(settledAt(3 * TILE_SIZE), 100);
     expect(rise).toBeGreaterThan((MAX_JUMP_TILES - 1) * TILE_SIZE);
     expect(rise).toBeLessThan(MAX_JUMP_TILES * TILE_SIZE);
   });

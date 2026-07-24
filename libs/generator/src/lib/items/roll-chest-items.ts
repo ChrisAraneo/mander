@@ -29,10 +29,10 @@ const pickWeightedIndex = (rng: Rng, pool: readonly CatalogEntry[]): number =>
     0,
   );
 
-const withoutIndex = <Value>(values: readonly Value[], index: number): Value[] => [
-  ...values.slice(0, index),
-  ...values.slice(index + 1),
-];
+const withoutIndex = <Value>(
+  values: readonly Value[],
+  index: number,
+): Value[] => [...values.slice(0, index), ...values.slice(index + 1)];
 
 const shouldStopDrawing = (
   pool: readonly CatalogEntry[],
@@ -49,13 +49,13 @@ const drawItems = (
     .otherwise(() =>
       chain(pickWeightedIndex(rng, pool))
         .thru((index) =>
-          drawItems(
-            rng,
-            withoutIndex(pool, index),
-            [...drawn, pool[index].item],
-          ),
+          drawItems(rng, withoutIndex(pool, index), [
+            ...drawn,
+            pool[index].item,
+          ]),
         )
         .value(),
     );
 
-export const rollChestItems = (rng: Rng): Item[] => drawItems(rng, ITEM_CATALOG, []);
+export const rollChestItems = (rng: Rng): Item[] =>
+  drawItems(rng, ITEM_CATALOG, []);

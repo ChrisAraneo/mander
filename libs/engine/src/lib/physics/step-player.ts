@@ -20,11 +20,10 @@ const horizontalDirection = (input: InputState): number =>
 const facingFor = (direction: number, current: 1 | -1): 1 | -1 =>
   match(direction)
     .with(0, () => current)
-    .otherwise(
-      (): 1 | -1 =>
-        match(direction < 0)
-          .with(true, (): 1 | -1 => -1)
-          .otherwise((): 1 | -1 => 1),
+    .otherwise((): 1 | -1 =>
+      match(direction < 0)
+        .with(true, (): 1 | -1 => -1)
+        .otherwise((): 1 | -1 => 1),
     );
 
 const afterJump = (
@@ -121,15 +120,17 @@ const resolvePlayer = (
       nextY: s.vertical.position,
       ...resolveLanding(s.vertical.isBlocked, s.vy > 0, s.isGrounded, s.vy),
     }))
-    .thru((s): Player => ({
-      x: s.nextX,
-      y: s.nextY,
-      vx: s.vxOut,
-      vy: s.vy,
-      isGrounded: s.isGrounded,
-      facing: s.facing,
-      isJumpQueued: false,
-    }))
+    .thru(
+      (s): Player => ({
+        x: s.nextX,
+        y: s.nextY,
+        vx: s.vxOut,
+        vy: s.vy,
+        isGrounded: s.isGrounded,
+        facing: s.facing,
+        isJumpQueued: false,
+      }),
+    )
     .value();
 
 export const stepPlayer = (

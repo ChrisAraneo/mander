@@ -69,24 +69,29 @@ interface EnemyMotion {
 
 const toEnemy = (motion: EnemyMotion, enemy: Enemy, level: Level): Enemy =>
   match(motion.y > (level.height + 2) * TILE_SIZE)
-    .with(true, (): Enemy => ({
-      ...enemy,
-      x: enemy.homeX,
-      y: enemy.homeY,
-      vx: 0,
-      vy: 0,
-      isGrounded: false,
-    }))
-    .otherwise((): Enemy => ({
-      x: motion.x,
-      y: motion.y,
-      vx: motion.facing * ENEMY_MOVE_SPEED,
-      vy: motion.vy,
-      facing: motion.facing,
-      isGrounded: motion.isGrounded,
-      homeX: enemy.homeX,
-      homeY: enemy.homeY,
-    }));
+    .with(
+      true,
+      (): Enemy => ({
+        ...enemy,
+        x: enemy.homeX,
+        y: enemy.homeY,
+        vx: 0,
+        vy: 0,
+        isGrounded: false,
+      }),
+    )
+    .otherwise(
+      (): Enemy => ({
+        x: motion.x,
+        y: motion.y,
+        vx: motion.facing * ENEMY_MOVE_SPEED,
+        vy: motion.vy,
+        facing: motion.facing,
+        isGrounded: motion.isGrounded,
+        homeX: enemy.homeX,
+        homeY: enemy.homeY,
+      }),
+    );
 
 const enemyIntent = (
   level: Level,
@@ -113,11 +118,7 @@ const enemyIntent = (
     }))
     .value();
 
-const resolveEnemy = (
-  level: Level,
-  enemy: Enemy,
-  motion: EnemyMotion,
-): Enemy =>
+const resolveEnemy = (level: Level, enemy: Enemy, motion: EnemyMotion): Enemy =>
   chain(motion)
     .thru((s) => ({
       ...s,

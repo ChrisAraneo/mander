@@ -16,7 +16,8 @@ import {
 } from './palette';
 import { createRng } from './rng';
 
-const HSL_PATTERN = /^HSL\((?<hue>\d+), (?<saturation>\d+)%, (?<lightness>\d+)%\)$/u;
+const HSL_PATTERN =
+  /^HSL\((?<hue>\d+), (?<saturation>\d+)%, (?<lightness>\d+)%\)$/u;
 
 const parse = (color: string): { hue: number; lightness: number } => {
   const groups = HSL_PATTERN.exec(color)?.groups;
@@ -82,24 +83,27 @@ describe('rollPalette', () => {
     }
   });
 
-  it.each(SEEDS)('keeps the ground readable under the bodies for %s', (seed) => {
-    const palette = rollPalette(createRng(seed));
-    const block = parse(palette.block);
-    const cap = parse(palette.blockCap);
-    const highlight = parse(palette.blockCapHighlight);
+  it.each(SEEDS)(
+    'keeps the ground readable under the bodies for %s',
+    (seed) => {
+      const palette = rollPalette(createRng(seed));
+      const block = parse(palette.block);
+      const cap = parse(palette.blockCap);
+      const highlight = parse(palette.blockCapHighlight);
 
-    expect(block.lightness).toBeGreaterThanOrEqual(GROUND_LIGHTNESS_MIN);
-    expect(block.lightness).toBeLessThanOrEqual(GROUND_LIGHTNESS_MAX);
-    expect(cap.lightness).toBeGreaterThanOrEqual(CAP_LIGHTNESS_MIN);
-    expect(cap.lightness).toBeLessThanOrEqual(CAP_LIGHTNESS_MAX + 1);
-    expect(cap.lightness, 'the cap reads above the block').toBeGreaterThan(
-      block.lightness,
-    );
-    expect(highlight.lightness).toBeGreaterThan(cap.lightness);
-    expect(cap.hue, 'the cap never wears the player colour').toBe(
-      awayFromEntityHue(cap.hue),
-    );
-  });
+      expect(block.lightness).toBeGreaterThanOrEqual(GROUND_LIGHTNESS_MIN);
+      expect(block.lightness).toBeLessThanOrEqual(GROUND_LIGHTNESS_MAX);
+      expect(cap.lightness).toBeGreaterThanOrEqual(CAP_LIGHTNESS_MIN);
+      expect(cap.lightness).toBeLessThanOrEqual(CAP_LIGHTNESS_MAX + 1);
+      expect(cap.lightness, 'the cap reads above the block').toBeGreaterThan(
+        block.lightness,
+      );
+      expect(highlight.lightness).toBeGreaterThan(cap.lightness);
+      expect(cap.hue, 'the cap never wears the player colour').toBe(
+        awayFromEntityHue(cap.hue),
+      );
+    },
+  );
 
   it.each(SEEDS)('darkens the sky towards the top for %s', (seed) => {
     const { sky, hills } = rollPalette(createRng(seed));
@@ -120,9 +124,9 @@ describe('rollPalette', () => {
 describe('level palettes', () => {
   it('gives every run its own palette, deterministically', () => {
     const palettes = SEEDS.map((seed) => generateLevelSet(seed)[0].palette);
-    expect(new Set(palettes.map((palette) => JSON.stringify(palette))).size).toBe(
-      SEEDS.length,
-    );
+    expect(
+      new Set(palettes.map((palette) => JSON.stringify(palette))).size,
+    ).toBe(SEEDS.length);
     expect(generateLevelSet('MANDER')[0].palette).toEqual(
       generateLevelSet('MANDER')[0].palette,
     );
@@ -137,8 +141,8 @@ describe('level palettes', () => {
   });
 
   it('keeps the palette fixed when only the level index changes', () => {
-    expect(
-      generateLevel(levelSeed('MANDER', 0), 0, 'MANDER').palette,
-    ).toEqual(generateLevel(levelSeed('MANDER', 1), 1, 'MANDER').palette);
+    expect(generateLevel(levelSeed('MANDER', 0), 0, 'MANDER').palette).toEqual(
+      generateLevel(levelSeed('MANDER', 1), 1, 'MANDER').palette,
+    );
   });
 });

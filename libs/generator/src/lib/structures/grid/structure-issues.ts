@@ -63,6 +63,9 @@ export const structureIssues = (grid: Structure): string[] =>
     .with(0, () => ['grid is empty'])
     .otherwise(() =>
       match(failingMessages(grid, shapeRules))
-        .with(P.when((issues: string[]) => issues.length > 0), (issues) => issues)
+        .with(
+          P.when((issues: string[]) => issues.length > 0),
+          (issues) => issues,
+        )
         .otherwise(() => failingMessages(grid, contentRules)),
     );

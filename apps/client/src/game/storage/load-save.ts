@@ -14,7 +14,10 @@ const isSaveShape = (value: unknown): value is Partial<SaveData> =>
 
 const arrayOrEmpty = <Value>(value: unknown): Value[] =>
   match(value)
-    .with(P.when((candidate): candidate is Value[] => isArray(candidate)), (array) => array)
+    .with(
+      P.when((candidate): candidate is Value[] => isArray(candidate)),
+      (array) => array,
+    )
     .otherwise((): Value[] => []);
 
 const parseSave = (raw: string | null): SaveData =>

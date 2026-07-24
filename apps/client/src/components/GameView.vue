@@ -39,13 +39,15 @@ const hint = computed(() =>
 
 <template>
   <div class="game-view">
-    <canvas ref="canvas" class="stage"></canvas>
+    <canvas ref="canvas" class="stage" />
 
     <div class="hud-layer">
       <HudBar :state="state" :seed="seed" @exit="$emit('exit')" />
 
       <div class="foot">
-        <p v-if="hint" class="hint">{{ hint }}</p>
+        <p v-if="hint" class="hint">
+          {{ hint }}
+        </p>
 
         <p class="controls">
           A / D or ◀ ▶ move · W / Space jump · E interact · Esc close · R
