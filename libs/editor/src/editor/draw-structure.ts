@@ -2,9 +2,13 @@ import {
   AIR,
   BLOCK,
   ENEMY,
+  PLAYER_CLEARANCE,
+  PLAYER_HEIGHT_TILES,
+  PLAYER_WIDTH_TILES,
   SECTOR_WIDTH,
   type Structure,
   STRUCTURE_HEIGHT,
+  surfaceHasHeadroom,
 } from '@mander/generator';
 import { forEach } from 'lodash-es';
 
@@ -64,12 +68,12 @@ const drawEnemyEyes = (
   centerX: number,
   centerY: number,
 ): void => {
-  context.fillStyle = '#fdf3ea';
+  context.fillStyle = '#FDF3EA';
   context.beginPath();
   context.arc(centerX - 4, centerY - 2, 2.6, 0, Math.PI * 2);
   context.arc(centerX + 4, centerY - 2, 2.6, 0, Math.PI * 2);
   context.fill();
-  context.fillStyle = '#1c1c28';
+  context.fillStyle = '#1C1C28';
   context.beginPath();
   context.arc(centerX - 4, centerY - 2, 1.1, 0, Math.PI * 2);
   context.arc(centerX + 4, centerY - 2, 1.1, 0, Math.PI * 2);
@@ -155,6 +159,37 @@ const drawSurfaces = (
   });
 };
 
+const drawCrampedHeadroom = (
+  context: CanvasRenderingContext2D,
+  grid: Structure,
+  surfaces: Surfaces,
+): void => {
+  context.fillStyle = COLORS.cramped;
+  forEach(surfaces, (surface) => {
+    if (surfaceHasHeadroom(grid, surface)) return;
+    const row = STRUCTURE_HEIGHT - 1 - surface.height;
+    context.fillRect(
+      surface.col * CELL,
+      (row - PLAYER_CLEARANCE) * CELL,
+      CELL,
+      PLAYER_CLEARANCE * CELL,
+    );
+  });
+};
+
+const drawPlayerGhost = (context: CanvasRenderingContext2D): void => {
+  const width = PLAYER_WIDTH_TILES * CELL;
+  const height = PLAYER_HEIGHT_TILES * CELL;
+  const pixelX = (CELL - width) / 2;
+  const pixelY = (STRUCTURE_HEIGHT - 1) * CELL - height;
+
+  context.fillStyle = COLORS.player;
+  context.fillRect(pixelX, pixelY, width, height);
+  context.strokeStyle = COLORS.playerOutline;
+  context.lineWidth = 1;
+  context.strokeRect(pixelX + 0.5, pixelY + 0.5, width - 1, height - 1);
+};
+
 export const drawStructure = (
   context: CanvasRenderingContext2D,
   grid: Structure,
@@ -164,9 +199,11 @@ export const drawStructure = (
   context.setTransform(view.pixelRatio, 0, 0, view.pixelRatio, 0, 0);
   context.clearRect(0, 0, view.cssWidth, view.cssHeight);
   drawPits(context, grid, view);
+  drawCrampedHeadroom(context, grid, surfaces);
   drawBlocks(context, grid);
   drawEnemies(context, grid);
   drawGridLines(context, view);
   drawGroundLine(context, view);
+  drawPlayerGhost(context);
   drawSurfaces(context, surfaces, reached);
 };

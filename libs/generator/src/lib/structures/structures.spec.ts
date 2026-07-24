@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { SECTOR_WIDTH, STRUCTURE_HEIGHT } from '../consts';
+import {
+  MAX_JUMP_TILES,
+  PLAYER_CLEARANCE,
+  SECTOR_WIDTH,
+  STRUCTURE_HEIGHT,
+} from '../consts';
 import { createRng } from '../rng';
 import {
   formatStructure,
@@ -15,15 +20,21 @@ import { rollStructure, structurePool } from './structures';
 import { AIR, BLOCK, ENEMY, type Structure } from './types';
 
 describe('maxJumpColumns', () => {
-  it('mirrors the engine jump arc: easy drops, harder climbs, nothing past a rise of 3', () => {
+  it('mirrors the engine jump arc: easy drops, harder climbs, nothing past a rise of 4', () => {
     expect(maxJumpColumns(-10)).toBe(6);
     expect(maxJumpColumns(-1)).toBe(6);
     expect(maxJumpColumns(0)).toBe(5);
-    expect(maxJumpColumns(1)).toBe(3);
-    expect(maxJumpColumns(2)).toBe(3);
-    expect(maxJumpColumns(3)).toBe(2);
-    expect(maxJumpColumns(4)).toBe(0);
+    expect(maxJumpColumns(1)).toBe(4);
+    expect(maxJumpColumns(2)).toBe(4);
+    expect(maxJumpColumns(3)).toBe(3);
+    expect(maxJumpColumns(4)).toBe(2);
+    expect(maxJumpColumns(5)).toBe(0);
     expect(maxJumpColumns(10)).toBe(0);
+  });
+
+  it('stops one tile short of the peak of a held jump', () => {
+    expect(maxJumpColumns(MAX_JUMP_TILES - 1)).toBeGreaterThan(0);
+    expect(maxJumpColumns(MAX_JUMP_TILES)).toBe(0);
   });
 });
 
@@ -41,8 +52,8 @@ const maxBridgeHeight = (grid: Structure): number => {
 };
 
 const POOLS: Array<[string, readonly Structure[]]> = [
-  ['normal', NORMAL_STRUCTURES],
-  ['hard', HARD_STRUCTURES],
+  ['NORMAL', NORMAL_STRUCTURES],
+  ['HARD', HARD_STRUCTURES],
 ];
 
 describe('structure library', () => {
@@ -131,6 +142,18 @@ describe('structureIssues', () => {
     expect(structureIssues(grid).join(' ')).toContain('cannot cross');
   });
 
+  it('rejects a ceiling the player is too tall to walk under', () => {
+    const grid = flatGrid();
+    grid[STRUCTURE_HEIGHT - 1 - PLAYER_CLEARANCE][8] = BLOCK;
+    expect(structureIssues(grid).join(' ')).toContain('clear cells above');
+  });
+
+  it('accepts a ceiling raised just clear of the players head', () => {
+    const grid = flatGrid();
+    grid[STRUCTURE_HEIGHT - 2 - PLAYER_CLEARANCE][8] = BLOCK;
+    expect(structureIssues(grid)).toEqual([]);
+  });
+
   it('accepts an enemy standing on a block', () => {
     const grid = flatGrid();
     grid[STRUCTURE_HEIGHT - 2][5] = ENEMY;
@@ -158,13 +181,13 @@ describe('formatStructure', () => {
 
 describe('rollStructure', () => {
   it('draws from the matching difficulty pool', () => {
-    expect(structurePool('normal')).toBe(NORMAL_STRUCTURES);
-    expect(structurePool('hard')).toBe(HARD_STRUCTURES);
+    expect(structurePool('NORMAL')).toBe(NORMAL_STRUCTURES);
+    expect(structurePool('HARD')).toBe(HARD_STRUCTURES);
   });
 
   it('is deterministic for the same rng state and returns a pool member', () => {
-    const a = rollStructure(createRng('same'), 'normal');
-    const b = rollStructure(createRng('same'), 'normal');
+    const a = rollStructure(createRng('SAME'), 'NORMAL');
+    const b = rollStructure(createRng('SAME'), 'NORMAL');
     expect(a).toBe(b);
     expect(NORMAL_STRUCTURES).toContain(a);
   });

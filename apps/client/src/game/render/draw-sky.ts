@@ -1,10 +1,16 @@
-import { VIEW_HEIGHT, VIEW_WIDTH } from './constants';
+import type { Palette } from '@mander/generator';
 
-export const drawSky = (context: CanvasRenderingContext2D): void => {
-  const sky = context.createLinearGradient(0, 0, 0, VIEW_HEIGHT);
-  sky.addColorStop(0, '#1b2033');
-  sky.addColorStop(0.6, '#2b3a52');
-  sky.addColorStop(1, '#3c5161');
+import type { Viewport } from './viewport';
+
+export const drawSky = (
+  context: CanvasRenderingContext2D,
+  palette: Palette,
+  viewport: Viewport,
+): void => {
+  const sky = context.createLinearGradient(0, 0, 0, viewport.height);
+  sky.addColorStop(0, palette.sky[0]);
+  sky.addColorStop(0.6, palette.sky[1]);
+  sky.addColorStop(1, palette.sky[2]);
   context.fillStyle = sky;
-  context.fillRect(0, 0, VIEW_WIDTH, VIEW_HEIGHT);
+  context.fillRect(0, 0, viewport.width, viewport.height);
 };

@@ -16,7 +16,7 @@ defineEmits<{ choose: [index: number]; close: [] }>();
           v-for="(item, index) in items"
           :key="index"
           class="card"
-          :class="item.rarity"
+          :class="item.rarity.toLowerCase()"
           @click="$emit('choose', index)">
           <span class="rarity">{{ item.rarity }}</span>
           <span class="name">{{ item.name }}</span>

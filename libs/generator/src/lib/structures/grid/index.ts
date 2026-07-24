@@ -9,3 +9,5 @@ export * from './structure-is-crossable';
 export * from './structure-issues';
 export * from './structure-surfaces';
 export * from './surface';
+export * from './surface-has-headroom';
+export * from './surfaces-have-headroom';

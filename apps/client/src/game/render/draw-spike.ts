@@ -5,7 +5,7 @@ export const drawSpike = (
   tileX: number,
   tileY: number,
 ): void => {
-  context.strokeStyle = '#333a4f';
+  context.strokeStyle = '#333A4F';
   context.lineWidth = 1;
   for (const [left, apex, right] of spikeTriangles(tileX, tileY)) {
     const gradient = context.createLinearGradient(
@@ -14,8 +14,8 @@ export const drawSpike = (
       left.x,
       apex.y,
     );
-    gradient.addColorStop(0, '#8b90a3');
-    gradient.addColorStop(1, '#dfe3ee');
+    gradient.addColorStop(0, '#8B90A3');
+    gradient.addColorStop(1, '#DFE3EE');
     context.fillStyle = gradient;
     context.beginPath();
     context.moveTo(left.x, left.y);

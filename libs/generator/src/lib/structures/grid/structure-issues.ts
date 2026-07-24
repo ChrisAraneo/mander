@@ -1,10 +1,11 @@
 import { every } from 'lodash-es';
 
-import { SECTOR_WIDTH } from '../../consts';
+import { PLAYER_CLEARANCE, SECTOR_WIDTH } from '../../consts';
 import { AIR, BLOCK, ENEMY, type Structure } from '../types';
 import { enemiesHaveFooting } from './enemies-have-footing';
 import { groundHeight } from './ground-height';
 import { structureIsCrossable } from './structure-is-crossable';
+import { surfacesHaveHeadroom } from './surfaces-have-headroom';
 
 const structureShapeIssues = (grid: Structure): string[] => {
   const issues: string[] = [];
@@ -39,6 +40,11 @@ export const structureIssues = (grid: Structure): string[] => {
   }
   if (!structureIsCrossable(grid)) {
     issues.push('the player cannot cross it both ways — mind the jump limits');
+  }
+  if (!surfacesHaveHeadroom(grid)) {
+    issues.push(
+      `every surface needs ${PLAYER_CLEARANCE} clear cells above it — the player stands that tall`,
+    );
   }
   if (!enemiesHaveFooting(grid)) {
     issues.push(

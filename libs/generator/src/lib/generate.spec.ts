@@ -6,6 +6,7 @@ import {
   LEVEL_WIDTH,
   LEVELS_PER_SEED,
   OUTRO_WIDTH,
+  PLAYER_CLEARANCE,
   SECTOR_COUNT,
   SECTOR_WIDTH,
   SPIKE_CLEARANCE,
@@ -143,7 +144,7 @@ const chestSurface = (level: Level): Surface =>
 const spawnSurface = (level: Level): Surface =>
   surfaceUnder(level, level.spawn.x, level.spawn.y);
 
-const SEEDS = Array.from({ length: 12 }, (_, i) => `sample-seed-${i}`);
+const SEEDS = Array.from({ length: 12 }, (_, i) => `SAMPLE-SEED-${i}`);
 const ALL_LEVELS = Array.from({ length: LEVELS_PER_SEED }, (_, i) => i);
 const CASES: Array<[string, number]> = SEEDS.flatMap((seed) =>
   ALL_LEVELS.map((d): [string, number] => [seed, d]),
@@ -180,15 +181,15 @@ const expectValidSpike = (
 
 describe('generateLevel', () => {
   it('is deterministic for the same seed and difficulty', () => {
-    expect(generateLevel('mander', 3)).toEqual(generateLevel('mander', 3));
+    expect(generateLevel('MANDER', 3)).toEqual(generateLevel('MANDER', 3));
   });
 
   it('produces different levels for different seeds and difficulties', () => {
-    expect(JSON.stringify(generateLevel('seed-a', 0))).not.toEqual(
-      JSON.stringify(generateLevel('seed-b', 0)),
+    expect(JSON.stringify(generateLevel('SEED-A', 0))).not.toEqual(
+      JSON.stringify(generateLevel('SEED-B', 0)),
     );
-    expect(JSON.stringify(generateLevel('seed-a', 0))).not.toEqual(
-      JSON.stringify(generateLevel('seed-a', 5)),
+    expect(JSON.stringify(generateLevel('SEED-A', 0))).not.toEqual(
+      JSON.stringify(generateLevel('SEED-A', 5)),
     );
   });
 
@@ -336,6 +337,26 @@ describe('generateLevel', () => {
   });
 
   it.each(CASES)(
+    'leaves the player headroom on every surface for %s level %i',
+    (seed, d) => {
+      const level = generateLevel(levelSeed(seed, d), d);
+      for (let x = 1; x < level.width - 1; x++) {
+        for (let y = 0; y < level.height; y++) {
+          const isSurface =
+            level.tiles[y][x] === TILE_SOLID &&
+            (y === 0 || level.tiles[y - 1][x] !== TILE_SOLID);
+          if (!isSurface) continue;
+          for (let r = Math.max(0, y - PLAYER_CLEARANCE); r < y; r++) {
+            expect(level.tiles[r][x], `headroom above ${x}:${y}`).not.toBe(
+              TILE_SOLID,
+            );
+          }
+        }
+      }
+    },
+  );
+
+  it.each(CASES)(
     'hides the key in the middle of the level for %s level %i',
     (seed, d) => {
       const level = generateLevel(levelSeed(seed, d), d);
@@ -455,12 +476,12 @@ describe('generateLevel', () => {
 
 describe('generateLevelSet', () => {
   it('produces eight distinct levels, deterministically', () => {
-    const levels = generateLevelSet('run-seed');
+    const levels = generateLevelSet('RUN-SEED');
     expect(levels).toHaveLength(LEVELS_PER_SEED);
     expect(new Set(levels.map((l) => JSON.stringify(l))).size).toBe(
       LEVELS_PER_SEED,
     );
-    expect(levels).toEqual(generateLevelSet('run-seed'));
+    expect(levels).toEqual(generateLevelSet('RUN-SEED'));
   });
 });
 
@@ -495,15 +516,15 @@ describe('dailySeed', () => {
 
 describe('rollChestItems', () => {
   it('is deterministic for the same rng seed', () => {
-    expect(rollChestItems(createRng('roll'))).toEqual(
-      rollChestItems(createRng('roll')),
+    expect(rollChestItems(createRng('ROLL'))).toEqual(
+      rollChestItems(createRng('ROLL')),
     );
   });
 });
 
 describe('levelSeed', () => {
   it('derives a distinct seed per level index', () => {
-    expect(levelSeed('abc', 0)).toBe('abc#0');
-    expect(levelSeed('abc', 1)).not.toBe(levelSeed('abc', 0));
+    expect(levelSeed('ABC', 0)).toBe('ABC#0');
+    expect(levelSeed('ABC', 1)).not.toBe(levelSeed('ABC', 0));
   });
 });

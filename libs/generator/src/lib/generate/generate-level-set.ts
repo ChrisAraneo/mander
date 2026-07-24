@@ -7,5 +7,5 @@ import { levelSeed } from './level-seed';
 
 export const generateLevelSet = (baseSeed: string): Level[] =>
   times(LEVELS_PER_SEED, (index) =>
-    generateLevel(levelSeed(baseSeed, index), index),
+    generateLevel(levelSeed(baseSeed, index), index, baseSeed),
   );

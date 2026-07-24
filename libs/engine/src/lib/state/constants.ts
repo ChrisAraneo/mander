@@ -1,5 +1,11 @@
-export const PLAYER_WIDTH = 22;
-export const PLAYER_HEIGHT = 28;
+import {
+  PLAYER_HEIGHT_TILES,
+  PLAYER_WIDTH_TILES,
+  TILE_SIZE,
+} from '@mander/generator';
+
+export const PLAYER_WIDTH = PLAYER_WIDTH_TILES * TILE_SIZE;
+export const PLAYER_HEIGHT = PLAYER_HEIGHT_TILES * TILE_SIZE;
 
 export const ENEMY_WIDTH = 22;
 export const ENEMY_HEIGHT = 22;

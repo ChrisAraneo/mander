@@ -14,7 +14,7 @@ export const createInitialState = (
   player: createPlayer(level),
   enemies: createEnemies(level),
   input: { isLeft: false, isRight: false, isJump: false },
-  status: 'playing',
+  status: 'PLAYING',
   hasKey: false,
   isChestOpened: false,
   inventory,

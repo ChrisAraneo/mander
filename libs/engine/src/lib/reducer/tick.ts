@@ -18,7 +18,7 @@ const INTERACT_RANGE = 12;
 const PICKUP_RANGE = 4;
 
 export const tick = (state: GameState, deltaSeconds: number): GameState => {
-  if (state.status !== 'playing') return state;
+  if (state.status !== 'PLAYING') return state;
 
   let player = stepPlayer(
     state.level,

@@ -1,1 +1,1 @@
-export type ItemEffect = { kind: 'none' } | { kind: 'speed'; percent: number };
+export type ItemEffect = { kind: 'NONE' } | { kind: 'SPEED'; percent: number };

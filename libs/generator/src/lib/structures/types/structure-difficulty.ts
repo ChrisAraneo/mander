@@ -1,1 +1,1 @@
-export type StructureDifficulty = 'normal' | 'hard';
+export type StructureDifficulty = 'NORMAL' | 'HARD';

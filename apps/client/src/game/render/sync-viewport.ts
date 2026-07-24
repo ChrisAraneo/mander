@@ -1,0 +1,36 @@
+import { round } from 'lodash-es';
+
+import { VIEW_HEIGHT, VIEW_WIDTH } from './constants';
+import type { Viewport } from './viewport';
+
+const resizeToDisplay = (
+  canvas: HTMLCanvasElement,
+  cssWidth: number,
+  cssHeight: number,
+  pixelRatio: number,
+): void => {
+  const deviceWidth = round(cssWidth * pixelRatio);
+  const deviceHeight = round(cssHeight * pixelRatio);
+  if (canvas.width !== deviceWidth) canvas.width = deviceWidth;
+  if (canvas.height !== deviceHeight) canvas.height = deviceHeight;
+};
+
+/**
+ * Matches the drawing buffer to the canvas as the window sizes it, and works
+ * out how much of the world fits. The scale never drops below the reference
+ * view, so a bigger canvas draws bigger — and shows a little more around the
+ * edges on aspect ratios wider or taller than the reference.
+ */
+export const syncViewport = (canvas: HTMLCanvasElement): Viewport => {
+  const pixelRatio = window.devicePixelRatio || 1;
+  const cssWidth = Math.max(1, canvas.clientWidth);
+  const cssHeight = Math.max(1, canvas.clientHeight);
+  resizeToDisplay(canvas, cssWidth, cssHeight, pixelRatio);
+
+  const cssScale = Math.min(cssWidth / VIEW_WIDTH, cssHeight / VIEW_HEIGHT);
+  return {
+    width: cssWidth / cssScale,
+    height: cssHeight / cssScale,
+    scale: cssScale * pixelRatio,
+  };
+};

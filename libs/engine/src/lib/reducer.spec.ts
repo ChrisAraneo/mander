@@ -1,7 +1,10 @@
 import {
+  createRng,
   type Item,
   type Level,
+  MAX_JUMP_TILES,
   type Point,
+  rollPalette,
   type Tile,
   TILE_EMPTY,
   TILE_SIZE,
@@ -22,6 +25,7 @@ import {
   type GameState,
   MAX_SPEED_BONUS_PERCENT,
   PLAYER_HEIGHT,
+  PLAYER_WIDTH,
 } from './state';
 
 const WIDTH = 30;
@@ -32,16 +36,16 @@ const item = (id: string, effect?: Item['effect']): Item => ({
   id,
   name: id,
   description: id,
-  rarity: 'common',
-  effect: effect ?? { kind: 'none' },
+  rarity: 'COMMON',
+  effect: effect ?? { kind: 'NONE' },
 });
 
 const CARDS: Item[] = [
-  item('card-0'),
-  item('card-1', { kind: 'speed', percent: 5 }),
-  item('card-2'),
-  item('card-3'),
-  item('card-4'),
+  item('CARD-0'),
+  item('CARD-1', { kind: 'SPEED', percent: 5 }),
+  item('CARD-2'),
+  item('CARD-3'),
+  item('CARD-4'),
 ];
 
 const testLevel = (enemies: Point[] = []): Level => {
@@ -58,7 +62,7 @@ const testLevel = (enemies: Point[] = []): Level => {
     tiles[y][11] = TILE_EMPTY;
   }
   return {
-    seed: 'test',
+    seed: 'TEST',
     width: WIDTH,
     height: HEIGHT,
     tiles,
@@ -68,6 +72,7 @@ const testLevel = (enemies: Point[] = []): Level => {
     key: { x: 15 * TILE_SIZE + 7, y: SURFACE - 34, width: 18, height: 22 },
     chestItems: CARDS,
     enemies,
+    palette: rollPalette(createRng('TEST')),
   };
 };
 
@@ -134,6 +139,19 @@ describe('movement actions', () => {
     expect(state.player.facing).toBe(-1);
   });
 
+  it('is too tall to squeeze under a ceiling one tile above the ground', () => {
+    const level = testLevel();
+    level.tiles[10][6] = TILE_SOLID;
+    let state = createInitialState(level, 0, []);
+    state = {
+      ...state,
+      player: { ...state.player, x: 3 * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT },
+    };
+    state = act(state, { type: 'MOVE_RIGHT_START' });
+    state = tickN(state, 120);
+    expect(state.player.x + PLAYER_WIDTH).toBeLessThanOrEqual(6 * TILE_SIZE);
+  });
+
   it('respawns and counts a death after falling into the pit', () => {
     const start = settledAt(8 * TILE_SIZE);
     start.player.x = 10 * TILE_SIZE + 5;
@@ -143,7 +161,7 @@ describe('movement actions', () => {
   });
 
   it('RESPAWN resets the player position but keeps key and inventory', () => {
-    let state = settledAt(15 * TILE_SIZE, [item('extra')]);
+    let state = settledAt(15 * TILE_SIZE, [item('EXTRA')]);
     state = tickN(state, 2);
     expect(state.hasKey).toBe(true);
     state = act(state, { type: 'RESPAWN' });
@@ -209,21 +227,27 @@ describe('jumping', () => {
     expect(surfaceY - heldApex).toBeGreaterThan((surfaceY - tapApex) * 1.5);
   });
 
+  it('clears the tallest climb the generator hands out, and no more', () => {
+    const rise = SURFACE - PLAYER_HEIGHT - jumpApex(settledAt(3 * TILE_SIZE), 100);
+    expect(rise).toBeGreaterThan((MAX_JUMP_TILES - 1) * TILE_SIZE);
+    expect(rise).toBeLessThan(MAX_JUMP_TILES * TILE_SIZE);
+  });
+
   it('stacks speed items and caps the bonus at 15%', () => {
     const base = capabilitiesFor([]);
-    const one = capabilitiesFor([item('boots', { kind: 'speed', percent: 3 })]);
+    const one = capabilitiesFor([item('BOOTS', { kind: 'SPEED', percent: 3 })]);
     expect(one.moveSpeed).toBeCloseTo(base.moveSpeed * 1.03, 5);
 
     const two = capabilitiesFor([
-      item('boots', { kind: 'speed', percent: 3 }),
-      item('skimmers', { kind: 'speed', percent: 5 }),
+      item('BOOTS', { kind: 'SPEED', percent: 3 }),
+      item('SKIMMERS', { kind: 'SPEED', percent: 5 }),
     ]);
     expect(two.moveSpeed).toBeCloseTo(base.moveSpeed * 1.08, 5);
 
     const overCap = capabilitiesFor([
-      item('a', { kind: 'speed', percent: 7 }),
-      item('b', { kind: 'speed', percent: 7 }),
-      item('c', { kind: 'speed', percent: 7 }),
+      item('A', { kind: 'SPEED', percent: 7 }),
+      item('B', { kind: 'SPEED', percent: 7 }),
+      item('C', { kind: 'SPEED', percent: 7 }),
     ]);
     expect(overCap.moveSpeed).toBeCloseTo(
       base.moveSpeed * (1 + MAX_SPEED_BONUS_PERCENT / 100),
@@ -247,7 +271,7 @@ describe('key and chest', () => {
     expect(state.isNearChest).toBe(true);
     expect(state.hasKey).toBe(false);
     state = act(state, { type: 'INTERACT' });
-    expect(state.status).toBe('playing');
+    expect(state.status).toBe('PLAYING');
     expect(state.inventory).toHaveLength(0);
   });
 
@@ -255,7 +279,7 @@ describe('key and chest', () => {
     let state = settledAt(20 * TILE_SIZE - 20);
     state = { ...state, hasKey: true };
     state = act(state, { type: 'INTERACT' });
-    expect(state.status).toBe('chest');
+    expect(state.status).toBe('CHEST');
 
     state = act(state, { type: 'MOVE_RIGHT_START' });
     const frozen = tick(state);
@@ -264,14 +288,14 @@ describe('key and chest', () => {
     state = act(state, { type: 'MOVE_RIGHT_STOP' });
 
     state = act(state, { type: 'CHOOSE_ITEM', index: 1 });
-    expect(state.status).toBe('playing');
+    expect(state.status).toBe('PLAYING');
     expect(state.isChestOpened).toBe(true);
-    expect(state.inventory.map((i) => i.id)).toEqual(['card-1']);
+    expect(state.inventory.map((i) => i.id)).toEqual(['CARD-1']);
 
     state = tick(state);
     expect(state.isNearChest).toBe(false);
     const again = act(state, { type: 'INTERACT' });
-    expect(again.status).toBe('playing');
+    expect(again.status).toBe('PLAYING');
     expect(again.inventory).toHaveLength(1);
   });
 
@@ -280,7 +304,7 @@ describe('key and chest', () => {
     state = { ...state, hasKey: true };
     state = act(state, { type: 'INTERACT' });
     state = act(state, { type: 'CLOSE' });
-    expect(state.status).toBe('playing');
+    expect(state.status).toBe('PLAYING');
     expect(state.isChestOpened).toBe(false);
     expect(state.inventory).toHaveLength(0);
     state = tick(state);
@@ -301,7 +325,7 @@ describe('portal and level loading', () => {
     let state = settledAt(25 * TILE_SIZE - 10);
     expect(state.isNearPortal).toBe(true);
     state = act(state, { type: 'INTERACT' });
-    expect(state.status).toBe('complete');
+    expect(state.status).toBe('COMPLETE');
     expect(tick(state)).toEqual(state);
   });
 
@@ -317,12 +341,12 @@ describe('portal and level loading', () => {
     });
 
     expect(state.levelIndex).toBe(1);
-    expect(state.status).toBe('playing');
+    expect(state.status).toBe('PLAYING');
     expect(state.hasKey).toBe(false);
     expect(state.isChestOpened).toBe(false);
     expect(state.time).toBe(0);
     expect(state.player.x).toBe(state.level.spawn.x);
-    expect(state.inventory.map((i) => i.id)).toEqual(['card-3']);
+    expect(state.inventory.map((i) => i.id)).toEqual(['CARD-3']);
   });
 });
 

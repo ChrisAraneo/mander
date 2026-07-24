@@ -1,19 +1,24 @@
 import { type Player, PLAYER_HEIGHT, PLAYER_WIDTH } from '@mander/engine';
 
+const HALF_HEIGHT = PLAYER_HEIGHT / 2;
+const HEAD_RADIUS = 7;
+const HEAD_CENTER_Y = -HALF_HEIGHT + HEAD_RADIUS + 1;
+const TORSO_TOP = HEAD_CENTER_Y + HEAD_RADIUS;
+const LEG_HEIGHT = 18;
+const LEG_TOP = HALF_HEIGHT - LEG_HEIGHT;
+
 const drawPlayerLegs = (
   context: CanvasRenderingContext2D,
   isGrounded: boolean,
   swing: number,
 ): void => {
-  context.fillStyle = '#3f5a86';
-  const legTop = 5;
-  const legHeight = PLAYER_HEIGHT / 2 - legTop;
+  context.fillStyle = '#3F5A86';
   if (isGrounded) {
-    context.fillRect(-6 + swing / 2, legTop, 5, legHeight);
-    context.fillRect(2 - swing / 2, legTop, 5, legHeight);
+    context.fillRect(-7 + swing / 2, LEG_TOP, 5, LEG_HEIGHT);
+    context.fillRect(2 - swing / 2, LEG_TOP, 5, LEG_HEIGHT);
   } else {
-    context.fillRect(-6, legTop, 5, legHeight - 2);
-    context.fillRect(2, legTop + 2, 5, legHeight - 2);
+    context.fillRect(-7, LEG_TOP, 5, LEG_HEIGHT - 3);
+    context.fillRect(2, LEG_TOP + 3, 5, LEG_HEIGHT - 3);
   }
 };
 
@@ -21,31 +26,37 @@ const drawPlayerBody = (
   context: CanvasRenderingContext2D,
   swing: number,
 ): void => {
-  context.fillStyle = '#f4762c';
+  context.fillStyle = '#F4762C';
   context.beginPath();
-  context.roundRect(-7, -6, 14, 13, 4);
+  context.roundRect(-8, TORSO_TOP, 16, LEG_TOP - TORSO_TOP + 4, 5);
   context.fill();
 
-  context.fillStyle = '#e0651f';
+  context.fillStyle = '#E0651F';
   context.beginPath();
-  context.roundRect(-2 - swing / 2, -4, 4, 9, 2);
+  context.roundRect(-2 - swing / 2, TORSO_TOP + 3, 4, 12, 2);
   context.fill();
 };
 
 const drawPlayerHead = (context: CanvasRenderingContext2D): void => {
-  context.fillStyle = '#f2c49b';
+  context.fillStyle = '#F2C49B';
   context.beginPath();
-  context.arc(1, -9, 5.5, 0, Math.PI * 2);
+  context.arc(1, HEAD_CENTER_Y, HEAD_RADIUS, 0, Math.PI * 2);
   context.fill();
 
-  context.fillStyle = '#4a3021';
+  context.fillStyle = '#4A3021';
   context.beginPath();
-  context.arc(0.5, -10.5, 5.4, Math.PI * 0.95, Math.PI * 2.02);
+  context.arc(
+    0.5,
+    HEAD_CENTER_Y - 1.5,
+    HEAD_RADIUS - 0.2,
+    Math.PI * 0.95,
+    Math.PI * 2.02,
+  );
   context.fill();
 
-  context.fillStyle = '#1c1c28';
+  context.fillStyle = '#1C1C28';
   context.beginPath();
-  context.arc(3.4, -8.6, 1.2, 0, Math.PI * 2);
+  context.arc(4.2, HEAD_CENTER_Y + 0.4, 1.5, 0, Math.PI * 2);
   context.fill();
 };
 
@@ -57,7 +68,7 @@ export const drawPlayer = (
   const centerX = player.x + PLAYER_WIDTH / 2;
   const centerY = player.y + PLAYER_HEIGHT / 2;
   const isRunning = Math.abs(player.vx) > 1 && player.isGrounded;
-  const swing = isRunning ? Math.sin(time * 14) * 4 : 0;
+  const swing = isRunning ? Math.sin(time * 14) * 5 : 0;
 
   context.save();
   context.translate(centerX, centerY);

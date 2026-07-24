@@ -5,11 +5,11 @@ const drawEnemyBody = (
   halfWidth: number,
   halfHeight: number,
 ): void => {
-  context.fillStyle = '#7d2f2a';
+  context.fillStyle = '#7D2F2A';
   context.fillRect(-halfWidth + 3, halfHeight - 4, 5, 3);
   context.fillRect(halfWidth - 8, halfHeight - 4, 5, 3);
 
-  context.fillStyle = '#b5473f';
+  context.fillStyle = '#B5473F';
   context.beginPath();
   context.roundRect(
     -halfWidth + 2,
@@ -20,19 +20,19 @@ const drawEnemyBody = (
   );
   context.fill();
 
-  context.fillStyle = '#d5695f';
+  context.fillStyle = '#D5695F';
   context.beginPath();
   context.roundRect(-halfWidth + 5, -1, ENEMY_WIDTH - 10, halfHeight - 3, 4);
   context.fill();
 };
 
 const drawEnemyEyes = (context: CanvasRenderingContext2D): void => {
-  context.fillStyle = '#fdf3ea';
+  context.fillStyle = '#FDF3EA';
   context.beginPath();
   context.arc(-4, -4, 3.2, 0, Math.PI * 2);
   context.arc(3, -4, 3.2, 0, Math.PI * 2);
   context.fill();
-  context.fillStyle = '#1c1c28';
+  context.fillStyle = '#1C1C28';
   context.beginPath();
   context.arc(-3, -4, 1.4, 0, Math.PI * 2);
   context.arc(4, -4, 1.4, 0, Math.PI * 2);
@@ -40,7 +40,7 @@ const drawEnemyEyes = (context: CanvasRenderingContext2D): void => {
 };
 
 const drawEnemyBrows = (context: CanvasRenderingContext2D): void => {
-  context.strokeStyle = '#3a1512';
+  context.strokeStyle = '#3A1512';
   context.lineWidth = 1.4;
   context.beginPath();
   context.moveTo(-7, -8);

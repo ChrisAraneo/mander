@@ -8,6 +8,7 @@ import {
   LEVEL_WIDTH,
   LEVELS_PER_SEED,
   OUTRO_WIDTH,
+  PLAYER_HEIGHT_TILES,
   SECTOR_COUNT,
   SECTOR_WIDTH,
   SPIKE_CLEARANCE,
@@ -16,6 +17,7 @@ import {
   SPIKE_SPAWN_CHANCE,
 } from '../consts';
 import { rollChestItems } from '../items';
+import { rollPalette } from '../palette';
 import { createRng, type Rng } from '../rng';
 import { groundHeight } from '../structures/grid';
 import { rollStructure } from '../structures/structures';
@@ -222,7 +224,7 @@ const placeSpikes = (
   const enemyColumns = map(enemies, (enemy) => floor(enemy.x / TILE_SIZE));
   const spikeChance =
     SPIKE_SPAWN_CHANCE *
-    (structureDifficulty === 'hard' ? HARD_SPIKE_CHANCE_MULTIPLIER : 1);
+    (structureDifficulty === 'HARD' ? HARD_SPIKE_CHANCE_MULTIPLIER : 1);
   let lastSpikeColumn = -SPIKE_MIN_GAP;
   for (let column = INTRO_WIDTH; column < width - OUTRO_WIDTH; column++) {
     const spikeRow = LEVEL_HEIGHT - ground[column] - 1;
@@ -245,7 +247,10 @@ const levelEntities = (
   const chestColumn = width - 9;
   const portalColumn = width - 4;
   return {
-    spawn: { x: 2 * TILE_SIZE + 5, y: groundTop(2) - 2 * TILE_SIZE },
+    spawn: {
+      x: 2 * TILE_SIZE + 5,
+      y: groundTop(2) - (PLAYER_HEIGHT_TILES + 1) * TILE_SIZE,
+    },
     chest: {
       x: chestColumn * TILE_SIZE + 3,
       y: groundTop(chestColumn) - 22,
@@ -267,11 +272,15 @@ const levelEntities = (
   };
 };
 
-export const generateLevel = (seed: string, difficulty = 0): Level => {
+export const generateLevel = (
+  seed: string,
+  difficulty = 0,
+  paletteSeed = seed,
+): Level => {
   const rng = createRng(seed);
   const difficultyIndex = clamp(floor(difficulty), 0, LEVELS_PER_SEED - 1);
   const structureDifficulty: StructureDifficulty =
-    difficultyIndex <= 3 ? 'normal' : 'hard';
+    difficultyIndex <= 3 ? 'NORMAL' : 'HARD';
   const width = LEVEL_WIDTH;
 
   const terrain = buildTerrain(rng, structureDifficulty, width);
@@ -291,5 +300,6 @@ export const generateLevel = (seed: string, difficulty = 0): Level => {
     ...levelEntities(groundTop, placement, width),
     chestItems: rollChestItems(rng),
     enemies: terrain.enemies,
+    palette: rollPalette(createRng(paletteSeed)),
   };
 };

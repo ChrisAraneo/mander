@@ -1,1 +1,1 @@
-export const STORAGE_KEY = 'mander:save:v1';
+export const STORAGE_KEY = 'MANDER:SAVE:V1';

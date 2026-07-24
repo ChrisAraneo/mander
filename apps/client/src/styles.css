@@ -88,7 +88,6 @@ input:focus {
   padding: 16px;
   background: rgba(10, 13, 20, 0.72);
   backdrop-filter: blur(3px);
-  border-radius: 10px;
 }
 
 .panel {

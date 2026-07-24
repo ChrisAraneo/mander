@@ -27,10 +27,10 @@ export const drawKey = (
   const centerY = key.y + key.height / 2 + bob;
 
   context.save();
-  context.shadowColor = '#ffd166';
+  context.shadowColor = '#FFD166';
   context.shadowBlur = 14;
-  context.strokeStyle = '#ffd166';
-  context.fillStyle = '#ffd166';
+  context.strokeStyle = '#FFD166';
+  context.fillStyle = '#FFD166';
   context.lineWidth = 3;
 
   drawKeyGlyph(context, centerX, centerY);

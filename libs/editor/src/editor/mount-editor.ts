@@ -1,10 +1,12 @@
 import {
   AIR,
   BLOCK,
-  ENEMY,
   formatStructure,
   HARD_STRUCTURES,
+  MAX_JUMP_TILES,
   NORMAL_STRUCTURES,
+  PLAYER_CLEARANCE,
+  PLAYER_HEIGHT_TILES,
   SECTOR_WIDTH,
   type Structure,
   STRUCTURE_HEIGHT,
@@ -17,6 +19,7 @@ import { airGrid } from './air-grid';
 import { clone } from './clone';
 import { CELL, COLORS, TOOLS } from './constants';
 import { createElement } from './create-element';
+import { drawStructure } from './draw-structure';
 import { flatGrid } from './flat-grid';
 import { parseGrid } from './parse-grid';
 import { reachableFromEntry } from './reachable-from-entry';
@@ -49,96 +52,8 @@ export const mountEditor = (root: HTMLElement): void => {
   const toast = createElement('div', { className: 'toast' });
 
   const draw = (): void => {
-    const { surfaces, reached } = reachableFromEntry(grid);
-    context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-    context.clearRect(0, 0, cssWidth, cssHeight);
-
-    for (let column = 0; column < SECTOR_WIDTH; column++) {
-      if (grid[STRUCTURE_HEIGHT - 1][column] === AIR) {
-        context.fillStyle = COLORS.pit;
-        context.fillRect(column * CELL, 0, CELL, cssHeight);
-      }
-    }
-
-    for (let row = 0; row < STRUCTURE_HEIGHT; row++) {
-      for (let column = 0; column < SECTOR_WIDTH; column++) {
-        if (grid[row][column] !== BLOCK) continue;
-        const pixelX = column * CELL;
-        const pixelY = row * CELL;
-        context.fillStyle = COLORS.block;
-        context.fillRect(pixelX + 1, pixelY + 1, CELL - 2, CELL - 2);
-        if (row === 0 || grid[row - 1][column] === AIR) {
-          context.fillStyle = COLORS.cap;
-          context.fillRect(pixelX + 1, pixelY + 1, CELL - 2, 4);
-        }
-      }
-    }
-
-    for (let row = 0; row < STRUCTURE_HEIGHT; row++) {
-      for (let column = 0; column < SECTOR_WIDTH; column++) {
-        if (grid[row][column] !== ENEMY) continue;
-        const pixelX = column * CELL;
-        const pixelY = row * CELL;
-        const centerX = pixelX + CELL / 2;
-        const centerY = pixelY + CELL / 2;
-        context.fillStyle = COLORS.enemy;
-        context.beginPath();
-        context.roundRect(pixelX + 6, pixelY + 6, CELL - 12, CELL - 12, 5);
-        context.fill();
-        context.fillStyle = '#fdf3ea';
-        context.beginPath();
-        context.arc(centerX - 4, centerY - 2, 2.6, 0, Math.PI * 2);
-        context.arc(centerX + 4, centerY - 2, 2.6, 0, Math.PI * 2);
-        context.fill();
-        context.fillStyle = '#1c1c28';
-        context.beginPath();
-        context.arc(centerX - 4, centerY - 2, 1.1, 0, Math.PI * 2);
-        context.arc(centerX + 4, centerY - 2, 1.1, 0, Math.PI * 2);
-        context.fill();
-        if (row + 1 >= STRUCTURE_HEIGHT || grid[row + 1][column] !== BLOCK) {
-          context.strokeStyle = COLORS.stranded;
-          context.lineWidth = 2;
-          context.strokeRect(pixelX + 2, pixelY + 2, CELL - 4, CELL - 4);
-        }
-      }
-    }
-
-    context.strokeStyle = COLORS.line;
-    context.lineWidth = 1;
-    context.beginPath();
-    for (let column = 0; column <= SECTOR_WIDTH; column++) {
-      context.moveTo(column * CELL + 0.5, 0);
-      context.lineTo(column * CELL + 0.5, cssHeight);
-    }
-    for (let row = 0; row <= STRUCTURE_HEIGHT; row++) {
-      context.moveTo(0, row * CELL + 0.5);
-      context.lineTo(cssWidth, row * CELL + 0.5);
-    }
-    context.stroke();
-
-    context.strokeStyle = COLORS.ground;
-    context.lineWidth = 2;
-    context.beginPath();
-    context.moveTo(0, (STRUCTURE_HEIGHT - 1) * CELL);
-    context.lineTo(cssWidth, (STRUCTURE_HEIGHT - 1) * CELL);
-    context.stroke();
-
-    forEach(surfaces, (surface, surfaceIndex) => {
-      const row = STRUCTURE_HEIGHT - 1 - surface.height;
-      context.fillStyle = reached[surfaceIndex]
-        ? COLORS.reachable
-        : COLORS.stranded;
-      context.beginPath();
-      context.arc(
-        surface.col * CELL + CELL / 2,
-        row * CELL + 7,
-        3.5,
-        0,
-        Math.PI * 2,
-      );
-      context.fill();
-    });
-  }
+    drawStructure(context, grid, { pixelRatio, cssWidth, cssHeight });
+  };
 
   const refresh = (): void => {
     draw();
@@ -371,6 +286,11 @@ export const mountEditor = (root: HTMLElement): void => {
     swatch(COLORS.pit, 'bottomless pit column'),
     swatch(COLORS.reachable, 'surface reachable from entry'),
     swatch(COLORS.stranded, 'surface stranded'),
+    swatch(COLORS.cramped, `less than ${PLAYER_CLEARANCE} cells of headroom`),
+    swatch(
+      COLORS.player,
+      `the player — ${PLAYER_HEIGHT_TILES} cells tall, climbs ${MAX_JUMP_TILES - 1} cells`,
+    ),
     createElement(
       'span',
       {},
@@ -402,8 +322,7 @@ export const mountEditor = (root: HTMLElement): void => {
         {},
         createElement('h1', { textContent: 'Mander Structure Editor' }),
         createElement('p', {
-          textContent:
-            'Paint blocks to design a 20-wide level chunk. The bottom row is the ground line: solid = ground, gaps = bottomless pits, blocks floating above bridge them. Stack the right edge up to make the structure exit higher. Drop enemies with the Enemy tool — each needs a block directly beneath it to patrol on. Click or drag to paint; click a matching cell to clear it.',
+          textContent: `Paint blocks to design a 20-wide level chunk. The bottom row is the ground line: solid = ground, gaps = bottomless pits, blocks floating above bridge them. Stack the right edge up to make the structure exit higher. Drop enemies with the Enemy tool — each needs a block directly beneath it to patrol on. Click or drag to paint; click a matching cell to clear it. The player is ${PLAYER_HEIGHT_TILES} cells tall, so every surface needs ${PLAYER_CLEARANCE} clear cells above it, and a jump climbs at most ${MAX_JUMP_TILES - 1} cells.`,
         }),
       ),
       createElement('div', { className: 'layout' }, stage, side),

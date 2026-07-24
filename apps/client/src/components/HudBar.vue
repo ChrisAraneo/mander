@@ -40,7 +40,7 @@ const time = computed(() => {
         v-for="(item, index) in state.inventory"
         :key="index"
         class="item"
-        :class="item.rarity"
+        :class="item.rarity.toLowerCase()"
         :title="item.description">
         {{ item.name }}
       </span>
@@ -56,6 +56,11 @@ const time = computed(() => {
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(51, 68, 90, 0.8);
+  background: rgba(12, 16, 26, 0.72);
+  backdrop-filter: blur(6px);
 }
 
 .group {

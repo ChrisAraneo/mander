@@ -18,7 +18,7 @@ import {
 import { onMounted, onUnmounted, type Ref, shallowRef } from 'vue';
 
 import { createKeyboard, type Keyboard } from '../input';
-import { renderGame } from '../render';
+import { renderGame, syncViewport } from '../render';
 import {
   loadSave,
   markLevelCompleted,
@@ -35,7 +35,7 @@ const startState = (baseSeed: string): GameState => {
     LEVELS_PER_SEED - 1,
   );
   return createInitialState(
-    generateLevel(levelSeed(baseSeed, startIndex), startIndex),
+    generateLevel(levelSeed(baseSeed, startIndex), startIndex, baseSeed),
     startIndex,
     save.inventory,
   );
@@ -60,7 +60,7 @@ const syncDebugGlobals = (
 
 const persistProgress = (previous: GameState, next: GameState): void => {
   if (next.inventory !== previous.inventory) saveInventory(next.inventory);
-  if (next.status === 'complete' && previous.status !== 'complete') {
+  if (next.status === 'COMPLETE' && previous.status !== 'COMPLETE') {
     markLevelCompleted(next.level.seed);
   }
 };
@@ -77,8 +77,9 @@ export const useGame = (
   let subscription: Subscription | null = null;
 
   onMounted(() => {
-    const context = canvas.value?.getContext('2d');
-    if (!context) return;
+    const element = canvas.value;
+    const context = element?.getContext('2d');
+    if (!element || !context) return;
     saveLastSeed(baseSeed);
     keyboard = createKeyboard();
 
@@ -89,7 +90,7 @@ export const useGame = (
         state.value = next;
         syncDebugGlobals(next, (action) => actions$.next(action));
         persistProgress(previous, next);
-        renderGame(context, next);
+        renderGame(context, next, syncViewport(element));
       });
   });
 
@@ -106,7 +107,7 @@ export const useGame = (
       if (index >= LEVELS_PER_SEED) return;
       actions$.next({
         type: 'LOAD_LEVEL',
-        level: generateLevel(levelSeed(baseSeed, index), index),
+        level: generateLevel(levelSeed(baseSeed, index), index, baseSeed),
         levelIndex: index,
       });
     },

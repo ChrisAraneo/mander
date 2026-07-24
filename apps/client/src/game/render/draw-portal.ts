@@ -16,9 +16,9 @@ const drawPortalCore = (
     centerY,
     portal.width / 2 + 8,
   );
-  swirl.addColorStop(0, '#e9dcff');
-  swirl.addColorStop(0.45, '#8d55e0');
-  swirl.addColorStop(1, '#3c2470');
+  swirl.addColorStop(0, '#E9DCFF');
+  swirl.addColorStop(0.45, '#8D55E0');
+  swirl.addColorStop(1, '#3C2470');
   context.fillStyle = swirl;
   context.beginPath();
   context.ellipse(
@@ -41,7 +41,7 @@ const drawPortalRings = (
   pulse: number,
   time: number,
 ): void => {
-  context.strokeStyle = '#b98cff';
+  context.strokeStyle = '#B98CFF';
   context.lineWidth = 3;
   for (let ringIndex = 0; ringIndex < 3; ringIndex++) {
     const angle = time * 2 + (ringIndex * Math.PI * 2) / 3;
@@ -69,7 +69,7 @@ export const drawPortal = (
   const pulse = 1 + Math.sin(state.time * 3) * 0.05;
 
   context.save();
-  context.shadowColor = '#a678ff';
+  context.shadowColor = '#A678FF';
   context.shadowBlur = state.isNearPortal ? 30 : 14;
 
   drawPortalCore(context, portal, centerX, centerY, pulse);

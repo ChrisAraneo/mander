@@ -12,26 +12,26 @@ const startJump = (state: GameState): GameState => {
   return {
     ...withInput(state, { isJump: true }),
     player:
-      state.status === 'playing'
+      state.status === 'PLAYING'
         ? { ...state.player, isJumpQueued: true }
         : state.player,
   };
 };
 
 const interact = (state: GameState): GameState => {
-  if (state.status !== 'playing') return state;
-  if (state.isNearChest && state.hasKey) return { ...state, status: 'chest' };
-  if (state.isNearPortal) return { ...state, status: 'complete' };
+  if (state.status !== 'PLAYING') return state;
+  if (state.isNearChest && state.hasKey) return { ...state, status: 'CHEST' };
+  if (state.isNearPortal) return { ...state, status: 'COMPLETE' };
   return state;
 };
 
 const chooseItem = (state: GameState, index: number): GameState => {
-  if (state.status !== 'chest') return state;
+  if (state.status !== 'CHEST') return state;
   const items = state.level.chestItems;
   if (index < 0 || index >= items.length) return state;
   return {
     ...state,
-    status: 'playing',
+    status: 'PLAYING',
     isChestOpened: true,
     isNearChest: false,
     inventory: concat(state.inventory, items[index]),
@@ -39,12 +39,12 @@ const chooseItem = (state: GameState, index: number): GameState => {
 };
 
 const close = (state: GameState): GameState => {
-  if (state.status !== 'chest') return state;
-  return { ...state, status: 'playing' };
+  if (state.status !== 'CHEST') return state;
+  return { ...state, status: 'PLAYING' };
 };
 
 const respawn = (state: GameState): GameState => {
-  if (state.status !== 'playing') return state;
+  if (state.status !== 'PLAYING') return state;
   return { ...state, player: createPlayer(state.level) };
 };
 
@@ -58,7 +58,7 @@ const loadLevel = (
   levelIndex,
   player: createPlayer(level),
   enemies: createEnemies(level),
-  status: 'playing',
+  status: 'PLAYING',
   hasKey: false,
   isChestOpened: false,
   isNearChest: false,
