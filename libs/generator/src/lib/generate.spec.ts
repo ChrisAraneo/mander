@@ -10,6 +10,7 @@ import {
   SECTOR_COUNT,
   SECTOR_WIDTH,
   SPIKE_CLEARANCE,
+  SPIKE_MAX_RUN,
   SPIKE_MIN_ENEMY_DISTANCE,
   SPIKE_MIN_GAP,
 } from './consts';
@@ -23,7 +24,13 @@ import {
 import { CHEST_ITEM_COUNT, ITEM_CATALOG, rollChestItems } from './items';
 import { createRng } from './rng';
 import { maxJumpColumns } from './structures/grid';
-import { type Level, TILE_SIZE, TILE_SOLID, TILE_SPIKE } from './types';
+import {
+  type Level,
+  TILE_SIZE,
+  TILE_SOLID,
+  TILE_SPIKE,
+  TILE_SPIKE_CEILING,
+} from './types';
 
 const groundHeights = (level: Level): number[] => {
   const heights: number[] = [];
@@ -38,13 +45,38 @@ const groundHeights = (level: Level): number[] => {
   return heights;
 };
 
-const countSpikes = (level: Level): number => {
+const countTiles = (level: Level, target: number): number => {
   let count = 0;
   for (let y = 0; y < level.height; y++) {
     for (let x = 0; x < level.width; x++)
-      if (level.tiles[y][x] === TILE_SPIKE) count++;
+      if (level.tiles[y][x] === target) count++;
   }
   return count;
+};
+
+const countSpikes = (level: Level): number => countTiles(level, TILE_SPIKE);
+
+const spikeColumns = (level: Level): number[] => {
+  const columns: number[] = [];
+  for (let x = 0; x < level.width; x++) {
+    for (let y = 0; y < level.height; y++) {
+      if (level.tiles[y][x] === TILE_SPIKE) {
+        columns.push(x);
+        break;
+      }
+    }
+  }
+  return columns;
+};
+
+const spikeRuns = (columns: number[]): number[][] => {
+  const runs: number[][] = [];
+  for (const column of columns) {
+    const last = runs.at(-1);
+    if (last && column === last.at(-1)! + 1) last.push(column);
+    else runs.push([column]);
+  }
+  return runs;
 };
 
 interface HoleRun {
@@ -162,12 +194,14 @@ const expectValidSpike = (
   expect(y + 1, `spike sits on the ground at ${x}`).toBe(
     level.height - heights[x],
   );
-  expect(heights[x - 1], `left footing at ${x}`).toBeGreaterThanOrEqual(
-    heights[x],
-  );
-  expect(heights[x + 1], `right footing at ${x}`).toBeGreaterThanOrEqual(
-    heights[x],
-  );
+  expect(
+    heights[x - 1],
+    `not the lip of a pit on the left at ${x}`,
+  ).toBeGreaterThan(0);
+  expect(
+    heights[x + 1],
+    `not the lip of a pit on the right at ${x}`,
+  ).toBeGreaterThan(0);
   for (let r = y; r >= y - SPIKE_CLEARANCE; r--) {
     expect(level.tiles[r][x], `clearance at row ${r}`).not.toBe(TILE_SOLID);
   }
@@ -418,25 +452,37 @@ describe('generateLevel', () => {
   );
 
   it.each(CASES)(
-    'keeps at least SPIKE_MIN_GAP ground blocks between spikes for %s level %i',
+    'runs spikes at most SPIKE_MAX_RUN wide for %s level %i',
     (seed, d) => {
       const level = generateLevel(levelSeed(seed, d), d);
-      const spikeColumns: number[] = [];
-      for (let x = 0; x < level.width; x++) {
-        for (let y = 0; y < level.height; y++) {
-          if (level.tiles[y][x] === TILE_SPIKE) {
-            spikeColumns.push(x);
-            break;
-          }
-        }
+      for (const run of spikeRuns(spikeColumns(level))) {
+        expect(run.length, `run starting at ${run[0]}`).toBeLessThanOrEqual(
+          SPIKE_MAX_RUN,
+        );
       }
-      for (let i = 1; i < spikeColumns.length; i++) {
-        const gap = spikeColumns[i] - spikeColumns[i - 1] - 1;
+    },
+  );
+
+  it.each(CASES)(
+    'keeps SPIKE_MIN_GAP empty blocks between spike runs for %s level %i',
+    (seed, d) => {
+      const level = generateLevel(levelSeed(seed, d), d);
+      const runs = spikeRuns(spikeColumns(level));
+      for (let i = 1; i < runs.length; i++) {
+        const gap = runs[i][0] - runs[i - 1].at(-1)! - 1;
         expect(
           gap,
-          `gap between spikes at ${spikeColumns[i - 1]} and ${spikeColumns[i]}`,
+          `gap between run ending at ${runs[i - 1].at(-1)} and run at ${runs[i][0]}`,
         ).toBeGreaterThanOrEqual(SPIKE_MIN_GAP);
       }
+    },
+  );
+
+  it.each(CASES)(
+    'never auto-generates ceiling spikes for %s level %i',
+    (seed, d) => {
+      const level = generateLevel(levelSeed(seed, d), d);
+      expect(countTiles(level, TILE_SPIKE_CEILING)).toBe(0);
     },
   );
 

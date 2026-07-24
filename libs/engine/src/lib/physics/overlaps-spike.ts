@@ -1,4 +1,9 @@
-import { isSpike, type Level, spikeTriangles } from '@mander/generator';
+import {
+  isSpike,
+  type Level,
+  spikeOrientation,
+  spikeTriangles,
+} from '@mander/generator';
 import { some } from 'lodash-es';
 
 import { boxHitsTriangle } from './box-hits-triangle';
@@ -16,8 +21,14 @@ export const overlapsSpike = (
       tileRange(boxLeft, boxWidth),
       (tileX) =>
         isSpike(level, tileX, tileY) &&
-        some(spikeTriangles(tileX, tileY), (triangle) =>
-          boxHitsTriangle(boxLeft, boxTop, boxWidth, boxHeight, triangle),
+        some(
+          spikeTriangles(
+            tileX,
+            tileY,
+            spikeOrientation(level, tileX, tileY),
+          ),
+          (triangle) =>
+            boxHitsTriangle(boxLeft, boxTop, boxWidth, boxHeight, triangle),
         ),
     ),
   );

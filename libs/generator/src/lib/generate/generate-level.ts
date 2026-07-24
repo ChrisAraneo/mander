@@ -15,7 +15,7 @@ import { match, P } from 'ts-pattern';
 
 import {
   BASE_GROUND,
-  HARD_SPIKE_CHANCE_MULTIPLIER,
+  DOUBLE_SPIKE_CHANCE,
   INTRO_WIDTH,
   LEVEL_HEIGHT,
   LEVEL_WIDTH,
@@ -25,9 +25,9 @@ import {
   SECTOR_COUNT,
   SECTOR_WIDTH,
   SPIKE_CLEARANCE,
+  SPIKE_MAX_RUN,
   SPIKE_MIN_ENEMY_DISTANCE,
   SPIKE_MIN_GAP,
-  SPIKE_SPAWN_CHANCE,
 } from '../consts';
 import { rollChestItems } from '../items';
 import { rollPalette } from '../palette';
@@ -37,6 +37,8 @@ import { rollStructure } from '../structures/structures';
 import {
   BLOCK,
   ENEMY,
+  SPIKE,
+  SPIKE_CEILING,
   type Structure,
   type StructureDifficulty,
 } from '../structures/types';
@@ -48,15 +50,23 @@ import {
   TILE_SIZE,
   TILE_SOLID,
   TILE_SPIKE,
+  TILE_SPIKE_CEILING,
 } from '../types';
 import type { Platform } from './platform';
 
 const { nullish } = P;
 
+interface Spike {
+  row: number;
+  column: number;
+  tile: Tile;
+}
+
 interface Terrain {
   ground: number[];
   platforms: Platform[];
   enemies: Point[];
+  spikes: Spike[];
 }
 
 interface KeyPlacement {
@@ -64,15 +74,20 @@ interface KeyPlacement {
   keySupportTop: number;
 }
 
-interface Spike {
-  row: number;
-  column: number;
-}
-
 type PlacedCell =
   | { kind: 'PLATFORM'; platform: Platform }
   | { kind: 'ENEMY'; enemy: Point }
+  | { kind: 'SPIKE'; spike: Spike }
   | { kind: 'NONE' };
+
+const spikeCell = (
+  column: number,
+  absoluteRow: number,
+  tile: Tile,
+): PlacedCell => ({
+  kind: 'SPIKE',
+  spike: { row: absoluteRow, column, tile },
+});
 
 const placedCell = (
   cell: number,
@@ -106,12 +121,18 @@ const placedCell = (
         enemy: { x: column * TILE_SIZE, y: absoluteRow * TILE_SIZE },
       }),
     )
+    .with(SPIKE, (): PlacedCell => spikeCell(column, absoluteRow, TILE_SPIKE))
+    .with(
+      SPIKE_CEILING,
+      (): PlacedCell => spikeCell(column, absoluteRow, TILE_SPIKE_CEILING),
+    )
     .otherwise((): PlacedCell => ({ kind: 'NONE' }));
 
 interface ColumnResult {
   ground: number;
   platforms: Platform[];
   enemies: Point[];
+  spikes: Spike[];
 }
 
 const columnGround = (
@@ -168,6 +189,13 @@ const sectorColumn = (
       )
       .map((cell) => cell.enemy)
       .value(),
+    spikes: chain(cells)
+      .filter(
+        (cell): cell is Extract<PlacedCell, { kind: 'SPIKE' }> =>
+          cell.kind === 'SPIKE',
+      )
+      .map((cell) => cell.spike)
+      .value(),
   };
 };
 
@@ -175,6 +203,7 @@ interface SectorResult {
   ground: number[];
   platforms: Platform[];
   enemies: Point[];
+  spikes: Spike[];
 }
 
 const sectorResult = (
@@ -189,6 +218,7 @@ const sectorResult = (
     ground: map(columns, (column) => column.ground),
     platforms: flatMap(columns, (column) => column.platforms),
     enemies: flatMap(columns, (column) => column.enemies),
+    spikes: flatMap(columns, (column) => column.spikes),
   };
 };
 
@@ -196,6 +226,7 @@ interface SectorAccumulator {
   ground: number[];
   platforms: Platform[];
   enemies: Point[];
+  spikes: Spike[];
   baseline: number;
   cursor: number;
 }
@@ -213,6 +244,7 @@ const buildSectors = (
         ground: [...acc.ground, ...sector.ground],
         platforms: [...acc.platforms, ...sector.platforms],
         enemies: [...acc.enemies, ...sector.enemies],
+        spikes: [...acc.spikes, ...sector.spikes],
         baseline: sector.ground.at(-1) || acc.baseline,
         cursor: acc.cursor + SECTOR_WIDTH,
       };
@@ -221,6 +253,7 @@ const buildSectors = (
       ground: [],
       platforms: [],
       enemies: [],
+      spikes: [],
       baseline: BASE_GROUND,
       cursor: INTRO_WIDTH,
     },
@@ -240,6 +273,7 @@ const buildTerrain = (
     ],
     platforms: sectors.platforms,
     enemies: sectors.enemies,
+    spikes: sectors.spikes,
   };
 };
 
@@ -347,78 +381,122 @@ const hasSpikeClearance = (
     (row) => !(row >= 0 && tiles[row][column] === TILE_EMPTY),
   ).length === 0;
 
-const canPlaceSpike = (
+const isHole = (ground: number[], column: number): boolean =>
+  ground[column] === 0;
+
+const isSpikeSpot = (
+  tiles: Tile[][],
   ground: number[],
   enemyColumns: number[],
   keyColumn: number,
-  lastSpikeColumn: number,
   column: number,
-): boolean => {
-  const columnHeight = ground[column];
-  return (
-    columnHeight > 0 &&
-    ground[column - 1] >= columnHeight &&
-    ground[column + 1] >= columnHeight &&
-    column - lastSpikeColumn > SPIKE_MIN_GAP &&
-    Math.abs(column - keyColumn) >= 2 &&
-    !some(
-      enemyColumns,
-      (enemyColumn) =>
-        Math.abs(enemyColumn - column) < SPIKE_MIN_ENEMY_DISTANCE,
-    )
-  );
-};
+): boolean =>
+  ground[column] > 0 &&
+  !isHole(ground, column - 1) &&
+  !isHole(ground, column + 1) &&
+  Math.abs(column - keyColumn) >= 2 &&
+  !some(
+    enemyColumns,
+    (enemyColumn) => Math.abs(enemyColumn - column) < SPIKE_MIN_ENEMY_DISTANCE,
+  ) &&
+  hasSpikeClearance(tiles, column, LEVEL_HEIGHT - ground[column] - 1);
 
-interface SpikeAccumulator {
+interface SpikeScan {
   spikes: Spike[];
-  lastSpikeColumn: number;
+  runLength: number;
+  wantsPair: boolean;
+  gap: number;
 }
 
-const spikeChanceFor = (structureDifficulty: StructureDifficulty): number =>
-  SPIKE_SPAWN_CHANCE *
-  match(structureDifficulty)
-    .with('HARD', () => HARD_SPIKE_CHANCE_MULTIPLIER)
-    .with('NORMAL', () => 1)
-    .exhaustive();
+const floorSpike = (ground: number[], column: number): Spike => ({
+  row: LEVEL_HEIGHT - ground[column] - 1,
+  column,
+  tile: TILE_SPIKE,
+});
+
+const extendRun = (state: SpikeScan, spike: Spike): SpikeScan => ({
+  spikes: [...state.spikes, spike],
+  runLength: 0,
+  wantsPair: false,
+  gap: 0,
+});
+
+const startRun = (state: SpikeScan, spike: Spike, rng: Rng): SpikeScan => ({
+  spikes: [...state.spikes, spike],
+  runLength: 1,
+  wantsPair: rng.chance(DOUBLE_SPIKE_CHANCE),
+  gap: 0,
+});
+
+const skipColumn = (state: SpikeScan): SpikeScan => ({
+  ...state,
+  runLength: 0,
+  wantsPair: false,
+  gap: state.gap + 1,
+});
+
+const scanColumn = (
+  rng: Rng,
+  ground: number[],
+  eligible: boolean,
+  column: number,
+  state: SpikeScan,
+): SpikeScan =>
+  match({
+    extending:
+      state.runLength > 0 &&
+      state.runLength < SPIKE_MAX_RUN &&
+      state.wantsPair &&
+      eligible,
+    starting: eligible && state.gap >= SPIKE_MIN_GAP,
+  })
+    .with({ extending: true }, () =>
+      extendRun(state, floorSpike(ground, column)),
+    )
+    .with({ starting: true }, () =>
+      startRun(state, floorSpike(ground, column), rng),
+    )
+    .otherwise(() => skipColumn(state));
 
 const placeSpikes = (
-  rng: Rng,
   tiles: Tile[][],
   terrain: Terrain,
   keyColumn: number,
-  structureDifficulty: StructureDifficulty,
   width: number,
+  rng: Rng,
 ): Spike[] => {
   const { ground, enemies } = terrain;
   const enemyColumns = map(enemies, (enemy) => floor(enemy.x / TILE_SIZE));
-  const spikeChance = spikeChanceFor(structureDifficulty);
   return reduce(
     range(INTRO_WIDTH, width - OUTRO_WIDTH),
-    (acc: SpikeAccumulator, column): SpikeAccumulator => {
-      const spikeRow = LEVEL_HEIGHT - ground[column] - 1;
-      const placed =
-        canPlaceSpike(
-          ground,
-          enemyColumns,
-          keyColumn,
-          acc.lastSpikeColumn,
-          column,
-        ) &&
-        hasSpikeClearance(tiles, column, spikeRow) &&
-        rng.chance(spikeChance);
-      return match(placed)
-        .with(
-          true,
-          (): SpikeAccumulator => ({
-            spikes: [...acc.spikes, { row: spikeRow, column }],
-            lastSpikeColumn: column,
-          }),
-        )
-        .otherwise((): SpikeAccumulator => acc);
-    },
-    { spikes: [], lastSpikeColumn: -SPIKE_MIN_GAP },
+    (state: SpikeScan, column): SpikeScan =>
+      scanColumn(
+        rng,
+        ground,
+        isSpikeSpot(tiles, ground, enemyColumns, keyColumn, column),
+        column,
+        state,
+      ),
+    { spikes: [], runLength: 0, wantsPair: false, gap: SPIKE_MIN_GAP },
   ).spikes;
 };
+
+const thinForDifficulty = (
+  spikes: Spike[],
+  structureDifficulty: StructureDifficulty,
+  rng: Rng,
+): Spike[] =>
+  match(structureDifficulty)
+    .with('HARD', () => spikes)
+    .with('NORMAL', () =>
+      chain(spikes)
+        .map((spike) => ({ spike, order: rng.next() }))
+        .sortBy('order')
+        .take(spikes.length - floor(spikes.length / 2))
+        .map('spike')
+        .value(),
+    )
+    .exhaustive();
 
 const stampSpikes = (tiles: Tile[][], spikes: Spike[]): Tile[][] => {
   const byRow = groupBy(spikes, 'row');
@@ -427,9 +505,9 @@ const stampSpikes = (tiles: Tile[][], spikes: Spike[]): Tile[][] => {
       .with(nullish, () => rowTiles)
       .otherwise((rowSpikes) =>
         map(rowTiles, (tile, columnIndex) =>
-          match(some(rowSpikes, (spike) => spike.column === columnIndex))
-            .with(true, (): Tile => TILE_SPIKE)
-            .otherwise((): Tile => tile),
+          match(rowSpikes.find((spike) => spike.column === columnIndex))
+            .with(nullish, (): Tile => tile)
+            .otherwise((spike): Tile => spike.tile),
         ),
       ),
   );
@@ -495,20 +573,17 @@ export const generateLevel = (
     width,
     groundTop,
   );
-  const spikes = placeSpikes(
-    rng,
-    baseTiles,
-    terrain,
-    placement.keyColumn,
+  const autoSpikes = thinForDifficulty(
+    placeSpikes(baseTiles, terrain, placement.keyColumn, width, rng),
     structureDifficulty,
-    width,
+    rng,
   );
 
   return {
     seed,
     width,
     height: LEVEL_HEIGHT,
-    tiles: stampSpikes(baseTiles, spikes),
+    tiles: stampSpikes(baseTiles, [...terrain.spikes, ...autoSpikes]),
     ...levelEntities(groundTop, placement, width),
     chestItems: rollChestItems(rng),
     enemies: terrain.enemies,

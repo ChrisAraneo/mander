@@ -6,6 +6,8 @@ import {
   PLAYER_HEIGHT_TILES,
   PLAYER_WIDTH_TILES,
   SECTOR_WIDTH,
+  SPIKE,
+  SPIKE_CEILING,
   type Structure,
   STRUCTURE_HEIGHT,
   surfaceHasHeadroom,
@@ -136,6 +138,51 @@ const drawEnemies = (
   );
 };
 
+const PRONGS = 3;
+
+const drawSpikeCell = (
+  context: CanvasRenderingContext2D,
+  pixelX: number,
+  pixelY: number,
+  pointsDown: boolean,
+): void => {
+  const prongWidth = CELL / PRONGS;
+  const prongHeight = CELL * 0.72;
+  const base = pointsDown ? pixelY : pixelY + CELL;
+  const tip = pointsDown ? pixelY + prongHeight : pixelY + CELL - prongHeight;
+  context.fillStyle = COLORS.spike;
+  context.strokeStyle = COLORS.spikeOutline;
+  context.lineWidth = 1;
+  forEach(range(PRONGS), (prong) => {
+    const left = pixelX + prong * prongWidth;
+    context.beginPath();
+    context.moveTo(left, base);
+    context.lineTo(left + prongWidth / 2, tip);
+    context.lineTo(left + prongWidth, base);
+    context.closePath();
+    context.fill();
+    context.stroke();
+  });
+};
+
+const drawSpikes = (
+  context: CanvasRenderingContext2D,
+  grid: Structure,
+): void => {
+  forEach(ROWS, (row) =>
+    forEach(COLUMNS, (column) =>
+      match(grid[row][column])
+        .with(SPIKE, () =>
+          drawSpikeCell(context, column * CELL, row * CELL, false),
+        )
+        .with(SPIKE_CEILING, () =>
+          drawSpikeCell(context, column * CELL, row * CELL, true),
+        )
+        .otherwise(() => undefined),
+    ),
+  );
+};
+
 const drawGridLines = (
   context: CanvasRenderingContext2D,
   view: EditorView,
@@ -234,6 +281,7 @@ export const drawStructure = (
   drawCrampedHeadroom(context, grid, surfaces);
   drawBlocks(context, grid);
   drawEnemies(context, grid);
+  drawSpikes(context, grid);
   drawGridLines(context, view);
   drawGroundLine(context, view);
   drawPlayerGhost(context);

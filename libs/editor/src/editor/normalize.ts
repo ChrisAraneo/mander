@@ -3,6 +3,8 @@ import {
   BLOCK,
   ENEMY,
   SECTOR_WIDTH,
+  SPIKE,
+  SPIKE_CEILING,
   type Structure,
   STRUCTURE_HEIGHT,
 } from '@mander/generator';
@@ -14,7 +16,7 @@ const isRows = (value: unknown): value is unknown[][] =>
 
 const cellValue = (value: unknown): number =>
   match(value)
-    .with(BLOCK, ENEMY, (known) => known)
+    .with(BLOCK, ENEMY, SPIKE, SPIKE_CEILING, (known) => known)
     .otherwise(() => AIR);
 
 const airRows = (count: number): number[][] =>

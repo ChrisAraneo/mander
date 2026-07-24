@@ -17,7 +17,14 @@ import {
 } from './grid';
 import { HARD_STRUCTURES, NORMAL_STRUCTURES } from './library';
 import { rollStructure, structurePool } from './structures';
-import { AIR, BLOCK, ENEMY, type Structure } from './types';
+import {
+  AIR,
+  BLOCK,
+  ENEMY,
+  SPIKE,
+  SPIKE_CEILING,
+  type Structure,
+} from './types';
 
 describe('maxJumpColumns', () => {
   it('mirrors the engine jump arc: easy drops, harder climbs, nothing past a rise of 4', () => {
@@ -164,6 +171,31 @@ describe('structureIssues', () => {
     const grid = flatGrid();
     grid[STRUCTURE_HEIGHT - 3][5] = ENEMY;
     expect(structureIssues(grid).join(' ')).toContain('beneath it');
+  });
+
+  it('accepts a floor spike sitting on the ground', () => {
+    const grid = flatGrid();
+    grid[STRUCTURE_HEIGHT - 2][5] = SPIKE;
+    expect(structureIssues(grid)).toEqual([]);
+  });
+
+  it('rejects a floor spike with no block beneath it', () => {
+    const grid = flatGrid();
+    grid[STRUCTURE_HEIGHT - 3][5] = SPIKE;
+    expect(structureIssues(grid).join(' ')).toContain('block below it');
+  });
+
+  it('accepts a ceiling spike hanging from a block above it', () => {
+    const grid = flatGrid();
+    grid[STRUCTURE_HEIGHT - 2 - PLAYER_CLEARANCE][8] = BLOCK;
+    grid[STRUCTURE_HEIGHT - 1 - PLAYER_CLEARANCE][8] = SPIKE_CEILING;
+    expect(structureIssues(grid)).toEqual([]);
+  });
+
+  it('rejects a ceiling spike with no block above it', () => {
+    const grid = flatGrid();
+    grid[STRUCTURE_HEIGHT - 4][8] = SPIKE_CEILING;
+    expect(structureIssues(grid).join(' ')).toContain('block above');
   });
 });
 

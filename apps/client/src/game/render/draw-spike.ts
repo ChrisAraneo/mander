@@ -1,14 +1,15 @@
-import { spikeTriangles } from '@mander/generator';
+import { type SpikeOrientation, spikeTriangles } from '@mander/generator';
 import { forEach } from 'lodash-es';
 
 export const drawSpike = (
   context: CanvasRenderingContext2D,
   tileX: number,
   tileY: number,
+  orientation: SpikeOrientation,
 ): void => {
   context.strokeStyle = '#333A4F';
   context.lineWidth = 1;
-  forEach(spikeTriangles(tileX, tileY), ([left, apex, right]) => {
+  forEach(spikeTriangles(tileX, tileY, orientation), ([left, apex, right]) => {
     const gradient = context.createLinearGradient(
       left.x,
       left.y,

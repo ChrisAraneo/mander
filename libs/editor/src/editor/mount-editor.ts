@@ -178,8 +178,6 @@ export const mountEditor = (root: HTMLElement): void => {
     window.setTimeout(() => (toast.textContent = ''), 2500);
   };
 
-  // `.catch` rather than ramda's tryCatch: writeText rejects asynchronously,
-  // and tryCatch only intercepts synchronous throws.
   const writeClipboard = (): Promise<void> =>
     Promise.resolve()
       .then(() => navigator.clipboard.writeText(output.value))
@@ -314,6 +312,8 @@ export const mountEditor = (root: HTMLElement): void => {
     { className: 'legend' },
     swatch(COLORS.block, 'block (1)'),
     swatch(COLORS.enemy, 'enemy (2) — stands on the block below it'),
+    swatch(COLORS.spike, 'spike (3) — sits on the block below it'),
+    swatch(COLORS.spike, 'ceiling spike (4) — hangs from the block above it'),
     swatch(COLORS.pit, 'bottomless pit column'),
     swatch(COLORS.reachable, 'surface reachable from entry'),
     swatch(COLORS.stranded, 'surface stranded'),
@@ -353,7 +353,7 @@ export const mountEditor = (root: HTMLElement): void => {
         {},
         createElement('h1', { textContent: 'Mander Structure Editor' }),
         createElement('p', {
-          textContent: `Paint blocks to design a 20-wide level chunk. The bottom row is the ground line: solid = ground, gaps = bottomless pits, blocks floating above bridge them. Stack the right edge up to make the structure exit higher. Drop enemies with the Enemy tool — each needs a block directly beneath it to patrol on. Click or drag to paint; click a matching cell to clear it. The player is ${PLAYER_HEIGHT_TILES} cells tall, so every surface needs ${PLAYER_CLEARANCE} clear cells above it, and a jump climbs at most ${MAX_JUMP_TILES - 1} cells.`,
+          textContent: `Paint blocks to design a 20-wide level chunk. The bottom row is the ground line: solid = ground, gaps = bottomless pits, blocks floating above bridge them. Stack the right edge up to make the structure exit higher. Drop enemies with the Enemy tool — each needs a block directly beneath it to patrol on. Add hazards with the Spike tool (sits on the block below) or the Ceiling spike tool (hangs from the block above) — ceiling spikes exist only where you place them here. Click or drag to paint; click a matching cell to clear it. The player is ${PLAYER_HEIGHT_TILES} cells tall, so every surface needs ${PLAYER_CLEARANCE} clear cells above it, and a jump climbs at most ${MAX_JUMP_TILES - 1} cells.`,
         }),
       ),
       createElement('div', { className: 'layout' }, stage, side),

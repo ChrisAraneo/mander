@@ -1,7 +1,11 @@
+import { includes } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import { TILE_SPIKE } from './constants';
+import { TILE_SPIKE, TILE_SPIKE_CEILING } from './constants';
 import type { Level } from './level';
+import type { Tile } from './tile';
+
+const SPIKE_TILES: Tile[] = [TILE_SPIKE, TILE_SPIKE_CEILING];
 
 export const isSpike = (level: Level, tileX: number, tileY: number): boolean =>
   match(true)
@@ -13,4 +17,4 @@ export const isSpike = (level: Level, tileX: number, tileY: number): boolean =>
       P.when(() => tileY < 0 || tileY >= level.height),
       () => false,
     )
-    .otherwise(() => level.tiles[tileY][tileX] === TILE_SPIKE);
+    .otherwise(() => includes(SPIKE_TILES, level.tiles[tileY][tileX]));

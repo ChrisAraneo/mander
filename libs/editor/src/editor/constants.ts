@@ -1,4 +1,4 @@
-import { AIR, BLOCK, ENEMY } from '@mander/generator';
+import { AIR, BLOCK, ENEMY, SPIKE, SPIKE_CEILING } from '@mander/generator';
 
 export const CELL = 30;
 
@@ -12,6 +12,8 @@ export const COLORS = {
   stranded: '#E0651F',
   cramped: 'RGBA(224, 101, 31, 0.25)',
   enemy: '#B5473F',
+  spike: '#C7CCDA',
+  spikeOutline: '#333A4F',
   player: 'RGBA(244, 118, 44, 0.32)',
   playerOutline: '#F4762C',
 };
@@ -19,5 +21,7 @@ export const COLORS = {
 export const TOOLS = [
   { value: BLOCK, label: 'Block' },
   { value: ENEMY, label: 'Enemy' },
+  { value: SPIKE, label: 'Spike' },
+  { value: SPIKE_CEILING, label: 'Ceiling spike' },
   { value: AIR, label: 'Erase' },
 ] as const;

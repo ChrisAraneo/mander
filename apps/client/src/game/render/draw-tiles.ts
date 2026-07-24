@@ -3,6 +3,7 @@ import {
   TILE_SIZE,
   TILE_SOLID,
   TILE_SPIKE,
+  TILE_SPIKE_CEILING,
 } from '@mander/generator';
 import { ceil, floor, forEach, range } from 'lodash-es';
 import { match, P } from 'ts-pattern';
@@ -58,7 +59,11 @@ export const drawTiles = (
       match(level.tiles[row][column])
         .with(
           P.when((tile) => tile === TILE_SPIKE),
-          () => drawSpike(context, column, row),
+          () => drawSpike(context, column, row, 'FLOOR'),
+        )
+        .with(
+          P.when((tile) => tile === TILE_SPIKE_CEILING),
+          () => drawSpike(context, column, row, 'CEILING'),
         )
         .with(
           P.when((tile) => tile === TILE_SOLID),

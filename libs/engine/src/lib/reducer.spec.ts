@@ -10,6 +10,7 @@ import {
   TILE_SIZE,
   TILE_SOLID,
   TILE_SPIKE,
+  TILE_SPIKE_CEILING,
 } from '@mander/generator';
 import { describe, expect, it } from 'vitest';
 
@@ -586,6 +587,53 @@ const spikeLevel = (col: number): Level => {
   level.tiles[11][col] = TILE_SPIKE;
   return level;
 };
+
+const ceilingSpikeLevel = (col: number, row: number): Level => {
+  const level = testLevel();
+  level.tiles[row - 1][col] = TILE_SOLID;
+  level.tiles[row][col] = TILE_SPIKE_CEILING;
+  return level;
+};
+
+describe('ceiling spikes', () => {
+  const col = 6;
+  const row = 9;
+
+  it('kills the player who jumps up into the prongs', () => {
+    let state = createInitialState(ceilingSpikeLevel(col, row), 0, []);
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        x: col * TILE_SIZE,
+        y: SURFACE - PLAYER_HEIGHT,
+      },
+    };
+    state = tick(state);
+    expect(state.deaths, 'safe while standing underneath').toBe(0);
+
+    state = act(state, { type: 'JUMP_START' });
+    state = tickN(state, 20);
+    expect(state.deaths, 'the jump ran into the prongs').toBe(1);
+    expect(state.player.dyingFor).not.toBeNull();
+  });
+
+  it('spares the player who stays under the prongs', () => {
+    let state = createInitialState(ceilingSpikeLevel(col, row), 0, []);
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        x: col * TILE_SIZE,
+        y: SURFACE - PLAYER_HEIGHT,
+      },
+    };
+    state = act(state, { type: 'MOVE_RIGHT_START' });
+    state = tickN(state, 60);
+    expect(state.deaths, 'running underneath is safe').toBe(0);
+    expect(state.player.x, 'walked on past').toBeGreaterThan(col * TILE_SIZE);
+  });
+});
 
 describe('precise spike collision', () => {
   const col = 6;

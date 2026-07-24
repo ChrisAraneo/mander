@@ -3,6 +3,7 @@ export * from './enemy-cell';
 export * from './format-structure';
 export * from './ground-height';
 export * from './max-jump-columns';
+export * from './spikes-are-anchored';
 export * from './structure-enemies';
 export * from './structure-exit-lift';
 export * from './structure-is-crossable';

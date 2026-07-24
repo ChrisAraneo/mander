@@ -17,9 +17,8 @@ export const PLAYER_WIDTH_TILES = 0.6875;
 export const PLAYER_HEIGHT_TILES = 1.5;
 export const PLAYER_CLEARANCE = Math.ceil(PLAYER_HEIGHT_TILES);
 export const MAX_JUMP_TILES = 5;
-
-export const SPIKE_SPAWN_CHANCE = 0.25;
-export const HARD_SPIKE_CHANCE_MULTIPLIER = 3;
 export const SPIKE_MIN_GAP = 2;
 export const SPIKE_CLEARANCE = 2;
 export const SPIKE_MIN_ENEMY_DISTANCE = 3;
+export const SPIKE_MAX_RUN = 2;
+export const DOUBLE_SPIKE_CHANCE = 0.5;

@@ -2,11 +2,21 @@ import { chain, every } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import { PLAYER_CLEARANCE, SECTOR_WIDTH } from '../../consts';
-import { AIR, BLOCK, ENEMY, type Structure } from '../types';
+import {
+  AIR,
+  BLOCK,
+  ENEMY,
+  SPIKE,
+  SPIKE_CEILING,
+  type Structure,
+} from '../types';
 import { enemiesHaveFooting } from './enemies-have-footing';
 import { groundHeight } from './ground-height';
+import { spikesAreAnchored } from './spikes-are-anchored';
 import { structureIsCrossable } from './structure-is-crossable';
 import { surfacesHaveHeadroom } from './surfaces-have-headroom';
+
+const KNOWN_CELLS = [AIR, BLOCK, ENEMY, SPIKE, SPIKE_CEILING];
 
 interface Rule {
   message: string;
@@ -19,11 +29,10 @@ const shapeRules: Rule[] = [
     isValid: (grid) => every(grid, (row) => row.length === SECTOR_WIDTH),
   },
   {
-    message: 'cells must be 0 (air), 1 (block) or 2 (enemy)',
+    message:
+      'cells must be 0 (air), 1 (block), 2 (enemy), 3 (spike) or 4 (ceiling spike)',
     isValid: (grid) =>
-      every(grid, (row) =>
-        every(row, (cell) => cell === AIR || cell === BLOCK || cell === ENEMY),
-      ),
+      every(grid, (row) => every(row, (cell) => KNOWN_CELLS.includes(cell))),
   },
 ];
 
@@ -49,6 +58,11 @@ const contentRules: Rule[] = [
   {
     message: 'every enemy (2) needs a block directly beneath it to stand on',
     isValid: (grid) => enemiesHaveFooting(grid),
+  },
+  {
+    message:
+      'a floor spike (3) needs a block below it, a ceiling spike (4) a block above',
+    isValid: (grid) => spikesAreAnchored(grid),
   },
 ];
 
