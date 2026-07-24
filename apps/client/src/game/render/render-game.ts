@@ -1,6 +1,6 @@
 import { type GameState, PLAYER_HEIGHT, PLAYER_WIDTH } from '@mander/engine';
 import { TILE_SIZE } from '@mander/generator';
-import { clamp, forEach, round } from 'lodash-es';
+import { clamp, forEach } from 'lodash-es';
 
 import { HILL_LAYERS } from './constants';
 import { drawChest } from './draw-chest';
@@ -43,7 +43,7 @@ export const renderGame = (
   );
 
   context.save();
-  context.translate(-round(cameraX), -round(cameraY));
+  context.translate(-cameraX, -cameraY);
   drawTiles(context, level, cameraX, cameraY, viewport);
   drawKey(context, state);
   drawChest(context, state);
