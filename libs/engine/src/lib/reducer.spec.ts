@@ -19,11 +19,13 @@ import { reduce } from './reducer';
 import {
   capabilitiesFor,
   createInitialState,
+  ENEMY_DEATH_SECONDS,
   ENEMY_HEIGHT,
   ENEMY_JUMP_VELOCITY,
   ENEMY_WIDTH,
   type GameState,
   MAX_SPEED_BONUS_PERCENT,
+  PLAYER_DEATH_SECONDS,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
 } from './state';
@@ -87,6 +89,9 @@ const tickN = (state: GameState, n: number): GameState => {
   for (let i = 0; i < n; i++) next = tick(next);
   return next;
 };
+
+const ticksFor = (seconds: number): number =>
+  Math.ceil(seconds / DELTA_SECONDS) + 1;
 
 const settledAt = (x: number, inventory: Item[] = []): GameState => {
   const state = createInitialState(testLevel(), 0, inventory);
@@ -439,7 +444,30 @@ describe('enemies', () => {
     const before = state.deaths;
     state = tick(state);
     expect(state.deaths).toBe(before + 1);
+    expect(state.player.dyingFor, 'the death throes started').toBe(0);
+    expect(state.player.x, 'the body drops where it died').toBe(6 * TILE_SIZE);
+
+    state = tickN(state, ticksFor(PLAYER_DEATH_SECONDS));
+    expect(state.player.dyingFor).toBeNull();
     expect(state.player.x).toBe(state.level.spawn.x);
+    expect(state.deaths, 'the spike only counted once').toBe(before + 1);
+  });
+
+  it('ignores input and hazards while the player is dying', () => {
+    let state = createInitialState(withSpike(6), 0, []);
+    state = {
+      ...state,
+      player: { ...state.player, x: 6 * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT },
+    };
+    state = act(tick(state), { type: 'MOVE_RIGHT_START' });
+    const deadX = state.player.x;
+
+    state = tickN(state, 4);
+    expect(state.player.x, 'the corpse does not walk').toBe(deadX);
+    expect(state.deaths, 'no second death on the way down').toBe(1);
+
+    state = act(state, { type: 'JUMP_START' });
+    expect(state.player.isJumpQueued).toBe(false);
   });
 
   it('turns enemies back at a spike and keeps them alive', () => {
@@ -456,11 +484,32 @@ describe('enemies', () => {
     );
   });
 
-  it('kills an enemy that ends up on a spike', () => {
+  it('kills an enemy that ends up on a spike, clearing it once it fades', () => {
     let state = createInitialState(withSpike(5, [enemySpawn]), 0, []);
     expect(state.enemies).toHaveLength(1);
     state = tick(state);
+    expect(state.enemies, 'lingers while it fades').toHaveLength(1);
+    expect(state.enemies[0].dyingFor).toBe(0);
+    expect(state.enemies[0].vx, 'stops dead').toBe(0);
+
+    state = tickN(state, ticksFor(ENEMY_DEATH_SECONDS));
     expect(state.enemies).toHaveLength(0);
+  });
+
+  it('lets the player walk through a dying enemy unharmed', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+
+    state = {
+      ...state,
+      player: { ...state.player, x: enemy.x, y: enemy.y, vy: 0 },
+      enemies: [{ ...enemy, dyingFor: 0 }],
+    };
+    const before = state.deaths;
+    state = tick(state);
+    expect(state.deaths, 'a fading enemy has no bite left').toBe(before);
+    expect(state.player.dyingFor).toBeNull();
   });
 
   it('kills the player on contact, respawning and counting a death', () => {
@@ -474,6 +523,9 @@ describe('enemies', () => {
     const before = state.deaths;
     state = tick(state);
     expect(state.deaths).toBe(before + 1);
+    expect(state.player.dyingFor).toBe(0);
+
+    state = tickN(state, ticksFor(PLAYER_DEATH_SECONDS));
     expect(state.player.x).toBe(state.level.spawn.x);
     expect(state.player.y).toBe(state.level.spawn.y);
   });
@@ -517,6 +569,7 @@ describe('enemies', () => {
           isGrounded: true,
           homeX: px + 17,
           homeY: enemyFloorY,
+          dyingFor: null,
         },
       ],
     };

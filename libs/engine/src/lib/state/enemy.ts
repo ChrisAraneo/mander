@@ -7,4 +7,5 @@ export interface Enemy {
   isGrounded: boolean;
   homeX: number;
   homeY: number;
+  dyingFor: number | null;
 }

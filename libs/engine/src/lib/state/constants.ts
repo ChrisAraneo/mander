@@ -18,3 +18,7 @@ export const ENEMY_MOVE_SPEED = 78;
 export const ENEMY_JUMP_VELOCITY = 430;
 
 export const MAX_SPEED_BONUS_PERCENT = 15;
+
+export const PLAYER_DEATH_SECONDS = 0.75;
+export const PLAYER_DEATH_LAUNCH_VELOCITY = 340;
+export const ENEMY_DEATH_SECONDS = 0.3;

@@ -1,5 +1,14 @@
-import { type Enemy, ENEMY_HEIGHT, ENEMY_WIDTH } from '@mander/engine';
-import { match } from 'ts-pattern';
+import {
+  type Enemy,
+  ENEMY_DEATH_SECONDS,
+  ENEMY_HEIGHT,
+  ENEMY_WIDTH,
+  isAlive,
+} from '@mander/engine';
+import { clamp } from 'lodash-es';
+import { match, P } from 'ts-pattern';
+
+const SQUASH_FLOOR = 0.15;
 
 const drawEnemyBody = (
   context: CanvasRenderingContext2D,
@@ -27,17 +36,38 @@ const drawEnemyBody = (
   context.fill();
 };
 
-const drawEnemyEyes = (context: CanvasRenderingContext2D): void => {
+const drawEnemyEyes = (
+  context: CanvasRenderingContext2D,
+  isDying: boolean,
+): void => {
   context.fillStyle = '#FDF3EA';
   context.beginPath();
   context.arc(-4, -4, 3.2, 0, Math.PI * 2);
   context.arc(3, -4, 3.2, 0, Math.PI * 2);
   context.fill();
+
+  context.strokeStyle = '#1C1C28';
   context.fillStyle = '#1C1C28';
-  context.beginPath();
-  context.arc(-3, -4, 1.4, 0, Math.PI * 2);
-  context.arc(4, -4, 1.4, 0, Math.PI * 2);
-  context.fill();
+  match(isDying)
+    .with(true, () => {
+      context.lineWidth = 1.2;
+      context.beginPath();
+      context.moveTo(-6, -6);
+      context.lineTo(-1.5, -2);
+      context.moveTo(-1.5, -6);
+      context.lineTo(-6, -2);
+      context.moveTo(1, -6);
+      context.lineTo(5.5, -2);
+      context.moveTo(5.5, -6);
+      context.lineTo(1, -2);
+      context.stroke();
+    })
+    .otherwise(() => {
+      context.beginPath();
+      context.arc(-3, -4, 1.4, 0, Math.PI * 2);
+      context.arc(4, -4, 1.4, 0, Math.PI * 2);
+      context.fill();
+    });
 };
 
 const drawEnemyBrows = (context: CanvasRenderingContext2D): void => {
@@ -51,6 +81,11 @@ const drawEnemyBrows = (context: CanvasRenderingContext2D): void => {
   context.stroke();
 };
 
+const deathProgress = (dyingFor: Enemy['dyingFor']): number =>
+  match(dyingFor)
+    .with(P.number, (seconds) => clamp(seconds / ENEMY_DEATH_SECONDS, 0, 1))
+    .otherwise(() => 0);
+
 export const drawEnemy = (
   context: CanvasRenderingContext2D,
   enemy: Enemy,
@@ -58,18 +93,22 @@ export const drawEnemy = (
 ): void => {
   const centerX = enemy.x + ENEMY_WIDTH / 2;
   const centerY = enemy.y + ENEMY_HEIGHT / 2;
-  const wobble = match(enemy.isGrounded)
+  const isDying = !isAlive(enemy);
+  const progress = deathProgress(enemy.dyingFor);
+  const squash = 1 - progress * (1 - SQUASH_FLOOR);
+  const wobble = match(enemy.isGrounded && !isDying)
     .with(true, () => Math.sin(time * 9 + enemy.homeX * 0.2) * 1.2)
     .otherwise(() => 0);
   const halfWidth = ENEMY_WIDTH / 2;
   const halfHeight = ENEMY_HEIGHT / 2;
 
   context.save();
-  context.translate(centerX, centerY + wobble);
-  context.scale(enemy.facing, 1);
+  context.translate(centerX, centerY + wobble + halfHeight * (1 - squash));
+  context.globalAlpha = 1 - progress * progress;
+  context.scale(enemy.facing * (1 + progress * 0.35), squash);
 
   drawEnemyBody(context, halfWidth, halfHeight);
-  drawEnemyEyes(context);
+  drawEnemyEyes(context, isDying);
   drawEnemyBrows(context);
 
   context.restore();

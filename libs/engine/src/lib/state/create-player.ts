@@ -10,4 +10,5 @@ export const createPlayer = (level: Level): Player => ({
   isGrounded: false,
   facing: 1,
   isJumpQueued: false,
+  dyingFor: null,
 });

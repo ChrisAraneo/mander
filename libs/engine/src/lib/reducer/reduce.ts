@@ -13,8 +13,11 @@ const startJump = (state: GameState): GameState =>
     .otherwise(
       (): GameState => ({
         ...withInput(state, { isJump: true }),
-        player: match(state.status)
-          .with('PLAYING', () => ({ ...state.player, isJumpQueued: true }))
+        player: match({ status: state.status, dyingFor: state.player.dyingFor })
+          .with({ status: 'PLAYING', dyingFor: null }, () => ({
+            ...state.player,
+            isJumpQueued: true,
+          }))
           .otherwise(() => state.player),
       }),
     );

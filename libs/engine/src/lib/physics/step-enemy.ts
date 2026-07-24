@@ -90,6 +90,7 @@ const toEnemy = (motion: EnemyMotion, enemy: Enemy, level: Level): Enemy =>
         isGrounded: motion.isGrounded,
         homeX: enemy.homeX,
         homeY: enemy.homeY,
+        dyingFor: enemy.dyingFor,
       }),
     );
 

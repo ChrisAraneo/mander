@@ -1,5 +1,12 @@
-import { type Player, PLAYER_HEIGHT, PLAYER_WIDTH } from '@mander/engine';
-import { match } from 'ts-pattern';
+import {
+  isAlive,
+  type Player,
+  PLAYER_DEATH_SECONDS,
+  PLAYER_HEIGHT,
+  PLAYER_WIDTH,
+} from '@mander/engine';
+import { clamp } from 'lodash-es';
+import { match, P } from 'ts-pattern';
 
 const HALF_HEIGHT = PLAYER_HEIGHT / 2;
 const HEAD_RADIUS = 7;
@@ -7,6 +14,7 @@ const HEAD_CENTER_Y = -HALF_HEIGHT + HEAD_RADIUS + 1;
 const TORSO_TOP = HEAD_CENTER_Y + HEAD_RADIUS;
 const LEG_HEIGHT = 18;
 const LEG_TOP = HALF_HEIGHT - LEG_HEIGHT;
+const DEATH_SPIN = Math.PI * 0.9;
 
 const drawPlayerLegs = (
   context: CanvasRenderingContext2D,
@@ -40,7 +48,33 @@ const drawPlayerBody = (
   context.fill();
 };
 
-const drawPlayerHead = (context: CanvasRenderingContext2D): void => {
+const drawPlayerEye = (
+  context: CanvasRenderingContext2D,
+  isDying: boolean,
+): void => {
+  context.fillStyle = '#1C1C28';
+  match(isDying)
+    .with(true, () => {
+      context.strokeStyle = '#1C1C28';
+      context.lineWidth = 1.4;
+      context.beginPath();
+      context.moveTo(2.4, HEAD_CENTER_Y - 1.4);
+      context.lineTo(6, HEAD_CENTER_Y + 2.2);
+      context.moveTo(6, HEAD_CENTER_Y - 1.4);
+      context.lineTo(2.4, HEAD_CENTER_Y + 2.2);
+      context.stroke();
+    })
+    .otherwise(() => {
+      context.beginPath();
+      context.arc(4.2, HEAD_CENTER_Y + 0.4, 1.5, 0, Math.PI * 2);
+      context.fill();
+    });
+};
+
+const drawPlayerHead = (
+  context: CanvasRenderingContext2D,
+  isDying: boolean,
+): void => {
   context.fillStyle = '#F2C49B';
   context.beginPath();
   context.arc(1, HEAD_CENTER_Y, HEAD_RADIUS, 0, Math.PI * 2);
@@ -57,11 +91,13 @@ const drawPlayerHead = (context: CanvasRenderingContext2D): void => {
   );
   context.fill();
 
-  context.fillStyle = '#1C1C28';
-  context.beginPath();
-  context.arc(4.2, HEAD_CENTER_Y + 0.4, 1.5, 0, Math.PI * 2);
-  context.fill();
+  drawPlayerEye(context, isDying);
 };
+
+const deathProgress = (dyingFor: Player['dyingFor']): number =>
+  match(dyingFor)
+    .with(P.number, (seconds) => clamp(seconds / PLAYER_DEATH_SECONDS, 0, 1))
+    .otherwise(() => 0);
 
 export const drawPlayer = (
   context: CanvasRenderingContext2D,
@@ -70,6 +106,8 @@ export const drawPlayer = (
 ): void => {
   const centerX = player.x + PLAYER_WIDTH / 2;
   const centerY = player.y + PLAYER_HEIGHT / 2;
+  const isDying = !isAlive(player);
+  const progress = deathProgress(player.dyingFor);
   const isRunning = Math.abs(player.vx) > 1 && player.isGrounded;
   const swing = match(isRunning)
     .with(true, () => Math.sin(time * 14) * 5)
@@ -77,11 +115,13 @@ export const drawPlayer = (
 
   context.save();
   context.translate(centerX, centerY);
+  context.globalAlpha = 1 - progress * progress;
+  context.rotate(-player.facing * progress * DEATH_SPIN);
   context.scale(player.facing, 1);
 
   drawPlayerLegs(context, player.isGrounded, swing);
   drawPlayerBody(context, swing);
-  drawPlayerHead(context);
+  drawPlayerHead(context, isDying);
 
   context.restore();
 };

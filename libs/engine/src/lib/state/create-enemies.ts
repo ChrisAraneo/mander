@@ -17,5 +17,6 @@ export const createEnemies = (level: Level): Enemy[] =>
       isGrounded: false,
       homeX: x,
       homeY: y,
+      dyingFor: null,
     };
   });

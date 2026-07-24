@@ -6,4 +6,5 @@ export interface Player {
   isGrounded: boolean;
   facing: 1 | -1;
   isJumpQueued: boolean;
+  dyingFor: number | null;
 }

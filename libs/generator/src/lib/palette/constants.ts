@@ -26,7 +26,5 @@ export const CAP_LIGHTNESS_MAX = 56;
 export const CAP_HIGHLIGHT_LIGHTNESS_GAIN = 6;
 export const CAP_HIGHLIGHT_SATURATION_GAIN = 5;
 
-/** The warm hue the player and the enemies are drawn in. */
 export const ENTITY_HUE = 24;
-/** How far the ground cap has to stay from it, so bodies never blend in. */
 export const ENTITY_HUE_GUARD = 30;

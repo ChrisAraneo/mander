@@ -129,6 +129,7 @@ const resolvePlayer = (
         isGrounded: s.isGrounded,
         facing: s.facing,
         isJumpQueued: false,
+        dyingFor: player.dyingFor,
       }),
     )
     .value();

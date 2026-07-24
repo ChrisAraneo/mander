@@ -24,12 +24,6 @@ const resizeToDisplay = (
     .otherwise(() => undefined);
 };
 
-/**
- * Matches the drawing buffer to the canvas as the window sizes it, and works
- * out how much of the world fits. The scale never drops below the reference
- * view, so a bigger canvas draws bigger — and shows a little more around the
- * edges on aspect ratios wider or taller than the reference.
- */
 export const syncViewport = (canvas: HTMLCanvasElement): Viewport => {
   const pixelRatio = window.devicePixelRatio || 1;
   const cssWidth = Math.max(1, canvas.clientWidth);

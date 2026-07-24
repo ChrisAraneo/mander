@@ -7,5 +7,6 @@ export * from './enemy';
 export * from './game-state';
 export * from './game-status';
 export * from './input-state';
+export * from './is-alive';
 export * from './player';
 export * from './player-capabilities';
