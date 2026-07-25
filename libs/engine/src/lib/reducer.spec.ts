@@ -25,8 +25,8 @@ import {
   ENEMY_JUMP_VELOCITY,
   ENEMY_WIDTH,
   type GameState,
+  INVINCIBLE_SECONDS,
   MAX_SPEED_BONUS_PERCENT,
-  PLAYER_DEATH_SECONDS,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
 } from './state';
@@ -158,12 +158,13 @@ describe('movement actions', () => {
     expect(state.player.x + PLAYER_WIDTH).toBeLessThanOrEqual(6 * TILE_SIZE);
   });
 
-  it('respawns and counts a death after falling into the pit', () => {
+  it('respawns, counts a death, and spends a heart after falling into the pit', () => {
     const start = settledAt(8 * TILE_SIZE);
     start.player.x = 10 * TILE_SIZE + 5;
     const state = tickN(start, 120);
     expect(state.deaths).toBe(1);
     expect(state.player.x).toBe(state.level.spawn.x);
+    expect(state.player.hearts, 'the fall cost a heart').toBe(0);
   });
 
   it('RESPAWN resets the player position but keeps key and inventory', () => {
@@ -306,6 +307,18 @@ describe('key and chest', () => {
     expect(again.inventory).toHaveLength(1);
   });
 
+  it('INTERACT confirms the open chest by taking the first card', () => {
+    let state = settledAt(20 * TILE_SIZE - 20);
+    state = { ...state, hasKey: true };
+    state = act(state, { type: 'INTERACT' });
+    expect(state.status).toBe('CHEST');
+
+    state = act(state, { type: 'INTERACT' });
+    expect(state.status).toBe('PLAYING');
+    expect(state.isChestOpened).toBe(true);
+    expect(state.inventory.map((i) => i.id)).toEqual(['CARD-0']);
+  });
+
   it('CLOSE leaves the chest unopened so it can be reopened later', () => {
     let state = settledAt(20 * TILE_SIZE - 20);
     state = { ...state, hasKey: true };
@@ -436,36 +449,63 @@ describe('enemies', () => {
     return level;
   };
 
-  it('kills the player who walks into a spike', () => {
+  it('a spike costs a heart and grants invincibility instead of killing', () => {
     let state = createInitialState(withSpike(6), 0, []);
     state = {
       ...state,
       player: { ...state.player, x: 6 * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT },
+    };
+    expect(state.player.hearts).toBe(1);
+    const before = state.deaths;
+    state = tick(state);
+    expect(state.player.hearts, 'the prick drains a heart').toBe(0);
+    expect(
+      state.player.invincibleFor,
+      'and buys a moment of mercy',
+    ).toBeGreaterThan(0);
+    expect(state.player.dyingFor, 'but stays on their feet').toBeNull();
+    expect(state.player.x, 'rooted in place — no knockback, no respawn').toBe(
+      6 * TILE_SIZE,
+    );
+    expect(state.deaths, 'a survived hit is not a death').toBe(before);
+  });
+
+  it('a spike at zero hearts clamps at zero and never respawns', () => {
+    let state = createInitialState(withSpike(6), 0, []);
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        x: 6 * TILE_SIZE,
+        y: SURFACE - PLAYER_HEIGHT,
+        hearts: 0,
+      },
     };
     const before = state.deaths;
     state = tick(state);
-    expect(state.deaths).toBe(before + 1);
-    expect(state.player.dyingFor, 'the death throes started').toBe(0);
-    expect(state.player.x, 'the body drops where it died').toBe(6 * TILE_SIZE);
-
-    state = tickN(state, ticksFor(PLAYER_DEATH_SECONDS));
-    expect(state.player.dyingFor).toBeNull();
-    expect(state.player.x).toBe(state.level.spawn.x);
-    expect(state.deaths, 'the spike only counted once').toBe(before + 1);
+    expect(state.player.hearts, 'cannot drop below zero').toBe(0);
+    expect(state.player.dyingFor, 'a spike never respawns you').toBeNull();
+    expect(state.player.x, 'still rooted in place').toBe(6 * TILE_SIZE);
+    expect(state.deaths, 'a spike is never a death').toBe(before);
   });
 
-  it('ignores input and hazards while the player is dying', () => {
-    let state = createInitialState(withSpike(6), 0, []);
-    state = {
-      ...state,
-      player: { ...state.player, x: 6 * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT },
-    };
-    state = act(tick(state), { type: 'MOVE_RIGHT_START' });
-    const deadX = state.player.x;
+  it('ignores input while the player is dying from a pit fall', () => {
+    let state = settledAt(8 * TILE_SIZE);
+    state = { ...state, player: { ...state.player, x: 10 * TILE_SIZE + 5 } };
+    for (let i = 0; i < 300 && state.player.dyingFor === null; i++) {
+      state = tick(state);
+    }
+    expect(
+      state.player.dyingFor,
+      'the fall started the death throes',
+    ).not.toBeNull();
+    const deaths = state.deaths;
 
+    state = act(state, { type: 'MOVE_RIGHT_START' });
+    const deadX = state.player.x;
     state = tickN(state, 4);
     expect(state.player.x, 'the corpse does not walk').toBe(deadX);
-    expect(state.deaths, 'no second death on the way down').toBe(1);
+    expect(state.deaths, 'no second death mid-fall').toBe(deaths);
 
     state = act(state, { type: 'JUMP_START' });
     expect(state.player.isJumpQueued).toBe(false);
@@ -513,7 +553,7 @@ describe('enemies', () => {
     expect(state.player.dyingFor).toBeNull();
   });
 
-  it('kills the player on contact, respawning and counting a death', () => {
+  it('an enemy costs a heart and leaves the player standing but invincible', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -522,13 +562,30 @@ describe('enemies', () => {
       player: { ...state.player, x: enemy.x, y: enemy.y, vy: 0 },
     };
     const before = state.deaths;
+    const restingX = enemy.x;
     state = tick(state);
-    expect(state.deaths).toBe(before + 1);
-    expect(state.player.dyingFor).toBe(0);
+    expect(state.player.hearts, 'the bump drains a heart').toBe(0);
+    expect(state.player.invincibleFor).toBeGreaterThan(0);
+    expect(state.player.dyingFor, 'no death, no respawn').toBeNull();
+    expect(state.player.x, 'and no knockback').toBe(restingX);
+    expect(state.deaths).toBe(before);
+  });
 
-    state = tickN(state, ticksFor(PLAYER_DEATH_SECONDS));
-    expect(state.player.x).toBe(state.level.spawn.x);
-    expect(state.player.y).toBe(state.level.spawn.y);
+  it('an enemy at zero hearts leaves the player standing, never respawning', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      player: { ...state.player, x: enemy.x, y: enemy.y, vy: 0, hearts: 0 },
+    };
+    const before = state.deaths;
+    const restingX = enemy.x;
+    state = tick(state);
+    expect(state.player.hearts, 'stays clamped at zero').toBe(0);
+    expect(state.player.dyingFor, 'no death, no respawn').toBeNull();
+    expect(state.player.x, 'and no knockback').toBe(restingX);
+    expect(state.deaths).toBe(before);
   });
 
   it('does not kill a player kept apart by the pit', () => {
@@ -599,7 +656,7 @@ describe('ceiling spikes', () => {
   const col = 6;
   const row = 9;
 
-  it('kills the player who jumps up into the prongs', () => {
+  it('costs a heart when the player jumps up into the prongs', () => {
     let state = createInitialState(ceilingSpikeLevel(col, row), 0, []);
     state = {
       ...state,
@@ -610,12 +667,13 @@ describe('ceiling spikes', () => {
       },
     };
     state = tick(state);
-    expect(state.deaths, 'safe while standing underneath').toBe(0);
+    expect(state.player.hearts, 'safe while standing underneath').toBe(1);
 
     state = act(state, { type: 'JUMP_START' });
     state = tickN(state, 20);
-    expect(state.deaths, 'the jump ran into the prongs').toBe(1);
-    expect(state.player.dyingFor).not.toBeNull();
+    expect(state.player.hearts, 'the jump ran into the prongs').toBe(0);
+    expect(state.player.invincibleFor).toBeGreaterThan(0);
+    expect(state.player.dyingFor, 'a prong is not fatal on its own').toBeNull();
   });
 
   it('spares the player who stays under the prongs', () => {
@@ -658,5 +716,127 @@ describe('precise spike collision', () => {
     expect(overlapsSpike(level, left + 8, 11 * TILE_SIZE + 9, 5, 6)).toBe(
       false,
     );
+  });
+});
+
+describe('hearts', () => {
+  const emberHeart = (id = 'EMBER-HEART'): Item =>
+    item(id, { kind: 'HEART', amount: 1 });
+
+  const spikeX = 6 * TILE_SIZE;
+  const safeX = 2 * TILE_SIZE;
+
+  const placeAt = (state: GameState, x: number): GameState => ({
+    ...state,
+    player: { ...state.player, x, y: SURFACE - PLAYER_HEIGHT },
+  });
+
+  it('starts a new level with a single heart', () => {
+    expect(createInitialState(testLevel(), 0, []).player.hearts).toBe(1);
+  });
+
+  it('collecting a chest heart adds a heart on the spot', () => {
+    let state = createInitialState(testLevel(), 0, []);
+    expect(state.player.hearts).toBe(1);
+
+    state = {
+      ...state,
+      status: 'CHEST',
+      level: { ...state.level, chestItems: [emberHeart()] },
+    };
+    state = act(state, { type: 'CHOOSE_ITEM', index: 0 });
+    expect(state.player.hearts, 'the collected heart lands immediately').toBe(
+      2,
+    );
+    expect(state.inventory).toHaveLength(1);
+  });
+
+  it('carries hearts to the next level without topping them back up', () => {
+    let state = createInitialState(testLevel(), 0, [emberHeart()]);
+    expect(state.player.hearts, 'base plus one collected').toBe(2);
+
+    state = { ...state, player: { ...state.player, hearts: 1 } };
+    state = act(state, {
+      type: 'LOAD_LEVEL',
+      level: testLevel(),
+      levelIndex: 1,
+    });
+    expect(state.player.hearts, 'the next level does not refill').toBe(1);
+  });
+
+  it('spends one heart on a pit fall but respawns with the rest', () => {
+    let state = createInitialState(testLevel(), 0, [
+      emberHeart('H1'),
+      emberHeart('H2'),
+    ]);
+    expect(state.player.hearts).toBe(3);
+
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        x: 10 * TILE_SIZE + 5,
+        y: SURFACE - PLAYER_HEIGHT,
+      },
+    };
+    state = tickN(state, 120);
+    expect(state.player.x, 'respawned at spawn').toBe(state.level.spawn.x);
+    expect(state.player.hearts, 'down just one heart').toBe(2);
+    expect(state.deaths).toBe(1);
+  });
+
+  it('shrugs off hits while invincible, then is vulnerable once it lapses', () => {
+    let state = placeAt(
+      createInitialState(spikeLevel(6), 0, [emberHeart()]),
+      spikeX,
+    );
+    expect(state.player.hearts).toBe(2);
+
+    state = tick(state);
+    expect(state.player.hearts, 'the spike takes one heart').toBe(1);
+    const granted = state.player.invincibleFor;
+    expect(granted).toBeGreaterThan(0);
+
+    state = tick(placeAt(state, spikeX));
+    expect(state.player.hearts, 'a second bite bounces off the i-frames').toBe(
+      1,
+    );
+    expect(
+      state.player.invincibleFor,
+      'and the timer keeps ticking',
+    ).toBeLessThan(granted);
+
+    state = tickN(placeAt(state, safeX), ticksFor(INVINCIBLE_SECONDS));
+    expect(state.player.invincibleFor, 'invincibility has worn off').toBe(0);
+    expect(state.player.hearts, 'no damage taken while safe').toBe(1);
+
+    state = tick(placeAt(state, spikeX));
+    expect(state.player.hearts, 'the spike bites once more').toBe(0);
+    expect(state.player.invincibleFor).toBeGreaterThan(0);
+  });
+
+  it('lets a stockpile of hearts soak up several hits, clamping at zero', () => {
+    let state = placeAt(
+      createInitialState(spikeLevel(6), 0, [
+        emberHeart('H1'),
+        emberHeart('H2'),
+      ]),
+      spikeX,
+    );
+    expect(state.player.hearts, 'base plus two collected').toBe(3);
+    const deaths = state.deaths;
+
+    for (let heartsLeft = 2; heartsLeft >= 0; heartsLeft--) {
+      state = tick(placeAt(state, spikeX));
+      expect(state.player.hearts).toBe(heartsLeft);
+      expect(state.player.dyingFor, 'still alive').toBeNull();
+      state = tickN(placeAt(state, safeX), ticksFor(INVINCIBLE_SECONDS));
+    }
+    expect(state.deaths, 'survived every hit').toBe(deaths);
+
+    state = tick(placeAt(state, spikeX));
+    expect(state.player.hearts, 'cannot drop below zero').toBe(0);
+    expect(state.player.dyingFor, 'a spike is never fatal').toBeNull();
+    expect(state.deaths, 'and never a death').toBe(deaths);
   });
 });

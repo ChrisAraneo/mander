@@ -297,7 +297,7 @@ describe('generateLevel', () => {
   );
 
   it.each(CASES)(
-    'never lets connected ground step more than one tile for %s level %i',
+    'never lets connected ground step beyond a jumpable rise for %s level %i',
     (seed, d) => {
       const level = generateLevel(levelSeed(seed, d), d);
       const heights = groundHeights(level);
@@ -306,8 +306,11 @@ describe('generateLevel', () => {
         const isWall =
           heights[x] === level.height || heights[x + 1] === level.height;
         if (!isPit && !isWall) {
-          const rise = Math.abs(heights[x + 1] - heights[x]);
-          expect(rise, `rise of ${rise} at column ${x}`).toBeLessThanOrEqual(1);
+          const rise = heights[x + 1] - heights[x];
+          expect(
+            maxJumpColumns(rise),
+            `rise of ${rise} at column ${x} is not jumpable`,
+          ).toBeGreaterThanOrEqual(1);
         }
       }
     },
@@ -508,7 +511,7 @@ describe('generateLevel', () => {
     expect(hard).toBeGreaterThan(normal);
   });
 
-  it.each(SEEDS)('offers five distinct chest items for %s', (seed) => {
+  it.each(SEEDS)('offers a single distinct chest item for %s', (seed) => {
     const { chestItems } = generateLevel(seed, 2);
     expect(chestItems).toHaveLength(CHEST_ITEM_COUNT);
     expect(new Set(chestItems.map((item) => item.id)).size).toBe(
