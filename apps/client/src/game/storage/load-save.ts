@@ -1,5 +1,5 @@
 import type { Item } from '@mander/generator';
-import { isArray, isString } from 'lodash-es';
+import { isArray, isObjectLike, isString } from 'lodash-es';
 import { tryCatch } from 'ramda';
 import { match, P } from 'ts-pattern';
 
@@ -10,7 +10,7 @@ import type { SaveData } from './save-data';
 const { nullish } = P;
 
 const isSaveShape = (value: unknown): value is Partial<SaveData> =>
-  typeof value === 'object' && value !== null;
+  isObjectLike(value);
 
 const arrayOrEmpty = <Value>(value: unknown): Value[] =>
   match(value)
@@ -20,7 +20,7 @@ const arrayOrEmpty = <Value>(value: unknown): Value[] =>
     )
     .otherwise((): Value[] => []);
 
-const parseSave = (raw: string | null): SaveData =>
+const fromRaw = (raw: string | null): SaveData =>
   match(raw)
     .with(nullish, () => emptySave())
     .otherwise((rawValue) =>
@@ -39,6 +39,6 @@ const parseSave = (raw: string | null): SaveData =>
     );
 
 export const loadSave: () => SaveData = tryCatch(
-  () => parseSave(localStorage.getItem(STORAGE_KEY)),
+  () => fromRaw(localStorage.getItem(STORAGE_KEY)),
   () => emptySave(),
 );

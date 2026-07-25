@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { match } from 'ts-pattern';
 import { dailyDate, dailySeed } from '@mander/generator';
 import { clearSave, loadSave } from '../game/storage';
 
@@ -10,6 +11,17 @@ const date = dailyDate();
 
 const save = ref(loadSave());
 const isContinuing = computed(() => save.value.lastSeed === seed);
+
+const startLabel = computed(() =>
+  match(isContinuing.value)
+    .with(true, () => "Continue today's run")
+    .otherwise(() => "Start today's run"),
+);
+
+const pluralSuffix = (count: number): string =>
+  match(count)
+    .with(1, () => '')
+    .otherwise(() => 's');
 
 function resetSave(): void {
   clearSave();
@@ -29,7 +41,7 @@ function resetSave(): void {
       <span class="date">{{ date }}</span>
       <span class="hash" :title="`Run seed: ${seed}`">{{ seed }}</span>
       <button class="primary" @click="emit('start', seed)">
-        {{ isContinuing ? "Continue today's run" : "Start today's run" }}
+        {{ startLabel }}
       </button>
     </div>
 
@@ -38,11 +50,11 @@ function resetSave(): void {
       class="save-info">
       <p>
         {{ save.completedLevels.length }} level{{
-          save.completedLevels.length === 1 ? '' : 's'
+          pluralSuffix(save.completedLevels.length)
         }}
         completed ·
         {{ save.inventory.length }} item{{
-          save.inventory.length === 1 ? '' : 's'
+          pluralSuffix(save.inventory.length)
         }}
         collected
       </p>

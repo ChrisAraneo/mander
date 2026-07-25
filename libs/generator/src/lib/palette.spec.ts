@@ -1,3 +1,4 @@
+import { forEach, map } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { generateLevel, generateLevelSet, levelSeed } from './generate';
@@ -19,7 +20,7 @@ import { createRng } from './rng';
 const HSL_PATTERN =
   /^HSL\((?<hue>\d+), (?<saturation>\d+)%, (?<lightness>\d+)%\)$/u;
 
-const parse = (color: string): { hue: number; lightness: number } => {
+const fromColor = (color: string): { hue: number; lightness: number } => {
   const groups = HSL_PATTERN.exec(color)?.groups;
   if (!groups) throw new Error(`not an HSL color: ${color}`);
   return { hue: Number(groups.hue), lightness: Number(groups.lightness) };
@@ -78,18 +79,18 @@ describe('rollPalette', () => {
   });
 
   it.each(SEEDS)('emits only valid HSL colors for %s', (seed) => {
-    for (const color of colorsOf(rollPalette(createRng(seed)))) {
+    forEach(colorsOf(rollPalette(createRng(seed))), (color) => {
       expect(color, color).toMatch(HSL_PATTERN);
-    }
+    });
   });
 
   it.each(SEEDS)(
     'keeps the ground readable under the bodies for %s',
     (seed) => {
       const palette = rollPalette(createRng(seed));
-      const block = parse(palette.block);
-      const cap = parse(palette.blockCap);
-      const highlight = parse(palette.blockCapHighlight);
+      const block = fromColor(palette.block);
+      const cap = fromColor(palette.blockCap);
+      const highlight = fromColor(palette.blockCapHighlight);
 
       expect(block.lightness).toBeGreaterThanOrEqual(GROUND_LIGHTNESS_MIN);
       expect(block.lightness).toBeLessThanOrEqual(GROUND_LIGHTNESS_MAX);
@@ -107,8 +108,8 @@ describe('rollPalette', () => {
 
   it.each(SEEDS)('darkens the sky towards the top for %s', (seed) => {
     const { sky, hills } = rollPalette(createRng(seed));
-    const [top, middle, horizon] = sky.map(parse);
-    const [far, near] = hills.map(parse);
+    const [top, middle, horizon] = map(sky, fromColor);
+    const [far, near] = map(hills, fromColor);
 
     expect(middle.lightness).toBeGreaterThan(top.lightness);
     expect(horizon.lightness).toBeGreaterThan(middle.lightness);
@@ -123,9 +124,9 @@ describe('rollPalette', () => {
 
 describe('level palettes', () => {
   it('gives every run its own palette, deterministically', () => {
-    const palettes = SEEDS.map((seed) => generateLevelSet(seed)[0].palette);
+    const palettes = map(SEEDS, (seed) => generateLevelSet(seed)[0].palette);
     expect(
-      new Set(palettes.map((palette) => JSON.stringify(palette))).size,
+      new Set(map(palettes, (palette) => JSON.stringify(palette))).size,
     ).toBe(SEEDS.length);
     expect(generateLevelSet('MANDER')[0].palette).toEqual(
       generateLevelSet('MANDER')[0].palette,
@@ -135,9 +136,9 @@ describe('level palettes', () => {
   it('paints all eight levels of a run with one shared palette', () => {
     const levels = generateLevelSet('MANDER');
     const shared = JSON.stringify(levels[0].palette);
-    for (const level of levels) {
+    forEach(levels, (level) => {
       expect(JSON.stringify(level.palette)).toBe(shared);
-    }
+    });
   });
 
   it('keeps the palette fixed when only the level index changes', () => {

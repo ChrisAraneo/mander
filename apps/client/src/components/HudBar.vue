@@ -1,23 +1,36 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { floor, padStart, range } from 'lodash-es';
+import { chain, floor, padStart, range } from 'lodash-es';
+import { match } from 'ts-pattern';
 import { LEVELS_PER_SEED } from '@mander/generator';
 import type { GameState } from '@mander/engine';
 
 const props = defineProps<{ state: GameState; seed: string }>();
 defineEmits<{ exit: [] }>();
 
-const time = computed(() => {
-  const total = floor(props.state.time);
-  const minutes = floor(total / 60);
-  const seconds = padStart(String(total % 60), 2, '0');
-  return `${minutes}:${seconds}`;
-});
+const time = computed(() =>
+  chain(floor(props.state.time))
+    .thru((total) => ({
+      minutes: floor(total / 60),
+      seconds: padStart(String(total % 60), 2, '0'),
+    }))
+    .thru(({ minutes, seconds }) => `${minutes}:${seconds}`)
+    .value(),
+);
 
-const hearts = computed(() => {
-  const current = Math.max(0, props.state.player.hearts);
-  return range(Math.max(current, 1)).map((index) => index < current);
-});
+const hearts = computed(() =>
+  chain(Math.max(0, props.state.player.hearts))
+    .thru((current) =>
+      range(Math.max(current, 1)).map((index) => index < current),
+    )
+    .value(),
+);
+
+const keyLabel = computed(() =>
+  match(props.state.hasKey)
+    .with(true, () => '🔑 Key found')
+    .otherwise(() => '🔒 No key'),
+);
 </script>
 
 <template>
@@ -42,7 +55,7 @@ const hearts = computed(() => {
         >✕ {{ state.deaths }}</span
       >
       <span class="chip key" :class="{ found: state.hasKey }">
-        {{ state.hasKey ? '🔑 Key found' : '🔒 No key' }}
+        {{ keyLabel }}
       </span>
     </div>
 

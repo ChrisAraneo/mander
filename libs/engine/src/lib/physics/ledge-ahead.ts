@@ -1,6 +1,7 @@
 import { isSolid, type Level } from '@mander/generator';
 
-import { belowRow, probeColumn } from './enemy-probe';
+import { belowRow } from './below-row';
+import { probeColumn } from './probe-column';
 
 export const ledgeAhead = (
   level: Level,

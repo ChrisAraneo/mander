@@ -10,7 +10,7 @@ import {
   ENEMY_WIDTH,
 } from '../state';
 import { GRAVITY, MAX_TICK_SECONDS, TERMINAL_VELOCITY } from './constants';
-import { resolveLanding } from './landing';
+import { resolveLanding } from './resolve-landing';
 import { ledgeAhead } from './ledge-ahead';
 import { moveHorizontal } from './move-horizontal';
 import { moveVertical } from './move-vertical';
@@ -108,52 +108,66 @@ const enemyIntent = (
     facing: enemy.facing,
     isGrounded: enemy.isGrounded,
   })
-    .thru((s) => ({ ...s, ...enemyHop(s.isGrounded, s.vy, enemy, player) }))
-    .thru((s) => ({
-      ...s,
-      facing: enemyTurn(level, s.x, s.y, s.facing, s.isGrounded),
+    .thru((stage) => ({
+      ...stage,
+      ...enemyHop(stage.isGrounded, stage.vy, enemy, player),
     }))
-    .thru((s) => ({
-      ...s,
-      vy: Math.min(s.vy + GRAVITY * s.deltaSeconds, TERMINAL_VELOCITY),
+    .thru((stage) => ({
+      ...stage,
+      facing: enemyTurn(
+        level,
+        stage.x,
+        stage.y,
+        stage.facing,
+        stage.isGrounded,
+      ),
+    }))
+    .thru((stage) => ({
+      ...stage,
+      vy: Math.min(stage.vy + GRAVITY * stage.deltaSeconds, TERMINAL_VELOCITY),
     }))
     .value();
 
 const resolveEnemy = (level: Level, enemy: Enemy, motion: EnemyMotion): Enemy =>
   chain(motion)
-    .thru((s) => ({
-      ...s,
+    .thru((stage) => ({
+      ...stage,
       horizontal: moveHorizontal(
         level,
-        s.x,
-        s.y,
+        stage.x,
+        stage.y,
         ENEMY_WIDTH,
         ENEMY_HEIGHT,
-        s.facing * ENEMY_MOVE_SPEED * s.deltaSeconds,
+        stage.facing * ENEMY_MOVE_SPEED * stage.deltaSeconds,
       ),
     }))
-    .thru((s) => ({
-      ...s,
-      x: s.horizontal.position,
-      facing: turnOnBlock(s.horizontal.isBlocked, s.facing),
+    .thru((stage) => ({
+      ...stage,
+      x: stage.horizontal.position,
+      facing: turnOnBlock(stage.horizontal.isBlocked, stage.facing),
     }))
-    .thru((s) => ({
-      ...s,
+    .thru((stage) => ({
+      ...stage,
       vertical: moveVertical(
         level,
-        s.x,
-        s.y,
+        stage.x,
+        stage.y,
         ENEMY_WIDTH,
         ENEMY_HEIGHT,
-        s.vy * s.deltaSeconds,
+        stage.vy * stage.deltaSeconds,
       ),
     }))
-    .thru((s) => ({
-      ...s,
-      y: s.vertical.position,
-      ...resolveLanding(s.vertical.isBlocked, s.vy > 0, s.isGrounded, s.vy),
+    .thru((stage) => ({
+      ...stage,
+      y: stage.vertical.position,
+      ...resolveLanding(
+        stage.vertical.isBlocked,
+        stage.vy > 0,
+        stage.isGrounded,
+        stage.vy,
+      ),
     }))
-    .thru((s): Enemy => toEnemy(s, enemy, level))
+    .thru((stage): Enemy => toEnemy(stage, enemy, level))
     .value();
 
 export const stepEnemy = (

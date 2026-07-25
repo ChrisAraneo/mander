@@ -5,7 +5,7 @@ import { match } from 'ts-pattern';
 import type { InputState, Player, PlayerCapabilities } from '../state';
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../state';
 import { GRAVITY, MAX_TICK_SECONDS, TERMINAL_VELOCITY } from './constants';
-import { resolveLanding } from './landing';
+import { resolveLanding } from './resolve-landing';
 import { moveHorizontal } from './move-horizontal';
 import { moveVertical } from './move-vertical';
 
@@ -62,10 +62,10 @@ const playerIntent = (
     deltaSeconds,
     direction: horizontalDirection(input),
   })
-    .thru((s) => ({
-      ...s,
-      vx: s.direction * capabilities.moveSpeed,
-      facing: facingFor(s.direction, player.facing),
+    .thru((stage) => ({
+      ...stage,
+      vx: stage.direction * capabilities.moveSpeed,
+      facing: facingFor(stage.direction, player.facing),
       ...afterJump(
         { vy: player.vy, isGrounded: player.isGrounded },
         input,
@@ -73,10 +73,10 @@ const playerIntent = (
         capabilities,
       ),
     }))
-    .thru((s) => ({
-      ...s,
+    .thru((stage) => ({
+      ...stage,
       vy: Math.min(
-        s.vy + gravityFor(s.vy, input) * s.deltaSeconds,
+        stage.vy + gravityFor(stage.vy, input) * stage.deltaSeconds,
         TERMINAL_VELOCITY,
       ),
     }))
@@ -88,46 +88,51 @@ const resolvePlayer = (
   intent: ReturnType<typeof playerIntent>,
 ): Player =>
   chain(intent)
-    .thru((s) => ({
-      ...s,
+    .thru((stage) => ({
+      ...stage,
       horizontal: moveHorizontal(
         level,
         player.x,
         player.y,
         PLAYER_WIDTH,
         PLAYER_HEIGHT,
-        s.vx * s.deltaSeconds,
+        stage.vx * stage.deltaSeconds,
       ),
     }))
-    .thru((s) => ({
-      ...s,
-      nextX: s.horizontal.position,
-      vxOut: blockedVx(s.horizontal.isBlocked, s.vx),
+    .thru((stage) => ({
+      ...stage,
+      nextX: stage.horizontal.position,
+      vxOut: blockedVx(stage.horizontal.isBlocked, stage.vx),
     }))
-    .thru((s) => ({
-      ...s,
+    .thru((stage) => ({
+      ...stage,
       vertical: moveVertical(
         level,
-        s.nextX,
+        stage.nextX,
         player.y,
         PLAYER_WIDTH,
         PLAYER_HEIGHT,
-        s.vy * s.deltaSeconds,
+        stage.vy * stage.deltaSeconds,
       ),
     }))
-    .thru((s) => ({
-      ...s,
-      nextY: s.vertical.position,
-      ...resolveLanding(s.vertical.isBlocked, s.vy > 0, s.isGrounded, s.vy),
+    .thru((stage) => ({
+      ...stage,
+      nextY: stage.vertical.position,
+      ...resolveLanding(
+        stage.vertical.isBlocked,
+        stage.vy > 0,
+        stage.isGrounded,
+        stage.vy,
+      ),
     }))
     .thru(
-      (s): Player => ({
-        x: s.nextX,
-        y: s.nextY,
-        vx: s.vxOut,
-        vy: s.vy,
-        isGrounded: s.isGrounded,
-        facing: s.facing,
+      (stage): Player => ({
+        x: stage.nextX,
+        y: stage.nextY,
+        vx: stage.vxOut,
+        vy: stage.vy,
+        isGrounded: stage.isGrounded,
+        facing: stage.facing,
         isJumpQueued: false,
         dyingFor: player.dyingFor,
         hearts: player.hearts,

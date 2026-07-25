@@ -5,7 +5,7 @@ import { match } from 'ts-pattern';
 import type { AxisMove } from './axis-move';
 import { EPSILON, SUBSTEP } from './internal-constants';
 
-export interface Sweep {
+interface Sweep {
   origin: number;
   delta: number;
   size: number;

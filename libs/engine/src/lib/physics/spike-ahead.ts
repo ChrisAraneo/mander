@@ -1,7 +1,8 @@
 import { isSpike, type Level } from '@mander/generator';
 import { some } from 'lodash-es';
 
-import { probeColumn, probeRows } from './enemy-probe';
+import { probeColumn } from './probe-column';
+import { probeRows } from './probe-rows';
 
 export const spikeAhead = (
   level: Level,

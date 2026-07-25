@@ -16,13 +16,8 @@ import { forEach, range } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import { CELL, COLORS } from './constants';
+import type { EditorView } from './editor-view';
 import { reachableFromEntry } from './reachable-from-entry';
-
-export interface EditorView {
-  pixelRatio: number;
-  cssWidth: number;
-  cssHeight: number;
-}
 
 type Surfaces = ReturnType<typeof reachableFromEntry>['surfaces'];
 
@@ -144,12 +139,16 @@ const drawSpikeCell = (
   context: CanvasRenderingContext2D,
   pixelX: number,
   pixelY: number,
-  pointsDown: boolean,
+  isPointingDown: boolean,
 ): void => {
   const prongWidth = CELL / PRONGS;
   const prongHeight = CELL * 0.72;
-  const base = pointsDown ? pixelY : pixelY + CELL;
-  const tip = pointsDown ? pixelY + prongHeight : pixelY + CELL - prongHeight;
+  const base = match(isPointingDown)
+    .with(true, () => pixelY)
+    .otherwise(() => pixelY + CELL);
+  const tip = match(isPointingDown)
+    .with(true, () => pixelY + prongHeight)
+    .otherwise(() => pixelY + CELL - prongHeight);
   context.fillStyle = COLORS.spike;
   context.strokeStyle = COLORS.spikeOutline;
   context.lineWidth = 1;

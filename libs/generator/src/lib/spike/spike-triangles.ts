@@ -1,9 +1,8 @@
 import { times } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import { TILE_SIZE } from '../types';
+import { type SpikeOrientation, TILE_SIZE } from '../types';
 import { SPIKE_HEIGHT_FRACTION, SPIKE_PRONGS } from './constants';
-import type { SpikeOrientation } from './spike-orientation';
 import type { Triangle } from './triangle';
 
 const PRONG_HEIGHT = TILE_SIZE * SPIKE_HEIGHT_FRACTION;

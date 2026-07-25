@@ -7,4 +7,5 @@ export * from './item-rarity';
 export * from './level';
 export * from './point';
 export * from './rect';
+export * from './spike-orientation';
 export * from './tile';
