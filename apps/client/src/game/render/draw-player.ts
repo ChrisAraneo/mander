@@ -99,6 +99,11 @@ const deathProgress = (dyingFor: Player['dyingFor']): number =>
     .with(P.number, (seconds) => clamp(seconds / PLAYER_DEATH_SECONDS, 0, 1))
     .otherwise(() => 0);
 
+const invincibleAlpha = (player: Player, time: number): number =>
+  match(player.invincibleFor > 0 && isAlive(player))
+    .with(true, () => 0.35 + 0.45 * (0.5 + 0.5 * Math.sin(time * 30)))
+    .otherwise(() => 1);
+
 export const drawPlayer = (
   context: CanvasRenderingContext2D,
   player: Player,
@@ -115,7 +120,8 @@ export const drawPlayer = (
 
   context.save();
   context.translate(centerX, centerY);
-  context.globalAlpha = 1 - progress * progress;
+  context.globalAlpha =
+    (1 - progress * progress) * invincibleAlpha(player, time);
   context.rotate(-player.facing * progress * DEATH_SPIN);
   context.scale(player.facing, 1);
 

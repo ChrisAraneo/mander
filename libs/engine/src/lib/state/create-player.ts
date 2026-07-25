@@ -2,7 +2,7 @@ import type { Level } from '@mander/generator';
 
 import type { Player } from './player';
 
-export const createPlayer = (level: Level): Player => ({
+export const createPlayer = (level: Level, hearts: number): Player => ({
   x: level.spawn.x,
   y: level.spawn.y,
   vx: 0,
@@ -11,4 +11,6 @@ export const createPlayer = (level: Level): Player => ({
   facing: 1,
   isJumpQueued: false,
   dyingFor: null,
+  hearts,
+  invincibleFor: 0,
 });

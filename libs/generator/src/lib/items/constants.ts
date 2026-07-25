@@ -1,1 +1,1 @@
-export const CHEST_ITEM_COUNT = 5;
+export const CHEST_ITEM_COUNT = 1;

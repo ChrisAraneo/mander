@@ -13,7 +13,7 @@ export const stepPlayerDeath = (
 ): Player => {
   const deltaSeconds = Math.min(elapsedSeconds, MAX_TICK_SECONDS);
   return match(dyingFor + deltaSeconds >= PLAYER_DEATH_SECONDS)
-    .with(true, () => createPlayer(level))
+    .with(true, () => createPlayer(level, player.hearts))
     .otherwise(
       (): Player => ({
         ...player,

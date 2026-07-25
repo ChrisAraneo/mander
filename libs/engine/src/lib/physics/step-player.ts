@@ -130,6 +130,8 @@ const resolvePlayer = (
         facing: s.facing,
         isJumpQueued: false,
         dyingFor: player.dyingFor,
+        hearts: player.hearts,
+        invincibleFor: player.invincibleFor,
       }),
     )
     .value();

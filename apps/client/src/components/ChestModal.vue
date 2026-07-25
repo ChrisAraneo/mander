@@ -9,7 +9,7 @@ defineEmits<{ choose: [index: number]; close: [] }>();
   <div class="overlay">
     <div class="panel chest-panel">
       <h2>The chest creaks open…</h2>
-      <p>Choose one treasure to keep.</p>
+      <p>Press Enter to take it, or Esc to leave it behind.</p>
 
       <div class="cards">
         <button

@@ -7,4 +7,6 @@ export interface Player {
   facing: 1 | -1;
   isJumpQueued: boolean;
   dyingFor: number | null;
+  hearts: number;
+  invincibleFor: number;
 }

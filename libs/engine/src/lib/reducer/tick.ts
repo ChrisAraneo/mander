@@ -2,9 +2,10 @@ import { filter, map, some } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import { overlapsSpike, stepPlayer } from '../physics';
-import type { Enemy, GameState, Player } from '../state';
+import type { Enemy, GameState, Player, PlayerCapabilities } from '../state';
 import {
   capabilitiesFor,
+  INVINCIBLE_SECONDS,
   isAlive,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
@@ -21,21 +22,33 @@ const INTERACT_RANGE = 12;
 const PICKUP_RANGE = 4;
 
 interface Outcome {
-  player: GameState['player'];
+  player: Player;
   deaths: number;
 }
 
-const advancePlayer = (state: GameState, deltaSeconds: number): Player =>
+const coolInvincibility = (player: Player, deltaSeconds: number): Player => ({
+  ...player,
+  invincibleFor: Math.max(0, player.invincibleFor - deltaSeconds),
+});
+
+const advancePlayer = (
+  state: GameState,
+  capabilities: PlayerCapabilities,
+  deltaSeconds: number,
+): Player =>
   match(state.player.dyingFor)
     .with(P.number, (dyingFor) =>
       stepPlayerDeath(state.level, state.player, dyingFor, deltaSeconds),
     )
     .otherwise(() =>
-      stepPlayer(
-        state.level,
-        state.player,
-        state.input,
-        capabilitiesFor(state.inventory),
+      coolInvincibility(
+        stepPlayer(
+          state.level,
+          state.player,
+          state.input,
+          capabilities,
+          deltaSeconds,
+        ),
         deltaSeconds,
       ),
     );
@@ -52,26 +65,42 @@ const advanceEnemies = (
     (enemy) => !hasFaded(enemy),
   );
 
-const isLethal = (
+const touchesHazard = (
   state: GameState,
   player: Player,
   enemies: Enemy[],
 ): boolean =>
-  hasFallenIntoPit(state.level, player) ||
   overlapsSpike(state.level, player.x, player.y, PLAYER_WIDTH, PLAYER_HEIGHT) ||
   some(enemies, (enemy) => isAlive(enemy) && isTouchingEnemy(player, enemy));
 
-const resolveDeath = (
+const loseHeart = (hearts: number): number => Math.max(0, hearts - 1);
+
+const fell = (state: GameState, player: Player): Outcome => ({
+  player: { ...killPlayer(player), hearts: loseHeart(player.hearts) },
+  deaths: state.deaths + 1,
+});
+
+const hurt = (player: Player): Player => ({
+  ...player,
+  hearts: loseHeart(player.hearts),
+  invincibleFor: INVINCIBLE_SECONDS,
+});
+
+const resolveHarm = (
   state: GameState,
   player: Player,
   enemies: Enemy[],
 ): Outcome =>
-  match(isAlive(player) && isLethal(state, player, enemies))
+  match({
+    fellIntoPit: hasFallenIntoPit(state.level, player),
+    struck: player.invincibleFor <= 0 && touchesHazard(state, player, enemies),
+  })
+    .with({ fellIntoPit: true }, () => fell(state, player))
     .with(
-      true,
+      { struck: true },
       (): Outcome => ({
-        player: killPlayer(player),
-        deaths: state.deaths + 1,
+        player: hurt(player),
+        deaths: state.deaths,
       }),
     )
     .otherwise((): Outcome => ({ player, deaths: state.deaths }));
@@ -79,9 +108,12 @@ const resolveDeath = (
 export const tick = (state: GameState, deltaSeconds: number): GameState =>
   match(state.status)
     .with('PLAYING', (): GameState => {
-      const moved = advancePlayer(state, deltaSeconds);
+      const capabilities = capabilitiesFor(state.inventory);
+      const moved = advancePlayer(state, capabilities, deltaSeconds);
       const enemies = advanceEnemies(state, moved, deltaSeconds);
-      const { player, deaths } = resolveDeath(state, moved, enemies);
+      const { player, deaths } = match(isAlive(moved))
+        .with(true, () => resolveHarm(state, moved, enemies))
+        .otherwise((): Outcome => ({ player: moved, deaths: state.deaths }));
       const canReach = isAlive(player);
 
       return {

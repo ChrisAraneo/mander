@@ -22,11 +22,7 @@ export const overlapsSpike = (
       (tileX) =>
         isSpike(level, tileX, tileY) &&
         some(
-          spikeTriangles(
-            tileX,
-            tileY,
-            spikeOrientation(level, tileX, tileY),
-          ),
+          spikeTriangles(tileX, tileY, spikeOrientation(level, tileX, tileY)),
           (triangle) =>
             boxHitsTriangle(boxLeft, boxTop, boxWidth, boxHeight, triangle),
         ),

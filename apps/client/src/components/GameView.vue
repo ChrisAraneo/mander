@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { LEVELS_PER_SEED } from '@mander/generator';
 import { match } from 'ts-pattern';
 import { useGame } from '../game/use-game';
@@ -7,7 +7,7 @@ import ChestModal from './ChestModal.vue';
 import HudBar from './HudBar.vue';
 
 const props = defineProps<{ seed: string }>();
-defineEmits<{ exit: [] }>();
+const emit = defineEmits<{ exit: [] }>();
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 const { state, dispatch, nextLevel } = useGame(props.seed, canvas);
@@ -35,6 +35,42 @@ const hint = computed(() =>
     )
     .otherwise(() => null),
 );
+
+const confirmComplete = (): void =>
+  match(isRunFinished.value)
+    .with(true, () => emit('exit'))
+    .otherwise(() => nextLevel());
+
+const completeReady = ref(false);
+
+watch(
+  () => state.value.status,
+  (status) => {
+    completeReady.value = false;
+    match(status === 'COMPLETE')
+      .with(true, () =>
+        requestAnimationFrame(() => {
+          completeReady.value = state.value.status === 'COMPLETE';
+        }),
+      )
+      .otherwise(() => undefined);
+  },
+);
+
+const onModalKey = (event: KeyboardEvent): void =>
+  match({
+    active: completeReady.value && state.value.status === 'COMPLETE',
+    repeat: event.repeat,
+    code: event.code,
+  })
+    .with({ active: true, repeat: false, code: 'Enter' }, () =>
+      confirmComplete(),
+    )
+    .with({ active: true, repeat: false, code: 'Escape' }, () => emit('exit'))
+    .otherwise(() => undefined);
+
+onMounted(() => window.addEventListener('keydown', onModalKey));
+onUnmounted(() => window.removeEventListener('keydown', onModalKey));
 </script>
 
 <template>
@@ -50,8 +86,8 @@ const hint = computed(() =>
         </p>
 
         <p class="controls">
-          A / D or ◀ ▶ move · W / Space jump · E interact · Esc close · R
-          respawn
+          A / D or ◀ ▶ move · W / Space jump · E interact · Enter confirm · Esc
+          close · R respawn
         </p>
       </div>
     </div>

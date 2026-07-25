@@ -10,3 +10,4 @@ export * from './input-state';
 export * from './is-alive';
 export * from './player';
 export * from './player-capabilities';
+export * from './starting-hearts';

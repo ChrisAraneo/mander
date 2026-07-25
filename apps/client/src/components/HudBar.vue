@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { floor, padStart } from 'lodash-es';
+import { floor, padStart, range } from 'lodash-es';
 import { LEVELS_PER_SEED } from '@mander/generator';
 import type { GameState } from '@mander/engine';
 
@@ -13,6 +13,11 @@ const time = computed(() => {
   const seconds = padStart(String(total % 60), 2, '0');
   return `${minutes}:${seconds}`;
 });
+
+const hearts = computed(() => {
+  const current = Math.max(0, props.state.player.hearts);
+  return range(Math.max(current, 1)).map((index) => index < current);
+});
 </script>
 
 <template>
@@ -24,6 +29,15 @@ const time = computed(() => {
         >Level {{ state.levelIndex + 1 }}/{{ LEVELS_PER_SEED }}</span
       >
       <span class="chip">{{ time }}</span>
+      <span class="chip hearts" title="Hearts">
+        <span
+          v-for="(filled, index) in hearts"
+          :key="index"
+          class="pip"
+          :class="{ filled }"
+          >♥</span
+        >
+      </span>
       <span v-if="state.deaths > 0" class="chip deaths"
         >✕ {{ state.deaths }}</span
       >
@@ -86,6 +100,25 @@ const time = computed(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.hearts {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 10px;
+  border-color: #5a3344;
+}
+
+.pip {
+  font-size: 14px;
+  line-height: 1;
+  color: #4a2f3a;
+}
+
+.pip.filled {
+  color: #ff5470;
+  text-shadow: 0 0 6px rgba(255, 84, 112, 0.5);
 }
 
 .deaths {
