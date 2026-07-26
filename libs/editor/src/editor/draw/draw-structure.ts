@@ -15,60 +15,16 @@ import {
 import { forEach, range } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import { CELL, COLORS } from './constants';
-import type { EditorView } from './editor-view';
-import { reachableFromEntry } from './reachable-from-entry';
+import { CELL, COLORS } from '../../constants';
+import type { EditorView } from '../editor-view';
+import { reachableFromEntry } from '../reachable-from-entry';
+import { drawPits } from './draw-pits';
+import { drawBlocks } from './draw-blocks';
 
 type Surfaces = ReturnType<typeof reachableFromEntry>['surfaces'];
 
 const COLUMNS = range(SECTOR_WIDTH);
 const ROWS = range(STRUCTURE_HEIGHT);
-
-const drawPits = (
-  context: CanvasRenderingContext2D,
-  grid: Structure,
-  view: EditorView,
-): void => {
-  forEach(COLUMNS, (column) =>
-    match(grid[STRUCTURE_HEIGHT - 1][column])
-      .with(AIR, () => {
-        context.fillStyle = COLORS.pit;
-        context.fillRect(column * CELL, 0, CELL, view.cssHeight);
-      })
-      .otherwise(() => undefined),
-  );
-};
-
-const drawBlockCell = (
-  context: CanvasRenderingContext2D,
-  grid: Structure,
-  row: number,
-  column: number,
-): void => {
-  const pixelX = column * CELL;
-  const pixelY = row * CELL;
-  context.fillStyle = COLORS.block;
-  context.fillRect(pixelX + 1, pixelY + 1, CELL - 2, CELL - 2);
-  match(row === 0 || grid[row - 1][column] === AIR)
-    .with(true, () => {
-      context.fillStyle = COLORS.cap;
-      context.fillRect(pixelX + 1, pixelY + 1, CELL - 2, 4);
-    })
-    .otherwise(() => undefined);
-};
-
-const drawBlocks = (
-  context: CanvasRenderingContext2D,
-  grid: Structure,
-): void => {
-  forEach(ROWS, (row) =>
-    forEach(COLUMNS, (column) =>
-      match(grid[row][column])
-        .with(BLOCK, () => drawBlockCell(context, grid, row, column))
-        .otherwise(() => undefined),
-    ),
-  );
-};
 
 const drawEnemyEyes = (
   context: CanvasRenderingContext2D,

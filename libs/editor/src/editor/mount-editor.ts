@@ -18,9 +18,9 @@ import { match, P } from 'ts-pattern';
 
 import { airGrid } from './air-grid';
 import { clone } from './clone';
-import { CELL, COLORS, TOOLS } from './constants';
+import { CELL, COLORS, TOOLS } from '../constants';
 import { createElement } from './create-element';
-import { drawStructure } from './draw-structure';
+import { drawStructure } from './draw/draw-structure';
 import { flatGrid } from './flat-grid';
 import { parseGrid } from './parse-grid';
 import { reachableFromEntry } from './reachable-from-entry';
