@@ -1,5 +1,5 @@
 import type { Level } from '@mander/generator';
-import { chain } from 'lodash-es';
+import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 
 import type { InputState, Player, PlayerCapabilities } from '../state';

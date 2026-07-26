@@ -1,4 +1,5 @@
-import { chain, findIndex } from 'lodash-es';
+import { findIndex } from 'lodash-es';
+import { chain } from '@mander/utils';
 import { match, P } from 'ts-pattern';
 
 import { SECTOR_WIDTH } from '../../consts';

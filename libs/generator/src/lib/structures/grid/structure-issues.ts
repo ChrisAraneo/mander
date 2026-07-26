@@ -1,4 +1,5 @@
-import { chain, every } from 'lodash-es';
+import { every } from 'lodash-es';
+import { chain } from '@mander/utils';
 import { match, P } from 'ts-pattern';
 
 import { PLAYER_CLEARANCE, SECTOR_WIDTH } from '../../consts';

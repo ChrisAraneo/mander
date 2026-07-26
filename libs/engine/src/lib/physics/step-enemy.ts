@@ -1,5 +1,5 @@
 import { type Level, TILE_SIZE } from '@mander/generator';
-import { chain } from 'lodash-es';
+import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 
 import type { Enemy, Player } from '../state';

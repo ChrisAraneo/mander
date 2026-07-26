@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { chain, floor, padStart, range } from 'lodash-es';
+import { floor, padStart, range } from 'lodash-es';
+import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 import { LEVELS_PER_SEED } from '@mander/generator';
 import type { GameState } from '@mander/engine';

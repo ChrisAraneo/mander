@@ -1,5 +1,4 @@
 import {
-  chain,
   clamp,
   filter,
   flatMap,
@@ -11,6 +10,7 @@ import {
   some,
   times,
 } from 'lodash-es';
+import { chain } from '@mander/utils';
 import { match, P } from 'ts-pattern';
 
 import {

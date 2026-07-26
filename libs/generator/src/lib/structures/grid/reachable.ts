@@ -1,4 +1,4 @@
-import { chain } from 'lodash-es';
+import { chain } from '@mander/utils';
 import { match, P } from 'ts-pattern';
 
 import { maxJumpColumns } from './max-jump-columns';

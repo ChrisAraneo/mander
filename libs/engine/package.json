@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@mander/generator": "*"
+    "@mander/generator": "*",
+    "@mander/utils": "*"
   }
 }

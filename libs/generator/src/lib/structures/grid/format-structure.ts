@@ -1,4 +1,5 @@
-import { chain, join } from 'lodash-es';
+import { join } from 'lodash-es';
+import { chain } from '@mander/utils';
 
 import type { Structure } from '../types';
 

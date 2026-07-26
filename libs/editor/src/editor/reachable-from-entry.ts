@@ -3,7 +3,8 @@ import {
   type Structure,
   structureSurfaces,
 } from '@mander/generator';
-import { chain, findIndex, map } from 'lodash-es';
+import { findIndex, map } from 'lodash-es';
+import { chain } from '@mander/utils';
 import { match, P } from 'ts-pattern';
 
 type Surfaces = ReturnType<typeof structureSurfaces>;

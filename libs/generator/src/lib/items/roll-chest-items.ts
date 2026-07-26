@@ -1,4 +1,5 @@
-import { chain, findIndex, reduce, sumBy } from 'lodash-es';
+import { findIndex, reduce, sumBy } from 'lodash-es';
+import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 
 import type { Rng } from '../rng';

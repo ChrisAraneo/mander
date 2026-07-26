@@ -1,5 +1,6 @@
 import { TILE_SIZE } from '@mander/generator';
-import { chain, floor } from 'lodash-es';
+import { floor } from 'lodash-es';
+import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 
 import type { AxisMove } from './axis-move';
