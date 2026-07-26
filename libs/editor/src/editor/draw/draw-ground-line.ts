@@ -1,6 +1,6 @@
 import { STRUCTURE_HEIGHT } from '@mander/generator';
 import { COLORS, CELL } from '../../constants';
-import type { EditorView } from '../editor-view';
+import type { EditorView } from '../types/editor-view';
 
 export const drawGroundLine = (
   context: CanvasRenderingContext2D,

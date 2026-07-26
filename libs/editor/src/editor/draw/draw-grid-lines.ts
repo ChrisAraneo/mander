@@ -1,4 +1,4 @@
-import type { EditorView } from '../editor-view';
+import type { EditorView } from '../types/editor-view';
 import { forEach, range } from 'lodash-es';
 import { CELL, COLORS } from '../../constants';
 import { SECTOR_WIDTH, STRUCTURE_HEIGHT } from '@mander/generator';

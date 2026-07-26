@@ -2,6 +2,8 @@ import { AIR, BLOCK, ENEMY, SPIKE, SPIKE_CEILING } from '@mander/generator';
 
 export const CELL = 30;
 
+export const TOAST_DURATION = 2500;
+
 export const COLORS = {
   block: '#5B4634',
   cap: '#6FAF58',

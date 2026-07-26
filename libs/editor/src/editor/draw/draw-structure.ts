@@ -1,6 +1,6 @@
 import { type Structure } from '@mander/generator';
 
-import type { EditorView } from '../editor-view';
+import type { EditorView } from '../types/editor-view';
 import { reachableFromEntry } from '../reachable-from-entry';
 import { drawPits } from './draw-pits';
 import { drawBlocks } from './draw-blocks';

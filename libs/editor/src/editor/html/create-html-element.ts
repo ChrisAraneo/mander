@@ -1,6 +1,6 @@
 import { chain } from 'lodash-es';
 
-export const createElement = <TagName extends keyof HTMLElementTagNameMap>(
+export const createHtmlElement = <TagName extends keyof HTMLElementTagNameMap>(
   tag: TagName,
   props: Partial<HTMLElementTagNameMap[TagName]> = {},
   ...children: Array<Node | string>

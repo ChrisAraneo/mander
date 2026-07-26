@@ -8,7 +8,7 @@ import { forEach, noop, range } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { CELL } from '../../constants';
 import { drawEnemyMarker } from './draw-enemy-marker';
-import { isEnemyStranded } from './is-enemy-stranded';
+import { isEnemyStranded } from '../guards/is-enemy-stranded';
 
 const COLUMNS = range(SECTOR_WIDTH);
 const ROWS = range(STRUCTURE_HEIGHT);

@@ -7,9 +7,7 @@ import {
 import { forEach } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { COLORS, CELL } from '../../constants';
-import type { reachableFromEntry } from '../reachable-from-entry';
-
-type Surfaces = ReturnType<typeof reachableFromEntry>['surfaces'];
+import type { Surfaces } from '../types/surfaces';
 
 export const drawCrampedHeadroom = (
   context: CanvasRenderingContext2D,

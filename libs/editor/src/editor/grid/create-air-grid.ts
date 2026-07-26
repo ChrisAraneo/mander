@@ -6,7 +6,7 @@ import {
 } from '@mander/generator';
 import { times } from 'lodash-es';
 
-export const airGrid = (): Structure =>
+export const createAirGrid = (): Structure =>
   times(STRUCTURE_HEIGHT, () =>
     Array.from({ length: SECTOR_WIDTH }, (): number => AIR),
   );

@@ -6,18 +6,9 @@ import {
 import { findIndex, map } from 'lodash-es';
 import { chain } from '@mander/utils';
 import { match, P } from 'ts-pattern';
+import { isReachableStep } from './guards/is-reachable-step';
 
 type Surfaces = ReturnType<typeof structureSurfaces>;
-type Surface = Surfaces[number];
-
-const isReachableStep = (from: Surface, target: Surface): boolean => {
-  const columnDistance = Math.abs(target.col - from.col);
-  return (
-    columnDistance >= 1 &&
-    columnDistance <= 6 &&
-    columnDistance <= maxJumpColumns(target.height - from.height)
-  );
-};
 
 const stepsFrom = (
   surfaces: Surfaces,

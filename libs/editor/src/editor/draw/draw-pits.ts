@@ -2,7 +2,7 @@ import { type Structure, STRUCTURE_HEIGHT, AIR } from '@mander/generator';
 import { forEach, noop, range } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { COLORS, CELL } from '../../constants';
-import type { EditorView } from '../editor-view';
+import type { EditorView } from '../types/editor-view';
 
 const ROWS = range(STRUCTURE_HEIGHT);
 

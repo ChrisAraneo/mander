@@ -8,11 +8,9 @@ import {
   type Structure,
   STRUCTURE_HEIGHT,
 } from '@mander/generator';
-import { concat, isArray, map, some, times } from 'lodash-es';
+import { concat, map, some, times } from 'lodash-es';
 import { match, P } from 'ts-pattern';
-
-const isRows = (value: unknown): value is unknown[][] =>
-  isArray(value) && !some(value, (row) => !isArray(row));
+import { isRows } from '../guards/is-rows';
 
 const cellValue = (value: unknown): number =>
   match(value)
@@ -30,7 +28,7 @@ const fitHeight = (rows: number[][]): Structure =>
     )
     .otherwise((height) => rows.slice(height - STRUCTURE_HEIGHT));
 
-export const normalize = (data: unknown): Structure | null =>
+export const normalizeGrid = (data: unknown): Structure | null =>
   match(data)
     .with(P.when(isRows), (rows) =>
       match(map(rows, (row) => map(row, cellValue)))
