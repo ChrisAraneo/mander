@@ -86,6 +86,11 @@ const hurt = (player: Player): Player => ({
   invincibleFor: INVINCIBLE_SECONDS,
 });
 
+const struckDown = (state: GameState, player: Player): Outcome => ({
+  player: killPlayer(player),
+  deaths: state.deaths + 1,
+});
+
 const resolveHarm = (
   state: GameState,
   player: Player,
@@ -94,15 +99,17 @@ const resolveHarm = (
   match({
     fellIntoPit: hasFallenIntoPit(state.level, player),
     struck: player.invincibleFor <= 0 && touchesHazard(state, player, enemies),
+    hasHeartsLeft: player.hearts > 0,
   })
     .with({ fellIntoPit: true }, () => fell(state, player))
     .with(
-      { struck: true },
+      { struck: true, hasHeartsLeft: true },
       (): Outcome => ({
         player: hurt(player),
         deaths: state.deaths,
       }),
     )
+    .with({ struck: true }, (): Outcome => struckDown(state, player))
     .otherwise((): Outcome => ({ player, deaths: state.deaths }));
 
 export const tick = (state: GameState, deltaSeconds: number): GameState =>

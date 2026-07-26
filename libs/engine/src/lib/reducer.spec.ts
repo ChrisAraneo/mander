@@ -470,7 +470,7 @@ describe('enemies', () => {
     expect(state.deaths, 'a survived hit is not a death').toBe(before);
   });
 
-  it('a spike at zero hearts clamps at zero and never respawns', () => {
+  it('a spike at zero hearts is fatal and sends the player back to spawn', () => {
     let state = createInitialState(withSpike(6), 0, []);
     state = {
       ...state,
@@ -484,9 +484,15 @@ describe('enemies', () => {
     const before = state.deaths;
     state = tick(state);
     expect(state.player.hearts, 'cannot drop below zero').toBe(0);
-    expect(state.player.dyingFor, 'a spike never respawns you').toBeNull();
-    expect(state.player.x, 'still rooted in place').toBe(6 * TILE_SIZE);
-    expect(state.deaths, 'a spike is never a death').toBe(before);
+    expect(
+      state.player.dyingFor,
+      'with no hearts left the prick is lethal',
+    ).not.toBeNull();
+    expect(state.deaths, 'and it counts as a death').toBe(before + 1);
+
+    state = tickN(state, 120);
+    expect(state.player.x, 'respawned at spawn').toBe(state.level.spawn.x);
+    expect(state.player.dyingFor, 'back on their feet').toBeNull();
   });
 
   it('ignores input while the player is dying from a pit fall', () => {
@@ -571,7 +577,7 @@ describe('enemies', () => {
     expect(state.deaths).toBe(before);
   });
 
-  it('an enemy at zero hearts leaves the player standing, never respawning', () => {
+  it('an enemy at zero hearts kills the player and respawns them', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -580,12 +586,17 @@ describe('enemies', () => {
       player: { ...state.player, x: enemy.x, y: enemy.y, vy: 0, hearts: 0 },
     };
     const before = state.deaths;
-    const restingX = enemy.x;
     state = tick(state);
     expect(state.player.hearts, 'stays clamped at zero').toBe(0);
-    expect(state.player.dyingFor, 'no death, no respawn').toBeNull();
-    expect(state.player.x, 'and no knockback').toBe(restingX);
-    expect(state.deaths).toBe(before);
+    expect(
+      state.player.dyingFor,
+      'with no hearts left the bump is lethal',
+    ).not.toBeNull();
+    expect(state.deaths).toBe(before + 1);
+
+    state = tickN(state, 120);
+    expect(state.player.x, 'respawned at spawn').toBe(state.level.spawn.x);
+    expect(state.player.dyingFor, 'back on their feet').toBeNull();
   });
 
   it('does not kill a player kept apart by the pit', () => {
@@ -815,7 +826,7 @@ describe('hearts', () => {
     expect(state.player.invincibleFor).toBeGreaterThan(0);
   });
 
-  it('lets a stockpile of hearts soak up several hits, clamping at zero', () => {
+  it('lets a stockpile of hearts soak up several hits, the last one fatal', () => {
     let state = placeAt(
       createInitialState(spikeLevel(6), 0, [
         emberHeart('H1'),
@@ -836,7 +847,10 @@ describe('hearts', () => {
 
     state = tick(placeAt(state, spikeX));
     expect(state.player.hearts, 'cannot drop below zero').toBe(0);
-    expect(state.player.dyingFor, 'a spike is never fatal').toBeNull();
-    expect(state.deaths, 'and never a death').toBe(deaths);
+    expect(
+      state.player.dyingFor,
+      'the hit that finds an empty bar is fatal',
+    ).not.toBeNull();
+    expect(state.deaths, 'and counts as a death').toBe(deaths + 1);
   });
 });
