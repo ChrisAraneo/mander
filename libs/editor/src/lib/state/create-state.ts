@@ -1,9 +1,9 @@
 import { BLOCK } from '@mander/generator';
 
-import { createCanvas } from '../html/create-canvas';
+import { createCanvas } from '../dom/create-canvas';
 import { createEditorView } from './create-editor-view';
 import { createFlatGrid } from '../grid/create-flat-grid';
-import { createHtmlElement } from '../html/create-html-element';
+import { createHtmlElement } from '../dom/create-html-element';
 import type { State } from '../types/state';
 
 export const createState = (): State => {

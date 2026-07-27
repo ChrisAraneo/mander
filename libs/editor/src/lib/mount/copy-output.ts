@@ -1,6 +1,6 @@
 import type { State } from '../types/state';
 import { showToast } from './show-toast';
-import { writeClipboard } from './write-clipboard';
+import { writeClipboard } from '../dom/write-clipboard';
 
 export const copyOutput = async (state: State): Promise<void> => {
   await writeClipboard(state.output);

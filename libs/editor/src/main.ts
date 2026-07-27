@@ -5,7 +5,7 @@ import { match, P } from 'ts-pattern';
 import { chain, noop } from 'lodash-es';
 import { bindPainting } from './lib/mount/bind-painting';
 import { createState } from './lib/state/create-state';
-import { createApp } from './lib/html/create-app';
+import { createApp } from './lib/dom/create-app';
 import { refreshState } from './lib/state/refresh-state';
 
 const { nullish } = P;

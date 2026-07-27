@@ -2,8 +2,8 @@ import type { ReachMap } from '@mander/engine';
 import { type Structure, structureIssues } from '@mander/generator';
 import { match } from 'ts-pattern';
 
-import { createIssuesStatus } from '../html/create-issues-status';
-import { createValidStatus } from '../html/create-valid-status';
+import { createIssuesStatus } from '../dom/create-issues-status';
+import { createValidStatus } from '../dom/create-valid-status';
 
 export const applyStatus = (
   status: HTMLElement,
