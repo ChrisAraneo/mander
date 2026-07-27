@@ -1,4 +1,4 @@
-export * from './lib/actions';
+export * from './lib/actions/actions';
 export * from './lib/checks';
 export * from './lib/physics';
 export * from './lib/reducer';

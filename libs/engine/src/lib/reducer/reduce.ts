@@ -2,7 +2,7 @@ import type { Item } from '../world';
 import { concat } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import type { Action } from '../actions';
+import type { Action } from '../actions/actions';
 import type { GameState } from '../state';
 import { createEnemies, createPlayer } from '../state';
 import { tick } from './tick';

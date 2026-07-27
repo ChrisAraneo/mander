@@ -11,7 +11,6 @@
     "dev": "nx dev client",
     "build": "nx build client",
     "preview": "nx preview client",
-    "editor": "vite libs/editor",
     "test": "nx run-many -t test",
     "typecheck": "nx run-many -t typecheck",
     "lint": "eslint .",

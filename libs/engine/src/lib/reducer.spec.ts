@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { Action } from './actions';
+import type { Action } from './actions/actions';
 import { MAX_JUMP_TILES, overlapsSpike } from './physics';
 import { reduce } from './reducer';
 import {

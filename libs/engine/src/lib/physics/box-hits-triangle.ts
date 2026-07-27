@@ -1,5 +1,5 @@
-import type { Triangle } from '../spike';
 import { every, map, range } from 'lodash-es';
+import type { Triangle } from '../world/geometry/triangle';
 import { chain } from '@mander/utils';
 
 interface Vec {
