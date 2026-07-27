@@ -1,7 +1,11 @@
 import { some } from 'lodash-es';
 
-import { spikeOrientation, spikeTriangles } from '../spike';
-import { isSpike, type TileMap } from '../world';
+import {
+  isSpike,
+  spikeOrientation,
+  spikeTriangles,
+  type TileMap,
+} from '../world';
 import { boxHitsTriangle } from './box-hits-triangle';
 import { tileRange } from './tile-range';
 
