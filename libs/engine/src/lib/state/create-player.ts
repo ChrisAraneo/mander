@@ -5,7 +5,7 @@ type PlayerAttributes = Pick<Player, 'hearts' | 'moveSpeed' | 'jumpVelocity'>;
 
 export const createPlayer = (
   level: Level,
-  attributes: PlayerAttributes,
+  { hearts, moveSpeed, jumpVelocity }: PlayerAttributes,
 ): Player => ({
   x: level.spawn.x,
   y: level.spawn.y,
@@ -15,6 +15,8 @@ export const createPlayer = (
   facing: 1,
   isJumpQueued: false,
   dyingFor: null,
+  hearts,
   invincibleFor: 0,
-  ...attributes,
+  moveSpeed,
+  jumpVelocity,
 });
