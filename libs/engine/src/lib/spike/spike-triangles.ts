@@ -1,7 +1,7 @@
 import { times } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import { type SpikeOrientation, TILE_SIZE } from '../types';
+import { type SpikeOrientation, TILE_SIZE } from '../world';
 import { SPIKE_HEIGHT_FRACTION, SPIKE_PRONGS } from './constants';
 import type { Triangle } from './triangle';
 

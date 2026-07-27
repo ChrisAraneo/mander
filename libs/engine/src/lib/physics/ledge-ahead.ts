@@ -1,4 +1,4 @@
-import { isSolid, type Level } from '@mander/generator';
+import { isSolid, type Level } from '../world';
 
 import { belowRow } from './below-row';
 import { probeColumn } from './probe-column';

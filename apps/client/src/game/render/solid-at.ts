@@ -1,4 +1,4 @@
-import { type Level, TILE_SOLID } from '@mander/generator';
+import { type Level, TILE_SOLID } from '@mander/engine';
 
 export const solidAt = (level: Level, tileX: number, tileY: number): boolean =>
   tileX >= 0 &&

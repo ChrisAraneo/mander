@@ -1,11 +1,11 @@
-import type { Level } from '@mander/generator';
+import type { TileMap } from '../world';
 
 import type { AxisMove } from './axis-move';
 import { overlapsSolid } from './overlaps-solid';
 import { sweep } from './sweep';
 
 export const moveHorizontal = (
-  level: Level,
+  level: TileMap,
   originX: number,
   originY: number,
   width: number,

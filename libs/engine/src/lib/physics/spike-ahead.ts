@@ -1,4 +1,4 @@
-import { isSpike, type Level } from '@mander/generator';
+import { isSpike, type Level } from '../world';
 import { some } from 'lodash-es';
 
 import { probeColumn } from './probe-column';

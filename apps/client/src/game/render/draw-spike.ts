@@ -1,4 +1,4 @@
-import { type SpikeOrientation, spikeTriangles } from '@mander/generator';
+import { type SpikeOrientation, spikeTriangles } from '@mander/engine';
 import { forEach } from 'lodash-es';
 
 export const drawSpike = (

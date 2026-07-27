@@ -1,8 +1,5 @@
-import {
-  MAX_JUMP_TILES,
-  PLAYER_CLEARANCE,
-  PLAYER_HEIGHT_TILES,
-} from '@mander/generator';
+import { MAX_JUMP_TILES, PLAYER_HEIGHT_TILES } from '@mander/engine';
+import { PLAYER_CLEARANCE } from '@mander/generator';
 
 import { COLORS } from '../../constants';
 import { createHtmlElement } from './create-html-element';

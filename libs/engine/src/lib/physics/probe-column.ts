@@ -1,4 +1,4 @@
-import { TILE_SIZE } from '@mander/generator';
+import { TILE_SIZE } from '../world';
 import { floor } from 'lodash-es';
 import { match } from 'ts-pattern';
 

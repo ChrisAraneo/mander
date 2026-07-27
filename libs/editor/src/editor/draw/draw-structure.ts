@@ -1,7 +1,7 @@
-import { type Structure } from '@mander/generator';
+import type { ReachMap } from '@mander/engine';
+import { type Structure, structureSurfaces } from '@mander/generator';
 
 import type { EditorView } from '../types/editor-view';
-import { reachableFromEntry } from '../reachable-from-entry';
 import { drawPits } from './draw-pits';
 import { drawBlocks } from './draw-blocks';
 import { drawEnemies } from './draw-enemies';
@@ -16,8 +16,9 @@ export const drawStructure = (
   context: CanvasRenderingContext2D,
   grid: Structure,
   view: EditorView,
+  reach: ReachMap,
 ): void => {
-  const { surfaces, reached } = reachableFromEntry(grid);
+  const surfaces = structureSurfaces(grid);
   context.setTransform(view.pixelRatio, 0, 0, view.pixelRatio, 0, 0);
   context.clearRect(0, 0, view.cssWidth, view.cssHeight);
   drawPits(context, grid, view);
@@ -28,5 +29,5 @@ export const drawStructure = (
   drawGridLines(context, view);
   drawGroundLine(context, view);
   drawPlayerGhost(context);
-  drawSurfaces(context, surfaces, reached);
+  drawSurfaces(context, surfaces, reach);
 };

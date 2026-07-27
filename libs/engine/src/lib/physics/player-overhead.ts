@@ -1,4 +1,4 @@
-import { TILE_SIZE } from '@mander/generator';
+import { TILE_SIZE } from '../world';
 
 import type { Enemy, Player } from '../state';
 import { ENEMY_WIDTH, isAlive, PLAYER_HEIGHT, PLAYER_WIDTH } from '../state';

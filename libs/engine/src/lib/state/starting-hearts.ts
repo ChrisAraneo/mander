@@ -1,4 +1,4 @@
-import type { Item } from '@mander/generator';
+import type { Item } from '../world';
 import { sumBy } from 'lodash-es';
 import { match } from 'ts-pattern';
 

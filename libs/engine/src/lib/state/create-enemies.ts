@@ -1,4 +1,4 @@
-import { type Level, TILE_SIZE } from '@mander/generator';
+import { type Level, TILE_SIZE } from '../world';
 import { map } from 'lodash-es';
 
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from './constants';

@@ -8,6 +8,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@mander/engine": "*",
+    "@mander/generator": "*",
     "@mander/utils": "*"
   }
 }

@@ -1,4 +1,4 @@
-import type { Palette } from '@mander/generator';
+import type { Palette } from '@mander/engine';
 
 import type { Viewport } from './viewport';
 

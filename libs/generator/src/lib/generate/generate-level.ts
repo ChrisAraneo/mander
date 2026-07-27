@@ -21,7 +21,6 @@ import {
   LEVEL_WIDTH,
   LEVELS_PER_SEED,
   OUTRO_WIDTH,
-  PLAYER_HEIGHT_TILES,
   SECTOR_COUNT,
   SECTOR_WIDTH,
   SPIKE_CLEARANCE,
@@ -43,6 +42,7 @@ import {
   type StructureDifficulty,
 } from '../structures/types';
 import {
+  PLAYER_HEIGHT_TILES,
   type Level,
   type Point,
   type Tile,
@@ -51,7 +51,7 @@ import {
   TILE_SOLID,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
-} from '../types';
+} from '@mander/engine';
 import type { Platform } from './platform';
 
 const { nullish } = P;

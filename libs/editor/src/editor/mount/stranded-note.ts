@@ -1,15 +1,22 @@
-import type { Structure } from '@mander/generator';
+import type { ReachMap } from '@mander/engine';
+import {
+  isReachableSurface,
+  type Structure,
+  structureSurfaces,
+} from '@mander/generator';
 import { filter } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import { plural } from '../utils/plural';
-import { reachableFromEntry } from '../reachable-from-entry';
 
-const strandedCount = (grid: Structure): number =>
-  filter(reachableFromEntry(grid).reached, (isReached) => !isReached).length;
+const strandedCount = (grid: Structure, reach: ReachMap): number =>
+  filter(
+    structureSurfaces(grid),
+    (surface) => !isReachableSurface(reach, surface),
+  ).length;
 
-export const strandedNote = (grid: Structure): string =>
-  match(strandedCount(grid))
+export const strandedNote = (grid: Structure, reach: ReachMap): string =>
+  match(strandedCount(grid, reach))
     .with(0, () => '')
     .otherwise(
       (count) =>

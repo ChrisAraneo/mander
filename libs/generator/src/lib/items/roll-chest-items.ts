@@ -3,7 +3,7 @@ import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 
 import type { Rng } from '../rng';
-import type { Item } from '../types';
+import type { Item } from '@mander/engine';
 import type { CatalogEntry } from './catalog-entry';
 import { CHEST_ITEM_COUNT } from './constants';
 import { ITEM_CATALOG } from './item-catalog';

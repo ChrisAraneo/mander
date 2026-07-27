@@ -1,4 +1,4 @@
-import type { Level } from '@mander/generator';
+import type { Level } from '../world';
 
 import type { Player } from './player';
 

@@ -1,4 +1,4 @@
-import type { Item } from '@mander/generator';
+import type { Item } from '@mander/engine';
 
 export interface SaveData {
   inventory: Item[];

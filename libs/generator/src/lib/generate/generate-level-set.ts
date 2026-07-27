@@ -1,7 +1,7 @@
 import { times } from 'lodash-es';
 
 import { LEVELS_PER_SEED } from '../consts';
-import type { Level } from '../types';
+import type { Level } from '@mander/engine';
 import { generateLevel } from './generate-level';
 import { levelSeed } from './level-seed';
 

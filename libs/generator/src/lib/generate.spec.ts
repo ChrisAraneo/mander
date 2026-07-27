@@ -30,7 +30,7 @@ import {
   TILE_SOLID,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
-} from './types';
+} from '@mander/engine';
 
 const groundHeights = (level: Level): number[] => {
   const heights: number[] = [];

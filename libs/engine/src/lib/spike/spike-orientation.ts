@@ -1,13 +1,13 @@
 import { match } from 'ts-pattern';
 
 import {
-  type Level,
   type SpikeOrientation,
   TILE_SPIKE_CEILING,
-} from '../types';
+  type TileMap,
+} from '../world';
 
 export const spikeOrientation = (
-  level: Level,
+  level: TileMap,
   tileX: number,
   tileY: number,
 ): SpikeOrientation =>

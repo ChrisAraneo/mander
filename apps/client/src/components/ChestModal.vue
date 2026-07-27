@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Item } from '@mander/generator';
+import type { Item } from '@mander/engine';
 
 defineProps<{ items: Item[] }>();
 defineEmits<{ choose: [index: number]; close: [] }>();

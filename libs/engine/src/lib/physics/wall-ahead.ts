@@ -1,4 +1,4 @@
-import { isSolid, type Level } from '@mander/generator';
+import { isSolid, type Level } from '../world';
 import { some } from 'lodash-es';
 
 import { probeColumn } from './probe-column';

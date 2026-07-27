@@ -1,4 +1,4 @@
-import { TILE_SIZE } from '@mander/generator';
+import { TILE_SIZE } from '../world';
 import { floor, range } from 'lodash-es';
 
 import { ENEMY_HEIGHT } from '../state';

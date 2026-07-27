@@ -1,5 +1,5 @@
 import { type GameState, PLAYER_HEIGHT, PLAYER_WIDTH } from '@mander/engine';
-import { TILE_SIZE } from '@mander/generator';
+import { TILE_SIZE } from '@mander/engine';
 import { clamp, forEach } from 'lodash-es';
 
 import { HILL_LAYERS } from './constants';

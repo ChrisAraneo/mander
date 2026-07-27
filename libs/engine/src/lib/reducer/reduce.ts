@@ -1,4 +1,4 @@
-import type { Item } from '@mander/generator';
+import type { Item } from '../world';
 import { concat } from 'lodash-es';
 import { match } from 'ts-pattern';
 

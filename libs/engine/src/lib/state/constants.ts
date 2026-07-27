@@ -1,8 +1,7 @@
-import {
-  PLAYER_HEIGHT_TILES,
-  PLAYER_WIDTH_TILES,
-  TILE_SIZE,
-} from '@mander/generator';
+import { TILE_SIZE } from '../world';
+
+export const PLAYER_WIDTH_TILES = 0.6875;
+export const PLAYER_HEIGHT_TILES = 1.5;
 
 export const PLAYER_WIDTH = PLAYER_WIDTH_TILES * TILE_SIZE;
 export const PLAYER_HEIGHT = PLAYER_HEIGHT_TILES * TILE_SIZE;

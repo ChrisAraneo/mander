@@ -1,14 +1,11 @@
-import type { Palette } from '../palette';
 import type { Item } from './item';
+import type { Palette } from './palette';
 import type { Point } from './point';
 import type { Rect } from './rect';
-import type { Tile } from './tile';
+import type { TileMap } from './tile-map';
 
-export interface Level {
+export interface Level extends TileMap {
   seed: string;
-  width: number;
-  height: number;
-  tiles: Tile[][];
   palette: Palette;
   spawn: Point;
   chest: Rect;

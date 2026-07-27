@@ -1,4 +1,4 @@
-import type { Level } from '@mander/generator';
+import type { Level } from '../world';
 import { match } from 'ts-pattern';
 
 import { GRAVITY, MAX_TICK_SECONDS, TERMINAL_VELOCITY } from '../physics';

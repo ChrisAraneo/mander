@@ -1,4 +1,4 @@
-import type { Item } from '@mander/generator';
+import type { Item } from '@mander/engine';
 import { isArray, isObjectLike, isString } from 'lodash-es';
 import { tryCatch } from 'ramda';
 import { match, P } from 'ts-pattern';

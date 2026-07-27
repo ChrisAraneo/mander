@@ -1,4 +1,4 @@
-import type { Item, Level } from '@mander/generator';
+import type { Item, Level } from '../world';
 
 import type { Enemy } from './enemy';
 import type { GameStatus } from './game-status';

@@ -1,11 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  MAX_JUMP_TILES,
-  PLAYER_CLEARANCE,
-  SECTOR_WIDTH,
-  STRUCTURE_HEIGHT,
-} from '../consts';
+import { MAX_JUMP_TILES } from '@mander/engine';
+
+import { PLAYER_CLEARANCE, SECTOR_WIDTH, STRUCTURE_HEIGHT } from '../consts';
 import { createRng } from '../rng';
 import {
   formatStructure,

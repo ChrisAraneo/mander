@@ -1,19 +1,18 @@
-import { STRUCTURE_HEIGHT } from '@mander/generator';
+import type { ReachMap } from '@mander/engine';
+import { isReachableSurface, STRUCTURE_HEIGHT } from '@mander/generator';
 import { forEach } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { CELL, COLORS } from '../../constants';
-import type { reachableFromEntry } from '../reachable-from-entry';
-
-type Surfaces = ReturnType<typeof reachableFromEntry>['surfaces'];
+import type { Surfaces } from '../types/surfaces';
 
 export const drawSurfaces = (
   context: CanvasRenderingContext2D,
   surfaces: Surfaces,
-  reached: boolean[],
+  reach: ReachMap,
 ): void => {
-  forEach(surfaces, (surface, surfaceIndex) => {
+  forEach(surfaces, (surface) => {
     const row = STRUCTURE_HEIGHT - 1 - surface.height;
-    context.fillStyle = match(reached[surfaceIndex])
+    context.fillStyle = match(isReachableSurface(reach, surface))
       .with(true, () => COLORS.reachable)
       .otherwise(() => COLORS.stranded);
     context.beginPath();

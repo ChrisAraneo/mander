@@ -1,4 +1,4 @@
-import type { Rect } from '@mander/generator';
+import type { Rect } from '../world';
 
 import type { Player } from '../state';
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../state';

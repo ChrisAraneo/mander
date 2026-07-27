@@ -1,8 +1,8 @@
-import { type Item, MAX_JUMP_TILES, TILE_SIZE } from '@mander/generator';
 import { sumBy } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import { GRAVITY } from '../physics/constants';
+import { GRAVITY, MAX_JUMP_TILES } from '../physics/constants';
+import { type Item, TILE_SIZE } from '../world';
 import { MAX_SPEED_BONUS_PERCENT } from './constants';
 import type { PlayerCapabilities } from './player-capabilities';
 

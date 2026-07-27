@@ -1,21 +1,7 @@
-import {
-  createRng,
-  type Item,
-  type Level,
-  MAX_JUMP_TILES,
-  type Point,
-  rollPalette,
-  type Tile,
-  TILE_EMPTY,
-  TILE_SIZE,
-  TILE_SOLID,
-  TILE_SPIKE,
-  TILE_SPIKE_CEILING,
-} from '@mander/generator';
 import { describe, expect, it } from 'vitest';
 
 import type { Action } from './actions';
-import { overlapsSpike } from './physics';
+import { MAX_JUMP_TILES, overlapsSpike } from './physics';
 import { reduce } from './reducer';
 import {
   capabilitiesFor,
@@ -30,6 +16,26 @@ import {
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
 } from './state';
+import {
+  type Item,
+  type Level,
+  type Palette,
+  type Point,
+  type Tile,
+  TILE_EMPTY,
+  TILE_SIZE,
+  TILE_SOLID,
+  TILE_SPIKE,
+  TILE_SPIKE_CEILING,
+} from './world';
+
+const PALETTE: Palette = {
+  sky: ['HSL(0, 0%, 10%)', 'HSL(0, 0%, 20%)', 'HSL(0, 0%, 30%)'],
+  hills: ['HSL(0, 0%, 16%)', 'HSL(0, 0%, 12%)'],
+  block: 'HSL(0, 0%, 26%)',
+  blockCap: 'HSL(90, 40%, 50%)',
+  blockCapHighlight: 'HSL(90, 45%, 56%)',
+};
 
 const WIDTH = 30;
 const HEIGHT = 15;
@@ -75,7 +81,7 @@ const testLevel = (enemies: Point[] = []): Level => {
     key: { x: 15 * TILE_SIZE + 7, y: SURFACE - 34, width: 18, height: 22 },
     chestItems: CARDS,
     enemies,
-    palette: rollPalette(createRng('TEST')),
+    palette: PALETTE,
   };
 };
 

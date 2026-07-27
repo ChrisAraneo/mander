@@ -1,4 +1,4 @@
-import type { Triangle } from '@mander/generator';
+import type { Triangle } from '../spike';
 import { every, map, range } from 'lodash-es';
 import { chain } from '@mander/utils';
 

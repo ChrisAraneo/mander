@@ -1,3 +1,5 @@
+import { PLAYER_HEIGHT_TILES } from '@mander/engine';
+
 export const LEVEL_HEIGHT = 80;
 export const LEVELS_PER_SEED = 8;
 
@@ -13,10 +15,7 @@ export const LEVEL_WIDTH =
 
 export const STRUCTURE_HEIGHT = 8;
 
-export const PLAYER_WIDTH_TILES = 0.6875;
-export const PLAYER_HEIGHT_TILES = 1.5;
 export const PLAYER_CLEARANCE = Math.ceil(PLAYER_HEIGHT_TILES);
-export const MAX_JUMP_TILES = 5;
 export const SPIKE_MIN_GAP = 2;
 export const SPIKE_CLEARANCE = 2;
 export const SPIKE_MIN_ENEMY_DISTANCE = 3;

@@ -4,7 +4,7 @@ import {
   TILE_SOLID,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
-} from '@mander/generator';
+} from '@mander/engine';
 import { ceil, floor, forEach, range } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 

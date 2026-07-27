@@ -1,4 +1,5 @@
 import { forEach, map } from 'lodash-es';
+import type { Palette } from '@mander/engine';
 import { describe, expect, it } from 'vitest';
 
 import { generateLevel, generateLevelSet, levelSeed } from './generate';
@@ -11,7 +12,6 @@ import {
   GROUND_LIGHTNESS_MAX,
   GROUND_LIGHTNESS_MIN,
   hslCss,
-  type Palette,
   rollPalette,
   wrapHue,
 } from './palette';

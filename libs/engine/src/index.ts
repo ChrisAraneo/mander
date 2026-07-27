@@ -1,4 +1,7 @@
 export * from './lib/actions';
+export * from './lib/checks';
 export * from './lib/physics';
 export * from './lib/reducer';
+export * from './lib/spike';
 export * from './lib/state';
+export * from './lib/world';

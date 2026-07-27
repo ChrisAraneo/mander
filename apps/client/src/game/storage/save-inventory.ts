@@ -1,4 +1,4 @@
-import type { Item } from '@mander/generator';
+import type { Item } from '@mander/engine';
 
 import { loadSave } from './load-save';
 import { persist } from './persist';

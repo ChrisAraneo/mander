@@ -1,5 +1,5 @@
 import type { GameState } from '@mander/engine';
-import type { Rect } from '@mander/generator';
+import type { Rect } from '@mander/engine';
 import { match } from 'ts-pattern';
 
 const drawChestLid = (

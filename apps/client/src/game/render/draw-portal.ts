@@ -1,5 +1,5 @@
 import type { GameState } from '@mander/engine';
-import type { Rect } from '@mander/generator';
+import type { Rect } from '@mander/engine';
 import { forEach, range } from 'lodash-es';
 import { match } from 'ts-pattern';
 

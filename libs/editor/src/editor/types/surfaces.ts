@@ -1,3 +1,3 @@
-import type { reachableFromEntry } from '../reachable-from-entry';
+import type { Surface } from '@mander/generator';
 
-export type Surfaces = ReturnType<typeof reachableFromEntry>['surfaces'];
+export type Surfaces = Surface[];

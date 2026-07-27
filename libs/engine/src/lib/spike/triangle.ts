@@ -1,3 +1,3 @@
-import type { Point } from '../types';
+import type { Point } from '../world';
 
 export type Triangle = readonly [Point, Point, Point];
