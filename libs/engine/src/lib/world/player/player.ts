@@ -9,4 +9,6 @@ export interface Player {
   dyingFor: number | null;
   hearts: number;
   invincibleFor: number;
+  moveSpeed: number;
+  jumpVelocity: number;
 }

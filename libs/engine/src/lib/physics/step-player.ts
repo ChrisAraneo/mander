@@ -2,7 +2,7 @@ import type { TileMap } from '../world';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 
-import type { InputState, Player, PlayerCapabilities } from '../state';
+import type { InputState, Player } from '../state';
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../state';
 import { GRAVITY, MAX_TICK_SECONDS, TERMINAL_VELOCITY } from './constants';
 import { resolveLanding } from './resolve-landing';
@@ -30,14 +30,13 @@ const afterJump = (
   base: { vy: number; isGrounded: boolean },
   input: InputState,
   player: Player,
-  capabilities: PlayerCapabilities,
 ): { vy: number; isGrounded: boolean } =>
   match({
     shouldJump: player.isJumpQueued || input.isJump,
     isGrounded: base.isGrounded,
   })
     .with({ shouldJump: true, isGrounded: true }, () => ({
-      vy: -capabilities.jumpVelocity,
+      vy: -player.jumpVelocity,
       isGrounded: false,
     }))
     .otherwise(() => base);
@@ -55,7 +54,6 @@ const blockedVx = (isBlocked: boolean, vx: number): number =>
 const playerIntent = (
   player: Player,
   input: InputState,
-  capabilities: PlayerCapabilities,
   deltaSeconds: number,
 ) =>
   chain({
@@ -64,13 +62,12 @@ const playerIntent = (
   })
     .thru((stage) => ({
       ...stage,
-      vx: stage.direction * capabilities.moveSpeed,
+      vx: stage.direction * player.moveSpeed,
       facing: facingFor(stage.direction, player.facing),
       ...afterJump(
         { vy: player.vy, isGrounded: player.isGrounded },
         input,
         player,
-        capabilities,
       ),
     }))
     .thru((stage) => ({
@@ -137,6 +134,8 @@ const resolvePlayer = (
         dyingFor: player.dyingFor,
         hearts: player.hearts,
         invincibleFor: player.invincibleFor,
+        moveSpeed: player.moveSpeed,
+        jumpVelocity: player.jumpVelocity,
       }),
     )
     .value();
@@ -145,10 +144,9 @@ export const stepPlayer = (
   level: TileMap,
   player: Player,
   input: InputState,
-  capabilities: PlayerCapabilities,
   elapsedSeconds: number,
 ): Player => {
   const deltaSeconds = Math.min(elapsedSeconds, MAX_TICK_SECONDS);
-  const intent = playerIntent(player, input, capabilities, deltaSeconds);
+  const intent = playerIntent(player, input, deltaSeconds);
   return resolvePlayer(level, player, intent);
 };

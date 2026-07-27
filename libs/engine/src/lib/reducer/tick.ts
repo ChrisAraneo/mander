@@ -2,9 +2,8 @@ import { filter, map, some } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import { overlapsSpike, stepPlayer } from '../physics';
-import type { Enemy, GameState, Player, PlayerCapabilities } from '../state';
+import type { Enemy, GameState, Player } from '../state';
 import {
-  capabilitiesFor,
   INVINCIBLE_SECONDS,
   isAlive,
   PLAYER_HEIGHT,
@@ -31,24 +30,14 @@ const coolInvincibility = (player: Player, deltaSeconds: number): Player => ({
   invincibleFor: Math.max(0, player.invincibleFor - deltaSeconds),
 });
 
-const advancePlayer = (
-  state: GameState,
-  capabilities: PlayerCapabilities,
-  deltaSeconds: number,
-): Player =>
+const advancePlayer = (state: GameState, deltaSeconds: number): Player =>
   match(state.player.dyingFor)
     .with(P.number, (dyingFor) =>
       stepPlayerDeath(state.level, state.player, dyingFor, deltaSeconds),
     )
     .otherwise(() =>
       coolInvincibility(
-        stepPlayer(
-          state.level,
-          state.player,
-          state.input,
-          capabilities,
-          deltaSeconds,
-        ),
+        stepPlayer(state.level, state.player, state.input, deltaSeconds),
         deltaSeconds,
       ),
     );
@@ -115,8 +104,7 @@ const resolveHarm = (
 export const tick = (state: GameState, deltaSeconds: number): GameState =>
   match(state.status)
     .with('PLAYING', (): GameState => {
-      const capabilities = capabilitiesFor(state.inventory);
-      const moved = advancePlayer(state, capabilities, deltaSeconds);
+      const moved = advancePlayer(state, deltaSeconds);
       const enemies = advanceEnemies(state, moved, deltaSeconds);
       const { player, deaths } = match(isAlive(moved))
         .with(true, () => resolveHarm(state, moved, enemies))

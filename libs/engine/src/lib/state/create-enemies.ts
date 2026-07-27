@@ -2,7 +2,7 @@ import { type Level, TILE_SIZE } from '../world';
 import { map } from 'lodash-es';
 
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from './constants';
-import type { Enemy } from './enemy';
+import type { Enemy } from '../world/enemy/enemy';
 
 export const createEnemies = (level: Level): Enemy[] =>
   map(level.enemies, (spawn) => {

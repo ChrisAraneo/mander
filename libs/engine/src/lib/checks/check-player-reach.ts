@@ -2,7 +2,6 @@ import { chain } from '@mander/utils';
 import { map, range } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import { capabilitiesFor } from '../state';
 import type { TileMap } from '../world';
 import { cellIndex } from './cell-index';
 import { entryPlayer } from './entry-player';
@@ -19,8 +18,6 @@ export const checkPlayerReach = (tiles: TileMap): ReachMap =>
     .thru((start) =>
       match(start)
         .with(P.nullish, () => toReachMap(tiles, new Set<number>()))
-        .otherwise((entry) =>
-          toReachMap(tiles, expandReach(tiles, capabilitiesFor([]), entry)),
-        ),
+        .otherwise((entry) => toReachMap(tiles, expandReach(tiles, entry))),
     )
     .value();

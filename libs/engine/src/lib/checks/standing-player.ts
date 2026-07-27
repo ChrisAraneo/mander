@@ -1,4 +1,4 @@
-import { BASE_HEARTS } from '../state';
+import { BASE_HEARTS, capabilitiesFor } from '../state';
 import type { Player } from '../state';
 
 export const standingPlayer = (x: number, y: number): Player => ({
@@ -12,4 +12,5 @@ export const standingPlayer = (x: number, y: number): Player => ({
   dyingFor: null,
   hearts: BASE_HEARTS,
   invincibleFor: 0,
+  ...capabilitiesFor([]),
 });

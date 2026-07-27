@@ -4,7 +4,7 @@ import { match } from 'ts-pattern';
 
 import type { Action } from '../actions/actions';
 import type { GameState } from '../state';
-import { createEnemies, createPlayer } from '../state';
+import { capabilitiesFor, createEnemies, createPlayer } from '../state';
 import { tick } from './tick';
 import { withInput } from './with-input';
 
@@ -28,25 +28,29 @@ const startJump = (state: GameState): GameState =>
       }),
     );
 
+const withItem = (state: GameState, item: Item): GameState => {
+  const inventory = concat(state.inventory, item);
+
+  return {
+    ...state,
+    status: 'PLAYING',
+    isChestOpened: true,
+    isNearChest: false,
+    inventory,
+    player: {
+      ...state.player,
+      hearts: state.player.hearts + heartGain(item),
+      ...capabilitiesFor(inventory),
+    },
+  };
+};
+
 const chooseItem = (state: GameState, index: number): GameState =>
   match(state.status)
     .with('CHEST', (): GameState => {
       const items = state.level.chestItems;
       return match(index >= 0 && index < items.length)
-        .with(
-          true,
-          (): GameState => ({
-            ...state,
-            status: 'PLAYING',
-            isChestOpened: true,
-            isNearChest: false,
-            inventory: concat(state.inventory, items[index]),
-            player: {
-              ...state.player,
-              hearts: state.player.hearts + heartGain(items[index]),
-            },
-          }),
-        )
+        .with(true, (): GameState => withItem(state, items[index]))
         .otherwise((): GameState => state);
     })
     .otherwise((): GameState => state);
@@ -81,7 +85,7 @@ const respawn = (state: GameState): GameState =>
       'PLAYING',
       (): GameState => ({
         ...state,
-        player: createPlayer(state.level, state.player.hearts),
+        player: createPlayer(state.level, state.player),
       }),
     )
     .otherwise((): GameState => state);
@@ -94,7 +98,7 @@ const loadLevel = (
   ...state,
   level,
   levelIndex,
-  player: createPlayer(level, state.player.hearts),
+  player: createPlayer(level, state.player),
   enemies: createEnemies(level),
   status: 'PLAYING',
   hasKey: false,

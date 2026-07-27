@@ -1,9 +1,9 @@
 import type { Item, Level } from '../world';
 
-import type { Enemy } from './enemy';
+import type { Enemy } from '../world/enemy/enemy';
 import type { GameStatus } from './game-status';
 import type { InputState } from './input-state';
-import type { Player } from './player';
+import type { Player } from '../world/player/player';
 
 export interface GameState {
   level: Level;

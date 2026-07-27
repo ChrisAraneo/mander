@@ -2,7 +2,7 @@ import { type TileMap, TILE_SIZE } from '../world';
 import { match } from 'ts-pattern';
 
 import { stepPlayer } from '../physics/step-player';
-import type { Player, PlayerCapabilities } from '../state';
+import type { Player } from '../state';
 import {
   FRAME_SECONDS,
   MAX_GROUNDED_FRAMES,
@@ -13,7 +13,6 @@ import type { MovePlan } from './move-plan';
 
 interface Flight {
   tiles: TileMap;
-  capabilities: PlayerCapabilities;
   plan: MovePlan;
 }
 
@@ -35,7 +34,6 @@ const advance = (
     flight.tiles,
     player,
     planInput(flight.plan, frame),
-    flight.capabilities,
     FRAME_SECONDS,
   );
 
@@ -50,7 +48,6 @@ const advance = (
 
 export const simulatePlan = (
   tiles: TileMap,
-  capabilities: PlayerCapabilities,
   plan: MovePlan,
   player: Player,
-): Player[] => advance({ tiles, capabilities, plan }, player, 0, []);
+): Player[] => advance({ tiles, plan }, player, 0, []);

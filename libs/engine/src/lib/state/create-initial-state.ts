@@ -1,5 +1,6 @@
 import type { Item, Level } from '../world';
 
+import { capabilitiesFor } from './capabilities-for';
 import { createEnemies } from './create-enemies';
 import { createPlayer } from './create-player';
 import type { GameState } from './game-state';
@@ -12,7 +13,10 @@ export const createInitialState = (
 ): GameState => ({
   level,
   levelIndex,
-  player: createPlayer(level, startingHearts(inventory)),
+  player: createPlayer(level, {
+    hearts: startingHearts(inventory),
+    ...capabilitiesFor(inventory),
+  }),
   enemies: createEnemies(level),
   input: { isLeft: false, isRight: false, isJump: false },
   status: 'PLAYING',

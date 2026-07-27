@@ -3,8 +3,8 @@ import { match } from 'ts-pattern';
 
 import { GRAVITY, MAX_JUMP_TILES } from '../physics/constants';
 import { type Item, TILE_SIZE } from '../world';
+import type { Player } from '../world/player/player';
 import { MAX_SPEED_BONUS_PERCENT } from './constants';
-import type { PlayerCapabilities } from './player-capabilities';
 
 const BASE_MOVE_SPEED = 210;
 
@@ -12,7 +12,7 @@ const BASE_JUMP_VELOCITY = Math.sqrt(2 * GRAVITY * MAX_JUMP_TILES * TILE_SIZE);
 
 export const capabilitiesFor = (
   inventory: readonly Item[],
-): PlayerCapabilities => {
+): Pick<Player, 'moveSpeed' | 'jumpVelocity'> => {
   const speedPercent = Math.min(
     MAX_SPEED_BONUS_PERCENT,
     sumBy(inventory, (item) =>
