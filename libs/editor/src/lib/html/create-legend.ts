@@ -1,7 +1,7 @@
 import { MAX_JUMP_TILES, PLAYER_HEIGHT_TILES } from '@mander/engine';
 import { PLAYER_CLEARANCE } from '@mander/generator';
 
-import { COLORS } from '../../constants';
+import { COLORS } from '../config/constants';
 import { createHtmlElement } from './create-html-element';
 import { createSwatch } from './create-swatch';
 

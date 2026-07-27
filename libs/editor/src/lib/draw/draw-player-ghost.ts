@@ -1,6 +1,6 @@
 import { PLAYER_HEIGHT_TILES, PLAYER_WIDTH_TILES } from '@mander/engine';
 import { STRUCTURE_HEIGHT } from '@mander/generator';
-import { CELL, COLORS } from '../../constants';
+import { CELL, COLORS } from '../config/constants';
 
 export const drawPlayerGhost = (context: CanvasRenderingContext2D): void => {
   const width = PLAYER_WIDTH_TILES * CELL;

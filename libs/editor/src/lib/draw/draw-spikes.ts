@@ -1,7 +1,7 @@
 import type { Structure } from '@mander/generator';
 import { forEach, range } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { CELL } from '../../constants';
+import { CELL } from '../config/constants';
 import {
   SECTOR_WIDTH,
   SPIKE,

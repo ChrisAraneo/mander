@@ -1,6 +1,6 @@
 import { SECTOR_WIDTH, STRUCTURE_HEIGHT } from '@mander/generator';
 
-import { CELL } from '../../constants';
+import { CELL } from '../config/constants';
 import type { EditorView } from '../types/editor-view';
 
 export const createEditorView = (): EditorView => ({

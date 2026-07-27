@@ -2,7 +2,7 @@ import type { ReachMap } from '@mander/engine';
 import { isReachableSurface, STRUCTURE_HEIGHT } from '@mander/generator';
 import { forEach } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { CELL, COLORS } from '../../constants';
+import { CELL, COLORS } from '../config/constants';
 import type { Surfaces } from '../types/surfaces';
 
 export const drawSurfaces = (

@@ -1,5 +1,5 @@
 import { STRUCTURE_HEIGHT } from '@mander/generator';
-import { COLORS, CELL } from '../../constants';
+import { COLORS, CELL } from '../config/constants';
 import type { EditorView } from '../types/editor-view';
 
 export const drawGroundLine = (

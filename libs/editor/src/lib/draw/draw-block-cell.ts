@@ -1,7 +1,7 @@
 import { type Structure, AIR } from '@mander/generator';
 import { match } from 'ts-pattern';
 import { chain, noop } from 'lodash-es';
-import { CELL, COLORS } from '../../constants';
+import { CELL, COLORS } from '../config/constants';
 
 export const drawBlockCell = (
   context: CanvasRenderingContext2D,

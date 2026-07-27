@@ -2,7 +2,7 @@ import { forEach, map } from 'lodash-es';
 
 import { createHtmlElement } from './create-html-element';
 import type { State } from '../types/state';
-import { TOOLS } from '../../constants';
+import { TOOLS } from '../config/constants';
 
 const markActive = (buttons: HTMLButtonElement[], tool: number): void => {
   forEach(buttons, (button, index) => {

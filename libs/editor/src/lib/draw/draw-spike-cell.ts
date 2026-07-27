@@ -1,6 +1,6 @@
 import { forEach, range } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { CELL, COLORS } from '../../constants';
+import { CELL, COLORS } from '../config/constants';
 
 const PRONGS = 3;
 

@@ -1,4 +1,4 @@
-import { TOAST_DURATION } from '../../constants';
+import { TOAST_DURATION } from '../config/constants';
 
 export const showToast = (toast: HTMLElement, message: string): void => {
   toast.textContent = message;

@@ -1,5 +1,5 @@
 import { match } from 'ts-pattern';
-import { COLORS, CELL } from '../../constants';
+import { COLORS, CELL } from '../config/constants';
 import { drawEnemyEyes } from './draw-enemy-eyes';
 import { noop } from 'lodash-es';
 

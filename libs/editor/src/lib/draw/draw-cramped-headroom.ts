@@ -6,7 +6,7 @@ import {
 } from '@mander/generator';
 import { forEach } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { COLORS, CELL } from '../../constants';
+import { COLORS, CELL } from '../config/constants';
 import type { Surfaces } from '../types/surfaces';
 
 export const drawCrampedHeadroom = (

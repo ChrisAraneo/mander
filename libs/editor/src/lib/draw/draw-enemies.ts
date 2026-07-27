@@ -6,7 +6,7 @@ import {
 } from '@mander/generator';
 import { forEach, noop, range } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { CELL } from '../../constants';
+import { CELL } from '../config/constants';
 import { drawEnemyMarker } from './draw-enemy-marker';
 import { isEnemyStranded } from '../guards/is-enemy-stranded';
 
