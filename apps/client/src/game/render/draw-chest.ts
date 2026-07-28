@@ -1,4 +1,9 @@
-import type { GameState } from '@mander/engine';
+import {
+  CHEST_BOX,
+  chestTile,
+  entityRect,
+  type GameState,
+} from '@mander/engine';
 import type { Rect } from '@mander/engine';
 import { match } from 'ts-pattern';
 
@@ -27,7 +32,10 @@ export const drawChest = (
   context: CanvasRenderingContext2D,
   state: GameState,
 ): void => {
-  const chest = state.level.chest;
+  const tile = chestTile(state.level);
+  if (tile === null) return;
+
+  const chest = entityRect(tile, CHEST_BOX);
 
   context.save();
   match(state.isNearChest)

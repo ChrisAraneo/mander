@@ -25,11 +25,22 @@ import { CHEST_ITEM_COUNT, ITEM_CATALOG, rollChestItems } from './items';
 import { createRng } from './rng';
 import { maxJumpColumns } from './structures/grid';
 import {
+  CHEST_BOX,
+  chestTile,
+  isSolidTile,
+  entityRect,
+  KEY_BOX,
+  keyTile,
   type Level,
+  portalTile,
+  spawnTile,
+  TILE_CHEST,
+  TILE_KEY,
+  TILE_PORTAL,
   TILE_SIZE,
-  TILE_SOLID,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
+  type TilePosition,
 } from '@mander/engine';
 
 const groundHeights = (level: Level): number[] => {
@@ -37,7 +48,7 @@ const groundHeights = (level: Level): number[] => {
   for (let x = 0; x < level.width; x++) {
     let h = 0;
     for (let y = level.height - 1; y >= 0; y--) {
-      if (level.tiles[y][x] !== TILE_SOLID) break;
+      if (!isSolidTile(level.tiles[y][x])) break;
       h++;
     }
     heights.push(h);
@@ -110,8 +121,8 @@ const reachableSurfaces = (level: Level, from: Surface): Set<string> => {
   for (let c = 1; c < level.width - 1; c++) {
     for (let r = 0; r < level.height; r++) {
       const isTop =
-        level.tiles[r][c] === TILE_SOLID &&
-        (r === 0 || level.tiles[r - 1][c] !== TILE_SOLID);
+        isSolidTile(level.tiles[r][c]) &&
+        (r === 0 || !isSolidTile(level.tiles[r - 1][c]));
       if (isTop) {
         const surface = { c, r };
         surfaces.push(surface);
@@ -154,27 +165,30 @@ const surfaceUnder = (
 ): Surface => {
   const c = Math.floor(centerX / TILE_SIZE);
   for (let r = Math.floor(fromY / TILE_SIZE); r < level.height; r++) {
-    if (level.tiles[r][c] === TILE_SOLID) return { c, r };
+    if (isSolidTile(level.tiles[r][c])) return { c, r };
   }
   throw new Error(`no surface under column ${c}`);
 };
 
-const keySurface = (level: Level): Surface =>
-  surfaceUnder(
-    level,
-    level.key.x + level.key.width / 2,
-    level.key.y + level.key.height,
-  );
+const tileOrThrow = (tile: TilePosition | null, name: string): TilePosition => {
+  if (tile === null) throw new Error(`no ${name} tile`);
+  return tile;
+};
 
-const chestSurface = (level: Level): Surface =>
-  surfaceUnder(
-    level,
-    level.chest.x + level.chest.width / 2,
-    level.chest.y + level.chest.height,
-  );
+const keySurface = (level: Level): Surface => {
+  const key = entityRect(tileOrThrow(keyTile(level), 'key'), KEY_BOX);
+  return surfaceUnder(level, key.x + key.width / 2, key.y + key.height);
+};
 
-const spawnSurface = (level: Level): Surface =>
-  surfaceUnder(level, level.spawn.x, level.spawn.y);
+const chestSurface = (level: Level): Surface => {
+  const chest = entityRect(tileOrThrow(chestTile(level), 'chest'), CHEST_BOX);
+  return surfaceUnder(level, chest.x + chest.width / 2, chest.y + chest.height);
+};
+
+const spawnSurface = (level: Level): Surface => {
+  const spawn = tileOrThrow(spawnTile(level), 'spawn');
+  return surfaceUnder(level, spawn.x * TILE_SIZE, spawn.y * TILE_SIZE);
+};
 
 const SEEDS = Array.from({ length: 12 }, (_, i) => `SAMPLE-SEED-${i}`);
 const ALL_LEVELS = Array.from({ length: LEVELS_PER_SEED }, (_, i) => i);
@@ -203,7 +217,7 @@ const expectValidSpike = (
     `not the lip of a pit on the right at ${x}`,
   ).toBeGreaterThan(0);
   for (let r = y; r >= y - SPIKE_CLEARANCE; r--) {
-    expect(level.tiles[r][x], `clearance at row ${r}`).not.toBe(TILE_SOLID);
+    expect(isSolidTile(level.tiles[r][x]), `clearance at row ${r}`).toBe(false);
   }
   for (const ec of enemyColumns) {
     expect(
@@ -269,9 +283,9 @@ describe('generateLevel', () => {
         expect(heights[x], `intro column ${x}`).toBe(BASE_GROUND);
         for (let r = 0; r < surfaceRow; r++) {
           expect(
-            level.tiles[r][x],
+            isSolidTile(level.tiles[r][x]),
             `floating tile at intro column ${x}`,
-          ).not.toBe(TILE_SOLID);
+          ).toBe(false);
         }
       }
       expect(spawnSurface(level).r).toBe(surfaceRow);
@@ -288,11 +302,16 @@ describe('generateLevel', () => {
       for (let x = outroStart; x < level.width - 1; x++) {
         expect(heights[x], `outro column ${x}`).toBe(outroHeight);
       }
-      const groundTop = (level.height - outroHeight) * TILE_SIZE;
-      expect(level.chest.x).toBe((level.width - 9) * TILE_SIZE + 3);
-      expect(level.chest.y).toBe(groundTop - 22);
-      expect(level.portal.x).toBe((level.width - 4) * TILE_SIZE);
-      expect(level.portal.y).toBe(groundTop - 64);
+      const groundRow = level.height - outroHeight;
+      const chest = tileOrThrow(chestTile(level), 'chest');
+      const portal = tileOrThrow(portalTile(level), 'portal');
+      expect(chest.x).toBe(level.width - 9);
+      expect(chest.y).toBe(groundRow - 1);
+      expect(portal.x).toBe(level.width - 4);
+      expect(portal.y).toBe(groundRow - 1);
+      expect(level.tiles[chest.y][chest.x]).toBe(TILE_CHEST);
+      expect(level.tiles[portal.y][portal.x]).toBe(TILE_PORTAL);
+      expect(level.tiles[portal.y - 1][portal.x]).toBe(TILE_PORTAL);
     },
   );
 
@@ -331,7 +350,7 @@ describe('generateLevel', () => {
         let floating = 0;
         for (let x = run.start; x < run.start + run.width; x++) {
           for (let r = 0; r < level.height; r++) {
-            if (level.tiles[r][x] === TILE_SOLID) floating++;
+            if (isSolidTile(level.tiles[r][x])) floating++;
           }
         }
         expect(floating, `no bridge over hole at ${run.start}`).toBeGreaterThan(
@@ -382,13 +401,14 @@ describe('generateLevel', () => {
       for (let x = 1; x < level.width - 1; x++) {
         for (let y = 0; y < level.height; y++) {
           const isSurface =
-            level.tiles[y][x] === TILE_SOLID &&
-            (y === 0 || level.tiles[y - 1][x] !== TILE_SOLID);
+            isSolidTile(level.tiles[y][x]) &&
+            (y === 0 || !isSolidTile(level.tiles[y - 1][x]));
           if (!isSurface) continue;
           for (let r = Math.max(0, y - PLAYER_CLEARANCE); r < y; r++) {
-            expect(level.tiles[r][x], `headroom above ${x}:${y}`).not.toBe(
-              TILE_SOLID,
-            );
+            expect(
+              isSolidTile(level.tiles[r][x]),
+              `headroom above ${x}:${y}`,
+            ).toBe(false);
           }
         }
       }
@@ -399,12 +419,11 @@ describe('generateLevel', () => {
     'hides the key in the middle of the level for %s level %i',
     (seed, d) => {
       const level = generateLevel(levelSeed(seed, d), d);
-      const column = Math.floor(
-        (level.key.x + level.key.width / 2) / TILE_SIZE,
-      );
-      expect(column).toBeGreaterThanOrEqual(Math.floor(level.width * 0.25));
-      expect(column).toBeLessThan(level.width - OUTRO_WIDTH);
-      expect(level.key.y).toBeGreaterThan(0);
+      const key = tileOrThrow(keyTile(level), 'key');
+      expect(key.x).toBeGreaterThanOrEqual(Math.floor(level.width * 0.25));
+      expect(key.x).toBeLessThan(level.width - OUTRO_WIDTH);
+      expect(key.y).toBeGreaterThan(0);
+      expect(level.tiles[key.y][key.x]).toBe(TILE_KEY);
     },
   );
 
@@ -413,16 +432,17 @@ describe('generateLevel', () => {
     (seed, d) => {
       const level = generateLevel(levelSeed(seed, d), d);
       for (const enemy of level.enemies) {
-        const col = Math.floor(enemy.x / TILE_SIZE);
-        const row = Math.floor(enemy.y / TILE_SIZE);
+        const col = enemy.x;
+        const row = enemy.y;
         expect(col, `enemy column ${col}`).toBeGreaterThanOrEqual(INTRO_WIDTH);
         expect(col, `enemy column ${col}`).toBeLessThan(
           LEVEL_WIDTH - OUTRO_WIDTH,
         );
-        expect(level.tiles[row][col]).not.toBe(TILE_SOLID);
-        expect(level.tiles[row + 1][col], `ground under enemy at ${col}`).toBe(
-          TILE_SOLID,
-        );
+        expect(isSolidTile(level.tiles[row][col])).toBe(false);
+        expect(
+          isSolidTile(level.tiles[row + 1][col]),
+          `ground under enemy at ${col}`,
+        ).toBe(true);
       }
     },
   );
@@ -441,9 +461,7 @@ describe('generateLevel', () => {
     (seed, d) => {
       const level = generateLevel(levelSeed(seed, d), d);
       const heights = groundHeights(level);
-      const enemyColumns = level.enemies.map((e) =>
-        Math.floor(e.x / TILE_SIZE),
-      );
+      const enemyColumns = level.enemies.map((e) => e.x);
       for (let y = 0; y < level.height; y++) {
         for (let x = 0; x < level.width; x++) {
           if (level.tiles[y][x] === TILE_SPIKE) {

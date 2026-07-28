@@ -3,6 +3,7 @@ import {
   filter,
   flatMap,
   floor,
+  fromPairs,
   groupBy,
   map,
   range,
@@ -42,15 +43,23 @@ import {
   type StructureDifficulty,
 } from '../structures/types';
 import {
-  PLAYER_HEIGHT_TILES,
   type Level,
-  type Point,
   type Tile,
+  TILE_BRICK,
+  TILE_CERAMIC,
+  TILE_CHEST,
   TILE_EMPTY,
+  TILE_ENEMY,
+  TILE_KEY,
+  TILE_PORTAL,
   TILE_SIZE,
   TILE_SOLID,
   TILE_SPIKE,
+  TILE_SPAWN,
   TILE_SPIKE_CEILING,
+  TILE_STONE,
+  TILE_WOOD,
+  type TilePosition,
 } from '@mander/engine';
 import type { Platform } from './platform';
 
@@ -65,7 +74,7 @@ interface Spike {
 interface Terrain {
   ground: number[];
   platforms: Platform[];
-  enemies: Point[];
+  enemies: TilePosition[];
   spikes: Spike[];
 }
 
@@ -76,7 +85,7 @@ interface KeyPlacement {
 
 type PlacedCell =
   | { kind: 'PLATFORM'; platform: Platform }
-  | { kind: 'ENEMY'; enemy: Point }
+  | { kind: 'ENEMY'; enemy: TilePosition }
   | { kind: 'SPIKE'; spike: Spike }
   | { kind: 'NONE' };
 
@@ -118,7 +127,7 @@ const placedCell = (
       ENEMY,
       (): PlacedCell => ({
         kind: 'ENEMY',
-        enemy: { x: column * TILE_SIZE, y: absoluteRow * TILE_SIZE },
+        enemy: { x: column, y: absoluteRow },
       }),
     )
     .with(SPIKE, (): PlacedCell => spikeCell(column, absoluteRow, TILE_SPIKE))
@@ -131,7 +140,7 @@ const placedCell = (
 interface ColumnResult {
   ground: number;
   platforms: Platform[];
-  enemies: Point[];
+  enemies: TilePosition[];
   spikes: Spike[];
 }
 
@@ -202,7 +211,7 @@ const sectorColumn = (
 interface SectorResult {
   ground: number[];
   platforms: Platform[];
-  enemies: Point[];
+  enemies: TilePosition[];
   spikes: Spike[];
 }
 
@@ -225,7 +234,7 @@ const sectorResult = (
 interface SectorAccumulator {
   ground: number[];
   platforms: Platform[];
-  enemies: Point[];
+  enemies: TilePosition[];
   spikes: Spike[];
   baseline: number;
   cursor: number;
@@ -280,25 +289,45 @@ const buildTerrain = (
 const isWallColumn = (column: number, width: number): boolean =>
   column === 0 || column === width - 1;
 
+const MATERIALS: Tile[] = [
+  TILE_SOLID,
+  TILE_BRICK,
+  TILE_STONE,
+  TILE_WOOD,
+  TILE_CERAMIC,
+];
+
+const materialColumns = (rng: Rng, width: number): Tile[] => {
+  const intro = rng.pick(MATERIALS);
+  const sectors = map(range(SECTOR_COUNT), () => rng.pick(MATERIALS));
+  const outro = rng.pick(MATERIALS);
+  return [
+    ...times(INTRO_WIDTH, () => intro),
+    ...flatMap(sectors, (material) => times(SECTOR_WIDTH, () => material)),
+    ...times(width - INTRO_WIDTH - SECTOR_COUNT * SECTOR_WIDTH, () => outro),
+  ];
+};
+
 const tileAt = (
   row: number,
   column: number,
   ground: number[],
   platformCells: ReadonlySet<string>,
   width: number,
+  materials: Tile[],
 ): Tile =>
   match(true)
     .with(
       P.when(() => isWallColumn(column, width)),
-      (): Tile => TILE_SOLID,
+      (): Tile => materials[column],
     )
     .with(
       P.when(() => row >= LEVEL_HEIGHT - ground[column]),
-      (): Tile => TILE_SOLID,
+      (): Tile => materials[column],
     )
     .with(
       P.when(() => platformCells.has(`${row}:${column}`)),
-      (): Tile => TILE_SOLID,
+      (): Tile => materials[column],
     )
     .otherwise((): Tile => TILE_EMPTY);
 
@@ -306,6 +335,7 @@ const paintTiles = (
   ground: number[],
   platforms: Platform[],
   width: number,
+  materials: Tile[],
 ): Tile[][] => {
   const platformCells = new Set(
     chain(platforms)
@@ -320,7 +350,7 @@ const paintTiles = (
   );
   return map(range(LEVEL_HEIGHT), (row) =>
     map(range(width), (column) =>
-      tileAt(row, column, ground, platformCells, width),
+      tileAt(row, column, ground, platformCells, width, materials),
     ),
   );
 };
@@ -466,7 +496,7 @@ const placeSpikes = (
   rng: Rng,
 ): Spike[] => {
   const { ground, enemies } = terrain;
-  const enemyColumns = map(enemies, (enemy) => floor(enemy.x / TILE_SIZE));
+  const enemyColumns = map(enemies, (enemy) => enemy.x);
   return reduce(
     range(INTRO_WIDTH, width - OUTRO_WIDTH),
     (state: SpikeScan, column): SpikeScan =>
@@ -513,37 +543,53 @@ const stampSpikes = (tiles: Tile[][], spikes: Spike[]): Tile[][] => {
   );
 };
 
-const levelEntities = (
+interface EntityTiles {
+  spawn: TilePosition;
+  chest: TilePosition;
+  portal: TilePosition;
+  key: TilePosition;
+}
+
+const entityTiles = (
   groundTop: (column: number) => number,
   placement: KeyPlacement,
   width: number,
-): Pick<Level, 'spawn' | 'chest' | 'portal' | 'key'> => {
+): EntityTiles => {
   const chestColumn = width - 9;
   const portalColumn = width - 4;
   return {
-    spawn: {
-      x: 2 * TILE_SIZE + 5,
-      y: groundTop(2) - (PLAYER_HEIGHT_TILES + 1) * TILE_SIZE,
-    },
-    chest: {
-      x: chestColumn * TILE_SIZE + 3,
-      y: groundTop(chestColumn) - 22,
-      width: 26,
-      height: 22,
-    },
-    portal: {
-      x: portalColumn * TILE_SIZE,
-      y: groundTop(portalColumn) - 64,
-      width: 40,
-      height: 64,
-    },
-    key: {
-      x: placement.keyColumn * TILE_SIZE + 7,
-      y: placement.keySupportTop - 34,
-      width: 18,
-      height: 22,
-    },
+    spawn: { x: 2, y: groundTop(2) / TILE_SIZE - 1 },
+    chest: { x: chestColumn, y: groundTop(chestColumn) / TILE_SIZE - 1 },
+    portal: { x: portalColumn, y: groundTop(portalColumn) / TILE_SIZE - 1 },
+    key: { x: placement.keyColumn, y: placement.keySupportTop / TILE_SIZE - 1 },
   };
+};
+
+const stampEntities = (
+  tiles: Tile[][],
+  entities: EntityTiles,
+  enemies: TilePosition[],
+): Tile[][] => {
+  const stamped: Record<string, Tile> = {
+    ...fromPairs(
+      map(enemies, (enemy) => [`${enemy.y}:${enemy.x}`, TILE_ENEMY]),
+    ),
+    [`${entities.chest.y}:${entities.chest.x}`]: TILE_CHEST,
+    [`${entities.key.y}:${entities.key.x}`]: TILE_KEY,
+    [`${entities.portal.y}:${entities.portal.x}`]: TILE_PORTAL,
+    [`${entities.portal.y - 1}:${entities.portal.x}`]: TILE_PORTAL,
+    [`${entities.spawn.y}:${entities.spawn.x}`]: TILE_SPAWN,
+    [`${entities.spawn.y - 1}:${entities.spawn.x}`]: TILE_SPAWN,
+  };
+
+  return map(tiles, (rowTiles, row) =>
+    map(rowTiles, (tile, column) =>
+      match({ entityTile: stamped[`${row}:${column}`], tile })
+        .with({ entityTile: nullish }, (): Tile => tile)
+        .with({ tile: TILE_EMPTY }, ({ entityTile }): Tile => entityTile)
+        .otherwise((): Tile => tile),
+    ),
+  );
 };
 
 const structureDifficultyFor = (difficulty: number): StructureDifficulty =>
@@ -561,7 +607,13 @@ export const generateLevel = (
   const width = LEVEL_WIDTH;
 
   const terrain = buildTerrain(rng, structureDifficulty, width);
-  const baseTiles = paintTiles(terrain.ground, terrain.platforms, width);
+  const materials = materialColumns(createRng(`${seed}-materials`), width);
+  const baseTiles = paintTiles(
+    terrain.ground,
+    terrain.platforms,
+    width,
+    materials,
+  );
 
   const groundTop = (column: number): number =>
     (LEVEL_HEIGHT - terrain.ground[column]) * TILE_SIZE;
@@ -579,12 +631,17 @@ export const generateLevel = (
     rng,
   );
 
+  const entities = entityTiles(groundTop, placement, width);
+
   return {
     seed,
     width,
     height: LEVEL_HEIGHT,
-    tiles: stampSpikes(baseTiles, [...terrain.spikes, ...autoSpikes]),
-    ...levelEntities(groundTop, placement, width),
+    tiles: stampEntities(
+      stampSpikes(baseTiles, [...terrain.spikes, ...autoSpikes]),
+      entities,
+      terrain.enemies,
+    ),
     chestItems: rollChestItems(rng),
     enemies: terrain.enemies,
     palette: rollPalette(createRng(paletteSeed)),

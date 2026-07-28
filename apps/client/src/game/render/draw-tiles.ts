@@ -1,13 +1,14 @@
 import {
+  isSolidTile,
   type Level,
   TILE_SIZE,
-  TILE_SOLID,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
 } from '@mander/engine';
 import { ceil, floor, forEach, range } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
+import { drawMaterial } from './draw-material';
 import { drawSpike } from './draw-spike';
 import { solidAt } from './solid-at';
 import type { Viewport } from './viewport';
@@ -22,6 +23,7 @@ const drawSolidTile = (
   const pixelY = row * TILE_SIZE;
   context.fillStyle = level.palette.block;
   context.fillRect(pixelX, pixelY, TILE_SIZE, TILE_SIZE);
+  drawMaterial(context, level.tiles[row][column], pixelX, pixelY);
   context.fillStyle = 'RGBA(0, 0, 0, 0.14)';
   context.fillRect(pixelX, pixelY + TILE_SIZE - 3, TILE_SIZE, 3);
   context.fillRect(pixelX + TILE_SIZE - 2, pixelY, 2, TILE_SIZE);
@@ -66,7 +68,7 @@ export const drawTiles = (
           () => drawSpike(context, column, row, 'CEILING'),
         )
         .with(
-          P.when((tile) => tile === TILE_SOLID),
+          P.when((tile) => isSolidTile(tile)),
           () => drawSolidTile(context, level, column, row),
         )
         .otherwise(() => undefined),

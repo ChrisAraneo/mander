@@ -11,8 +11,8 @@ import {
 
 export const createEnemies = (level: Level): Enemy[] =>
   map(level.enemies, (spawn) => {
-    const x = spawn.x + (TILE_SIZE - ENEMY_WIDTH) / 2;
-    const y = spawn.y + TILE_SIZE - ENEMY_HEIGHT;
+    const x = spawn.x * TILE_SIZE + (TILE_SIZE - ENEMY_WIDTH) / 2;
+    const y = (spawn.y + 1) * TILE_SIZE - ENEMY_HEIGHT;
     return {
       position: { x, y },
       velocity: {

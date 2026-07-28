@@ -15,15 +15,20 @@ import {
   INVINCIBLE_SECONDS,
   MAX_SPEED_BONUS_PERCENT,
   PLAYER_HEIGHT,
+  spawnPosition,
   PLAYER_WIDTH,
 } from './state';
 import {
   type Item,
   type Level,
   type Palette,
-  type Point,
+  type TilePosition,
   type Tile,
+  TILE_CHEST,
   TILE_EMPTY,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SPAWN,
   TILE_SIZE,
   TILE_SOLID,
   TILE_SPIKE,
@@ -58,7 +63,7 @@ const CARDS: Item[] = [
   item('CARD-4'),
 ];
 
-const testLevel = (enemies: Point[] = []): Level => {
+const testLevel = (enemies: TilePosition[] = []): Level => {
   const tiles: Tile[][] = [];
   for (let y = 0; y < HEIGHT; y++) {
     const fillTile: Tile = y >= 12 ? TILE_SOLID : TILE_EMPTY;
@@ -71,20 +76,25 @@ const testLevel = (enemies: Point[] = []): Level => {
     tiles[y][10] = TILE_EMPTY;
     tiles[y][11] = TILE_EMPTY;
   }
+  const groundRow = SURFACE / TILE_SIZE;
+  tiles[groundRow - 1][2] = TILE_SPAWN;
+  tiles[groundRow - 2][2] = TILE_SPAWN;
+  tiles[groundRow - 1][15] = TILE_KEY;
+  tiles[groundRow - 1][20] = TILE_CHEST;
+  tiles[groundRow - 1][25] = TILE_PORTAL;
+  tiles[groundRow - 2][25] = TILE_PORTAL;
   return {
     seed: 'TEST',
     width: WIDTH,
     height: HEIGHT,
     tiles,
-    spawn: { x: 2 * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT },
-    chest: { x: 20 * TILE_SIZE, y: SURFACE - 22, width: 26, height: 22 },
-    portal: { x: 25 * TILE_SIZE, y: SURFACE - 64, width: 40, height: 64 },
-    key: { x: 15 * TILE_SIZE + 7, y: SURFACE - 34, width: 18, height: 22 },
     chestItems: CARDS,
     enemies,
     palette: PALETTE,
   };
 };
+
+const SPAWN_X = spawnPosition(testLevel()).x;
 
 const DELTA_SECONDS = 1 / 60;
 
@@ -175,7 +185,7 @@ describe('movement actions', () => {
     start.player.position.x = 10 * TILE_SIZE + 5;
     const state = tickN(start, 120);
     expect(state.deaths).toBe(1);
-    expect(state.player.position.x).toBe(state.level.spawn.x);
+    expect(state.player.position.x).toBe(SPAWN_X);
     expect(state.player.hearts.value, 'the fall cost a heart').toBe(0);
   });
 
@@ -184,7 +194,7 @@ describe('movement actions', () => {
     state = tickN(state, 2);
     expect(state.hasKey).toBe(true);
     state = act(state, { type: 'RESPAWN' });
-    expect(state.player.position.x).toBe(state.level.spawn.x);
+    expect(state.player.position.x).toBe(SPAWN_X);
     expect(state.hasKey).toBe(true);
     expect(state.inventory).toHaveLength(1);
   });
@@ -377,13 +387,13 @@ describe('portal and level loading', () => {
     expect(state.hasKey).toBe(false);
     expect(state.isChestOpened).toBe(false);
     expect(state.time).toBe(0);
-    expect(state.player.position.x).toBe(state.level.spawn.x);
+    expect(state.player.position.x).toBe(SPAWN_X);
     expect(state.inventory.map((i) => i.id)).toEqual(['CARD-3']);
   });
 });
 
 describe('enemies', () => {
-  const enemySpawn: Point = { x: 5 * TILE_SIZE, y: 11 * TILE_SIZE };
+  const enemySpawn: TilePosition = { x: 5, y: 11 };
   const floorEnemyY = SURFACE - ENEMY_HEIGHT;
 
   const withEnemy = (): GameState =>
@@ -469,7 +479,7 @@ describe('enemies', () => {
     expect(state.enemies).toHaveLength(2);
   });
 
-  const withSpike = (col: number, enemies: Point[] = []): Level => {
+  const withSpike = (col: number, enemies: TilePosition[] = []): Level => {
     const level = testLevel(enemies);
     level.tiles[11][col] = TILE_SPIKE;
     return level;
@@ -520,9 +530,7 @@ describe('enemies', () => {
     expect(state.deaths, 'and it counts as a death').toBe(before + 1);
 
     state = tickN(state, 120);
-    expect(state.player.position.x, 'respawned at spawn').toBe(
-      state.level.spawn.x,
-    );
+    expect(state.player.position.x, 'respawned at spawn').toBe(SPAWN_X);
     expect(state.player.timers.death, 'back on their feet').toBeNull();
   });
 
@@ -654,9 +662,7 @@ describe('enemies', () => {
     expect(state.deaths).toBe(before + 1);
 
     state = tickN(state, 120);
-    expect(state.player.position.x, 'respawned at spawn').toBe(
-      state.level.spawn.x,
-    );
+    expect(state.player.position.x, 'respawned at spawn').toBe(SPAWN_X);
     expect(state.player.timers.death, 'back on their feet').toBeNull();
   });
 
@@ -860,9 +866,7 @@ describe('hearts', () => {
       },
     };
     state = tickN(state, 120);
-    expect(state.player.position.x, 'respawned at spawn').toBe(
-      state.level.spawn.x,
-    );
+    expect(state.player.position.x, 'respawned at spawn').toBe(SPAWN_X);
     expect(state.player.hearts.value, 'down just one heart').toBe(2);
     expect(state.deaths).toBe(1);
   });

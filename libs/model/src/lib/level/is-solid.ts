@@ -1,6 +1,6 @@
 import { match, P } from 'ts-pattern';
 
-import { TILE_SOLID } from './constants';
+import { isSolidTile } from './is-solid-tile';
 import type { Level } from './level';
 
 export const isSolid = (level: Level, tileX: number, tileY: number): boolean =>
@@ -13,4 +13,4 @@ export const isSolid = (level: Level, tileX: number, tileY: number): boolean =>
       P.when(() => tileY < 0 || tileY >= level.height),
       () => false,
     )
-    .otherwise(() => level.tiles[tileY][tileX] === TILE_SOLID);
+    .otherwise(() => isSolidTile(level.tiles[tileY][tileX]));

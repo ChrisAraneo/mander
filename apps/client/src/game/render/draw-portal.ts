@@ -1,4 +1,9 @@
-import type { GameState } from '@mander/engine';
+import {
+  entityRect,
+  type GameState,
+  PORTAL_BOX,
+  portalTile,
+} from '@mander/engine';
 import type { Rect } from '@mander/engine';
 import { forEach, range } from 'lodash-es';
 import { match } from 'ts-pattern';
@@ -65,7 +70,10 @@ export const drawPortal = (
   context: CanvasRenderingContext2D,
   state: GameState,
 ): void => {
-  const portal = state.level.portal;
+  const tile = portalTile(state.level);
+  if (tile === null) return;
+
+  const portal = entityRect(tile, PORTAL_BOX);
   const centerX = portal.x + portal.width / 2;
   const centerY = portal.y + portal.height / 2;
   const pulse = 1 + Math.sin(state.time * 3) * 0.05;

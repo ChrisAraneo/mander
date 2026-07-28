@@ -1,5 +1,4 @@
-import type { GameState } from '@mander/engine';
-import { match } from 'ts-pattern';
+import { entityRect, type GameState, KEY_BOX, keyTile } from '@mander/engine';
 
 const drawKeyGlyph = (
   context: CanvasRenderingContext2D,
@@ -20,22 +19,22 @@ const drawKeyGlyph = (
 export const drawKey = (
   context: CanvasRenderingContext2D,
   state: GameState,
-): void =>
-  match(state.hasKey)
-    .with(true, () => undefined)
-    .otherwise(() => {
-      const key = state.level.key;
-      const bob = Math.sin(state.time * 3) * 3;
-      const centerX = key.x + key.width / 2;
-      const centerY = key.y + key.height / 2 + bob;
+): void => {
+  const tile = keyTile(state.level);
+  if (state.hasKey || tile === null) return;
 
-      context.save();
-      context.shadowColor = '#FFD166';
-      context.shadowBlur = 14;
-      context.strokeStyle = '#FFD166';
-      context.fillStyle = '#FFD166';
-      context.lineWidth = 3;
+  const key = entityRect(tile, KEY_BOX);
+  const bob = Math.sin(state.time * 3) * 3;
+  const centerX = key.x + key.width / 2;
+  const centerY = key.y + key.height / 2 + bob;
 
-      drawKeyGlyph(context, centerX, centerY);
-      context.restore();
-    });
+  context.save();
+  context.shadowColor = '#FFD166';
+  context.shadowBlur = 14;
+  context.strokeStyle = '#FFD166';
+  context.fillStyle = '#FFD166';
+  context.lineWidth = 3;
+
+  drawKeyGlyph(context, centerX, centerY);
+  context.restore();
+};

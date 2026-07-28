@@ -1,3 +1,11 @@
+import {
+  CHEST_BOX,
+  chestTile,
+  KEY_BOX,
+  keyTile,
+  PORTAL_BOX,
+  portalTile,
+} from '@mander/model';
 import { filter, map, some } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
@@ -12,7 +20,7 @@ import {
 import { advanceEnemy } from './advance-enemy';
 import { hasFaded } from './has-faded';
 import { hasFallenIntoPit } from './has-fallen-into-pit';
-import { isIntersecting } from './is-intersecting';
+import { isNearTile } from './is-near-tile';
 import { isTouchingEnemy } from './is-touching-enemy';
 import { killPlayer } from './kill-player';
 import { stepPlayerDeath } from './step-player-death';
@@ -132,14 +140,20 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         time: state.time + deltaSeconds,
         hasKey:
           state.hasKey ||
-          (canReach && isIntersecting(player, state.level.key, PICKUP_RANGE)),
+          (canReach &&
+            isNearTile(player, keyTile(state.level), KEY_BOX, PICKUP_RANGE)),
         isNearChest:
           !state.isChestOpened &&
           canReach &&
-          isIntersecting(player, state.level.chest, INTERACT_RANGE),
+          isNearTile(player, chestTile(state.level), CHEST_BOX, INTERACT_RANGE),
         isNearPortal:
           canReach &&
-          isIntersecting(player, state.level.portal, INTERACT_RANGE),
+          isNearTile(
+            player,
+            portalTile(state.level),
+            PORTAL_BOX,
+            INTERACT_RANGE,
+          ),
       };
     })
     .otherwise((): GameState => state);

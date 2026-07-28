@@ -9,5 +9,6 @@ export * from './game-status';
 export * from './input-state';
 export * from './is-alive';
 export type { Player } from '@mander/model';
+export * from './spawn-position';
 export * from './starting-hearts';
 export * from './with-capabilities';
