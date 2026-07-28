@@ -1,4 +1,4 @@
-import type { Tile } from '@mander/model';
+import type { Tile } from './tile';
 
 export const TILE_SIZE = 32;
 

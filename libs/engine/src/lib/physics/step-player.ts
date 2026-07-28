@@ -1,4 +1,4 @@
-import type { TileMap } from '../world';
+import type { Level } from '../world';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 
@@ -82,7 +82,7 @@ const playerIntent = (
     .value();
 
 const resolvePlayer = (
-  level: TileMap,
+  level: Level,
   player: Player,
   intent: ReturnType<typeof playerIntent>,
 ): Player =>
@@ -143,7 +143,7 @@ const resolvePlayer = (
     .value();
 
 export const stepPlayer = (
-  level: TileMap,
+  level: Level,
   player: Player,
   input: InputState,
   elapsedSeconds: number,

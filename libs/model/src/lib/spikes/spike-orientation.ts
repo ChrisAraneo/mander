@@ -1,12 +1,12 @@
 import { match } from 'ts-pattern';
 
-import type { TileMap } from '@mander/model';
+import type { Level } from '../level/level';
 import { TILE_SPIKE_CEILING } from './constants';
 
 export type SpikeOrientation = 'FLOOR' | 'CEILING';
 
 export const spikeOrientation = (
-  level: TileMap,
+  level: Level,
   tileX: number,
   tileY: number,
 ): SpikeOrientation =>

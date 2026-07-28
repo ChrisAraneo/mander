@@ -4,13 +4,13 @@ import {
   isSpike,
   spikeOrientation,
   spikeTriangles,
-  type TileMap,
+  type Level,
 } from '../world';
 import { boxHitsTriangle } from './box-hits-triangle';
 import { tileRange } from './tile-range';
 
 export const overlapsSpike = (
-  level: TileMap,
+  level: Level,
   boxLeft: number,
   boxTop: number,
   boxWidth: number,

@@ -1,3 +1,3 @@
-import type { Point } from '@mander/model';
+import type { Point } from './point';
 
 export type Triangle = readonly [Point, Point, Point];

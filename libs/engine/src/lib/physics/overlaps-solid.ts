@@ -1,10 +1,10 @@
-import { isSolid, type TileMap } from '../world';
+import { isSolid, type Level } from '../world';
 import { some } from 'lodash-es';
 
 import { tileRange } from './tile-range';
 
 export const overlapsSolid = (
-  level: TileMap,
+  level: Level,
   boxLeft: number,
   boxTop: number,
   boxWidth: number,

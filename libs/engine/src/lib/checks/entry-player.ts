@@ -3,14 +3,14 @@ import { match, P } from 'ts-pattern';
 
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../state';
 import type { Player } from '../state';
-import { isSolid, type TileMap, TILE_SIZE } from '../world';
+import { isSolid, type Level, TILE_SIZE } from '../world';
 import { standingPlayer } from './standing-player';
 
 const ENTRY_COLUMN = 0;
 
 const ENTRY_INSET = (TILE_SIZE - PLAYER_WIDTH) / 2;
 
-export const entryPlayer = (tiles: TileMap): Player | null =>
+export const entryPlayer = (tiles: Level): Player | null =>
   match(findIndex(tiles.tiles, (_, row) => isSolid(tiles, ENTRY_COLUMN, row)))
     .with(P.number.lt(0), () => null)
     .otherwise((row) =>

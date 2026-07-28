@@ -1,11 +1,11 @@
-import type { TileMap } from '../world';
+import type { Level } from '../world';
 
 import type { AxisMove } from './axis-move';
 import { overlapsSolid } from './overlaps-solid';
 import { sweep } from './sweep';
 
 export const moveHorizontal = (
-  level: TileMap,
+  level: Level,
   originX: number,
   originY: number,
   width: number,

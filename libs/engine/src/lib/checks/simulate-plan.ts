@@ -1,4 +1,4 @@
-import { type TileMap, TILE_SIZE } from '../world';
+import { type Level, TILE_SIZE } from '../world';
 import { match } from 'ts-pattern';
 
 import { stepPlayer } from '../physics/step-player';
@@ -12,11 +12,11 @@ import { planInput } from './plan-input';
 import type { MovePlan } from './move-plan';
 
 interface Flight {
-  tiles: TileMap;
+  tiles: Level;
   plan: MovePlan;
 }
 
-const hasFallenOut = (tiles: TileMap, player: Player): boolean =>
+const hasFallenOut = (tiles: Level, player: Player): boolean =>
   player.position.y > tiles.height * TILE_SIZE;
 
 const hasSettled = (previous: Player, next: Player, frame: number): boolean =>
@@ -47,7 +47,7 @@ const advance = (
 };
 
 export const simulatePlan = (
-  tiles: TileMap,
+  tiles: Level,
   plan: MovePlan,
   player: Player,
 ): Player[] => advance({ tiles, plan }, player, 0, []);

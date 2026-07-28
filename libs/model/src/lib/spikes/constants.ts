@@ -1,4 +1,4 @@
-import type { Tile } from '@mander/model';
+import type { Tile } from '../level/tile';
 
 export const SPIKE_PRONGS = 3;
 export const SPIKE_HEIGHT_FRACTION = 0.72;

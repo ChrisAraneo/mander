@@ -3,11 +3,13 @@ import { describe, expect, it } from 'vitest';
 
 import { isReachableCell, checkPlayerReach } from './checks';
 import {
+  type Level,
+  type Palette,
+  type Rect,
   type Tile,
   TILE_EMPTY,
   TILE_SOLID,
   TILE_SPIKE,
-  type TileMap,
 } from './world';
 
 const WIDTH = 20;
@@ -16,10 +18,28 @@ const HEIGHT = 8;
 const AIR_ROW: Tile[] = map(range(WIDTH), (): Tile => TILE_EMPTY);
 const GROUND_ROW: Tile[] = map(range(WIDTH), (): Tile => TILE_SOLID);
 
-const tileMap = (rows: Record<number, Tile[]>): TileMap => ({
+const EMPTY_RECT: Rect = { x: 0, y: 0, width: 0, height: 0 };
+
+const EMPTY_PALETTE: Palette = {
+  sky: ['', '', ''],
+  hills: ['', ''],
+  block: '',
+  blockCap: '',
+  blockCapHighlight: '',
+};
+
+const tileMap = (rows: Record<number, Tile[]>): Level => ({
+  seed: 'TEST',
   width: WIDTH,
   height: HEIGHT,
   tiles: map(range(HEIGHT), (row) => rows[row] ?? AIR_ROW),
+  palette: EMPTY_PALETTE,
+  spawn: { x: 0, y: 0 },
+  chest: EMPTY_RECT,
+  portal: EMPTY_RECT,
+  key: EMPTY_RECT,
+  chestItems: [],
+  enemies: [],
 });
 
 const pitRow = (from: number, to: number): Tile[] =>

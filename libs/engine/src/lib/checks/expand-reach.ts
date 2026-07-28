@@ -1,4 +1,4 @@
-import type { TileMap } from '../world';
+import type { Level } from '../world';
 import { chain } from '@mander/utils';
 import { flatMap, map } from 'lodash-es';
 import { match } from 'ts-pattern';
@@ -11,7 +11,7 @@ import { simulatePlan } from './simulate-plan';
 import { stateCells } from './state-cells';
 
 interface Walk {
-  tiles: TileMap;
+  tiles: Level;
 }
 
 interface Scan {
@@ -56,10 +56,7 @@ const expand = (walk: Walk, scan: Scan): Scan =>
     )
     .value();
 
-export const expandReach = (
-  tiles: TileMap,
-  start: Player,
-): ReadonlySet<number> =>
+export const expandReach = (tiles: Level, start: Player): ReadonlySet<number> =>
   expand(
     { tiles },
     {
