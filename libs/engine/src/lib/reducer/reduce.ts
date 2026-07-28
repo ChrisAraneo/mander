@@ -4,7 +4,12 @@ import { match } from 'ts-pattern';
 
 import type { Action } from '../actions/actions';
 import type { GameState } from '../state';
-import { capabilitiesFor, createEnemies, createPlayer } from '../state';
+import {
+  capabilitiesFor,
+  createEnemies,
+  createPlayer,
+  withCapabilities,
+} from '../state';
 import { tick } from './tick';
 import { withInput } from './with-input';
 
@@ -19,10 +24,13 @@ const startJump = (state: GameState): GameState =>
     .otherwise(
       (): GameState => ({
         ...withInput(state, { isJump: true }),
-        player: match({ status: state.status, dyingFor: state.player.dyingFor })
-          .with({ status: 'PLAYING', dyingFor: null }, () => ({
+        player: match({
+          status: state.status,
+          death: state.player.timers.death,
+        })
+          .with({ status: 'PLAYING', death: null }, () => ({
             ...state.player,
-            isJumpQueued: true,
+            statuses: { ...state.player.statuses, isJumpQueued: true },
           }))
           .otherwise(() => state.player),
       }),
@@ -37,11 +45,16 @@ const withItem = (state: GameState, item: Item): GameState => {
     isChestOpened: true,
     isNearChest: false,
     inventory,
-    player: {
-      ...state.player,
-      hearts: state.player.hearts + heartGain(item),
-      ...capabilitiesFor(inventory),
-    },
+    player: withCapabilities(
+      {
+        ...state.player,
+        hearts: {
+          ...state.player.hearts,
+          value: state.player.hearts.value + heartGain(item),
+        },
+      },
+      capabilitiesFor(inventory),
+    ),
   };
 };
 

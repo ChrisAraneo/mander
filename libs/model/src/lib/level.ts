@@ -1,7 +1,7 @@
-import type { Item } from '../items/item';
+import type { Item } from './item';
 import type { Palette } from './palette';
-import type { Point } from '../geometry/point';
-import type { Rect } from '../geometry/rect';
+import type { Point } from './point';
+import type { Rect } from './rect';
 import type { TileMap } from './tile-map';
 
 export interface Level extends TileMap {

@@ -3,12 +3,7 @@ import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 
 import type { Enemy, Player } from '../state';
-import {
-  ENEMY_HEIGHT,
-  ENEMY_JUMP_VELOCITY,
-  ENEMY_MOVE_SPEED,
-  ENEMY_WIDTH,
-} from '../state';
+import { ENEMY_HEIGHT, ENEMY_WIDTH } from '../state';
 import { GRAVITY, MAX_TICK_SECONDS, TERMINAL_VELOCITY } from './constants';
 import { resolveLanding } from './resolve-landing';
 import { ledgeAhead } from './ledge-ahead';
@@ -23,6 +18,11 @@ const opposite = (facing: 1 | -1): 1 | -1 =>
     .with(1, (): 1 | -1 => -1)
     .otherwise((): 1 | -1 => 1);
 
+const facingOf = (enemy: Enemy): 1 | -1 =>
+  match(enemy.statuses.isFacingRight)
+    .with(true, (): 1 | -1 => 1)
+    .otherwise((): 1 | -1 => -1);
+
 const enemyHop = (
   isGrounded: boolean,
   vy: number,
@@ -31,7 +31,7 @@ const enemyHop = (
 ): { vy: number; isGrounded: boolean } =>
   match({ isGrounded, isOverhead: playerOverhead(enemy, player) })
     .with({ isGrounded: true, isOverhead: true }, () => ({
-      vy: -ENEMY_JUMP_VELOCITY,
+      vy: -enemy.velocity.y.max,
       isGrounded: false,
     }))
     .otherwise(() => ({ vy, isGrounded }));
@@ -73,24 +73,30 @@ const toEnemy = (motion: EnemyMotion, enemy: Enemy, level: Level): Enemy =>
       true,
       (): Enemy => ({
         ...enemy,
-        x: enemy.homeX,
-        y: enemy.homeY,
-        vx: 0,
-        vy: 0,
-        isGrounded: false,
+        position: { x: enemy.spawn.x, y: enemy.spawn.y },
+        velocity: {
+          x: { ...enemy.velocity.x, current: 0 },
+          y: { ...enemy.velocity.y, current: 0 },
+        },
+        statuses: { ...enemy.statuses, isGrounded: false },
       }),
     )
     .otherwise(
       (): Enemy => ({
-        x: motion.x,
-        y: motion.y,
-        vx: motion.facing * ENEMY_MOVE_SPEED,
-        vy: motion.vy,
-        facing: motion.facing,
-        isGrounded: motion.isGrounded,
-        homeX: enemy.homeX,
-        homeY: enemy.homeY,
-        dyingFor: enemy.dyingFor,
+        position: { x: motion.x, y: motion.y },
+        velocity: {
+          x: {
+            current: motion.facing * enemy.velocity.x.max,
+            max: enemy.velocity.x.max,
+          },
+          y: { current: motion.vy, max: enemy.velocity.y.max },
+        },
+        timers: enemy.timers,
+        spawn: enemy.spawn,
+        statuses: {
+          isFacingRight: motion.facing > 0,
+          isGrounded: motion.isGrounded,
+        },
       }),
     );
 
@@ -102,11 +108,11 @@ const enemyIntent = (
 ): EnemyMotion =>
   chain({
     deltaSeconds,
-    x: enemy.x,
-    y: enemy.y,
-    vy: enemy.vy,
-    facing: enemy.facing,
-    isGrounded: enemy.isGrounded,
+    x: enemy.position.x,
+    y: enemy.position.y,
+    vy: enemy.velocity.y.current,
+    facing: facingOf(enemy),
+    isGrounded: enemy.statuses.isGrounded,
   })
     .thru((stage) => ({
       ...stage,
@@ -138,7 +144,7 @@ const resolveEnemy = (level: Level, enemy: Enemy, motion: EnemyMotion): Enemy =>
         stage.y,
         ENEMY_WIDTH,
         ENEMY_HEIGHT,
-        stage.facing * ENEMY_MOVE_SPEED * stage.deltaSeconds,
+        stage.facing * enemy.velocity.x.max * stage.deltaSeconds,
       ),
     }))
     .thru((stage) => ({

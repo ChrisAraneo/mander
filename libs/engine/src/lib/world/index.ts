@@ -1,13 +1,15 @@
-export * from './geometry/point';
-export * from './geometry/rect';
-export * from './items/item';
-export * from './items/item-effect';
-export * from './items/item-rarity';
+export type {
+  Item,
+  ItemEffect,
+  ItemRarity,
+  Level,
+  Palette,
+  Point,
+  Rect,
+  Tile,
+  TileMap,
+} from '@mander/model';
 export * from './level/constants';
 export * from './level/hsl';
 export * from './level/is-solid';
-export * from './level/level';
-export * from './level/palette';
-export * from './level/tile';
-export * from './level/tile-map';
 export * from './spikes';

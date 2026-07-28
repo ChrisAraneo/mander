@@ -1,9 +1,8 @@
-import type { Item, Level } from '../world';
+import type { Enemy, Player } from '@mander/model';
 
-import type { Enemy } from '../world/enemy/enemy';
+import type { Item, Level } from '../world';
 import type { GameStatus } from './game-status';
 import type { InputState } from './input-state';
-import type { Player } from '../world/player/player';
 
 export interface GameState {
   level: Level;

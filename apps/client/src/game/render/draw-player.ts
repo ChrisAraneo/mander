@@ -94,13 +94,13 @@ const drawPlayerHead = (
   drawPlayerEye(context, isDying);
 };
 
-const deathProgress = (dyingFor: Player['dyingFor']): number =>
-  match(dyingFor)
+const deathProgress = (death: Player['timers']['death']): number =>
+  match(death)
     .with(P.number, (seconds) => clamp(seconds / PLAYER_DEATH_SECONDS, 0, 1))
     .otherwise(() => 0);
 
 const invincibleAlpha = (player: Player, time: number): number =>
-  match(player.invincibleFor > 0 && isAlive(player))
+  match(player.timers.invincibility > 0 && isAlive(player))
     .with(true, () => 0.35 + 0.45 * (0.5 + 0.5 * Math.sin(time * 30)))
     .otherwise(() => 1);
 
@@ -109,11 +109,13 @@ export const drawPlayer = (
   player: Player,
   time: number,
 ): void => {
-  const centerX = player.x + PLAYER_WIDTH / 2;
-  const centerY = player.y + PLAYER_HEIGHT / 2;
+  const centerX = player.position.x + PLAYER_WIDTH / 2;
+  const centerY = player.position.y + PLAYER_HEIGHT / 2;
   const isDying = !isAlive(player);
-  const progress = deathProgress(player.dyingFor);
-  const isRunning = Math.abs(player.vx) > 1 && player.isGrounded;
+  const progress = deathProgress(player.timers.death);
+  const isRunning =
+    Math.abs(player.velocity.x.current) > 1 && player.statuses.isGrounded;
+  const facing = player.statuses.isFacingRight ? 1 : -1;
   const swing = match(isRunning)
     .with(true, () => Math.sin(time * 14) * 5)
     .otherwise(() => 0);
@@ -122,10 +124,10 @@ export const drawPlayer = (
   context.translate(centerX, centerY);
   context.globalAlpha =
     (1 - progress * progress) * invincibleAlpha(player, time);
-  context.rotate(-player.facing * progress * DEATH_SPIN);
-  context.scale(player.facing, 1);
+  context.rotate(-facing * progress * DEATH_SPIN);
+  context.scale(facing, 1);
 
-  drawPlayerLegs(context, player.isGrounded, swing);
+  drawPlayerLegs(context, player.statuses.isGrounded, swing);
   drawPlayerBody(context, swing);
   drawPlayerHead(context, isDying);
 

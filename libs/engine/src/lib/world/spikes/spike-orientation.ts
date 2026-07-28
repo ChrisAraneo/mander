@@ -1,6 +1,6 @@
 import { match } from 'ts-pattern';
 
-import type { TileMap } from '../level/tile-map';
+import type { TileMap } from '@mander/model';
 import { TILE_SPIKE_CEILING } from './constants';
 
 export type SpikeOrientation = 'FLOOR' | 'CEILING';

@@ -20,12 +20,12 @@ export const renderGame = (
 ): void => {
   const { level, player, enemies, time } = state;
   const cameraX = clamp(
-    player.x + PLAYER_WIDTH / 2 - viewport.width / 2,
+    player.position.x + PLAYER_WIDTH / 2 - viewport.width / 2,
     0,
     Math.max(0, level.width * TILE_SIZE - viewport.width),
   );
   const cameraY = clamp(
-    player.y + PLAYER_HEIGHT / 2 - viewport.height / 2,
+    player.position.y + PLAYER_HEIGHT / 2 - viewport.height / 2,
     0,
     Math.max(0, level.height * TILE_SIZE - viewport.height),
   );

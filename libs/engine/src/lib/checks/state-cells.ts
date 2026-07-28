@@ -8,19 +8,21 @@ import type { Player } from '../state';
 import { cellIndex } from './cell-index';
 
 const bodyCells = (tiles: TileMap, player: Player): number[] =>
-  flatMap(tileRange(player.y, PLAYER_HEIGHT), (row) =>
-    map(tileRange(player.x, PLAYER_WIDTH), (col) => cellIndex(tiles, row, col)),
+  flatMap(tileRange(player.position.y, PLAYER_HEIGHT), (row) =>
+    map(tileRange(player.position.x, PLAYER_WIDTH), (col) =>
+      cellIndex(tiles, row, col),
+    ),
   );
 
 const footingRow = (player: Player): number =>
-  round((player.y + PLAYER_HEIGHT) / TILE_SIZE);
+  round((player.position.y + PLAYER_HEIGHT) / TILE_SIZE);
 
 const footingCells = (tiles: TileMap, player: Player): number[] =>
-  match(player.isGrounded)
+  match(player.statuses.isGrounded)
     .with(false, (): number[] => [])
     .otherwise(() =>
       map(
-        filter(tileRange(player.x, PLAYER_WIDTH), (col) =>
+        filter(tileRange(player.position.x, PLAYER_WIDTH), (col) =>
           isSolid(tiles, col, footingRow(player)),
         ),
         (col) => cellIndex(tiles, footingRow(player), col),

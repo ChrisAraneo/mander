@@ -27,13 +27,16 @@ interface Outcome {
 
 const coolInvincibility = (player: Player, deltaSeconds: number): Player => ({
   ...player,
-  invincibleFor: Math.max(0, player.invincibleFor - deltaSeconds),
+  timers: {
+    ...player.timers,
+    invincibility: Math.max(0, player.timers.invincibility - deltaSeconds),
+  },
 });
 
 const advancePlayer = (state: GameState, deltaSeconds: number): Player =>
-  match(state.player.dyingFor)
-    .with(P.number, (dyingFor) =>
-      stepPlayerDeath(state.level, state.player, dyingFor, deltaSeconds),
+  match(state.player.timers.death)
+    .with(P.number, (death) =>
+      stepPlayerDeath(state.level, state.player, death, deltaSeconds),
     )
     .otherwise(() =>
       coolInvincibility(
@@ -59,10 +62,19 @@ const touchesHazard = (
   player: Player,
   enemies: Enemy[],
 ): boolean =>
-  overlapsSpike(state.level, player.x, player.y, PLAYER_WIDTH, PLAYER_HEIGHT) ||
+  overlapsSpike(
+    state.level,
+    player.position.x,
+    player.position.y,
+    PLAYER_WIDTH,
+    PLAYER_HEIGHT,
+  ) ||
   some(enemies, (enemy) => isAlive(enemy) && isTouchingEnemy(player, enemy));
 
-const loseHeart = (hearts: number): number => Math.max(0, hearts - 1);
+const loseHeart = (hearts: Player['hearts']): Player['hearts'] => ({
+  ...hearts,
+  value: Math.max(0, hearts.value - 1),
+});
 
 const fell = (state: GameState, player: Player): Outcome => ({
   player: { ...killPlayer(player), hearts: loseHeart(player.hearts) },
@@ -72,7 +84,7 @@ const fell = (state: GameState, player: Player): Outcome => ({
 const hurt = (player: Player): Player => ({
   ...player,
   hearts: loseHeart(player.hearts),
-  invincibleFor: INVINCIBLE_SECONDS,
+  timers: { ...player.timers, invincibility: INVINCIBLE_SECONDS },
 });
 
 const struckDown = (state: GameState, player: Player): Outcome => ({
@@ -87,8 +99,9 @@ const resolveHarm = (
 ): Outcome =>
   match({
     fellIntoPit: hasFallenIntoPit(state.level, player),
-    struck: player.invincibleFor <= 0 && touchesHazard(state, player, enemies),
-    hasHeartsLeft: player.hearts > 0,
+    struck:
+      player.timers.invincibility <= 0 && touchesHazard(state, player, enemies),
+    hasHeartsLeft: player.hearts.value > 0,
   })
     .with({ fellIntoPit: true }, () => fell(state, player))
     .with(

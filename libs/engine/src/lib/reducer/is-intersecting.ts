@@ -8,7 +8,7 @@ export const isIntersecting = (
   rect: Rect,
   padding: number,
 ): boolean =>
-  player.x - padding < rect.x + rect.width &&
-  player.x + PLAYER_WIDTH + padding > rect.x &&
-  player.y - padding < rect.y + rect.height &&
-  player.y + PLAYER_HEIGHT + padding > rect.y;
+  player.position.x - padding < rect.x + rect.width &&
+  player.position.x + PLAYER_WIDTH + padding > rect.x &&
+  player.position.y - padding < rect.y + rect.height &&
+  player.position.y + PLAYER_HEIGHT + padding > rect.y;

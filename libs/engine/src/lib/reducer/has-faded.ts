@@ -4,6 +4,6 @@ import type { Enemy } from '../state';
 import { ENEMY_DEATH_SECONDS } from '../state';
 
 export const hasFaded = (enemy: Enemy): boolean =>
-  match(enemy.dyingFor)
-    .with(P.number, (dyingFor) => dyingFor >= ENEMY_DEATH_SECONDS)
+  match(enemy.timers.death)
+    .with(P.number, (death) => death >= ENEMY_DEATH_SECONDS)
     .otherwise(() => false);

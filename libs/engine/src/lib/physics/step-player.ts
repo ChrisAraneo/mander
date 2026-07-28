@@ -17,14 +17,10 @@ const horizontalDirection = (input: InputState): number =>
     .with({ isRight: false, isLeft: true }, () => -1)
     .otherwise(() => 0);
 
-const facingFor = (direction: number, current: 1 | -1): 1 | -1 =>
+const isFacingRightFor = (direction: number, current: boolean): boolean =>
   match(direction)
     .with(0, () => current)
-    .otherwise((): 1 | -1 =>
-      match(direction < 0)
-        .with(true, (): 1 | -1 => -1)
-        .otherwise((): 1 | -1 => 1),
-    );
+    .otherwise(() => direction > 0);
 
 const afterJump = (
   base: { vy: number; isGrounded: boolean },
@@ -32,11 +28,11 @@ const afterJump = (
   player: Player,
 ): { vy: number; isGrounded: boolean } =>
   match({
-    shouldJump: player.isJumpQueued || input.isJump,
+    shouldJump: player.statuses.isJumpQueued || input.isJump,
     isGrounded: base.isGrounded,
   })
     .with({ shouldJump: true, isGrounded: true }, () => ({
-      vy: -player.jumpVelocity,
+      vy: -player.velocity.y.max,
       isGrounded: false,
     }))
     .otherwise(() => base);
@@ -62,10 +58,16 @@ const playerIntent = (
   })
     .thru((stage) => ({
       ...stage,
-      vx: stage.direction * player.moveSpeed,
-      facing: facingFor(stage.direction, player.facing),
+      vx: stage.direction * player.velocity.x.max,
+      isFacingRight: isFacingRightFor(
+        stage.direction,
+        player.statuses.isFacingRight,
+      ),
       ...afterJump(
-        { vy: player.vy, isGrounded: player.isGrounded },
+        {
+          vy: player.velocity.y.current,
+          isGrounded: player.statuses.isGrounded,
+        },
         input,
         player,
       ),
@@ -89,8 +91,8 @@ const resolvePlayer = (
       ...stage,
       horizontal: moveHorizontal(
         level,
-        player.x,
-        player.y,
+        player.position.x,
+        player.position.y,
         PLAYER_WIDTH,
         PLAYER_HEIGHT,
         stage.vx * stage.deltaSeconds,
@@ -106,7 +108,7 @@ const resolvePlayer = (
       vertical: moveVertical(
         level,
         stage.nextX,
-        player.y,
+        player.position.y,
         PLAYER_WIDTH,
         PLAYER_HEIGHT,
         stage.vy * stage.deltaSeconds,
@@ -124,18 +126,18 @@ const resolvePlayer = (
     }))
     .thru(
       (stage): Player => ({
-        x: stage.nextX,
-        y: stage.nextY,
-        vx: stage.vxOut,
-        vy: stage.vy,
-        isGrounded: stage.isGrounded,
-        facing: stage.facing,
-        isJumpQueued: false,
-        dyingFor: player.dyingFor,
+        position: { x: stage.nextX, y: stage.nextY },
+        velocity: {
+          x: { current: stage.vxOut, max: player.velocity.x.max },
+          y: { current: stage.vy, max: player.velocity.y.max },
+        },
         hearts: player.hearts,
-        invincibleFor: player.invincibleFor,
-        moveSpeed: player.moveSpeed,
-        jumpVelocity: player.jumpVelocity,
+        timers: player.timers,
+        statuses: {
+          isFacingRight: stage.isFacingRight,
+          isGrounded: stage.isGrounded,
+          isJumpQueued: false,
+        },
       }),
     )
     .value();

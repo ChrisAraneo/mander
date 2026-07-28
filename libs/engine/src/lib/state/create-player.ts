@@ -1,22 +1,23 @@
-import type { Level } from '../world';
-import type { Player } from '../world/player/player';
+import type { Player } from '@mander/model';
 
-type PlayerAttributes = Pick<Player, 'hearts' | 'moveSpeed' | 'jumpVelocity'>;
+import type { Level } from '../world';
+
+type PlayerAttributes = Pick<Player, 'hearts' | 'velocity'>;
 
 export const createPlayer = (
   level: Level,
-  { hearts, moveSpeed, jumpVelocity }: PlayerAttributes,
+  { hearts, velocity }: PlayerAttributes,
 ): Player => ({
-  x: level.spawn.x,
-  y: level.spawn.y,
-  vx: 0,
-  vy: 0,
-  isGrounded: false,
-  facing: 1,
-  isJumpQueued: false,
-  dyingFor: null,
-  hearts,
-  invincibleFor: 0,
-  moveSpeed,
-  jumpVelocity,
+  position: { x: level.spawn.x, y: level.spawn.y },
+  velocity: {
+    x: { current: 0, max: velocity.x.max },
+    y: { current: 0, max: velocity.y.max },
+  },
+  hearts: { value: hearts.value },
+  statuses: {
+    isFacingRight: true,
+    isGrounded: false,
+    isJumpQueued: false,
+  },
+  timers: { death: null, invincibility: 0 },
 });

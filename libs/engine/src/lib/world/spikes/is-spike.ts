@@ -1,7 +1,7 @@
 import { includes } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import type { TileMap } from '../level/tile-map';
+import type { TileMap } from '@mander/model';
 import { SPIKE_TILES } from './constants';
 
 export const isSpike = (

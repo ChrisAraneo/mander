@@ -81,8 +81,8 @@ const drawEnemyBrows = (context: CanvasRenderingContext2D): void => {
   context.stroke();
 };
 
-const deathProgress = (dyingFor: Enemy['dyingFor']): number =>
-  match(dyingFor)
+const deathProgress = (death: Enemy['timers']['death']): number =>
+  match(death)
     .with(P.number, (seconds) => clamp(seconds / ENEMY_DEATH_SECONDS, 0, 1))
     .otherwise(() => 0);
 
@@ -91,21 +91,22 @@ export const drawEnemy = (
   enemy: Enemy,
   time: number,
 ): void => {
-  const centerX = enemy.x + ENEMY_WIDTH / 2;
-  const centerY = enemy.y + ENEMY_HEIGHT / 2;
+  const centerX = enemy.position.x + ENEMY_WIDTH / 2;
+  const centerY = enemy.position.y + ENEMY_HEIGHT / 2;
   const isDying = !isAlive(enemy);
-  const progress = deathProgress(enemy.dyingFor);
+  const progress = deathProgress(enemy.timers.death);
   const squash = 1 - progress * (1 - SQUASH_FLOOR);
-  const wobble = match(enemy.isGrounded && !isDying)
-    .with(true, () => Math.sin(time * 9 + enemy.homeX * 0.2) * 1.2)
+  const wobble = match(enemy.statuses.isGrounded && !isDying)
+    .with(true, () => Math.sin(time * 9 + enemy.spawn.x * 0.2) * 1.2)
     .otherwise(() => 0);
+  const facing = enemy.statuses.isFacingRight ? 1 : -1;
   const halfWidth = ENEMY_WIDTH / 2;
   const halfHeight = ENEMY_HEIGHT / 2;
 
   context.save();
   context.translate(centerX, centerY + wobble + halfHeight * (1 - squash));
   context.globalAlpha = 1 - progress * progress;
-  context.scale(enemy.facing * (1 + progress * 0.35), squash);
+  context.scale(facing * (1 + progress * 0.35), squash);
 
   drawEnemyBody(context, halfWidth, halfHeight);
   drawEnemyEyes(context, isDying);

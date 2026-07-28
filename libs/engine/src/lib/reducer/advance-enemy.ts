@@ -7,9 +7,11 @@ import { ENEMY_HEIGHT, ENEMY_WIDTH } from '../state';
 
 const killEnemy = (enemy: Enemy): Enemy => ({
   ...enemy,
-  vx: 0,
-  vy: 0,
-  dyingFor: 0,
+  velocity: {
+    x: { ...enemy.velocity.x, current: 0 },
+    y: { ...enemy.velocity.y, current: 0 },
+  },
+  timers: { ...enemy.timers, death: 0 },
 });
 
 const patrol = (
@@ -20,7 +22,13 @@ const patrol = (
 ): Enemy => {
   const stepped = stepEnemy(level, enemy, player, deltaSeconds);
   return match(
-    overlapsSpike(level, stepped.x, stepped.y, ENEMY_WIDTH, ENEMY_HEIGHT),
+    overlapsSpike(
+      level,
+      stepped.position.x,
+      stepped.position.y,
+      ENEMY_WIDTH,
+      ENEMY_HEIGHT,
+    ),
   )
     .with(true, () => killEnemy(stepped))
     .otherwise(() => stepped);
@@ -32,9 +40,12 @@ export const advanceEnemy = (
   player: Player,
   deltaSeconds: number,
 ): Enemy =>
-  match(enemy.dyingFor)
+  match(enemy.timers.death)
     .with(
       P.number,
-      (dyingFor): Enemy => ({ ...enemy, dyingFor: dyingFor + deltaSeconds }),
+      (death): Enemy => ({
+        ...enemy,
+        timers: { ...enemy.timers, death: death + deltaSeconds },
+      }),
     )
     .otherwise(() => patrol(level, enemy, player, deltaSeconds));

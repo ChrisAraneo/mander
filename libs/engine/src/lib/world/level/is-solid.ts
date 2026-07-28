@@ -1,7 +1,7 @@
 import { match, P } from 'ts-pattern';
 
 import { TILE_SOLID } from './constants';
-import type { TileMap } from './tile-map';
+import type { TileMap } from '@mander/model';
 
 export const isSolid = (
   level: TileMap,

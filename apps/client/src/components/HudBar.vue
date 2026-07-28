@@ -20,7 +20,7 @@ const time = computed(() =>
 );
 
 const hearts = computed(() =>
-  chain(Math.max(0, props.state.player.hearts))
+  chain(Math.max(0, props.state.player.hearts.value))
     .thru((current) =>
       range(Math.max(current, 1)).map((index) => index < current),
     )

@@ -17,11 +17,11 @@ interface Flight {
 }
 
 const hasFallenOut = (tiles: TileMap, player: Player): boolean =>
-  player.y > tiles.height * TILE_SIZE;
+  player.position.y > tiles.height * TILE_SIZE;
 
 const hasSettled = (previous: Player, next: Player, frame: number): boolean =>
-  (next.isGrounded && previous.isGrounded === false) ||
-  (next.isGrounded && frame + 1 >= MAX_GROUNDED_FRAMES) ||
+  (next.statuses.isGrounded && previous.statuses.isGrounded === false) ||
+  (next.statuses.isGrounded && frame + 1 >= MAX_GROUNDED_FRAMES) ||
   frame + 1 >= MAX_PLAN_FRAMES;
 
 const advance = (

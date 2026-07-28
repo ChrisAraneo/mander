@@ -27,7 +27,7 @@ const flightStates = (walk: Walk, frontier: Player[]): Player[] =>
 
 const landings = (visited: ReadonlySet<number>, states: Player[]): Player[] =>
   chain(states)
-    .filter((state) => state.isGrounded)
+    .filter((state) => state.statuses.isGrounded)
     .filter((state) => !visited.has(nodeKey(state)))
     .uniqBy((state) => nodeKey(state))
     .value();
