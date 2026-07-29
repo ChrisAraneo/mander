@@ -1,4 +1,4 @@
-import { type Level, TILE_SIZE } from '../world';
+import { type Level, TILE_SIZE } from '@mander/model';
 import { match } from 'ts-pattern';
 
 import { stepPlayer } from '../physics/step-player';

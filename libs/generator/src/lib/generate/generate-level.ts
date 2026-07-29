@@ -59,8 +59,9 @@ import {
   TILE_SPIKE_CEILING,
   TILE_STONE,
   TILE_WOOD,
-  type TilePosition,
 } from '@mander/engine';
+import type { Point } from '@mander/utils';
+
 import type { Platform } from './platform';
 
 const { nullish } = P;
@@ -74,7 +75,7 @@ interface Spike {
 interface Terrain {
   ground: number[];
   platforms: Platform[];
-  enemies: TilePosition[];
+  enemies: Point[];
   spikes: Spike[];
 }
 
@@ -85,7 +86,7 @@ interface KeyPlacement {
 
 type PlacedCell =
   | { kind: 'PLATFORM'; platform: Platform }
-  | { kind: 'ENEMY'; enemy: TilePosition }
+  | { kind: 'ENEMY'; enemy: Point }
   | { kind: 'SPIKE'; spike: Spike }
   | { kind: 'NONE' };
 
@@ -140,7 +141,7 @@ const placedCell = (
 interface ColumnResult {
   ground: number;
   platforms: Platform[];
-  enemies: TilePosition[];
+  enemies: Point[];
   spikes: Spike[];
 }
 
@@ -211,7 +212,7 @@ const sectorColumn = (
 interface SectorResult {
   ground: number[];
   platforms: Platform[];
-  enemies: TilePosition[];
+  enemies: Point[];
   spikes: Spike[];
 }
 
@@ -234,7 +235,7 @@ const sectorResult = (
 interface SectorAccumulator {
   ground: number[];
   platforms: Platform[];
-  enemies: TilePosition[];
+  enemies: Point[];
   spikes: Spike[];
   baseline: number;
   cursor: number;
@@ -544,10 +545,10 @@ const stampSpikes = (tiles: Tile[][], spikes: Spike[]): Tile[][] => {
 };
 
 interface EntityTiles {
-  spawn: TilePosition;
-  chest: TilePosition;
-  portal: TilePosition;
-  key: TilePosition;
+  spawn: Point;
+  chest: Point;
+  portal: Point;
+  key: Point;
 }
 
 const entityTiles = (
@@ -568,7 +569,7 @@ const entityTiles = (
 const stampEntities = (
   tiles: Tile[][],
   entities: EntityTiles,
-  enemies: TilePosition[],
+  enemies: Point[],
 ): Tile[][] => {
   const stamped: Record<string, Tile> = {
     ...fromPairs(

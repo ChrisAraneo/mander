@@ -1,7 +1,8 @@
 import { match, P } from 'ts-pattern';
 
-import { isSolidTile } from './is-solid-tile';
 import type { Level } from './level';
+import { SOLID_TILES } from '../tiles/consts';
+import { includes } from 'lodash-es';
 
 export const isSolid = (level: Level, tileX: number, tileY: number): boolean =>
   match(true)
@@ -13,4 +14,4 @@ export const isSolid = (level: Level, tileX: number, tileY: number): boolean =>
       P.when(() => tileY < 0 || tileY >= level.height),
       () => false,
     )
-    .otherwise(() => isSolidTile(level.tiles[tileY][tileX]));
+    .otherwise(() => includes(SOLID_TILES, level.tiles[tileY][tileX]));

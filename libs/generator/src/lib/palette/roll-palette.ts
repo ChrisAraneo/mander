@@ -24,7 +24,7 @@ import {
   SKY_SATURATION_MIN,
   SKY_TOP_LIGHTNESS_MAX,
   SKY_TOP_LIGHTNESS_MIN,
-} from './constants';
+} from './consts';
 import type { Hsl } from './hsl';
 import { hslCss } from './hsl-css';
 import type { Palette } from '@mander/engine';

@@ -1,5 +1,5 @@
 export * from './capabilities-for';
-export * from './constants';
+export * from './consts';
 export * from './create-enemies';
 export * from './create-initial-state';
 export * from './create-player';

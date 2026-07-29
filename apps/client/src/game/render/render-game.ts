@@ -2,7 +2,7 @@ import { type GameState, PLAYER_HEIGHT, PLAYER_WIDTH } from '@mander/engine';
 import { TILE_SIZE } from '@mander/engine';
 import { clamp, forEach } from 'lodash-es';
 
-import { HILL_LAYERS } from './constants';
+import { HILL_LAYERS } from './consts';
 import { drawChest } from './draw-chest';
 import { drawEnemy } from './draw-enemy';
 import { drawHillLayer } from './draw-hill-layer';

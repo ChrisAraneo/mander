@@ -5,7 +5,7 @@ import {
   spikeOrientation,
   spikeTriangles,
   type Level,
-} from '../world';
+} from '@mander/model';
 import { boxHitsTriangle } from './box-hits-triangle';
 import { tileRange } from './tile-range';
 

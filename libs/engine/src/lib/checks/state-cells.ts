@@ -1,4 +1,4 @@
-import { isSolid, type Level, TILE_SIZE } from '../world';
+import { isSolid, type Level, TILE_SIZE } from '@mander/model';
 import { filter, flatMap, map, round } from 'lodash-es';
 import { match } from 'ts-pattern';
 

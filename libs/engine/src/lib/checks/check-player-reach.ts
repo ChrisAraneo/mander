@@ -2,7 +2,7 @@ import { chain } from '@mander/utils';
 import { map, range } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import type { Level } from '../world';
+import type { Level } from '@mander/model';
 import { cellIndex } from './cell-index';
 import { entryPlayer } from './entry-player';
 import { expandReach } from './expand-reach';

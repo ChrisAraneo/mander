@@ -3,7 +3,7 @@ import { isArray, isObjectLike, isString } from 'lodash-es';
 import { tryCatch } from 'ramda';
 import { match, P } from 'ts-pattern';
 
-import { STORAGE_KEY } from './constants';
+import { STORAGE_KEY } from './consts';
 import { emptySave } from './empty-save';
 import type { SaveData } from './save-data';
 

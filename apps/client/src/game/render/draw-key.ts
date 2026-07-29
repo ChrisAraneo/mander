@@ -1,4 +1,9 @@
-import { entityRect, type GameState, KEY_BOX, keyTile } from '@mander/engine';
+import {
+  entityRectangle,
+  type GameState,
+  KEY_BOX,
+  keyTile,
+} from '@mander/engine';
 
 const drawKeyGlyph = (
   context: CanvasRenderingContext2D,
@@ -23,7 +28,7 @@ export const drawKey = (
   const tile = keyTile(state.level);
   if (state.hasKey || tile === null) return;
 
-  const key = entityRect(tile, KEY_BOX);
+  const key = entityRectangle(tile, KEY_BOX);
   const bob = Math.sin(state.time * 3) * 3;
   const centerX = key.x + key.width / 2;
   const centerY = key.y + key.height / 2 + bob;

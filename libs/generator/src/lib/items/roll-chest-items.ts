@@ -5,7 +5,7 @@ import { match } from 'ts-pattern';
 import type { Rng } from '../rng';
 import type { Item } from '@mander/engine';
 import type { CatalogEntry } from './catalog-entry';
-import { CHEST_ITEM_COUNT } from './constants';
+import { CHEST_ITEM_COUNT } from './consts';
 import { ITEM_CATALOG } from './item-catalog';
 
 const cumulativeRemainders = (

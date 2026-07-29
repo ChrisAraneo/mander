@@ -1,4 +1,4 @@
-import { type Level, TILE_SIZE } from '../world';
+import { type Level, TILE_SIZE } from '@mander/model';
 
 import type { Player } from '../state';
 

@@ -1,3 +1,4 @@
+import type { Point } from '@mander/utils';
 import { describe, expect, it } from 'vitest';
 
 import type { Action } from './actions/actions';
@@ -22,7 +23,6 @@ import {
   type Item,
   type Level,
   type Palette,
-  type TilePosition,
   type Tile,
   TILE_CHEST,
   TILE_EMPTY,
@@ -33,7 +33,7 @@ import {
   TILE_SOLID,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
-} from './world';
+} from '@mander/model';
 
 const PALETTE: Palette = {
   sky: ['HSL(0, 0%, 10%)', 'HSL(0, 0%, 20%)', 'HSL(0, 0%, 30%)'],
@@ -63,7 +63,7 @@ const CARDS: Item[] = [
   item('CARD-4'),
 ];
 
-const testLevel = (enemies: TilePosition[] = []): Level => {
+const testLevel = (enemies: Point[] = []): Level => {
   const tiles: Tile[][] = [];
   for (let y = 0; y < HEIGHT; y++) {
     const fillTile: Tile = y >= 12 ? TILE_SOLID : TILE_EMPTY;
@@ -201,7 +201,7 @@ describe('movement actions', () => {
 });
 
 describe('jumping', () => {
-  it('jumps on JUMP_START only when grounded — there is no double jump', () => {
+  it('jumps on JUMP_START only when grounded â€” there is no double jump', () => {
     let state = settledAt(3 * TILE_SIZE);
     state = act(state, { type: 'JUMP_START' });
     state = tick(state);
@@ -393,7 +393,7 @@ describe('portal and level loading', () => {
 });
 
 describe('enemies', () => {
-  const enemySpawn: TilePosition = { x: 5, y: 11 };
+  const enemySpawn: Point = { x: 5, y: 11 };
   const floorEnemyY = SURFACE - ENEMY_HEIGHT;
 
   const withEnemy = (): GameState =>
@@ -420,7 +420,7 @@ describe('enemies', () => {
     expect(maxX - minX, 'actually paced a distance').toBeGreaterThan(TILE_SIZE);
   });
 
-  it('hops when the player is overhead — and lower than the player jumps', () => {
+  it('hops when the player is overhead â€” and lower than the player jumps', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -479,7 +479,7 @@ describe('enemies', () => {
     expect(state.enemies).toHaveLength(2);
   });
 
-  const withSpike = (col: number, enemies: TilePosition[] = []): Level => {
+  const withSpike = (col: number, enemies: Point[] = []): Level => {
     const level = testLevel(enemies);
     level.tiles[11][col] = TILE_SPIKE;
     return level;
@@ -505,7 +505,7 @@ describe('enemies', () => {
     expect(state.player.timers.death, 'but stays on their feet').toBeNull();
     expect(
       state.player.position.x,
-      'rooted in place — no knockback, no respawn',
+      'rooted in place â€” no knockback, no respawn',
     ).toBe(6 * TILE_SIZE);
     expect(state.deaths, 'a survived hit is not a death').toBe(before);
   });

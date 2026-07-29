@@ -1,4 +1,4 @@
-import { MAX_TICK_SECONDS } from '../physics/constants';
+import { MAX_TICK_SECONDS } from '../physics/consts';
 
 export const FRAME_SECONDS = MAX_TICK_SECONDS;
 export const POSITION_QUANTUM = 32;

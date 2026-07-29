@@ -1,8 +1,8 @@
-import type { TilePosition } from '../geometry/tile-position';
+import type { Point } from '@mander/utils';
 import type { Level } from './level';
-import type { Tile } from './tile';
+import type { Tile } from '../tiles/tile';
 
-export const findTile = (level: Level, tile: Tile): TilePosition | null => {
+export const findTile = (level: Level, tile: Tile): Point | null => {
   for (let y = level.height - 1; y >= 0; y--) {
     for (let x = 0; x < level.width; x++) {
       if (level.tiles[y][x] === tile) return { x, y };

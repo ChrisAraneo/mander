@@ -1,4 +1,4 @@
-import type { Level } from '../world';
+import type { Level } from '@mander/model';
 
 import type { AxisMove } from './axis-move';
 import { overlapsSolid } from './overlaps-solid';

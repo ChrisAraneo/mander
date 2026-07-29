@@ -1,15 +1,15 @@
 import {
   CHEST_BOX,
   chestTile,
-  entityRect,
+  entityRectangle,
   type GameState,
 } from '@mander/engine';
-import type { Rect } from '@mander/engine';
+import type { Rectangle } from '@mander/utils';
 import { match } from 'ts-pattern';
 
 const drawChestLid = (
   context: CanvasRenderingContext2D,
-  chest: Rect,
+  chest: Rectangle,
   isOpen: boolean,
 ): void => {
   context.fillStyle = match(isOpen)
@@ -35,7 +35,7 @@ export const drawChest = (
   const tile = chestTile(state.level);
   if (tile === null) return;
 
-  const chest = entityRect(tile, CHEST_BOX);
+  const chest = entityRectangle(tile, CHEST_BOX);
 
   context.save();
   match(state.isNearChest)

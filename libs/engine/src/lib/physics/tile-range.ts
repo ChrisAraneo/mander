@@ -1,4 +1,4 @@
-import { TILE_SIZE } from '../world';
+import { TILE_SIZE } from '@mander/model';
 import { floor, range } from 'lodash-es';
 
 import { EPSILON } from './internal-constants';

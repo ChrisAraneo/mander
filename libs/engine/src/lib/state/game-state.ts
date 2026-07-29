@@ -1,6 +1,5 @@
-import type { Enemy, Player } from '@mander/model';
+import type { Enemy, Item, Level, Player } from '@mander/model';
 
-import type { Item, Level } from '../world';
 import type { GameStatus } from './game-status';
 import type { InputState } from './input-state';
 

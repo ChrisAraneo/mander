@@ -3,7 +3,7 @@ import { match, P } from 'ts-pattern';
 
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../state';
 import type { Player } from '../state';
-import { isSolid, type Level, TILE_SIZE } from '../world';
+import { isSolid, type Level, TILE_SIZE } from '@mander/model';
 import { standingPlayer } from './standing-player';
 
 const ENTRY_COLUMN = 0;

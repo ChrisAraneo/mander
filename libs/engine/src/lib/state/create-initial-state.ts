@@ -1,4 +1,4 @@
-import type { Item, Level } from '../world';
+import type { Item, Level } from '@mander/model';
 
 import { capabilitiesFor } from './capabilities-for';
 import { createEnemies } from './create-enemies';

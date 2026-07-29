@@ -1,16 +1,16 @@
 import {
-  entityRect,
+  entityRectangle,
   type GameState,
   PORTAL_BOX,
   portalTile,
 } from '@mander/engine';
-import type { Rect } from '@mander/engine';
+import type { Rectangle } from '@mander/utils';
 import { forEach, range } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 const drawPortalCore = (
   context: CanvasRenderingContext2D,
-  portal: Rect,
+  portal: Rectangle,
   centerX: number,
   centerY: number,
   pulse: number,
@@ -42,7 +42,7 @@ const drawPortalCore = (
 
 const drawPortalRings = (
   context: CanvasRenderingContext2D,
-  portal: Rect,
+  portal: Rectangle,
   centerX: number,
   centerY: number,
   pulse: number,
@@ -73,7 +73,7 @@ export const drawPortal = (
   const tile = portalTile(state.level);
   if (tile === null) return;
 
-  const portal = entityRect(tile, PORTAL_BOX);
+  const portal = entityRectangle(tile, PORTAL_BOX);
   const centerX = portal.x + portal.width / 2;
   const centerY = portal.y + portal.height / 2;
   const pulse = 1 + Math.sin(state.time * 3) * 0.05;

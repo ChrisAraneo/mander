@@ -9,7 +9,7 @@ import {
   TILE_EMPTY,
   TILE_SOLID,
   TILE_SPIKE,
-} from './world';
+} from '@mander/model';
 
 const WIDTH = 20;
 const HEIGHT = 8;

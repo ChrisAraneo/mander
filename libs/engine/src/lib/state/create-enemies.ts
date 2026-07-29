@@ -1,5 +1,4 @@
-import type { Enemy } from '@mander/model';
-import { type Level, TILE_SIZE } from '../world';
+import { type Enemy, type Level, TILE_SIZE } from '@mander/model';
 import { map } from 'lodash-es';
 
 import {
@@ -7,7 +6,7 @@ import {
   ENEMY_JUMP_VELOCITY,
   ENEMY_MOVE_SPEED,
   ENEMY_WIDTH,
-} from './constants';
+} from './consts';
 
 export const createEnemies = (level: Level): Enemy[] =>
   map(level.enemies, (spawn) => {

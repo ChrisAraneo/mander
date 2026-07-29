@@ -1,7 +1,7 @@
 import { round } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import { VIEW_HEIGHT, VIEW_WIDTH } from './constants';
+import { VIEW_HEIGHT, VIEW_WIDTH } from './consts';
 import type { Viewport } from './viewport';
 
 const resizeToDisplay = (

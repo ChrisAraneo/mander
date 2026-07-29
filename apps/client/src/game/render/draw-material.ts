@@ -45,18 +45,68 @@ const drawStone = (
   context.fillRect(pixelX + 20, pixelY + 6, 5, 4);
 };
 
+const PLANK_TONES = ['#96694f', '#8b6350', '#9d725c', '#7f5c4a', '#8e6753'];
+const PLANK_TOP = 'RGBA(214, 164, 134, 0.22)';
+const PLANK_BOTTOM = 'RGBA(46, 30, 22, 0.20)';
+const PLANK_SEAM = 'RGBA(52, 38, 30, 0.85)';
+const GRAIN_DARK = 'RGBA(74, 52, 38, 0.22)';
+const GRAIN_LIGHT = 'RGBA(220, 174, 142, 0.16)';
+
+const PLANK_HEIGHT = TILE_SIZE / 2;
+
+const tileNoise = (a: number, b: number): number =>
+  (((a * 73856093) ^ (b * 19349663)) >>> 0) % 9973;
+
+const drawPlank = (
+  context: CanvasRenderingContext2D,
+  pixelX: number,
+  top: number,
+  seed: number,
+): void => {
+  context.fillStyle = PLANK_TONES[seed % PLANK_TONES.length];
+  context.fillRect(pixelX, top, TILE_SIZE, PLANK_HEIGHT);
+
+  context.fillStyle = PLANK_TOP;
+  context.fillRect(pixelX, top + 1, TILE_SIZE, 2);
+  context.fillStyle = PLANK_BOTTOM;
+  context.fillRect(pixelX, top + PLANK_HEIGHT - 3, TILE_SIZE, 2);
+
+  context.fillStyle = GRAIN_DARK;
+  context.fillRect(pixelX + (seed % 5), top + 3 + (seed % 3), TILE_SIZE - 6, 1);
+  context.fillRect(
+    pixelX + 6 + (seed % 7),
+    top + PLANK_HEIGHT - 5,
+    TILE_SIZE - 10,
+    1,
+  );
+  context.fillStyle = GRAIN_LIGHT;
+  context.fillRect(pixelX + 2 + (seed % 9), top + 5, TILE_SIZE - 14, 1);
+
+  context.fillStyle = PLANK_SEAM;
+  context.fillRect(pixelX, top + PLANK_HEIGHT - 1, TILE_SIZE, 1);
+
+  const buttX = 3 + (seed % 24);
+  context.fillRect(pixelX + buttX, top, 1, PLANK_HEIGHT - 1);
+  context.fillStyle = GRAIN_LIGHT;
+  context.fillRect(pixelX + buttX + 1, top, 1, PLANK_HEIGHT - 1);
+};
+
 const drawWood = (
   context: CanvasRenderingContext2D,
   pixelX: number,
   pixelY: number,
 ): void => {
-  context.fillStyle = JOINT;
-  forEach(range(1, 4), (plank) =>
-    context.fillRect(pixelX, pixelY + plank * (TILE_SIZE / 4), TILE_SIZE, 1),
+  const column = pixelX / TILE_SIZE;
+  const row = pixelY / TILE_SIZE;
+
+  forEach(range(2), (course) =>
+    drawPlank(
+      context,
+      pixelX,
+      pixelY + course * PLANK_HEIGHT,
+      tileNoise(column, row * 2 + course),
+    ),
   );
-  context.fillStyle = HIGHLIGHT;
-  context.fillRect(pixelX + 4, pixelY + 3, TILE_SIZE - 12, 1);
-  context.fillRect(pixelX + 9, pixelY + 19, TILE_SIZE - 16, 1);
 };
 
 const drawCeramic = (

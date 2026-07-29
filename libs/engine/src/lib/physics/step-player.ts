@@ -1,10 +1,10 @@
-import type { Level } from '../world';
+import type { Level } from '@mander/model';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 
 import type { InputState, Player } from '../state';
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../state';
-import { GRAVITY, MAX_TICK_SECONDS, TERMINAL_VELOCITY } from './constants';
+import { GRAVITY, MAX_TICK_SECONDS, TERMINAL_VELOCITY } from './consts';
 import { resolveLanding } from './resolve-landing';
 import { moveHorizontal } from './move-horizontal';
 import { moveVertical } from './move-vertical';

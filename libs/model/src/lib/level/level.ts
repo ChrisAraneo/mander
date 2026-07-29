@@ -1,7 +1,7 @@
-import type { TilePosition } from '../geometry/tile-position';
+import type { Point } from '@mander/utils';
 import type { Item } from '../items/item';
 import type { Palette } from './palette';
-import type { Tile } from './tile';
+import type { Tile } from '../tiles/tile';
 
 export interface Level {
   seed: string;
@@ -10,5 +10,5 @@ export interface Level {
   tiles: Tile[][];
   palette: Palette;
   chestItems: Item[];
-  enemies: TilePosition[];
+  enemies: Point[];
 }

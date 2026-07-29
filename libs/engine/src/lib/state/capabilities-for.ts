@@ -1,10 +1,9 @@
-import type { Player } from '@mander/model';
+import { type Item, type Player, TILE_SIZE } from '@mander/model';
 import { sumBy } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import { GRAVITY, MAX_JUMP_TILES } from '../physics/constants';
-import { type Item, TILE_SIZE } from '../world';
-import { MAX_SPEED_BONUS_PERCENT } from './constants';
+import { GRAVITY, MAX_JUMP_TILES } from '../physics/consts';
+import { MAX_SPEED_BONUS_PERCENT } from './consts';
 
 const BASE_MOVE_SPEED = 210;
 

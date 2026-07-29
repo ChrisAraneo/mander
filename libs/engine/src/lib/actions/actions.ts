@@ -1,4 +1,4 @@
-import type { Level } from '../world';
+import type { Level } from '@mander/model';
 
 export type Action =
   | { type: 'TICK'; deltaSeconds: number }

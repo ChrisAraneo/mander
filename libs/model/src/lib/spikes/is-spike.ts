@@ -2,7 +2,7 @@ import { includes } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import type { Level } from '../level/level';
-import { SPIKE_TILES } from './constants';
+import { SPIKE_TILES } from './consts';
 
 export const isSpike = (level: Level, tileX: number, tileY: number): boolean =>
   match(true)

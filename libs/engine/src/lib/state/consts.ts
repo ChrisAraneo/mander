@@ -1,4 +1,4 @@
-import { TILE_SIZE } from '../world';
+import { TILE_SIZE } from '@mander/model';
 
 export const PLAYER_WIDTH_TILES = 0.6875;
 export const PLAYER_HEIGHT_TILES = 1.5;

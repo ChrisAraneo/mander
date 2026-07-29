@@ -1,10 +1,10 @@
-import { type Level, TILE_SIZE } from '../world';
+import { type Level, TILE_SIZE } from '@mander/model';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 
 import type { Enemy, Player } from '../state';
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from '../state';
-import { GRAVITY, MAX_TICK_SECONDS, TERMINAL_VELOCITY } from './constants';
+import { GRAVITY, MAX_TICK_SECONDS, TERMINAL_VELOCITY } from './consts';
 import { resolveLanding } from './resolve-landing';
 import { ledgeAhead } from './ledge-ahead';
 import { moveHorizontal } from './move-horizontal';

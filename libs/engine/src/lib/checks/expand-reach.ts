@@ -1,4 +1,4 @@
-import type { Level } from '../world';
+import type { Level } from '@mander/model';
 import { chain } from '@mander/utils';
 import { flatMap, map } from 'lodash-es';
 import { match } from 'ts-pattern';

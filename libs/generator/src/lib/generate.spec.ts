@@ -1,3 +1,4 @@
+import type { Point } from '@mander/utils';
 import { describe, expect, it } from 'vitest';
 
 import {
@@ -28,7 +29,7 @@ import {
   CHEST_BOX,
   chestTile,
   isSolidTile,
-  entityRect,
+  entityRectangle,
   KEY_BOX,
   keyTile,
   type Level,
@@ -40,7 +41,6 @@ import {
   TILE_SIZE,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
-  type TilePosition,
 } from '@mander/engine';
 
 const groundHeights = (level: Level): number[] => {
@@ -170,18 +170,21 @@ const surfaceUnder = (
   throw new Error(`no surface under column ${c}`);
 };
 
-const tileOrThrow = (tile: TilePosition | null, name: string): TilePosition => {
+const tileOrThrow = (tile: Point | null, name: string): Point => {
   if (tile === null) throw new Error(`no ${name} tile`);
   return tile;
 };
 
 const keySurface = (level: Level): Surface => {
-  const key = entityRect(tileOrThrow(keyTile(level), 'key'), KEY_BOX);
+  const key = entityRectangle(tileOrThrow(keyTile(level), 'key'), KEY_BOX);
   return surfaceUnder(level, key.x + key.width / 2, key.y + key.height);
 };
 
 const chestSurface = (level: Level): Surface => {
-  const chest = entityRect(tileOrThrow(chestTile(level), 'chest'), CHEST_BOX);
+  const chest = entityRectangle(
+    tileOrThrow(chestTile(level), 'chest'),
+    CHEST_BOX,
+  );
   return surfaceUnder(level, chest.x + chest.width / 2, chest.y + chest.height);
 };
 

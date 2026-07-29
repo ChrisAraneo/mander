@@ -1,6 +1,6 @@
 import { match } from 'ts-pattern';
 
-import { ENTITY_HUE, ENTITY_HUE_GUARD } from './constants';
+import { ENTITY_HUE, ENTITY_HUE_GUARD } from './consts';
 import { wrapHue } from './wrap-hue';
 
 export const awayFromEntityHue = (hue: number): number =>
