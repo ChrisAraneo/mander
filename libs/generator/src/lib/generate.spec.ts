@@ -27,14 +27,14 @@ import { createRng } from './rng';
 import { maxJumpColumns } from './structures/grid';
 import {
   CHEST_BOX,
-  chestTile,
-  isSolidTile,
   entityRectangle,
+  findChestTile,
+  findKeyTile,
+  findPortalTile,
+  findSpawnTile,
+  isSolidTile,
   KEY_BOX,
-  keyTile,
   type Level,
-  portalTile,
-  spawnTile,
   TILE_CHEST,
   TILE_KEY,
   TILE_PORTAL,
@@ -176,20 +176,20 @@ const tileOrThrow = (tile: Point | null, name: string): Point => {
 };
 
 const keySurface = (level: Level): Surface => {
-  const key = entityRectangle(tileOrThrow(keyTile(level), 'key'), KEY_BOX);
+  const key = entityRectangle(tileOrThrow(findKeyTile(level), 'key'), KEY_BOX);
   return surfaceUnder(level, key.x + key.width / 2, key.y + key.height);
 };
 
 const chestSurface = (level: Level): Surface => {
   const chest = entityRectangle(
-    tileOrThrow(chestTile(level), 'chest'),
+    tileOrThrow(findChestTile(level), 'chest'),
     CHEST_BOX,
   );
   return surfaceUnder(level, chest.x + chest.width / 2, chest.y + chest.height);
 };
 
 const spawnSurface = (level: Level): Surface => {
-  const spawn = tileOrThrow(spawnTile(level), 'spawn');
+  const spawn = tileOrThrow(findSpawnTile(level), 'spawn');
   return surfaceUnder(level, spawn.x * TILE_SIZE, spawn.y * TILE_SIZE);
 };
 
@@ -306,8 +306,8 @@ describe('generateLevel', () => {
         expect(heights[x], `outro column ${x}`).toBe(outroHeight);
       }
       const groundRow = level.height - outroHeight;
-      const chest = tileOrThrow(chestTile(level), 'chest');
-      const portal = tileOrThrow(portalTile(level), 'portal');
+      const chest = tileOrThrow(findChestTile(level), 'chest');
+      const portal = tileOrThrow(findPortalTile(level), 'portal');
       expect(chest.x).toBe(level.width - 9);
       expect(chest.y).toBe(groundRow - 1);
       expect(portal.x).toBe(level.width - 4);
@@ -422,7 +422,7 @@ describe('generateLevel', () => {
     'hides the key in the middle of the level for %s level %i',
     (seed, d) => {
       const level = generateLevel(levelSeed(seed, d), d);
-      const key = tileOrThrow(keyTile(level), 'key');
+      const key = tileOrThrow(findKeyTile(level), 'key');
       expect(key.x).toBeGreaterThanOrEqual(Math.floor(level.width * 0.25));
       expect(key.x).toBeLessThan(level.width - OUTRO_WIDTH);
       expect(key.y).toBeGreaterThan(0);

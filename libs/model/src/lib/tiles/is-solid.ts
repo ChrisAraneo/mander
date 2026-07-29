@@ -1,17 +1,19 @@
 import { match, P } from 'ts-pattern';
 
-import type { Level } from './level';
-import { SOLID_TILES } from '../tiles/consts';
+import type { Level } from '../level/level';
+import { SOLID_TILES } from './consts';
 import { includes } from 'lodash-es';
+
+const { when } = P;
 
 export const isSolid = (level: Level, tileX: number, tileY: number): boolean =>
   match(true)
     .with(
-      P.when(() => tileX < 0 || tileX >= level.width),
+      when(() => tileX < 0 || tileX >= level.width),
       () => true,
     )
     .with(
-      P.when(() => tileY < 0 || tileY >= level.height),
+      when(() => tileY < 0 || tileY >= level.height),
       () => false,
     )
     .otherwise(() => includes(SOLID_TILES, level.tiles[tileY][tileX]));

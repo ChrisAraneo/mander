@@ -1,8 +1,8 @@
 import {
   entityRectangle,
+  findPortalTile,
   type GameState,
   PORTAL_BOX,
-  portalTile,
 } from '@mander/engine';
 import type { Rectangle } from '@mander/utils';
 import { forEach, range } from 'lodash-es';
@@ -70,7 +70,7 @@ export const drawPortal = (
   context: CanvasRenderingContext2D,
   state: GameState,
 ): void => {
-  const tile = portalTile(state.level);
+  const tile = findPortalTile(state.level);
   if (tile === null) return;
 
   const portal = entityRectangle(tile, PORTAL_BOX);

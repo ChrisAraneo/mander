@@ -1,8 +1,8 @@
 import {
   entityRectangle,
+  findKeyTile,
   type GameState,
   KEY_BOX,
-  keyTile,
 } from '@mander/engine';
 
 const drawKeyGlyph = (
@@ -25,7 +25,7 @@ export const drawKey = (
   context: CanvasRenderingContext2D,
   state: GameState,
 ): void => {
-  const tile = keyTile(state.level);
+  const tile = findKeyTile(state.level);
   if (state.hasKey || tile === null) return;
 
   const key = entityRectangle(tile, KEY_BOX);

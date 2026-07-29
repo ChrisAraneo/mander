@@ -1,7 +1,7 @@
 import {
   CHEST_BOX,
-  chestTile,
   entityRectangle,
+  findChestTile,
   type GameState,
 } from '@mander/engine';
 import type { Rectangle } from '@mander/utils';
@@ -32,7 +32,7 @@ export const drawChest = (
   context: CanvasRenderingContext2D,
   state: GameState,
 ): void => {
-  const tile = chestTile(state.level);
+  const tile = findChestTile(state.level);
   if (tile === null) return;
 
   const chest = entityRectangle(tile, CHEST_BOX);

@@ -1,10 +1,10 @@
 import {
   CHEST_BOX,
-  chestTile,
+  findChestTile,
+  findKeyTile,
+  findPortalTile,
   KEY_BOX,
-  keyTile,
   PORTAL_BOX,
-  portalTile,
 } from '@mander/model';
 import { filter, map, some } from 'lodash-es';
 import { match, P } from 'ts-pattern';
@@ -141,16 +141,21 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         hasKey:
           state.hasKey ||
           (canReach &&
-            isNearTile(player, keyTile(state.level), KEY_BOX, PICKUP_RANGE)),
+            isNearTile(player, findKeyTile(state.level), KEY_BOX, PICKUP_RANGE)),
         isNearChest:
           !state.isChestOpened &&
           canReach &&
-          isNearTile(player, chestTile(state.level), CHEST_BOX, INTERACT_RANGE),
+          isNearTile(
+            player,
+            findChestTile(state.level),
+            CHEST_BOX,
+            INTERACT_RANGE,
+          ),
         isNearPortal:
           canReach &&
           isNearTile(
             player,
-            portalTile(state.level),
+            findPortalTile(state.level),
             PORTAL_BOX,
             INTERACT_RANGE,
           ),
