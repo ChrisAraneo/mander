@@ -34,3 +34,4 @@ export * from './lib/spike/spike';
 export * from './lib/blocks/stone';
 export * from './lib/tile/tile';
 export * from './lib/blocks/wood';
+export * from './lib/world/consts';

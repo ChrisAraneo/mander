@@ -3,15 +3,13 @@ import { concat } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import type { Action } from '../actions/actions';
-import type { GameState } from '../state';
-import {
-  capabilitiesFor,
-  createEnemies,
-  createPlayer,
-  withCapabilities,
-} from '../state';
+import { createEnemies } from './enemy/create-enemies';
+import { capabilitiesFor } from './player/capabilities-for';
+import { createPlayer } from './player/create-player';
+import { withCapabilities } from './player/with-capabilities';
+import type { GameState } from '../state/game-state';
+import { withInput } from '../state/with-input';
 import { tick } from './tick';
-import { withInput } from './with-input';
 
 const heartGain = (item: Item): number =>
   match(item.effect)

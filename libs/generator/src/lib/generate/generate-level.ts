@@ -32,11 +32,11 @@ import {
 import { rollChestItems } from '../items';
 import { rollPalette } from '../palette';
 import { createRng, type Rng } from '../rng';
-import { groundHeight } from '../structures/grid';
+import { cellMaterial, groundHeight } from '../structures/grid';
 import { rollStructure } from '../structures/structures';
 import {
-  BLOCK,
   ENEMY,
+  isBlockCell,
   SPIKE,
   SPIKE_CEILING,
   type Structure,
@@ -46,8 +46,6 @@ import {
   type Level,
   type Tile,
   TILE_AIR,
-  TILE_BRICK,
-  TILE_CERAMIC,
   TILE_CHEST,
   TILE_DIRT,
   TILE_ENEMY,
@@ -57,8 +55,6 @@ import {
   TILE_SPIKE,
   TILE_SPAWN,
   TILE_SPIKE_CEILING,
-  TILE_STONE,
-  TILE_WOOD,
 } from '@mander/engine';
 import type { Point } from '@mander/utils';
 
@@ -74,6 +70,7 @@ interface Spike {
 
 interface Terrain {
   ground: number[];
+  materials: Tile[];
   platforms: Platform[];
   enemies: Point[];
   spikes: Spike[];
@@ -107,7 +104,7 @@ const placedCell = (
   columnGround: number,
 ): PlacedCell =>
   match(cell)
-    .with(BLOCK, (): PlacedCell =>
+    .with(P.when(isBlockCell), (block): PlacedCell =>
       match(absoluteRow < groundSurfaceRow)
         .with(true, (): PlacedCell => ({
           kind: 'PLATFORM',
@@ -115,6 +112,7 @@ const placedCell = (
             column,
             row: absoluteRow,
             isOverHole: columnGround === 0,
+            material: cellMaterial(block),
           },
         }))
         .otherwise((): PlacedCell => ({ kind: 'NONE' })),
@@ -131,6 +129,7 @@ const placedCell = (
 
 interface ColumnResult {
   ground: number;
+  material: Tile;
   platforms: Platform[];
   enemies: Point[];
   spikes: Spike[];
@@ -144,6 +143,14 @@ const columnGround = (
   match(groundHeight(grid, column))
     .with(0, () => 0)
     .otherwise((stacked) => baseline + stacked - 1);
+
+/** The material of the topmost stacked block — the surface the player sees. */
+const columnMaterial = (grid: Structure, column: number): Tile =>
+  match(groundHeight(grid, column))
+    .with(0, (): Tile => TILE_DIRT)
+    .otherwise((stacked): Tile =>
+      cellMaterial(grid[grid.length - stacked][column]),
+    );
 
 const columnCells = (
   grid: Structure,
@@ -176,6 +183,7 @@ const sectorColumn = (
   const cells = columnCells(grid, column, cursorColumn, baseline, ground);
   return {
     ground,
+    material: columnMaterial(grid, column),
     platforms: chain(cells)
       .filter(
         (cell): cell is Extract<PlacedCell, { kind: 'PLATFORM' }> =>
@@ -202,6 +210,7 @@ const sectorColumn = (
 
 interface SectorResult {
   ground: number[];
+  materials: Tile[];
   platforms: Platform[];
   enemies: Point[];
   spikes: Spike[];
@@ -217,6 +226,7 @@ const sectorResult = (
   );
   return {
     ground: map(columns, (column) => column.ground),
+    materials: map(columns, (column) => column.material),
     platforms: flatMap(columns, (column) => column.platforms),
     enemies: flatMap(columns, (column) => column.enemies),
     spikes: flatMap(columns, (column) => column.spikes),
@@ -225,6 +235,7 @@ const sectorResult = (
 
 interface SectorAccumulator {
   ground: number[];
+  materials: Tile[];
   platforms: Platform[];
   enemies: Point[];
   spikes: Spike[];
@@ -243,6 +254,7 @@ const buildSectors = (
       const sector = sectorResult(grid, acc.cursor, acc.baseline);
       return {
         ground: [...acc.ground, ...sector.ground],
+        materials: [...acc.materials, ...sector.materials],
         platforms: [...acc.platforms, ...sector.platforms],
         enemies: [...acc.enemies, ...sector.enemies],
         spikes: [...acc.spikes, ...sector.spikes],
@@ -252,6 +264,7 @@ const buildSectors = (
     },
     {
       ground: [],
+      materials: [],
       platforms: [],
       enemies: [],
       spikes: [],
@@ -272,6 +285,11 @@ const buildTerrain = (
       ...sectors.ground,
       ...times(width - sectors.cursor, () => sectors.baseline),
     ],
+    materials: [
+      ...times(INTRO_WIDTH, (): Tile => TILE_DIRT),
+      ...sectors.materials,
+      ...times(width - sectors.cursor, (): Tile => TILE_DIRT),
+    ],
     platforms: sectors.platforms,
     enemies: sectors.enemies,
     spikes: sectors.spikes,
@@ -281,47 +299,28 @@ const buildTerrain = (
 const isWallColumn = (column: number, width: number): boolean =>
   column === 0 || column === width - 1;
 
-const MATERIALS: Tile[] = [
-  TILE_DIRT,
-  TILE_BRICK,
-  TILE_STONE,
-  TILE_WOOD,
-  TILE_CERAMIC,
-];
-
-const materialColumns = (rng: Rng, width: number): Tile[] => {
-  const intro = rng.pick(MATERIALS);
-  const sectors = map(range(SECTOR_COUNT), () => rng.pick(MATERIALS));
-  const outro = rng.pick(MATERIALS);
-  return [
-    ...times(INTRO_WIDTH, () => intro),
-    ...flatMap(sectors, (material) => times(SECTOR_WIDTH, () => material)),
-    ...times(width - INTRO_WIDTH - SECTOR_COUNT * SECTOR_WIDTH, () => outro),
-  ];
-};
-
 const tileAt = (
   row: number,
   column: number,
   ground: number[],
-  platformCells: ReadonlySet<string>,
+  platformCells: ReadonlyMap<string, Tile>,
   width: number,
   materials: Tile[],
 ): Tile =>
-  match(true)
-    .with(
-      P.when(() => isWallColumn(column, width)),
-      (): Tile => materials[column],
-    )
-    .with(
-      P.when(() => row >= LEVEL_HEIGHT - ground[column]),
-      (): Tile => materials[column],
-    )
-    .with(
-      P.when(() => platformCells.has(`${row}:${column}`)),
-      (): Tile => materials[column],
-    )
-    .otherwise((): Tile => TILE_AIR);
+  match(platformCells.get(`${row}:${column}`))
+    .with(P.number, (material): Tile => material)
+    .otherwise((): Tile =>
+      match(true)
+        .with(
+          P.when(() => isWallColumn(column, width)),
+          (): Tile => materials[column],
+        )
+        .with(
+          P.when(() => row >= LEVEL_HEIGHT - ground[column]),
+          (): Tile => materials[column],
+        )
+        .otherwise((): Tile => TILE_AIR),
+    );
 
 const paintTiles = (
   ground: number[],
@@ -329,7 +328,7 @@ const paintTiles = (
   width: number,
   materials: Tile[],
 ): Tile[][] => {
-  const platformCells = new Set(
+  const platformCells = new Map(
     chain(platforms)
       .filter(
         (platform) =>
@@ -337,7 +336,10 @@ const paintTiles = (
           platform.column > 0 &&
           platform.column < width - 1,
       )
-      .map((platform) => `${platform.row}:${platform.column}`)
+      .map((platform): [string, Tile] => [
+        `${platform.row}:${platform.column}`,
+        platform.material,
+      ])
       .value(),
   );
   return map(range(LEVEL_HEIGHT), (row) =>
@@ -599,12 +601,11 @@ export const generateLevel = (
   const width = LEVEL_WIDTH;
 
   const terrain = buildTerrain(rng, structureDifficulty, width);
-  const materials = materialColumns(createRng(`${seed}-materials`), width);
   const baseTiles = paintTiles(
     terrain.ground,
     terrain.platforms,
     width,
-    materials,
+    terrain.materials,
   );
 
   const groundTop = (column: number): number =>

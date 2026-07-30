@@ -1,29 +1,32 @@
 import {
   CHEST_ENTITY_BOX,
+  type Enemy,
   findChestTile,
   findKeyTile,
   findPortalTile,
   KEY_ENTITY_BOX,
+  type Player,
   PORTAL_ENTITY_BOX,
 } from '@mander/model';
 import { filter, map, some } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import { overlapsSpike, stepPlayer } from '../physics';
-import type { Enemy, GameState, Player } from '../state';
+import { overlapsSpike } from './collision/overlaps-spike';
+import { advanceEnemy } from './enemy/advance-enemy';
+import { hasFaded } from './enemy/has-faded';
+import { isTouchingEnemy } from './enemy/is-touching-enemy';
 import {
   INVINCIBLE_SECONDS,
-  isAlive,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
-} from '../state';
-import { advanceEnemy } from './advance-enemy';
-import { hasFaded } from './has-faded';
+} from './player/consts';
+import { isAlive } from './player/is-alive';
+import { killPlayer } from './player/kill-player';
+import { stepPlayer } from './player/step-player';
+import { stepPlayerDeath } from './player/step-player-death';
+import type { GameState } from '../state/game-state';
 import { hasFallenIntoPit } from './has-fallen-into-pit';
 import { isNearTile } from './is-near-tile';
-import { isTouchingEnemy } from './is-touching-enemy';
-import { killPlayer } from './kill-player';
-import { stepPlayerDeath } from './step-player-death';
 
 const INTERACT_RANGE = 12;
 const PICKUP_RANGE = 4;

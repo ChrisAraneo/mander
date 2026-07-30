@@ -1,11 +1,11 @@
 import { every, range } from 'lodash-es';
 
 import { PLAYER_CLEARANCE } from '../../consts';
-import { BLOCK, type Structure } from '../types';
+import { isBlockCell, type Structure } from '../types';
 import type { Surface } from './surface';
 
 const isBlock = (grid: Structure, row: number, column: number): boolean =>
-  row >= 0 && row < grid.length && grid[row][column] === BLOCK;
+  row >= 0 && row < grid.length && isBlockCell(grid[row][column]);
 
 export const surfaceHasHeadroom = (
   grid: Structure,

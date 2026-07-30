@@ -1,0 +1,7 @@
+import { TILE_SIZE } from '@mander/model';
+import { floor } from 'lodash-es';
+
+import { ENEMY_HEIGHT } from './consts';
+
+export const belowRow = (originY: number): number =>
+  floor((originY + ENEMY_HEIGHT + 2) / TILE_SIZE);

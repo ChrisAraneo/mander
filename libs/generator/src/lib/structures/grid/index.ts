@@ -1,3 +1,4 @@
+export * from './cell-material';
 export * from './enemies-have-footing';
 export * from './enemy-cell';
 export * from './format-structure';

@@ -5,7 +5,7 @@ import { match, P } from 'ts-pattern';
 import { PLAYER_CLEARANCE, SECTOR_WIDTH } from '../../consts';
 import {
   AIR,
-  BLOCK,
+  BLOCK_CELLS,
   ENEMY,
   SPIKE,
   SPIKE_CEILING,
@@ -17,7 +17,7 @@ import { spikesAreAnchored } from './spikes-are-anchored';
 import { structureIsCrossable } from './structure-is-crossable';
 import { surfacesHaveHeadroom } from './surfaces-have-headroom';
 
-const KNOWN_CELLS = [AIR, BLOCK, ENEMY, SPIKE, SPIKE_CEILING];
+const KNOWN_CELLS = [AIR, ENEMY, SPIKE, SPIKE_CEILING, ...BLOCK_CELLS];
 
 interface Rule {
   message: string;
@@ -31,7 +31,7 @@ const shapeRules: Rule[] = [
   },
   {
     message:
-      'cells must be 0 (air), 1 (block), 2 (enemy), 3 (spike) or 4 (ceiling spike)',
+      'cells must be 0 (air), 2 (enemy), 3 (spike), 4 (ceiling spike) or a block: 1 (dirt), 5 (brick), 6 (stone), 7 (wood), 8 (ceramic)',
     isValid: (grid) =>
       every(grid, (row) => every(row, (cell) => KNOWN_CELLS.includes(cell))),
   },
