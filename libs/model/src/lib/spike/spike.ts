@@ -1,5 +1,5 @@
 import { TILE_SIZE } from '../blocks/consts';
-import type { Tile } from '../tile';
+import type { Tile } from '../tile/tile';
 
 export const TILE_SPIKE: Tile = 2;
 export const TILE_SPIKE_CEILING: Tile = 3;

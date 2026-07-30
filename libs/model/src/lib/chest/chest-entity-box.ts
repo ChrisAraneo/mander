@@ -1,4 +1,4 @@
-import type { EntityBox } from '../entity-box';
+import type { EntityBox } from '../entity/entity-box';
 
 export const CHEST_ENTITY_BOX: EntityBox = {
   offsetX: 3,

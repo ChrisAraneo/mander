@@ -1,5 +1,5 @@
 import type { Point } from '@mander/utils';
-import { findTile } from '../find-tile';
+import { findTile } from '../tile/find-tile';
 import type { Level } from '../level/level';
 import { TILE_KEY } from './key';
 

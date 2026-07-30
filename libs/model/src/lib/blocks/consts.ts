@@ -2,7 +2,7 @@ import { TILE_BRICK } from './brick';
 import { TILE_CERAMIC } from './ceramic';
 import { TILE_DIRT } from './dirt';
 import { TILE_STONE } from './stone';
-import type { Tile } from '../tile';
+import type { Tile } from '../tile/tile';
 import { TILE_WOOD } from './wood';
 
 export const TILE_SIZE = 32;

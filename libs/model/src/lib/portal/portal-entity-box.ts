@@ -1,4 +1,4 @@
-import type { EntityBox } from '../entity-box';
+import type { EntityBox } from '../entity/entity-box';
 
 export const PORTAL_ENTITY_BOX: EntityBox = {
   offsetX: 0,
