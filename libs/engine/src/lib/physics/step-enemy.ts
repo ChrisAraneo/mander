@@ -69,36 +69,31 @@ interface EnemyMotion {
 
 const toEnemy = (motion: EnemyMotion, enemy: Enemy, level: Level): Enemy =>
   match(motion.y > (level.height + 2) * TILE_SIZE)
-    .with(
-      true,
-      (): Enemy => ({
-        ...enemy,
-        position: { x: enemy.spawn.x, y: enemy.spawn.y },
-        velocity: {
-          x: { ...enemy.velocity.x, current: 0 },
-          y: { ...enemy.velocity.y, current: 0 },
+    .with(true, (): Enemy => ({
+      ...enemy,
+      position: { x: enemy.spawn.x, y: enemy.spawn.y },
+      velocity: {
+        x: { ...enemy.velocity.x, current: 0 },
+        y: { ...enemy.velocity.y, current: 0 },
+      },
+      statuses: { ...enemy.statuses, isGrounded: false },
+    }))
+    .otherwise((): Enemy => ({
+      position: { x: motion.x, y: motion.y },
+      velocity: {
+        x: {
+          current: motion.facing * enemy.velocity.x.max,
+          max: enemy.velocity.x.max,
         },
-        statuses: { ...enemy.statuses, isGrounded: false },
-      }),
-    )
-    .otherwise(
-      (): Enemy => ({
-        position: { x: motion.x, y: motion.y },
-        velocity: {
-          x: {
-            current: motion.facing * enemy.velocity.x.max,
-            max: enemy.velocity.x.max,
-          },
-          y: { current: motion.vy, max: enemy.velocity.y.max },
-        },
-        timers: enemy.timers,
-        spawn: enemy.spawn,
-        statuses: {
-          isFacingRight: motion.facing > 0,
-          isGrounded: motion.isGrounded,
-        },
-      }),
-    );
+        y: { current: motion.vy, max: enemy.velocity.y.max },
+      },
+      timers: enemy.timers,
+      spawn: enemy.spawn,
+      statuses: {
+        isFacingRight: motion.facing > 0,
+        isGrounded: motion.isGrounded,
+      },
+    }));
 
 const enemyIntent = (
   level: Level,

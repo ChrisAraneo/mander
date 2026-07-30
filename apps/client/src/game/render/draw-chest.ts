@@ -1,8 +1,8 @@
 import {
-  CHEST_BOX,
-  entityRectangle,
+  CHEST_ENTITY_BOX,
   findChestTile,
   type GameState,
+  toEntityRectangle,
 } from '@mander/engine';
 import type { Rectangle } from '@mander/utils';
 import { match } from 'ts-pattern';
@@ -35,7 +35,7 @@ export const drawChest = (
   const tile = findChestTile(state.level);
   if (tile === null) return;
 
-  const chest = entityRectangle(tile, CHEST_BOX);
+  const chest = toEntityRectangle(tile, CHEST_ENTITY_BOX);
 
   context.save();
   match(state.isNearChest)

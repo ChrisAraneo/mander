@@ -124,22 +124,20 @@ const resolvePlayer = (
         stage.vy,
       ),
     }))
-    .thru(
-      (stage): Player => ({
-        position: { x: stage.nextX, y: stage.nextY },
-        velocity: {
-          x: { current: stage.vxOut, max: player.velocity.x.max },
-          y: { current: stage.vy, max: player.velocity.y.max },
-        },
-        hearts: player.hearts,
-        timers: player.timers,
-        statuses: {
-          isFacingRight: stage.isFacingRight,
-          isGrounded: stage.isGrounded,
-          isJumpQueued: false,
-        },
-      }),
-    )
+    .thru((stage): Player => ({
+      position: { x: stage.nextX, y: stage.nextY },
+      velocity: {
+        x: { current: stage.vxOut, max: player.velocity.x.max },
+        y: { current: stage.vy, max: player.velocity.y.max },
+      },
+      hearts: player.hearts,
+      timers: player.timers,
+      statuses: {
+        isFacingRight: stage.isFacingRight,
+        isGrounded: stage.isGrounded,
+        isJumpQueued: false,
+      },
+    }))
     .value();
 
 export const stepPlayer = (

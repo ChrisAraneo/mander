@@ -6,16 +6,16 @@ import {
   type Level,
   type Palette,
   type Tile,
-  TILE_EMPTY,
-  TILE_SOLID,
+  TILE_AIR,
+  TILE_DIRT,
   TILE_SPIKE,
 } from '@mander/model';
 
 const WIDTH = 20;
 const HEIGHT = 8;
 
-const AIR_ROW: Tile[] = map(range(WIDTH), (): Tile => TILE_EMPTY);
-const GROUND_ROW: Tile[] = map(range(WIDTH), (): Tile => TILE_SOLID);
+const AIR_ROW: Tile[] = map(range(WIDTH), (): Tile => TILE_AIR);
+const GROUND_ROW: Tile[] = map(range(WIDTH), (): Tile => TILE_DIRT);
 
 const EMPTY_PALETTE: Palette = {
   sky: ['', '', ''],
@@ -37,13 +37,11 @@ const tileMap = (rows: Record<number, Tile[]>): Level => ({
 
 const pitRow = (from: number, to: number): Tile[] =>
   map(GROUND_ROW, (tile, column) =>
-    column >= from && column <= to ? TILE_EMPTY : tile,
+    column >= from && column <= to ? TILE_AIR : tile,
   );
 
 const platformRow = (columns: number[]): Tile[] =>
-  map(AIR_ROW, (tile, column) =>
-    columns.includes(column) ? TILE_SOLID : tile,
-  );
+  map(AIR_ROW, (tile, column) => (columns.includes(column) ? TILE_DIRT : tile));
 
 const FLAT = tileMap({ 7: GROUND_ROW });
 

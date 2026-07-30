@@ -1,4 +1,4 @@
-import { type EntityBox, entityRectangle, type Player } from '@mander/model';
+import { type EntityBox, type Player, toEntityRectangle } from '@mander/model';
 import type { Point } from '@mander/utils';
 import { match, P } from 'ts-pattern';
 
@@ -13,5 +13,5 @@ export const isNearTile = (
   match(tile)
     .with(P.nullish, () => false)
     .otherwise((at) =>
-      isIntersecting(player, entityRectangle(at, box), padding),
+      isIntersecting(player, toEntityRectangle(at, box), padding),
     );

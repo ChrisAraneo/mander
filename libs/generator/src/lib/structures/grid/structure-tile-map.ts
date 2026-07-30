@@ -2,8 +2,8 @@ import {
   type Level,
   type Palette,
   type Tile,
-  TILE_EMPTY,
-  TILE_SOLID,
+  TILE_AIR,
+  TILE_DIRT,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
 } from '@mander/engine';
@@ -14,10 +14,10 @@ import { BLOCK, SPIKE, SPIKE_CEILING, type Structure } from '../types';
 
 const tileFor = (cell: number): Tile =>
   match(cell)
-    .with(BLOCK, (): Tile => TILE_SOLID)
+    .with(BLOCK, (): Tile => TILE_DIRT)
     .with(SPIKE, (): Tile => TILE_SPIKE)
     .with(SPIKE_CEILING, (): Tile => TILE_SPIKE_CEILING)
-    .otherwise((): Tile => TILE_EMPTY);
+    .otherwise((): Tile => TILE_AIR);
 
 const EMPTY_PALETTE: Palette = {
   sky: ['', '', ''],

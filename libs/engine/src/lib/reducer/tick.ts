@@ -1,10 +1,10 @@
 import {
-  CHEST_BOX,
+  CHEST_ENTITY_BOX,
   findChestTile,
   findKeyTile,
   findPortalTile,
-  KEY_BOX,
-  PORTAL_BOX,
+  KEY_ENTITY_BOX,
+  PORTAL_ENTITY_BOX,
 } from '@mander/model';
 import { filter, map, some } from 'lodash-es';
 import { match, P } from 'ts-pattern';
@@ -112,13 +112,10 @@ const resolveHarm = (
     hasHeartsLeft: player.hearts.value > 0,
   })
     .with({ fellIntoPit: true }, () => fell(state, player))
-    .with(
-      { struck: true, hasHeartsLeft: true },
-      (): Outcome => ({
-        player: hurt(player),
-        deaths: state.deaths,
-      }),
-    )
+    .with({ struck: true, hasHeartsLeft: true }, (): Outcome => ({
+      player: hurt(player),
+      deaths: state.deaths,
+    }))
     .with({ struck: true }, (): Outcome => struckDown(state, player))
     .otherwise((): Outcome => ({ player, deaths: state.deaths }));
 
@@ -141,14 +138,19 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         hasKey:
           state.hasKey ||
           (canReach &&
-            isNearTile(player, findKeyTile(state.level), KEY_BOX, PICKUP_RANGE)),
+            isNearTile(
+              player,
+              findKeyTile(state.level),
+              KEY_ENTITY_BOX,
+              PICKUP_RANGE,
+            )),
         isNearChest:
           !state.isChestOpened &&
           canReach &&
           isNearTile(
             player,
             findChestTile(state.level),
-            CHEST_BOX,
+            CHEST_ENTITY_BOX,
             INTERACT_RANGE,
           ),
         isNearPortal:
@@ -156,7 +158,7 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
           isNearTile(
             player,
             findPortalTile(state.level),
-            PORTAL_BOX,
+            PORTAL_ENTITY_BOX,
             INTERACT_RANGE,
           ),
       };

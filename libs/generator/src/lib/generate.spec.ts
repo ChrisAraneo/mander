@@ -26,14 +26,13 @@ import { CHEST_ITEM_COUNT, ITEM_CATALOG, rollChestItems } from './items';
 import { createRng } from './rng';
 import { maxJumpColumns } from './structures/grid';
 import {
-  CHEST_BOX,
-  entityRectangle,
+  CHEST_ENTITY_BOX,
   findChestTile,
   findKeyTile,
   findPortalTile,
   findSpawnTile,
   isSolidTile,
-  KEY_BOX,
+  KEY_ENTITY_BOX,
   type Level,
   TILE_CHEST,
   TILE_KEY,
@@ -41,6 +40,7 @@ import {
   TILE_SIZE,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
+  toEntityRectangle,
 } from '@mander/engine';
 
 const groundHeights = (level: Level): number[] => {
@@ -176,14 +176,17 @@ const tileOrThrow = (tile: Point | null, name: string): Point => {
 };
 
 const keySurface = (level: Level): Surface => {
-  const key = entityRectangle(tileOrThrow(findKeyTile(level), 'key'), KEY_BOX);
+  const key = toEntityRectangle(
+    tileOrThrow(findKeyTile(level), 'key'),
+    KEY_ENTITY_BOX,
+  );
   return surfaceUnder(level, key.x + key.width / 2, key.y + key.height);
 };
 
 const chestSurface = (level: Level): Surface => {
-  const chest = entityRectangle(
+  const chest = toEntityRectangle(
     tileOrThrow(findChestTile(level), 'chest'),
-    CHEST_BOX,
+    CHEST_ENTITY_BOX,
   );
   return surfaceUnder(level, chest.x + chest.width / 2, chest.y + chest.height);
 };

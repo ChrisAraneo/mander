@@ -24,13 +24,13 @@ import {
   type Level,
   type Palette,
   type Tile,
+  TILE_AIR,
   TILE_CHEST,
-  TILE_EMPTY,
+  TILE_DIRT,
   TILE_KEY,
   TILE_PORTAL,
   TILE_SPAWN,
   TILE_SIZE,
-  TILE_SOLID,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
 } from '@mander/model';
@@ -66,15 +66,15 @@ const CARDS: Item[] = [
 const testLevel = (enemies: Point[] = []): Level => {
   const tiles: Tile[][] = [];
   for (let y = 0; y < HEIGHT; y++) {
-    const fillTile: Tile = y >= 12 ? TILE_SOLID : TILE_EMPTY;
+    const fillTile: Tile = y >= 12 ? TILE_DIRT : TILE_AIR;
     const row: Tile[] = Array.from({ length: WIDTH }, () => fillTile);
-    row[0] = TILE_SOLID;
-    row[WIDTH - 1] = TILE_SOLID;
+    row[0] = TILE_DIRT;
+    row[WIDTH - 1] = TILE_DIRT;
     tiles.push(row);
   }
   for (let y = 12; y < HEIGHT; y++) {
-    tiles[y][10] = TILE_EMPTY;
-    tiles[y][11] = TILE_EMPTY;
+    tiles[y][10] = TILE_AIR;
+    tiles[y][11] = TILE_AIR;
   }
   const groundRow = SURFACE / TILE_SIZE;
   tiles[groundRow - 1][2] = TILE_SPAWN;
@@ -164,7 +164,7 @@ describe('movement actions', () => {
 
   it('is too tall to squeeze under a ceiling one tile above the ground', () => {
     const level = testLevel();
-    level.tiles[10][6] = TILE_SOLID;
+    level.tiles[10][6] = TILE_DIRT;
     let state = createInitialState(level, 0, []);
     state = {
       ...state,
@@ -724,7 +724,7 @@ const spikeLevel = (col: number): Level => {
 
 const ceilingSpikeLevel = (col: number, row: number): Level => {
   const level = testLevel();
-  level.tiles[row - 1][col] = TILE_SOLID;
+  level.tiles[row - 1][col] = TILE_DIRT;
   level.tiles[row][col] = TILE_SPIKE_CEILING;
   return level;
 };

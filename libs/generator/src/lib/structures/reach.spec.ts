@@ -1,7 +1,7 @@
 import {
   checkPlayerReach,
-  TILE_EMPTY,
-  TILE_SOLID,
+  TILE_AIR,
+  TILE_DIRT,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
 } from '@mander/engine';
@@ -56,9 +56,9 @@ describe('structureTileMap', () => {
     expect(tiles.width).toBe(SECTOR_WIDTH);
     expect(tiles.height).toBe(STRUCTURE_HEIGHT);
     expect(tiles.tiles[0].slice(0, 5)).toEqual([
-      TILE_EMPTY,
-      TILE_SOLID,
-      TILE_EMPTY,
+      TILE_AIR,
+      TILE_DIRT,
+      TILE_AIR,
       TILE_SPIKE,
       TILE_SPIKE_CEILING,
     ]);

@@ -41,11 +41,8 @@ export const advanceEnemy = (
   deltaSeconds: number,
 ): Enemy =>
   match(enemy.timers.death)
-    .with(
-      P.number,
-      (death): Enemy => ({
-        ...enemy,
-        timers: { ...enemy.timers, death: death + deltaSeconds },
-      }),
-    )
+    .with(P.number, (death): Enemy => ({
+      ...enemy,
+      timers: { ...enemy.timers, death: death + deltaSeconds },
+    }))
     .otherwise(() => patrol(level, enemy, player, deltaSeconds));

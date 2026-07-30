@@ -45,12 +45,10 @@ const startState = (baseSeed: string): GameState => {
 const tickStream = (): Observable<Action> =>
   animationFrames().pipe(
     pairwise(),
-    map(
-      ([previous, current]): Action => ({
-        type: 'TICK',
-        deltaSeconds: (current.timestamp - previous.timestamp) / 1000,
-      }),
-    ),
+    map(([previous, current]): Action => ({
+      type: 'TICK',
+      deltaSeconds: (current.timestamp - previous.timestamp) / 1000,
+    })),
   );
 
 const syncDebugGlobals = (

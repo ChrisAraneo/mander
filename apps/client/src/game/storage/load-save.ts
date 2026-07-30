@@ -25,16 +25,13 @@ const fromRaw = (raw: string | null): SaveData =>
     .with(nullish, () => emptySave())
     .otherwise((rawValue) =>
       match(JSON.parse(rawValue) as unknown)
-        .with(
-          P.when(isSaveShape),
-          (shaped): SaveData => ({
-            inventory: arrayOrEmpty<Item>(shaped.inventory),
-            completedLevels: arrayOrEmpty<string>(shaped.completedLevels),
-            lastSeed: match(shaped.lastSeed)
-              .with(P.when(isString), (value) => value)
-              .otherwise(() => null),
-          }),
-        )
+        .with(P.when(isSaveShape), (shaped): SaveData => ({
+          inventory: arrayOrEmpty<Item>(shaped.inventory),
+          completedLevels: arrayOrEmpty<string>(shaped.completedLevels),
+          lastSeed: match(shaped.lastSeed)
+            .with(P.when(isString), (value) => value)
+            .otherwise(() => null),
+        }))
         .otherwise(() => emptySave()),
     );
 

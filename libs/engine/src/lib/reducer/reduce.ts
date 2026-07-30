@@ -21,20 +21,18 @@ const heartGain = (item: Item): number =>
 const startJump = (state: GameState): GameState =>
   match(state.input.isJump)
     .with(true, (): GameState => state)
-    .otherwise(
-      (): GameState => ({
-        ...withInput(state, { isJump: true }),
-        player: match({
-          status: state.status,
-          death: state.player.timers.death,
-        })
-          .with({ status: 'PLAYING', death: null }, () => ({
-            ...state.player,
-            statuses: { ...state.player.statuses, isJumpQueued: true },
-          }))
-          .otherwise(() => state.player),
-      }),
-    );
+    .otherwise((): GameState => ({
+      ...withInput(state, { isJump: true }),
+      player: match({
+        status: state.status,
+        death: state.player.timers.death,
+      })
+        .with({ status: 'PLAYING', death: null }, () => ({
+          ...state.player,
+          statuses: { ...state.player.statuses, isJumpQueued: true },
+        }))
+        .otherwise(() => state.player),
+    }));
 
 const withItem = (state: GameState, item: Item): GameState => {
   const inventory = concat(state.inventory, item);
@@ -70,19 +68,17 @@ const chooseItem = (state: GameState, index: number): GameState =>
 
 const interact = (state: GameState): GameState =>
   match(state.status)
-    .with(
-      'PLAYING',
-      (): GameState =>
-        match({ isNearChest: state.isNearChest, hasKey: state.hasKey })
-          .with(
-            { isNearChest: true, hasKey: true },
-            (): GameState => ({ ...state, status: 'CHEST' }),
-          )
-          .otherwise(() =>
-            match(state.isNearPortal)
-              .with(true, (): GameState => ({ ...state, status: 'COMPLETE' }))
-              .otherwise((): GameState => state),
-          ),
+    .with('PLAYING', (): GameState =>
+      match({ isNearChest: state.isNearChest, hasKey: state.hasKey })
+        .with({ isNearChest: true, hasKey: true }, (): GameState => ({
+          ...state,
+          status: 'CHEST',
+        }))
+        .otherwise(() =>
+          match(state.isNearPortal)
+            .with(true, (): GameState => ({ ...state, status: 'COMPLETE' }))
+            .otherwise((): GameState => state),
+        ),
     )
     .with('CHEST', (): GameState => chooseItem(state, 0))
     .otherwise((): GameState => state);
@@ -94,13 +90,10 @@ const close = (state: GameState): GameState =>
 
 const respawn = (state: GameState): GameState =>
   match(state.status)
-    .with(
-      'PLAYING',
-      (): GameState => ({
-        ...state,
-        player: createPlayer(state.level, state.player),
-      }),
-    )
+    .with('PLAYING', (): GameState => ({
+      ...state,
+      player: createPlayer(state.level, state.player),
+    }))
     .otherwise((): GameState => state);
 
 const loadLevel = (

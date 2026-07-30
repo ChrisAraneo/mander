@@ -1,8 +1,8 @@
 import {
-  entityRectangle,
   findPortalTile,
   type GameState,
-  PORTAL_BOX,
+  PORTAL_ENTITY_BOX,
+  toEntityRectangle,
 } from '@mander/engine';
 import type { Rectangle } from '@mander/utils';
 import { forEach, range } from 'lodash-es';
@@ -73,7 +73,7 @@ export const drawPortal = (
   const tile = findPortalTile(state.level);
   if (tile === null) return;
 
-  const portal = entityRectangle(tile, PORTAL_BOX);
+  const portal = toEntityRectangle(tile, PORTAL_ENTITY_BOX);
   const centerX = portal.x + portal.width / 2;
   const centerY = portal.y + portal.height / 2;
   const pulse = 1 + Math.sin(state.time * 3) * 0.05;

@@ -1,8 +1,8 @@
 import {
-  entityRectangle,
   findKeyTile,
   type GameState,
-  KEY_BOX,
+  KEY_ENTITY_BOX,
+  toEntityRectangle,
 } from '@mander/engine';
 
 const drawKeyGlyph = (
@@ -28,7 +28,7 @@ export const drawKey = (
   const tile = findKeyTile(state.level);
   if (state.hasKey || tile === null) return;
 
-  const key = entityRectangle(tile, KEY_BOX);
+  const key = toEntityRectangle(tile, KEY_ENTITY_BOX);
   const bob = Math.sin(state.time * 3) * 3;
   const centerX = key.x + key.width / 2;
   const centerY = key.y + key.height / 2 + bob;

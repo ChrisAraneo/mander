@@ -45,15 +45,15 @@ import {
 import {
   type Level,
   type Tile,
+  TILE_AIR,
   TILE_BRICK,
   TILE_CERAMIC,
   TILE_CHEST,
-  TILE_EMPTY,
+  TILE_DIRT,
   TILE_ENEMY,
   TILE_KEY,
   TILE_PORTAL,
   TILE_SIZE,
-  TILE_SOLID,
   TILE_SPIKE,
   TILE_SPAWN,
   TILE_SPIKE_CEILING,
@@ -107,34 +107,25 @@ const placedCell = (
   columnGround: number,
 ): PlacedCell =>
   match(cell)
-    .with(
-      BLOCK,
-      (): PlacedCell =>
-        match(absoluteRow < groundSurfaceRow)
-          .with(
-            true,
-            (): PlacedCell => ({
-              kind: 'PLATFORM',
-              platform: {
-                column,
-                row: absoluteRow,
-                isOverHole: columnGround === 0,
-              },
-            }),
-          )
-          .otherwise((): PlacedCell => ({ kind: 'NONE' })),
+    .with(BLOCK, (): PlacedCell =>
+      match(absoluteRow < groundSurfaceRow)
+        .with(true, (): PlacedCell => ({
+          kind: 'PLATFORM',
+          platform: {
+            column,
+            row: absoluteRow,
+            isOverHole: columnGround === 0,
+          },
+        }))
+        .otherwise((): PlacedCell => ({ kind: 'NONE' })),
     )
-    .with(
-      ENEMY,
-      (): PlacedCell => ({
-        kind: 'ENEMY',
-        enemy: { x: column, y: absoluteRow },
-      }),
-    )
+    .with(ENEMY, (): PlacedCell => ({
+      kind: 'ENEMY',
+      enemy: { x: column, y: absoluteRow },
+    }))
     .with(SPIKE, (): PlacedCell => spikeCell(column, absoluteRow, TILE_SPIKE))
-    .with(
-      SPIKE_CEILING,
-      (): PlacedCell => spikeCell(column, absoluteRow, TILE_SPIKE_CEILING),
+    .with(SPIKE_CEILING, (): PlacedCell =>
+      spikeCell(column, absoluteRow, TILE_SPIKE_CEILING),
     )
     .otherwise((): PlacedCell => ({ kind: 'NONE' }));
 
@@ -291,7 +282,7 @@ const isWallColumn = (column: number, width: number): boolean =>
   column === 0 || column === width - 1;
 
 const MATERIALS: Tile[] = [
-  TILE_SOLID,
+  TILE_DIRT,
   TILE_BRICK,
   TILE_STONE,
   TILE_WOOD,
@@ -330,7 +321,7 @@ const tileAt = (
       P.when(() => platformCells.has(`${row}:${column}`)),
       (): Tile => materials[column],
     )
-    .otherwise((): Tile => TILE_EMPTY);
+    .otherwise((): Tile => TILE_AIR);
 
 const paintTiles = (
   ground: number[],
@@ -409,7 +400,7 @@ const hasSpikeClearance = (
 ): boolean =>
   filter(
     range(spikeRow - SPIKE_CLEARANCE, spikeRow + 1),
-    (row) => !(row >= 0 && tiles[row][column] === TILE_EMPTY),
+    (row) => !(row >= 0 && tiles[row][column] === TILE_AIR),
   ).length === 0;
 
 const isHole = (ground: number[], column: number): boolean =>
@@ -587,7 +578,7 @@ const stampEntities = (
     map(rowTiles, (tile, column) =>
       match({ entityTile: stamped[`${row}:${column}`], tile })
         .with({ entityTile: nullish }, (): Tile => tile)
-        .with({ tile: TILE_EMPTY }, ({ entityTile }): Tile => entityTile)
+        .with({ tile: TILE_AIR }, ({ entityTile }): Tile => entityTile)
         .otherwise((): Tile => tile),
     ),
   );

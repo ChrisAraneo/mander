@@ -14,24 +14,22 @@ export const stepPlayerDeath = (
   const deltaSeconds = Math.min(elapsedSeconds, MAX_TICK_SECONDS);
   return match(death + deltaSeconds >= PLAYER_DEATH_SECONDS)
     .with(true, () => createPlayer(level, player))
-    .otherwise(
-      (): Player => ({
-        ...player,
-        position: {
-          ...player.position,
-          y: player.position.y + player.velocity.y.current * deltaSeconds,
+    .otherwise((): Player => ({
+      ...player,
+      position: {
+        ...player.position,
+        y: player.position.y + player.velocity.y.current * deltaSeconds,
+      },
+      velocity: {
+        ...player.velocity,
+        y: {
+          ...player.velocity.y,
+          current: Math.min(
+            player.velocity.y.current + GRAVITY * deltaSeconds,
+            TERMINAL_VELOCITY,
+          ),
         },
-        velocity: {
-          ...player.velocity,
-          y: {
-            ...player.velocity.y,
-            current: Math.min(
-              player.velocity.y.current + GRAVITY * deltaSeconds,
-              TERMINAL_VELOCITY,
-            ),
-          },
-        },
-        timers: { ...player.timers, death: death + deltaSeconds },
-      }),
-    );
+      },
+      timers: { ...player.timers, death: death + deltaSeconds },
+    }));
 };
