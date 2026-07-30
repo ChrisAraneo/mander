@@ -1,4 +1,5 @@
 import {
+  materialStyle,
   type Tile,
   TILE_BRICK,
   TILE_CERAMIC,
@@ -9,8 +10,8 @@ import {
 import { forEach, range } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-const JOINT = 'RGBA(0, 0, 0, 0.22)';
-const HIGHLIGHT = 'RGBA(255, 255, 255, 0.12)';
+const JOINT = materialStyle(TILE_BRICK).joint;
+const HIGHLIGHT = materialStyle(TILE_BRICK).highlight;
 
 const drawBrick = (
   context: CanvasRenderingContext2D,
@@ -48,7 +49,7 @@ const drawStone = (
 const PLANK_TONES = ['#96694f', '#8b6350', '#9d725c', '#7f5c4a', '#8e6753'];
 const PLANK_TOP = 'RGBA(214, 164, 134, 0.22)';
 const PLANK_BOTTOM = 'RGBA(46, 30, 22, 0.20)';
-const PLANK_SEAM = 'RGBA(52, 38, 30, 0.85)';
+const PLANK_SEAM = materialStyle(TILE_WOOD).joint;
 const GRAIN_DARK = 'RGBA(74, 52, 38, 0.22)';
 const GRAIN_LIGHT = 'RGBA(220, 174, 142, 0.16)';
 

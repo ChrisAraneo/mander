@@ -2,6 +2,7 @@ export * from './brush';
 export * from './brush-groups';
 export * from './brushes';
 export * from './cell-class';
+export * from './cell-style';
 export * from './clone-grid';
 export * from './create-grid';
 export * from './preset';

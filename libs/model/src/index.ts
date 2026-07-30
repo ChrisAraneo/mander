@@ -27,6 +27,8 @@ export * from './lib/chest/chest';
 export * from './lib/blocks/consts';
 export * from './lib/blocks/dirt';
 export * from './lib/blocks/is-solid-tile';
+export * from './lib/blocks/material-style';
+export * from './lib/blocks/material-styles';
 export * from './lib/key/key';
 export * from './lib/portal/portal';
 export * from './lib/player/spawn';

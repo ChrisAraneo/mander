@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BRUSH_GROUPS, cellClass } from '../editor';
+import { BRUSH_GROUPS, cellClass, cellStyle } from '../editor';
 
 defineProps<{ brush: number }>();
 
@@ -17,7 +17,10 @@ const emit = defineEmits<{ pick: [value: number] }>();
         class="brush"
         :class="{ active: option.value === brush }"
         @click="emit('pick', option.value)">
-        <span class="swatch" :class="cellClass(option.value)" />
+        <span
+          class="swatch"
+          :class="cellClass(option.value)"
+          :style="cellStyle(option.value)" />
         <span class="label">{{ option.label }}</span>
         <kbd>{{ option.shortcut }}</kbd>
       </button>

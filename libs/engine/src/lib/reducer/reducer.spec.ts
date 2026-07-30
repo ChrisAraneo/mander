@@ -471,6 +471,46 @@ describe('enemies', () => {
     ).toBe(true);
   });
 
+  it('is gone for good once it drops into the pit — enemies never respawn', () => {
+    let state = withEnemy();
+    state = tickN(state, 5);
+    expect(
+      state.enemies,
+      'the enemy is on the floor to begin with',
+    ).toHaveLength(1);
+
+    // drop it over the pit the level carves at columns 10 and 11
+    state = {
+      ...state,
+      enemies: [
+        {
+          ...state.enemies[0],
+          position: { x: 10 * TILE_SIZE + 4, y: floorEnemyY },
+          statuses: { ...state.enemies[0].statuses, isGrounded: false },
+        },
+      ],
+    };
+
+    state = tickN(state, 300);
+    expect(
+      state.enemies,
+      'it fell out of the world and stayed out',
+    ).toHaveLength(0);
+  });
+
+  it('does not bring enemies back when the player respawns', () => {
+    let state = withEnemy();
+    state = tickN(state, 5);
+    const enemyX = state.enemies[0].position.x;
+
+    state = act(state, { type: 'RESPAWN' });
+    expect(state.player.position.x, 'the player went back to spawn').toBe(
+      SPAWN_X,
+    );
+    expect(state.enemies, 'the enemy is still there').toHaveLength(1);
+    expect(state.enemies[0].position.x, 'and did not move').toBe(enemyX);
+  });
+
   it('spawns the new levels enemies on LOAD_LEVEL', () => {
     let state = withEnemy();
     expect(state.enemies).toHaveLength(1);

@@ -1,6 +1,7 @@
 import {
   isSolidTile,
   type Level,
+  materialStyle,
   TILE_SIZE,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
@@ -21,18 +22,21 @@ const drawSolidTile = (
 ): void => {
   const pixelX = column * TILE_SIZE;
   const pixelY = row * TILE_SIZE;
-  context.fillStyle = level.palette.block;
+  const tile = level.tiles[row][column];
+  const style = materialStyle(tile);
+
+  context.fillStyle = style.base;
   context.fillRect(pixelX, pixelY, TILE_SIZE, TILE_SIZE);
-  drawMaterial(context, level.tiles[row][column], pixelX, pixelY);
+  drawMaterial(context, tile, pixelX, pixelY);
   context.fillStyle = 'RGBA(0, 0, 0, 0.14)';
   context.fillRect(pixelX, pixelY + TILE_SIZE - 3, TILE_SIZE, 3);
   context.fillRect(pixelX + TILE_SIZE - 2, pixelY, 2, TILE_SIZE);
 
   match(solidAt(level, column, row - 1))
     .with(false, () => {
-      context.fillStyle = level.palette.blockCap;
+      context.fillStyle = style.cap;
       context.fillRect(pixelX, pixelY, TILE_SIZE, 7);
-      context.fillStyle = level.palette.blockCapHighlight;
+      context.fillStyle = style.capHighlight;
       context.fillRect(pixelX, pixelY, TILE_SIZE, 3);
     })
     .otherwise(() => undefined);

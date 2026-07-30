@@ -1,5 +1,4 @@
 import {
-  BLOCK,
   BRICK,
   CERAMIC,
   ENEMY,
@@ -10,9 +9,12 @@ import {
 } from '@mander/generator';
 import { match } from 'ts-pattern';
 
+/**
+ * Pattern overlay for a cell. Material base colours come from `cellStyle`;
+ * these classes only add the texture that identifies the material.
+ */
 export const cellClass = (value: number): string =>
   match(value)
-    .with(BLOCK, () => 'mat-dirt')
     .with(BRICK, () => 'mat-brick')
     .with(STONE, () => 'mat-stone')
     .with(WOOD, () => 'mat-wood')

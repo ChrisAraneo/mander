@@ -3,7 +3,7 @@ import { SECTOR_WIDTH, type Structure } from '@mander/generator';
 import { range } from 'lodash-es';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
-import { cellClass } from '../editor';
+import { cellClass, cellStyle } from '../editor';
 
 const props = defineProps<{
   grid: Structure;
@@ -62,6 +62,7 @@ onBeforeUnmount(() => window.removeEventListener('pointerup', stop));
         type="button"
         class="cell"
         :class="cellClass(cell)"
+        :style="cellStyle(cell)"
         :title="`row ${rowIndex}, column ${columnIndex} — value ${cell}`"
         @pointerdown="start(rowIndex, columnIndex, $event.button === 2)"
         @pointerenter="extend(rowIndex, columnIndex)" />

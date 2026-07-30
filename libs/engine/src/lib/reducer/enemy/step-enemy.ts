@@ -13,7 +13,7 @@ import { match } from 'ts-pattern';
 import { moveHorizontal } from '../collision/move-horizontal';
 import { moveVertical } from '../collision/move-vertical';
 import { resolveLanding } from '../collision/resolve-landing';
-import { ENEMY_HEIGHT, ENEMY_WIDTH } from './consts';
+import { ENEMY_DEATH_SECONDS, ENEMY_HEIGHT, ENEMY_WIDTH } from './consts';
 import { ledgeAhead } from './ledge-ahead';
 import { playerOverhead } from './player-overhead';
 import { spikeAhead } from './spike-ahead';
@@ -73,17 +73,22 @@ interface EnemyMotion {
   isGrounded: boolean;
 }
 
+/**
+ * An enemy that drops out of the world is gone for good — only the player
+ * respawns. Marking it fully faded lets the reducer drop it on this same tick.
+ */
+const lostToThePit = (enemy: Enemy): Enemy => ({
+  ...enemy,
+  velocity: {
+    x: { ...enemy.velocity.x, current: 0 },
+    y: { ...enemy.velocity.y, current: 0 },
+  },
+  timers: { ...enemy.timers, death: ENEMY_DEATH_SECONDS },
+});
+
 const toEnemy = (motion: EnemyMotion, enemy: Enemy, level: Level): Enemy =>
   match(motion.y > (level.height + 2) * TILE_SIZE)
-    .with(true, (): Enemy => ({
-      ...enemy,
-      position: { x: enemy.spawn.x, y: enemy.spawn.y },
-      velocity: {
-        x: { ...enemy.velocity.x, current: 0 },
-        y: { ...enemy.velocity.y, current: 0 },
-      },
-      statuses: { ...enemy.statuses, isGrounded: false },
-    }))
+    .with(true, (): Enemy => lostToThePit(enemy))
     .otherwise((): Enemy => ({
       position: { x: motion.x, y: motion.y },
       velocity: {
