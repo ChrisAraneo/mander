@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SECTOR_WIDTH, STRUCTURE_HEIGHT } from '@mander/generator';
+import { SECTOR_WIDTH, STRUCTURE_HEIGHT } from '@mander/structures';
 import { find } from 'lodash-es';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 

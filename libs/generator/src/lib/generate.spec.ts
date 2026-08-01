@@ -2,18 +2,23 @@ import type { Point } from '@mander/utils';
 import { describe, expect, it } from 'vitest';
 
 import {
+  maxJumpColumns,
+  NORMAL_STRUCTURES,
+  PLAYER_CLEARANCE,
+  SECTOR_WIDTH,
+} from '@mander/structures';
+
+import {
   BASE_GROUND,
   INTRO_WIDTH,
   LEVEL_WIDTH,
   LEVELS_PER_SEED,
   OUTRO_WIDTH,
-  PLAYER_CLEARANCE,
   SECTOR_COUNT,
-  SECTOR_WIDTH,
-  SPIKE_CLEARANCE,
-  SPIKE_MAX_RUN,
-  SPIKE_MIN_ENEMY_DISTANCE,
-  SPIKE_MIN_GAP,
+  SPIKE_BREAK_RUN,
+  SPIKE_CLEAR_LEVEL,
+  SPIKE_HALVED_UNTIL_LEVEL,
+  SPIKE_HEADROOM,
 } from './consts';
 import {
   dailyDate,
@@ -21,10 +26,10 @@ import {
   generateLevel,
   generateLevelSet,
   levelSeed,
+  rollStructure,
 } from './generate';
 import { CHEST_ITEM_COUNT, ITEM_CATALOG, rollChestItems } from './items';
 import { createRng } from './rng';
-import { maxJumpColumns } from './structures/grid';
 import {
   CHEST_ENTITY_BOX,
   findChestTile,
@@ -67,27 +72,21 @@ const countTiles = (level: Level, target: number): number => {
 
 const countSpikes = (level: Level): number => countTiles(level, TILE_SPIKE);
 
-const spikeColumns = (level: Level): number[] => {
-  const columns: number[] = [];
-  for (let x = 0; x < level.width; x++) {
-    for (let y = 0; y < level.height; y++) {
-      if (level.tiles[y][x] === TILE_SPIKE) {
-        columns.push(x);
-        break;
+/** The width of every stretch of spikes standing shoulder to shoulder. */
+const spikeRunWidths = (level: Level): number[] => {
+  const widths: number[] = [];
+  for (let y = 0; y < level.height; y++) {
+    let run = 0;
+    for (let x = 0; x < level.width; x++) {
+      if (level.tiles[y][x] === TILE_SPIKE) run++;
+      else if (run > 0) {
+        widths.push(run);
+        run = 0;
       }
     }
+    if (run > 0) widths.push(run);
   }
-  return columns;
-};
-
-const spikeRuns = (columns: number[]): number[][] => {
-  const runs: number[][] = [];
-  for (const column of columns) {
-    const last = runs.at(-1);
-    if (last && column === last.at(-1)! + 1) last.push(column);
-    else runs.push([column]);
-  }
-  return runs;
+  return widths;
 };
 
 interface HoleRun {
@@ -202,34 +201,16 @@ const CASES: Array<[string, number]> = SEEDS.flatMap((seed) =>
   ALL_LEVELS.map((d): [string, number] => [seed, d]),
 );
 
-const expectValidSpike = (
-  level: Level,
-  heights: number[],
-  enemyColumns: number[],
-  x: number,
-  y: number,
-): void => {
-  expect(x).toBeGreaterThanOrEqual(INTRO_WIDTH);
-  expect(x).toBeLessThan(LEVEL_WIDTH - OUTRO_WIDTH);
-  expect(y + 1, `spike sits on the ground at ${x}`).toBe(
-    level.height - heights[x],
-  );
+const expectValidSpike = (level: Level, x: number, y: number): void => {
   expect(
-    heights[x - 1],
-    `not the lip of a pit on the left at ${x}`,
-  ).toBeGreaterThan(0);
-  expect(
-    heights[x + 1],
-    `not the lip of a pit on the right at ${x}`,
-  ).toBeGreaterThan(0);
-  for (let r = y; r >= y - SPIKE_CLEARANCE; r--) {
-    expect(isSolidTile(level.tiles[r][x]), `clearance at row ${r}`).toBe(false);
-  }
-  for (const ec of enemyColumns) {
+    isSolidTile(level.tiles[y + 1][x]),
+    `spike at ${x}:${y} stands on something solid`,
+  ).toBe(true);
+  for (let r = y; r > y - SPIKE_HEADROOM; r--) {
     expect(
-      Math.abs(ec - x),
-      `spike ${x} near enemy ${ec}`,
-    ).toBeGreaterThanOrEqual(SPIKE_MIN_ENEMY_DISTANCE);
+      isSolidTile(level.tiles[r][x]),
+      `spike at ${x}:${y} wants ${SPIKE_HEADROOM} clear rows, row ${r} is solid`,
+    ).toBe(false);
   }
 };
 
@@ -342,9 +323,10 @@ describe('generateLevel', () => {
   );
 
   it.each(CASES)(
-    'bridges every hole with a platform the player can cross for %s level %i',
+    'leaves every hole crossable, by bridge or by jump, for %s level %i',
     (seed, d) => {
       const level = generateLevel(levelSeed(seed, d), d);
+      const heights = groundHeights(level);
       for (const run of holeRuns(level)) {
         expect(run.start, `hole at ${run.start}`).toBeGreaterThanOrEqual(
           INTRO_WIDTH,
@@ -353,15 +335,24 @@ describe('generateLevel', () => {
           run.start + run.width,
           `hole at ${run.start}`,
         ).toBeLessThanOrEqual(level.width - OUTRO_WIDTH);
-        let floating = 0;
+
+        let bridge = 0;
         for (let x = run.start; x < run.start + run.width; x++) {
           for (let r = 0; r < level.height; r++) {
-            if (isSolidTile(level.tiles[r][x])) floating++;
+            if (isSolidTile(level.tiles[r][x])) bridge++;
           }
         }
-        expect(floating, `no bridge over hole at ${run.start}`).toBeGreaterThan(
-          0,
-        );
+        // A hole is fair either because something spans it, or because it is
+        // narrow enough to clear in one hop from lip to lip.
+        const left = run.start - 1;
+        const right = run.start + run.width;
+        // the level has to work in both directions, so cost the climb
+        const rise = Math.abs(heights[right] - heights[left]);
+        const jump = run.width + 1 <= maxJumpColumns(rise);
+        expect(
+          bridge > 0 || jump,
+          `hole at ${run.start} is ${run.width} wide over a rise of ${rise}: no bridge and too far to jump`,
+        ).toBe(true);
       }
     },
   );
@@ -422,6 +413,35 @@ describe('generateLevel', () => {
   );
 
   it.each(CASES)(
+    'always lands the key, chest, portal and spawn on the map for %s level %i',
+    (seed, d) => {
+      const level = generateLevel(levelSeed(seed, d), d);
+      // Entities only stamp onto air, so a spike sitting on the chosen support
+      // silently swallows them — a level with no key can never be finished.
+      expect(findKeyTile(level), 'key').not.toBeNull();
+      expect(findChestTile(level), 'chest').not.toBeNull();
+      expect(findPortalTile(level), 'portal').not.toBeNull();
+      expect(findSpawnTile(level), 'spawn').not.toBeNull();
+    },
+  );
+
+  it.each(CASES)(
+    'hangs every ceiling spike off something solid for %s level %i',
+    (seed, d) => {
+      const level = generateLevel(levelSeed(seed, d), d);
+      for (let y = 0; y < level.height; y++) {
+        for (let x = 0; x < level.width; x++) {
+          if (level.tiles[y][x] !== TILE_SPIKE_CEILING) continue;
+          expect(
+            isSolidTile(level.tiles[y - 1][x]),
+            `ceiling spike at ${x}:${y} hangs off nothing`,
+          ).toBe(true);
+        }
+      }
+    },
+  );
+
+  it.each(CASES)(
     'hides the key in the middle of the level for %s level %i',
     (seed, d) => {
       const level = generateLevel(levelSeed(seed, d), d);
@@ -463,57 +483,51 @@ describe('generateLevel', () => {
   });
 
   it.each(CASES)(
-    'places every spike on flat ground with clearance, away from enemies, for %s level %i',
+    'stands every spike on a block with headroom for %s level %i',
     (seed, d) => {
       const level = generateLevel(levelSeed(seed, d), d);
-      const heights = groundHeights(level);
-      const enemyColumns = level.enemies.map((e) => e.x);
       for (let y = 0; y < level.height; y++) {
         for (let x = 0; x < level.width; x++) {
-          if (level.tiles[y][x] === TILE_SPIKE) {
-            expectValidSpike(level, heights, enemyColumns, x, y);
-          }
+          if (level.tiles[y][x] === TILE_SPIKE) expectValidSpike(level, x, y);
         }
       }
     },
   );
 
   it.each(CASES)(
-    'runs spikes at most SPIKE_MAX_RUN wide for %s level %i',
+    'never leaves a wall of spikes standing for %s level %i',
     (seed, d) => {
       const level = generateLevel(levelSeed(seed, d), d);
-      for (const run of spikeRuns(spikeColumns(level))) {
-        expect(run.length, `run starting at ${run[0]}`).toBeLessThanOrEqual(
-          SPIKE_MAX_RUN,
-        );
+      for (const width of spikeRunWidths(level)) {
+        expect(width, 'spike run').toBeLessThan(SPIKE_BREAK_RUN);
       }
     },
   );
 
   it.each(CASES)(
-    'keeps SPIKE_MIN_GAP empty blocks between spike runs for %s level %i',
+    'never presses a spike against solid ground for %s level %i',
     (seed, d) => {
       const level = generateLevel(levelSeed(seed, d), d);
-      const runs = spikeRuns(spikeColumns(level));
-      for (let i = 1; i < runs.length; i++) {
-        const gap = runs[i][0] - runs[i - 1].at(-1)! - 1;
-        expect(
-          gap,
-          `gap between run ending at ${runs[i - 1].at(-1)} and run at ${runs[i][0]}`,
-        ).toBeGreaterThanOrEqual(SPIKE_MIN_GAP);
+      for (let y = 0; y < level.height; y++) {
+        for (let x = 1; x < level.width - 1; x++) {
+          if (level.tiles[y][x] !== TILE_SPIKE) continue;
+          expect(
+            isSolidTile(level.tiles[y][x - 1]) ||
+              isSolidTile(level.tiles[y][x + 1]),
+            `spike at ${x}:${y} is wedged against a wall`,
+          ).toBe(false);
+        }
       }
     },
   );
 
-  it.each(CASES)(
-    'never auto-generates ceiling spikes for %s level %i',
-    (seed, d) => {
-      const level = generateLevel(levelSeed(seed, d), d);
-      expect(countTiles(level, TILE_SPIKE_CEILING)).toBe(0);
-    },
-  );
+  it.each(SEEDS)('walks the first level of %s bare', (seed) => {
+    const level = generateLevel(levelSeed(seed, SPIKE_CLEAR_LEVEL), 0);
+    expect(countSpikes(level), 'floor spikes').toBe(0);
+    expect(countTiles(level, TILE_SPIKE_CEILING), 'ceiling spikes').toBe(0);
+  });
 
-  it('scatters spikes across a run of levels', () => {
+  it('scatters spikes across the rest of a run', () => {
     let total = 0;
     for (const seed of SEEDS) {
       for (const d of ALL_LEVELS)
@@ -522,17 +536,19 @@ describe('generateLevel', () => {
     expect(total, 'spikes should appear across a run').toBeGreaterThan(0);
   });
 
-  it('grows more spikes on hard levels than normal ones', () => {
-    let normal = 0;
-    let hard = 0;
+  it('thins the early levels and leaves the late ones whole', () => {
+    let halved = 0;
+    let whole = 0;
     for (const seed of SEEDS) {
       for (const d of ALL_LEVELS) {
         const spikes = countSpikes(generateLevel(levelSeed(seed, d), d));
-        if (d <= 3) normal += spikes;
-        else hard += spikes;
+        if (d === SPIKE_CLEAR_LEVEL) continue;
+        if (d <= SPIKE_HALVED_UNTIL_LEVEL) halved += spikes;
+        else whole += spikes;
       }
     }
-    expect(hard).toBeGreaterThan(normal);
+    expect(halved, 'the thinned levels still carry some').toBeGreaterThan(0);
+    expect(whole).toBeGreaterThan(halved);
   });
 
   it.each(SEEDS)('offers a single distinct chest item for %s', (seed) => {
@@ -603,5 +619,14 @@ describe('levelSeed', () => {
   it('derives a distinct seed per level index', () => {
     expect(levelSeed('ABC', 0)).toBe('ABC#0');
     expect(levelSeed('ABC', 1)).not.toBe(levelSeed('ABC', 0));
+  });
+});
+
+describe('rollStructure', () => {
+  it('is deterministic for the same rng state and returns a pool member', () => {
+    const a = rollStructure(createRng('SAME'), 'NORMAL');
+    const b = rollStructure(createRng('SAME'), 'NORMAL');
+    expect(a).toBe(b);
+    expect(NORMAL_STRUCTURES).toContain(a);
   });
 });

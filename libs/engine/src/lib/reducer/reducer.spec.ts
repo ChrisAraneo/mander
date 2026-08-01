@@ -842,6 +842,36 @@ describe('precise spike collision', () => {
   });
 });
 
+describe('lone spikes', () => {
+  const col = 6;
+  const left = col * TILE_SIZE;
+  // The left third of the tile, from the ground up to the prong tips.
+  const edgeBox = (level: Level, tileLeft: number): boolean =>
+    overlapsSpike(level, tileLeft + 1, 11 * TILE_SIZE + 8, 8, TILE_SIZE - 8);
+
+  it('leaves the tile edges clear when nothing sits beside it', () => {
+    expect(edgeBox(spikeLevel(col), left)).toBe(false);
+  });
+
+  it('still fills the tile when another spike sits beside it', () => {
+    const level = spikeLevel(col);
+    level.tiles[11][col + 1] = TILE_SPIKE;
+    expect(edgeBox(level, left)).toBe(true);
+  });
+
+  it('does not pair a floor spike with a ceiling spike beside it', () => {
+    const level = spikeLevel(col);
+    level.tiles[11][col + 1] = TILE_SPIKE_CEILING;
+    expect(edgeBox(level, left)).toBe(false);
+  });
+
+  it('is still lethal head on', () => {
+    expect(
+      overlapsSpike(spikeLevel(col), left, 11 * TILE_SIZE + 23, TILE_SIZE, 6),
+    ).toBe(true);
+  });
+});
+
 describe('hearts', () => {
   const emberHeart = (id = 'EMBER-HEART'): Item =>
     item(id, { kind: 'HEART', amount: 1 });

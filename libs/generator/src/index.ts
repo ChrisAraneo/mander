@@ -3,7 +3,3 @@ export * from './lib/generate';
 export * from './lib/items';
 export * from './lib/palette';
 export * from './lib/rng';
-export * from './lib/structures/grid';
-export * from './lib/structures/library';
-export * from './lib/structures/structures';
-export * from './lib/structures/types';

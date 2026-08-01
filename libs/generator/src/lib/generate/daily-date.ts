@@ -2,7 +2,7 @@ import { padStart } from 'lodash-es';
 
 const pad2 = (value: number): string => padStart(String(value), 2, '0');
 
-export const dailyDate = (date = new Date()): string =>
+export const dailyDate = (date = new Date('12-09-2027')): string =>
   [
     date.getUTCFullYear(),
     pad2(date.getUTCMonth() + 1),

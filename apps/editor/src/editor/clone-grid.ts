@@ -1,4 +1,4 @@
-import type { Structure } from '@mander/generator';
+import type { Structure } from '@mander/structures';
 import { map } from 'lodash-es';
 
 export const cloneGrid = (grid: Structure): Structure =>

@@ -2,7 +2,7 @@ import {
   HARD_STRUCTURES,
   NORMAL_STRUCTURES,
   type Structure,
-} from '@mander/generator';
+} from '@mander/structures';
 import { map } from 'lodash-es';
 
 import type { Preset } from './preset';

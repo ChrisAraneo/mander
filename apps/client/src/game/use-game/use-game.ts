@@ -19,7 +19,7 @@ import { onMounted, onUnmounted, type Ref, shallowRef } from 'vue';
 import { match, P } from 'ts-pattern';
 
 import { createKeyboard, type Keyboard } from '../input';
-import { renderGame, syncViewport } from '../render';
+import { renderGame, syncViewport } from '@mander/render';
 import {
   loadSave,
   markLevelCompleted,

@@ -1,5 +1,1 @@
-export interface Hsl {
-  hue: number;
-  saturation: number;
-  lightness: number;
-}
+export type { Hsl } from '@mander/utils';

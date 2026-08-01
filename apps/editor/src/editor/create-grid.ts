@@ -4,7 +4,7 @@ import {
   SECTOR_WIDTH,
   STRUCTURE_HEIGHT,
   type Structure,
-} from '@mander/generator';
+} from '@mander/structures';
 import { map, range, times } from 'lodash-es';
 
 const GROUND_ROW = STRUCTURE_HEIGHT - 1;

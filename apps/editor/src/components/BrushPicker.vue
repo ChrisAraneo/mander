@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { BRUSH_GROUPS, cellClass, cellStyle } from '../editor';
+import { BRUSH_GROUPS } from '../editor';
+import CellSwatch from './CellSwatch.vue';
 
 defineProps<{ brush: number }>();
 
@@ -17,10 +18,7 @@ const emit = defineEmits<{ pick: [value: number] }>();
         class="brush"
         :class="{ active: option.value === brush }"
         @click="emit('pick', option.value)">
-        <span
-          class="swatch"
-          :class="cellClass(option.value)"
-          :style="cellStyle(option.value)" />
+        <CellSwatch :value="option.value" />
         <span class="label">{{ option.label }}</span>
         <kbd>{{ option.shortcut }}</kbd>
       </button>
@@ -75,14 +73,6 @@ h3 {
 
 .label {
   flex: 1;
-}
-
-.swatch {
-  width: 20px;
-  height: 20px;
-  flex: none;
-  border: 1px solid #222c3c;
-  border-radius: 3px;
 }
 
 kbd {

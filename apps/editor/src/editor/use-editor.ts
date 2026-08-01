@@ -4,7 +4,7 @@ import {
   formatStructure,
   structureIssues,
   type Structure,
-} from '@mander/generator';
+} from '@mander/structures';
 import { computed, ref } from 'vue';
 
 import { cloneGrid } from './clone-grid';

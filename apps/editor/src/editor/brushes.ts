@@ -8,7 +8,7 @@ import {
   SPIKE_CEILING,
   STONE,
   WOOD,
-} from '@mander/generator';
+} from '@mander/structures';
 
 import type { Brush } from './brush';
 

@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { SECTOR_WIDTH, type Structure } from '@mander/generator';
-import { range } from 'lodash-es';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { TILE_SIZE } from '@mander/engine';
+import {
+  SECTOR_WIDTH,
+  STRUCTURE_HEIGHT,
+  type Structure,
+} from '@mander/structures';
+import { forEach, range } from 'lodash-es';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
-import { cellClass, cellStyle } from '../editor';
+import { drawStructure, fitCanvas } from '../editor';
 
 const props = defineProps<{
   grid: Structure;
@@ -16,29 +21,116 @@ const emit = defineEmits<{
   paint: [row: number, column: number, value: number];
 }>();
 
+const WIDTH = SECTOR_WIDTH * TILE_SIZE;
+const HEIGHT = STRUCTURE_HEIGHT * TILE_SIZE;
+
+const GRID_LINE = 'rgba(159, 176, 195, 0.13)';
+const HOVER_LINE = '#f4762c';
+
+const columns = range(SECTOR_WIDTH);
+const rows = range(STRUCTURE_HEIGHT);
+
+interface Cell {
+  row: number;
+  column: number;
+}
+
+const canvas = ref<HTMLCanvasElement | null>(null);
+const context = ref<CanvasRenderingContext2D | null>(null);
+const hover = ref<Cell | null>(null);
 const isPainting = ref(false);
 const strokeValue = ref(props.brush);
 
-const columns = range(SECTOR_WIDTH);
-
-function start(row: number, column: number, isErase: boolean): void {
-  strokeValue.value = isErase ? props.eraseValue : props.brush;
-  isPainting.value = true;
-  emit('strokeStart');
-  emit('paint', row, column, strokeValue.value);
+/** Editor chrome, drawn over the game graphics rather than baked into them. */
+function drawGridLines(target: CanvasRenderingContext2D): void {
+  target.strokeStyle = GRID_LINE;
+  target.lineWidth = 1;
+  forEach(range(SECTOR_WIDTH + 1), (column) => {
+    target.beginPath();
+    target.moveTo(column * TILE_SIZE + 0.5, 0);
+    target.lineTo(column * TILE_SIZE + 0.5, HEIGHT);
+    target.stroke();
+  });
+  forEach(range(STRUCTURE_HEIGHT + 1), (row) => {
+    target.beginPath();
+    target.moveTo(0, row * TILE_SIZE + 0.5);
+    target.lineTo(WIDTH, row * TILE_SIZE + 0.5);
+    target.stroke();
+  });
 }
 
-function extend(row: number, column: number): void {
-  if (!isPainting.value) return;
-  emit('paint', row, column, strokeValue.value);
+function drawHover(target: CanvasRenderingContext2D): void {
+  const cell = hover.value;
+  if (cell === null) return;
+  target.strokeStyle = HOVER_LINE;
+  target.lineWidth = 2;
+  target.strokeRect(
+    cell.column * TILE_SIZE + 1,
+    cell.row * TILE_SIZE + 1,
+    TILE_SIZE - 2,
+    TILE_SIZE - 2,
+  );
+}
+
+function repaint(): void {
+  const target = context.value;
+  if (target === null) return;
+  drawStructure(target, props.grid);
+  drawGridLines(target);
+  drawHover(target);
+}
+
+/** Reads through the element's box, so a scaled canvas still maps correctly. */
+function cellAt(event: PointerEvent): Cell | null {
+  const element = canvas.value;
+  if (element === null) return null;
+  const box = element.getBoundingClientRect();
+  const column = Math.floor(
+    ((event.clientX - box.left) / box.width) * SECTOR_WIDTH,
+  );
+  const row = Math.floor(
+    ((event.clientY - box.top) / box.height) * STRUCTURE_HEIGHT,
+  );
+  const isInside =
+    column >= 0 && column < SECTOR_WIDTH && row >= 0 && row < STRUCTURE_HEIGHT;
+  return isInside ? { row, column } : null;
+}
+
+function start(event: PointerEvent): void {
+  const cell = cellAt(event);
+  if (cell === null) return;
+  strokeValue.value = event.button === 2 ? props.eraseValue : props.brush;
+  isPainting.value = true;
+  emit('strokeStart');
+  emit('paint', cell.row, cell.column, strokeValue.value);
+}
+
+function move(event: PointerEvent): void {
+  const cell = cellAt(event);
+  hover.value = cell;
+  if (!isPainting.value || cell === null) return;
+  emit('paint', cell.row, cell.column, strokeValue.value);
+}
+
+function leave(): void {
+  hover.value = null;
 }
 
 function stop(): void {
   isPainting.value = false;
 }
 
-onMounted(() => window.addEventListener('pointerup', stop));
+onMounted(() => {
+  const element = canvas.value;
+  if (element !== null) context.value = fitCanvas(element, WIDTH, HEIGHT);
+  repaint();
+  window.addEventListener('pointerup', stop);
+});
+
 onBeforeUnmount(() => window.removeEventListener('pointerup', stop));
+
+watch(() => props.grid, repaint, { deep: true });
+watch(hover, repaint);
 </script>
 
 <template>
@@ -50,22 +142,20 @@ onBeforeUnmount(() => window.removeEventListener('pointerup', stop));
       </span>
     </div>
 
-    <div
-      v-for="(row, rowIndex) in props.grid"
-      :key="rowIndex"
-      class="row"
-      @contextmenu.prevent>
-      <span class="tick row-tick">{{ rowIndex }}</span>
-      <button
-        v-for="(cell, columnIndex) in row"
-        :key="columnIndex"
-        type="button"
-        class="cell"
-        :class="cellClass(cell)"
-        :style="cellStyle(cell)"
-        :title="`row ${rowIndex}, column ${columnIndex} — value ${cell}`"
-        @pointerdown="start(rowIndex, columnIndex, $event.button === 2)"
-        @pointerenter="extend(rowIndex, columnIndex)" />
+    <div class="body">
+      <div class="rail">
+        <span v-for="row in rows" :key="row" class="tick row-tick">
+          {{ row }}
+        </span>
+      </div>
+
+      <canvas
+        ref="canvas"
+        class="stage"
+        @contextmenu.prevent
+        @pointerdown="start"
+        @pointermove="move"
+        @pointerleave="leave" />
     </div>
   </div>
 </template>
@@ -74,45 +164,53 @@ onBeforeUnmount(() => window.removeEventListener('pointerup', stop));
 .grid-wrap {
   display: flex;
   flex-direction: column;
-  gap: 2px;
   user-select: none;
   touch-action: none;
   width: max-content;
 }
 
 .ruler,
-.row {
+.body {
   display: flex;
-  gap: 2px;
-  align-items: center;
+  align-items: flex-start;
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
 }
 
 .tick {
-  width: 28px;
+  width: 32px;
+  height: 14px;
+  line-height: 14px;
   text-align: center;
   font-family: 'Cascadia Mono', Consolas, monospace;
   font-size: 10px;
   color: #64758a;
+  flex: none;
 }
 
 .corner,
 .row-tick {
   width: 22px;
-  flex: none;
+  height: 32px;
+  line-height: 32px;
 }
 
-.cell {
-  width: 28px;
-  height: 28px;
-  flex: none;
-  padding: 0;
-  border: 1px solid #222c3c;
-  border-radius: 3px;
-  transition: outline-color 0.08s ease;
-  outline: 1px solid transparent;
-}
-
-.cell:hover {
-  outline-color: #f4762c;
+.stage {
+  display: block;
+  /*
+   * A tile has to land on exactly TILE_SIZE screen pixels, or the textures are
+   * resampled off the pixel grid and the preview stops being honest. Two
+   * things would spoil that, so the frame is an outline rather than a border:
+   * the page sets border-box globally, which would shrink the drawing surface
+   * by the border, and a border would also push the canvas a pixel clear of
+   * the rulers. An outline is painted outside the box and costs no layout.
+   */
+  box-sizing: content-box;
+  outline: 1px solid #222c3c;
+  background: #0b0f17;
+  cursor: crosshair;
 }
 </style>
