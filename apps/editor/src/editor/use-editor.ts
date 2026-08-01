@@ -1,21 +1,18 @@
-import {
-  AIR,
-  BLOCK,
-  formatStructure,
-  structureIssues,
-  type Structure,
-} from '@mander/structures';
+import { TILE_AIR, TILE_DIRT } from '@mander/model';
+import { STRUCTURE_END, STRUCTURE_START } from '@mander/structures';
 import { computed, ref } from 'vue';
 
 import { cloneGrid } from './clone-grid';
 import { createGrid } from './create-grid';
+import { formatStructure } from './format-structure';
+import { structureIssues } from './structure-issues';
 
 const HISTORY_LIMIT = 50;
 
 export const useEditor = () => {
-  const grid = ref<Structure>(createGrid());
-  const brush = ref<number>(BLOCK);
-  const history = ref<Structure[]>([]);
+  const grid = ref<number[][]>(createGrid());
+  const brush = ref<number>(TILE_DIRT);
+  const history = ref<number[][][]>([]);
 
   const issues = computed(() => structureIssues(grid.value));
   const isValid = computed(() => issues.value.length === 0);
@@ -28,13 +25,25 @@ export const useEditor = () => {
     );
   };
 
+  /**
+   * A structure has one way in and one way out, so painting a marker moves it
+   * rather than adding a second.
+   */
+  const clearMarker = (marker: number): void => {
+    grid.value = cloneGrid(grid.value).map((row) =>
+      row.map((cell) => (cell === marker ? TILE_AIR : cell)),
+    );
+  };
+
   const paint = (row: number, column: number, value: number): void => {
     const current = grid.value[row]?.[column];
     if (current === undefined || current === value) return;
+    if (value === STRUCTURE_START || value === STRUCTURE_END)
+      clearMarker(value);
     grid.value[row][column] = value;
   };
 
-  const replace = (next: Structure): void => {
+  const replace = (next: number[][]): void => {
     remember();
     grid.value = cloneGrid(next);
   };
@@ -52,7 +61,7 @@ export const useEditor = () => {
     brush,
     canUndo,
     clear,
-    eraseValue: AIR,
+    eraseValue: TILE_AIR,
     grid,
     issues,
     isValid,

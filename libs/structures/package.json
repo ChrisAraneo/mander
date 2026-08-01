@@ -11,5 +11,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@mander/model": "*"
+  }
 }

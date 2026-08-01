@@ -1,8 +1,10 @@
-import { createEnemies, TILE_SIZE } from '@mander/engine';
-import type { Structure } from '@mander/structures';
+import { createEnemies } from '@mander/engine';
+import { TILE_SIZE } from '@mander/model';
 import { drawEnemy, drawTiles } from '@mander/render';
+import { STRUCTURE_END, STRUCTURE_START } from '@mander/structures';
 import { forEach } from 'lodash-es';
 
+import { drawMarker } from './draw-marker';
 import { previewLevel } from './preview-level';
 
 /**
@@ -12,10 +14,13 @@ import { previewLevel } from './preview-level';
  *
  * Enemies are drawn still: `createEnemies` leaves them ungrounded, so the idle
  * wobble that reads off the clock stays at rest whatever time is passed.
+ *
+ * Markers go on last, over the top. They build nothing, so the renderer has
+ * nothing to say about them — they are the editor's own annotation.
  */
 export const drawStructure = (
   context: CanvasRenderingContext2D,
-  grid: Structure,
+  grid: number[][],
 ): void => {
   const level = previewLevel(grid);
   const width = level.width * TILE_SIZE;
@@ -24,4 +29,10 @@ export const drawStructure = (
   context.clearRect(0, 0, width, height);
   drawTiles(context, level, 0, 0, { width, height, scale: 1 });
   forEach(createEnemies(level), (enemy) => drawEnemy(context, enemy, 0));
+  forEach(grid, (cells, row) =>
+    forEach(cells, (cell, column) => {
+      if (cell === STRUCTURE_START || cell === STRUCTURE_END)
+        drawMarker(context, cell, row, column);
+    }),
+  );
 };

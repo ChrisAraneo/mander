@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TILE_SIZE } from '@mander/engine';
+import { TILE_SIZE } from '@mander/model';
 import { onMounted, ref, watch } from 'vue';
 
 import { drawStructure, fitCanvas } from '../editor';

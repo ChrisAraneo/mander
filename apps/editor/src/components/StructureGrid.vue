@@ -1,17 +1,13 @@
 <script setup lang="ts">
-import { TILE_SIZE } from '@mander/engine';
-import {
-  SECTOR_WIDTH,
-  STRUCTURE_HEIGHT,
-  type Structure,
-} from '@mander/structures';
+import { TILE_SIZE } from '@mander/model';
+import { SECTOR_WIDTH, STRUCTURE_HEIGHT } from '@mander/structures';
 import { forEach, range } from 'lodash-es';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import { drawStructure, fitCanvas } from '../editor';
 
 const props = defineProps<{
-  grid: Structure;
+  grid: number[][];
   brush: number;
   eraseValue: number;
 }>();
