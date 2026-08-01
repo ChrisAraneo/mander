@@ -1,4 +1,4 @@
-import { type Enemy, type Level, TILE_SIZE } from '@mander/model';
+import { type Enemy, findEnemyTiles, type Level, TILE_SIZE } from '@mander/model';
 import { map } from 'lodash-es';
 
 import {
@@ -9,9 +9,10 @@ import {
 } from './consts';
 
 export const createEnemies = (level: Level): Enemy[] =>
-  map(level.enemies, (spawn) => {
+  map(findEnemyTiles(level), (spawn) => {
     const x = spawn.x * TILE_SIZE + (TILE_SIZE - ENEMY_WIDTH) / 2;
     const y = (spawn.y + 1) * TILE_SIZE - ENEMY_HEIGHT;
+
     return {
       position: { x, y },
       velocity: {
