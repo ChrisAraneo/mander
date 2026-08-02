@@ -33,8 +33,18 @@ const BARE_LEVEL = 1;
 const HALVED_LEVEL = 2;
 const HALVED_UNTIL_LEVEL = 5;
 
-/** Air a block needs above it before a spike is worth standing there. */
+/**
+ * Air a spike needs over its own head, counted from the row above the spike
+ * rather than from the block it stands on — the spike itself eats the first
+ * row of air over that block, so it is never part of its own headroom. The
+ * player is a tile and a half tall and has to pass through this space feet
+ * first, so a spike left with less than this cannot be jumped, only walked
+ * into.
+ */
 const HEADROOM = 3;
+
+/** The spike's own column and the two beside it. */
+const SHOULDERS = [-1, 0, 1];
 
 /** A run longer than this is broken up; the survivors keep this far apart. */
 const MAX_RUN = 3;
@@ -124,16 +134,29 @@ const halveSpikes = (
 };
 
 /**
- * Step 1. A block with a clear 3×3 of air over it has room for a spike, and
- * gets one on its head. Every candidate is judged against the level as it came
- * in, so a spike just laid never talks the next one out of its own square.
+ * Read from the row a spike stands in: the air over its head, in its own
+ * column. This is the one rule every spike answers to, whether the level grew
+ * it or a structure brought it along.
  */
 const hasHeadroom = (tiles: Tile[][], row: number, column: number): boolean =>
-  every(range(1, HEADROOM + 1), (up) =>
-    every(
-      range(-1, 2),
-      (side) => at(tiles, row - up, column + side) === TILE_AIR,
-    ),
+  every(
+    range(1, HEADROOM + 1),
+    (up) => at(tiles, row - up, column) === TILE_AIR,
+  );
+
+/**
+ * Step 1. A spike is sown where it can stand free: its own square empty and
+ * its headroom clear, read across its shoulders as well so the new spike lands
+ * in the open rather than in a nook the player cannot swing through. Every
+ * candidate is judged against the level as it came in, so a spike just laid
+ * never talks the next one out of its own square.
+ */
+const hasRoomToSow = (tiles: Tile[][], row: number, column: number): boolean =>
+  every(
+    SHOULDERS,
+    (side) =>
+      at(tiles, row, column + side) === TILE_AIR &&
+      hasHeadroom(tiles, row, column + side),
   );
 
 const sowSpikes = (tiles: Tile[][]): Tile[][] => {
@@ -141,7 +164,7 @@ const sowSpikes = (tiles: Tile[][]): Tile[][] => {
 
   forEachCell(tiles, (tile, row, column) => {
     if (!isSolidTile(tile)) return;
-    if (!hasHeadroom(tiles, row, column)) return;
+    if (!hasRoomToSow(tiles, row - 1, column)) return;
     next[row - 1][column] = TILE_SPIKE;
   });
 
@@ -149,7 +172,25 @@ const sowSpikes = (tiles: Tile[][]): Tile[][] => {
 };
 
 /**
- * Step 2. A spike whose ground gives out to either side is standing on a lip,
+ * Step 2. A spike under a low ceiling is not a hazard, it is a wall: the player
+ * cannot get their feet over it and there is no way past but to take the hit.
+ * Sown spikes are clear of this by construction, so what this catches are the
+ * ones the structures brought with them, which no rule up to here has read.
+ */
+const dropCrampedSpikes = (tiles: Tile[][]): Tile[][] => {
+  const next = clone(tiles);
+
+  forEachCell(tiles, (tile, row, column) => {
+    if (tile !== TILE_SPIKE) return;
+    if (hasHeadroom(tiles, row, column)) return;
+    next[row][column] = TILE_AIR;
+  });
+
+  return next;
+};
+
+/**
+ * Step 3. A spike whose ground gives out to either side is standing on a lip,
  * and a lip is where the player lands. Reading the two cells diagonally below
  * catches a stair as well: each step is a lip of its own.
  */
@@ -170,7 +211,7 @@ const dropEdgeSpikes = (tiles: Tile[][]): Tile[][] => {
 };
 
 /**
- * Step 3. Runs of the same spike lying side by side in one row, gathered so a
+ * Step 4. Runs of the same spike lying side by side in one row, gathered so a
  * long band can be broken into something the player can land between.
  */
 const runsIn = (cells: Tile[], row: number): Run[] =>
@@ -213,7 +254,7 @@ const thinRuns = (tiles: Tile[][]): Tile[][] => {
 };
 
 /**
- * Steps 4 and 5. Spikes are cleared out of a square around whatever must not
+ * Steps 5 and 6. Spikes are cleared out of a square around whatever must not
  * be walled in — an enemy needs room to walk, and the way in and the way out
  * need room to stand.
  */
@@ -243,8 +284,13 @@ const clearAround = (
  * Lays the hazards over a joined level, harder the further into the run it
  * sits. The opening level is walked bare and the second keeps half of what its
  * structures brought; from the third the level grows its own spikes, which are
- * then pulled back off the ledges, broken out of long bands, and cleared away
- * from the enemies and from both ends of the level.
+ * then pulled out from under low ceilings, back off the ledges, broken out of
+ * long bands, and cleared away from the enemies and from both ends of the
+ * level.
+ *
+ * Whatever a level keeps goes through the headroom rule, structures included —
+ * a spike the player cannot jump is no fairer on the second level than on the
+ * eighth.
  */
 export const addSpikes = (tiles: Tile[][], levelNumber: number): Tile[][] => {
   const random = createRandom(seedOf(tiles, levelNumber));
@@ -254,11 +300,12 @@ export const addSpikes = (tiles: Tile[][], levelNumber: number): Tile[][] => {
   }
 
   if (levelNumber === HALVED_LEVEL) {
-    return halveSpikes(tiles, random);
+    return halveSpikes(dropCrampedSpikes(tiles), random);
   }
 
   const grown = flow(
     sowSpikes,
+    dropCrampedSpikes,
     dropEdgeSpikes,
     thinRuns,
     (laid: Tile[][]) => clearAround(laid, [TILE_ENEMY], ENEMY_CLEARANCE),
