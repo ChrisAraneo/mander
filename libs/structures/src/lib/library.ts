@@ -1,4 +1,19 @@
-import { HARD_01 } from './hard';
+import {
+  HARD_01,
+  HARD_02,
+  HARD_03,
+  HARD_04,
+  HARD_05,
+  HARD_06,
+  HARD_07,
+  HARD_08,
+  HARD_09,
+  HARD_10,
+  HARD_11,
+  HARD_12,
+  HARD_13,
+  HARD_14,
+} from './hard';
 import {
   NORMAL_01,
   NORMAL_02,
@@ -57,7 +72,18 @@ export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
 ]);
 
 export const HARD_STRUCTURES: readonly Structure[] = Object.freeze([
-  // TODO: add more hard structures and remove normal ones when there is enough hard structures
-  ...NORMAL_STRUCTURES,
   HARD_01,
+  HARD_02,
+  HARD_03,
+  HARD_04,
+  HARD_05,
+  HARD_06,
+  HARD_07,
+  HARD_08,
+  HARD_09,
+  HARD_10,
+  HARD_11,
+  HARD_12,
+  HARD_13,
+  HARD_14,
 ]);
