@@ -1,14 +1,15 @@
-import type { Rect } from '@mander/generator';
+import type { Rectangle } from '@mander/utils';
 
-import type { Player } from '../state';
-import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../state';
+import type { Player } from '@mander/model';
+
+import { PLAYER_HEIGHT, PLAYER_WIDTH } from './player/consts';
 
 export const isIntersecting = (
   player: Player,
-  rect: Rect,
+  rectangle: Rectangle,
   padding: number,
 ): boolean =>
-  player.x - padding < rect.x + rect.width &&
-  player.x + PLAYER_WIDTH + padding > rect.x &&
-  player.y - padding < rect.y + rect.height &&
-  player.y + PLAYER_HEIGHT + padding > rect.y;
+  player.position.x - padding < rectangle.x + rectangle.width &&
+  player.position.x + PLAYER_WIDTH + padding > rectangle.x &&
+  player.position.y - padding < rectangle.y + rectangle.height &&
+  player.position.y + PLAYER_HEIGHT + padding > rectangle.y;

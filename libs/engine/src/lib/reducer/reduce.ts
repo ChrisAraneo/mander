@@ -1,12 +1,15 @@
-import type { Item } from '@mander/generator';
+import type { Item } from '@mander/model';
 import { concat } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import type { Action } from '../actions';
-import type { GameState } from '../state';
-import { createEnemies, createPlayer } from '../state';
+import type { Action } from '../actions/actions';
+import { createEnemies } from './enemy/create-enemies';
+import { capabilitiesFor } from './player/capabilities-for';
+import { createPlayer } from './player/create-player';
+import { withCapabilities } from './player/with-capabilities';
+import type { GameState } from '../state/game-state';
+import { withInput } from '../state/with-input';
 import { tick } from './tick';
-import { withInput } from './with-input';
 
 const heartGain = (item: Item): number =>
   match(item.effect)
@@ -16,56 +19,64 @@ const heartGain = (item: Item): number =>
 const startJump = (state: GameState): GameState =>
   match(state.input.isJump)
     .with(true, (): GameState => state)
-    .otherwise(
-      (): GameState => ({
-        ...withInput(state, { isJump: true }),
-        player: match({ status: state.status, dyingFor: state.player.dyingFor })
-          .with({ status: 'PLAYING', dyingFor: null }, () => ({
-            ...state.player,
-            isJumpQueued: true,
-          }))
-          .otherwise(() => state.player),
-      }),
-    );
+    .otherwise((): GameState => ({
+      ...withInput(state, { isJump: true }),
+      player: match({
+        status: state.status,
+        death: state.player.timers.death,
+      })
+        .with({ status: 'PLAYING', death: null }, () => ({
+          ...state.player,
+          statuses: { ...state.player.statuses, isJumpQueued: true },
+        }))
+        .otherwise(() => state.player),
+    }));
+
+const withItem = (state: GameState, item: Item): GameState => {
+  const inventory = concat(state.inventory, item);
+
+  return {
+    ...state,
+    status: 'PLAYING',
+    isChestOpened: true,
+    isNearChest: false,
+    inventory,
+    player: withCapabilities(
+      {
+        ...state.player,
+        hearts: {
+          ...state.player.hearts,
+          value: state.player.hearts.value + heartGain(item),
+        },
+      },
+      capabilitiesFor(),
+    ),
+  };
+};
 
 const chooseItem = (state: GameState, index: number): GameState =>
   match(state.status)
     .with('CHEST', (): GameState => {
       const items = state.level.chestItems;
       return match(index >= 0 && index < items.length)
-        .with(
-          true,
-          (): GameState => ({
-            ...state,
-            status: 'PLAYING',
-            isChestOpened: true,
-            isNearChest: false,
-            inventory: concat(state.inventory, items[index]),
-            player: {
-              ...state.player,
-              hearts: state.player.hearts + heartGain(items[index]),
-            },
-          }),
-        )
+        .with(true, (): GameState => withItem(state, items[index]))
         .otherwise((): GameState => state);
     })
     .otherwise((): GameState => state);
 
 const interact = (state: GameState): GameState =>
   match(state.status)
-    .with(
-      'PLAYING',
-      (): GameState =>
-        match({ isNearChest: state.isNearChest, hasKey: state.hasKey })
-          .with(
-            { isNearChest: true, hasKey: true },
-            (): GameState => ({ ...state, status: 'CHEST' }),
-          )
-          .otherwise(() =>
-            match(state.isNearPortal)
-              .with(true, (): GameState => ({ ...state, status: 'COMPLETE' }))
-              .otherwise((): GameState => state),
-          ),
+    .with('PLAYING', (): GameState =>
+      match({ isNearChest: state.isNearChest, hasKey: state.hasKey })
+        .with({ isNearChest: true, hasKey: true }, (): GameState => ({
+          ...state,
+          status: 'CHEST',
+        }))
+        .otherwise(() =>
+          match(state.isNearPortal)
+            .with(true, (): GameState => ({ ...state, status: 'COMPLETE' }))
+            .otherwise((): GameState => state),
+        ),
     )
     .with('CHEST', (): GameState => chooseItem(state, 0))
     .otherwise((): GameState => state);
@@ -77,13 +88,10 @@ const close = (state: GameState): GameState =>
 
 const respawn = (state: GameState): GameState =>
   match(state.status)
-    .with(
-      'PLAYING',
-      (): GameState => ({
-        ...state,
-        player: createPlayer(state.level, state.player.hearts),
-      }),
-    )
+    .with('PLAYING', (): GameState => ({
+      ...state,
+      player: createPlayer(state.level, state.player),
+    }))
     .otherwise((): GameState => state);
 
 const loadLevel = (
@@ -94,7 +102,7 @@ const loadLevel = (
   ...state,
   level,
   levelIndex,
-  player: createPlayer(level, state.player.hearts),
+  player: createPlayer(level, state.player),
   enemies: createEnemies(level),
   status: 'PLAYING',
   hasKey: false,

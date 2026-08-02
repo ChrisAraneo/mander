@@ -1,21 +1,23 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
-import { LEVELS_PER_SEED } from '@mander/generator';
 import { match } from 'ts-pattern';
 import { useGame } from '../game/use-game';
 import ChestModal from './ChestModal.vue';
 import HudBar from './HudBar.vue';
 
-const props = defineProps<{ seed: string }>();
+const props = defineProps<{ day: string }>();
 const emit = defineEmits<{ exit: [] }>();
 
 const canvas = ref<HTMLCanvasElement | null>(null);
-const { state, dispatch, nextLevel } = useGame(props.seed, canvas);
+const { state, dispatch, nextLevel, levelCount, worldName } = useGame(
+  props.day,
+  canvas,
+);
 
 const isRunFinished = computed(
   () =>
     state.value.status === 'COMPLETE' &&
-    state.value.levelIndex >= LEVELS_PER_SEED - 1,
+    state.value.levelIndex >= levelCount - 1,
 );
 
 const hint = computed(() =>
@@ -78,7 +80,12 @@ onUnmounted(() => window.removeEventListener('keydown', onModalKey));
     <canvas ref="canvas" class="stage" />
 
     <div class="hud-layer">
-      <HudBar :state="state" :seed="seed" @exit="$emit('exit')" />
+      <HudBar
+        :state="state"
+        :day="day"
+        :world-name="worldName"
+        :level-count="levelCount"
+        @exit="$emit('exit')" />
 
       <div class="foot">
         <p v-if="hint" class="hint">
@@ -101,7 +108,9 @@ onUnmounted(() => window.removeEventListener('keydown', onModalKey));
     <div v-if="state.status === 'COMPLETE'" class="overlay">
       <div v-if="isRunFinished" class="panel">
         <h2>Run complete!</h2>
-        <p>All {{ LEVELS_PER_SEED }} levels of “{{ seed }}” are behind you.</p>
+        <p>
+          All {{ levelCount }} levels of World {{ worldName }} are behind you.
+        </p>
         <button class="primary" @click="$emit('exit')">
           Back to the start
         </button>

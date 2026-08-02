@@ -1,9 +1,10 @@
-import type { Item, Level } from '@mander/generator';
+import type { Item, Level } from '@mander/model';
 
-import { createEnemies } from './create-enemies';
-import { createPlayer } from './create-player';
+import { createEnemies } from '../reducer/enemy/create-enemies';
+import { capabilitiesFor } from '../reducer/player/capabilities-for';
+import { createPlayer } from '../reducer/player/create-player';
+import { startingHearts } from '../reducer/player/starting-hearts';
 import type { GameState } from './game-state';
-import { startingHearts } from './starting-hearts';
 
 export const createInitialState = (
   level: Level,
@@ -12,7 +13,10 @@ export const createInitialState = (
 ): GameState => ({
   level,
   levelIndex,
-  player: createPlayer(level, startingHearts(inventory)),
+  player: createPlayer(level, {
+    hearts: { value: startingHearts(inventory) },
+    velocity: capabilitiesFor(),
+  }),
   enemies: createEnemies(level),
   input: { isLeft: false, isRight: false, isJump: false },
   status: 'PLAYING',

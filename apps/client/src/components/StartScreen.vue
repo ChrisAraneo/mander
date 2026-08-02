@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { match } from 'ts-pattern';
-import { dailyDate, dailySeed } from '@mander/generator';
+import { computeWorldName } from '@mander/generator';
 import { clearSave, loadSave } from '../game/storage';
+import { dailyDate } from '../game/use-game';
 
-const emit = defineEmits<{ start: [seed: string] }>();
+const emit = defineEmits<{ start: [day: string] }>();
 
-const seed = dailySeed();
 const date = dailyDate();
+/** What the generator will name today's world, read straight off the date. */
+const worldName = computeWorldName(new Date(date));
 
 const save = ref(loadSave());
-const isContinuing = computed(() => save.value.lastSeed === seed);
+const isContinuing = computed(() => save.value.lastSeed === date);
 
 const startLabel = computed(() =>
   match(isContinuing.value)
@@ -32,15 +34,12 @@ function resetSave(): void {
 <template>
   <div class="start">
     <h1>MANDER</h1>
-    <p class="tagline">
-      One run a day. Eight levels, each harder than the last.
-    </p>
 
     <div class="daily-card">
-      <span class="label">Today's run</span>
-      <span class="date">{{ date }}</span>
-      <span class="hash" :title="`Run seed: ${seed}`">{{ seed }}</span>
-      <button class="primary" @click="emit('start', seed)">
+      <span class="label">Today's world</span>
+      <span class="world">World {{ worldName }}</span>
+      <span class="hash">{{ date }}</span>
+      <button class="primary" @click="emit('start', date)">
         {{ startLabel }}
       </button>
     </div>
@@ -106,10 +105,12 @@ h1 {
   color: #9fb0c3;
 }
 
-.date {
+.world {
   font-size: 28px;
   font-weight: 700;
   color: #e8eef6;
+  /* The name is a hash, so it has to be able to break rather than overflow. */
+  overflow-wrap: anywhere;
 }
 
 .hash {

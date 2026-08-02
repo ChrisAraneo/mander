@@ -1,22 +1,32 @@
+import {
+  CHEST_ENTITY_BOX,
+  type Enemy,
+  findChestTile,
+  findKeyTile,
+  findPortalTile,
+  KEY_ENTITY_BOX,
+  type Player,
+  PORTAL_ENTITY_BOX,
+} from '@mander/model';
 import { filter, map, some } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import { overlapsSpike, stepPlayer } from '../physics';
-import type { Enemy, GameState, Player, PlayerCapabilities } from '../state';
+import { overlapsSpike } from './collision/overlaps-spike';
+import { advanceEnemy } from './enemy/advance-enemy';
+import { hasFaded } from './enemy/has-faded';
+import { isTouchingEnemy } from './enemy/is-touching-enemy';
 import {
-  capabilitiesFor,
   INVINCIBLE_SECONDS,
-  isAlive,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
-} from '../state';
-import { advanceEnemy } from './advance-enemy';
-import { hasFaded } from './has-faded';
+} from './player/consts';
+import { isAlive } from './player/is-alive';
+import { killPlayer } from './player/kill-player';
+import { stepPlayer } from './player/step-player';
+import { stepPlayerDeath } from './player/step-player-death';
+import type { GameState } from '../state/game-state';
 import { hasFallenIntoPit } from './has-fallen-into-pit';
-import { isIntersecting } from './is-intersecting';
-import { isTouchingEnemy } from './is-touching-enemy';
-import { killPlayer } from './kill-player';
-import { stepPlayerDeath } from './step-player-death';
+import { isNearTile } from './is-near-tile';
 
 const INTERACT_RANGE = 12;
 const PICKUP_RANGE = 4;
@@ -28,27 +38,20 @@ interface Outcome {
 
 const coolInvincibility = (player: Player, deltaSeconds: number): Player => ({
   ...player,
-  invincibleFor: Math.max(0, player.invincibleFor - deltaSeconds),
+  timers: {
+    ...player.timers,
+    invincibility: Math.max(0, player.timers.invincibility - deltaSeconds),
+  },
 });
 
-const advancePlayer = (
-  state: GameState,
-  capabilities: PlayerCapabilities,
-  deltaSeconds: number,
-): Player =>
-  match(state.player.dyingFor)
-    .with(P.number, (dyingFor) =>
-      stepPlayerDeath(state.level, state.player, dyingFor, deltaSeconds),
+const advancePlayer = (state: GameState, deltaSeconds: number): Player =>
+  match(state.player.timers.death)
+    .with(P.number, (death) =>
+      stepPlayerDeath(state.level, state.player, death, deltaSeconds),
     )
     .otherwise(() =>
       coolInvincibility(
-        stepPlayer(
-          state.level,
-          state.player,
-          state.input,
-          capabilities,
-          deltaSeconds,
-        ),
+        stepPlayer(state.level, state.player, state.input, deltaSeconds),
         deltaSeconds,
       ),
     );
@@ -70,10 +73,19 @@ const touchesHazard = (
   player: Player,
   enemies: Enemy[],
 ): boolean =>
-  overlapsSpike(state.level, player.x, player.y, PLAYER_WIDTH, PLAYER_HEIGHT) ||
+  overlapsSpike(
+    state.level,
+    player.position.x,
+    player.position.y,
+    PLAYER_WIDTH,
+    PLAYER_HEIGHT,
+  ) ||
   some(enemies, (enemy) => isAlive(enemy) && isTouchingEnemy(player, enemy));
 
-const loseHeart = (hearts: number): number => Math.max(0, hearts - 1);
+const loseHeart = (hearts: Player['hearts']): Player['hearts'] => ({
+  ...hearts,
+  value: Math.max(0, hearts.value - 1),
+});
 
 const fell = (state: GameState, player: Player): Outcome => ({
   player: { ...killPlayer(player), hearts: loseHeart(player.hearts) },
@@ -83,7 +95,7 @@ const fell = (state: GameState, player: Player): Outcome => ({
 const hurt = (player: Player): Player => ({
   ...player,
   hearts: loseHeart(player.hearts),
-  invincibleFor: INVINCIBLE_SECONDS,
+  timers: { ...player.timers, invincibility: INVINCIBLE_SECONDS },
 });
 
 const struckDown = (state: GameState, player: Player): Outcome => ({
@@ -98,25 +110,22 @@ const resolveHarm = (
 ): Outcome =>
   match({
     fellIntoPit: hasFallenIntoPit(state.level, player),
-    struck: player.invincibleFor <= 0 && touchesHazard(state, player, enemies),
-    hasHeartsLeft: player.hearts > 0,
+    struck:
+      player.timers.invincibility <= 0 && touchesHazard(state, player, enemies),
+    hasHeartsLeft: player.hearts.value > 0,
   })
     .with({ fellIntoPit: true }, () => fell(state, player))
-    .with(
-      { struck: true, hasHeartsLeft: true },
-      (): Outcome => ({
-        player: hurt(player),
-        deaths: state.deaths,
-      }),
-    )
+    .with({ struck: true, hasHeartsLeft: true }, (): Outcome => ({
+      player: hurt(player),
+      deaths: state.deaths,
+    }))
     .with({ struck: true }, (): Outcome => struckDown(state, player))
     .otherwise((): Outcome => ({ player, deaths: state.deaths }));
 
 export const tick = (state: GameState, deltaSeconds: number): GameState =>
   match(state.status)
     .with('PLAYING', (): GameState => {
-      const capabilities = capabilitiesFor(state.inventory);
-      const moved = advancePlayer(state, capabilities, deltaSeconds);
+      const moved = advancePlayer(state, deltaSeconds);
       const enemies = advanceEnemies(state, moved, deltaSeconds);
       const { player, deaths } = match(isAlive(moved))
         .with(true, () => resolveHarm(state, moved, enemies))
@@ -131,14 +140,30 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         time: state.time + deltaSeconds,
         hasKey:
           state.hasKey ||
-          (canReach && isIntersecting(player, state.level.key, PICKUP_RANGE)),
+          (canReach &&
+            isNearTile(
+              player,
+              findKeyTile(state.level),
+              KEY_ENTITY_BOX,
+              PICKUP_RANGE,
+            )),
         isNearChest:
           !state.isChestOpened &&
           canReach &&
-          isIntersecting(player, state.level.chest, INTERACT_RANGE),
+          isNearTile(
+            player,
+            findChestTile(state.level),
+            CHEST_ENTITY_BOX,
+            INTERACT_RANGE,
+          ),
         isNearPortal:
           canReach &&
-          isIntersecting(player, state.level.portal, INTERACT_RANGE),
+          isNearTile(
+            player,
+            findPortalTile(state.level),
+            PORTAL_ENTITY_BOX,
+            INTERACT_RANGE,
+          ),
       };
     })
     .otherwise((): GameState => state);

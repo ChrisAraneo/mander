@@ -1,0 +1,63 @@
+import { HARD_01 } from './hard';
+import {
+  NORMAL_01,
+  NORMAL_02,
+  NORMAL_03,
+  NORMAL_04,
+  NORMAL_05,
+  NORMAL_06,
+  NORMAL_07,
+  NORMAL_08,
+  NORMAL_09,
+  NORMAL_10,
+  NORMAL_11,
+  NORMAL_12,
+  NORMAL_13,
+  NORMAL_14,
+  NORMAL_15,
+  NORMAL_16,
+  NORMAL_17,
+  NORMAL_18,
+  NORMAL_19,
+  NORMAL_20,
+  NORMAL_21,
+  NORMAL_22,
+  NORMAL_23,
+  NORMAL_24,
+  NORMAL_25,
+} from './normal';
+import type { Structure } from './structure';
+
+export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
+  NORMAL_01,
+  NORMAL_02,
+  NORMAL_03,
+  NORMAL_04,
+  NORMAL_05,
+  NORMAL_06,
+  NORMAL_07,
+  NORMAL_08,
+  NORMAL_09,
+  NORMAL_10,
+  NORMAL_11,
+  NORMAL_12,
+  NORMAL_13,
+  NORMAL_14,
+  NORMAL_15,
+  NORMAL_16,
+  NORMAL_17,
+  NORMAL_18,
+  NORMAL_19,
+  NORMAL_20,
+  NORMAL_21,
+  NORMAL_22,
+  NORMAL_23,
+  NORMAL_24,
+  NORMAL_25,
+]);
+
+export const HARD_STRUCTURES: readonly Structure[] = Object.freeze([
+  // TODO: add more hard structures and remove normal ones when there is enough hard structures
+  ...NORMAL_STRUCTURES,
+  HARD_01,
+]);

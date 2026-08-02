@@ -17,6 +17,9 @@
     "paths": {
       "@mander/engine": ["./libs/engine/src/index.ts"],
       "@mander/generator": ["./libs/generator/src/index.ts"],
+      "@mander/model": ["./libs/model/src/index.ts"],
+      "@mander/render": ["./libs/render/src/index.ts"],
+      "@mander/structures": ["./libs/structures/src/index.ts"],
       "@mander/utils": ["./libs/utils/src/index.ts"]
     }
   }

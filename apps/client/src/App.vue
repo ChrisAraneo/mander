@@ -3,17 +3,17 @@ import { ref } from 'vue';
 import StartScreen from './components/StartScreen.vue';
 import GameView from './components/GameView.vue';
 
-const activeSeed = ref<string | null>(null);
+const activeDay = ref<string | null>(null);
 </script>
 
 <template>
   <main class="app">
-    <StartScreen v-if="activeSeed === null" @start="activeSeed = $event" />
+    <StartScreen v-if="activeDay === null" @start="activeDay = $event" />
     <GameView
       v-else
-      :key="activeSeed"
-      :seed="activeSeed"
-      @exit="activeSeed = null" />
+      :key="activeDay"
+      :day="activeDay"
+      @exit="activeDay = null" />
   </main>
 </template>
 

@@ -1,6 +1,6 @@
 import { tryCatch } from 'ramda';
 
-import { STORAGE_KEY } from './constants';
+import { STORAGE_KEY } from './consts';
 import type { SaveData } from './save-data';
 
 export const persist: (save: SaveData) => void = tryCatch(

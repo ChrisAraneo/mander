@@ -1,0 +1,49 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: radial-gradient(
+    1200px 700px at 50% -10%,
+    #1d2740 0%,
+    #10141c 60%
+  );
+  color: #e8eef6;
+  font-family:
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    sans-serif;
+  min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.ghost {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid #33445a;
+  background: transparent;
+  color: #9fb0c3;
+  transition:
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.ghost:hover:not(:disabled) {
+  border-color: #9fb0c3;
+  color: #e8eef6;
+}
