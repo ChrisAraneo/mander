@@ -1,16 +1,18 @@
+import {
+  type Palette,
+  SOLID_TILES,
+  TILE_BRICK,
+  TILE_CERAMIC,
+  TILE_DIRT,
+  TILE_STONE,
+  TILE_WOOD,
+} from '@mander/engine';
 import { parseHsl, shiftHsl } from '@mander/utils';
 import { forEach } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { TILE_BRICK } from '../blocks/brick';
-import { TILE_CERAMIC } from '../blocks/ceramic';
-import { SOLID_TILES } from '../blocks/consts';
-import { TILE_DIRT } from '../blocks/dirt';
-import { TILE_STONE } from '../blocks/stone';
-import { TILE_WOOD } from '../blocks/wood';
 import { materialPalette } from './material-palette';
 import { DIRT_STYLE, materialStyle, STONE_STYLE } from './material-styles';
-import type { Palette } from './palette';
 
 const palette = (block: string): Palette => ({
   sky: ['HSL(210, 30%, 12%)', 'HSL(210, 30%, 22%)', 'HSL(210, 30%, 28%)'],

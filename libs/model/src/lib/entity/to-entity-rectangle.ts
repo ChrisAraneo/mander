@@ -1,6 +1,6 @@
 import type { Point, Rectangle } from '@mander/utils';
-import { TILE_SIZE } from '../blocks/consts';
 import type { EntityBox } from './entity-box';
+import { TILE_SIZE } from '../tile/consts';
 
 export const toEntityRectangle = (tile: Point, box: EntityBox): Rectangle => ({
   x: tile.x * TILE_SIZE + box.offsetX,

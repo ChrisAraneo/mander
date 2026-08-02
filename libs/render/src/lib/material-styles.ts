@@ -1,10 +1,12 @@
+import {
+  type Tile,
+  TILE_BRICK,
+  TILE_CERAMIC,
+  TILE_STONE,
+  TILE_WOOD,
+} from '@mander/engine';
 import { match } from 'ts-pattern';
 
-import { TILE_BRICK } from '../blocks/brick';
-import { TILE_CERAMIC } from '../blocks/ceramic';
-import { TILE_STONE } from '../blocks/stone';
-import { TILE_WOOD } from '../blocks/wood';
-import type { Tile } from '../tile/tile';
 import type { MaterialStyle } from './material-style';
 
 const JOINT = 'RGBA(0, 0, 0, 0.26)';

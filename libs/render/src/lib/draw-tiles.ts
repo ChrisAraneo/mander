@@ -2,9 +2,6 @@ import {
   isSolidTile,
   isSpikeTile,
   type Level,
-  type MaterialPalette,
-  materialPalette,
-  type MaterialStyle,
   TILE_SIZE,
 } from '@mander/engine';
 import { ceil, floor, forEach, range } from 'lodash-es';
@@ -12,6 +9,8 @@ import { match, P } from 'ts-pattern';
 
 import { drawMaterial } from './draw-material';
 import { drawSpike } from './draw-spike';
+import { type MaterialPalette, materialPalette } from './material-palette';
+import type { MaterialStyle } from './material-style';
 import { solidAt } from './solid-at';
 import { strokeTileEdges } from './stroke-tile-edges';
 import type { Viewport } from './viewport';

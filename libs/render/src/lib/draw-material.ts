@@ -1,5 +1,4 @@
 import {
-  type MaterialStyle,
   type Tile,
   TILE_BRICK,
   TILE_CERAMIC,
@@ -10,6 +9,8 @@ import {
 import { hslCss, parseHsl, shiftHsl } from '@mander/utils';
 import { forEach, map, memoize, range } from 'lodash-es';
 import { match } from 'ts-pattern';
+
+import type { MaterialStyle } from './material-style';
 
 const drawBrick = (
   context: CanvasRenderingContext2D,

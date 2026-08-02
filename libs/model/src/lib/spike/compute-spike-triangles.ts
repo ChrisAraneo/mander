@@ -3,12 +3,7 @@ import { match } from 'ts-pattern';
 
 import type { Triangle } from '@mander/utils';
 import { TILE_SIZE } from '../blocks/consts';
-import {
-  FLOOR_PRONG_HEIGHT,
-  PRONG_HEIGHT,
-  PRONG_WIDTH,
-  SPIKE_PRONGS,
-} from './spike';
+import { PRONG_HEIGHT, PRONG_WIDTH, SPIKE_PRONGS } from './spike';
 import type { SpikeOrientation } from './spike-orientation';
 import type { SpikeShape } from './spike-shape';
 
@@ -35,7 +30,7 @@ export const computeSpikeTriangles = (
     .otherwise(() => ({
       left: tileX * TILE_SIZE + (TILE_SIZE - prongs * PRONG_WIDTH) / 2,
       base: tileY * TILE_SIZE + TILE_SIZE,
-      apex: tileY * TILE_SIZE + TILE_SIZE - FLOOR_PRONG_HEIGHT,
+      apex: tileY * TILE_SIZE + TILE_SIZE - PRONG_HEIGHT,
     }));
 
   return times(prongs, (prongIndex): Triangle => {

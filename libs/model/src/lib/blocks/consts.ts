@@ -5,8 +5,6 @@ import { TILE_STONE } from './stone';
 import type { Tile } from '../tile/tile';
 import { TILE_WOOD } from './wood';
 
-export const TILE_SIZE = 32;
-
 export const SOLID_TILES: readonly Tile[] = Object.freeze([
   TILE_DIRT,
   TILE_BRICK,

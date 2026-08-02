@@ -1,11 +1,12 @@
+import {
+  type Tile,
+  TILE_BRICK,
+  TILE_CERAMIC,
+  TILE_STONE,
+  TILE_WOOD,
+} from '@mander/engine';
 import type { Hsl } from '@mander/utils';
 import { match } from 'ts-pattern';
-
-import { TILE_BRICK } from '../blocks/brick';
-import { TILE_CERAMIC } from '../blocks/ceramic';
-import { TILE_STONE } from '../blocks/stone';
-import { TILE_WOOD } from '../blocks/wood';
-import type { Tile } from '../tile/tile';
 
 /**
  * Where a material sits relative to the ground colour the level rolled. Dirt is
