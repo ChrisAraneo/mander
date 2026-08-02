@@ -7,7 +7,7 @@ import {
 } from '@mander/model';
 import {
   STRUCTURE_START,
-  SECTOR_WIDTH,
+  STRUCTURE_WIDTH,
   STRUCTURE_END,
   STRUCTURE_HEIGHT,
 } from '@mander/structures';
@@ -56,10 +56,10 @@ interface Rule {
 
 const RULES: Rule[] = [
   {
-    message: `the grid must be ${SECTOR_WIDTH} × ${STRUCTURE_HEIGHT} cells`,
+    message: `the grid must be ${STRUCTURE_WIDTH} × ${STRUCTURE_HEIGHT} cells`,
     isValid: (grid) =>
       size(grid) === STRUCTURE_HEIGHT &&
-      every(grid, (row) => size(row) === SECTOR_WIDTH),
+      every(grid, (row) => size(row) === STRUCTURE_WIDTH),
   },
   {
     message:

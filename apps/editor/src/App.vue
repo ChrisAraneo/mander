@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SECTOR_WIDTH, STRUCTURE_HEIGHT } from '@mander/structures';
+import { STRUCTURE_WIDTH, STRUCTURE_HEIGHT } from '@mander/structures';
 import { find } from 'lodash-es';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 
@@ -40,9 +40,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
     <header class="masthead">
       <h1>Structure Editor</h1>
       <p>
-        {{ SECTOR_WIDTH }} × {{ STRUCTURE_HEIGHT }} sector · left-click paints,
-        right-click erases · block material is part of the section, so what you
-        paint is what the generator builds
+        {{ STRUCTURE_WIDTH }} × {{ STRUCTURE_HEIGHT }} sector · left-click
+        paints, right-click erases · block material is part of the section, so
+        what you paint is what the generator builds
       </p>
     </header>
 

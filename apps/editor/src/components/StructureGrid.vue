@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TILE_SIZE } from '@mander/model';
-import { SECTOR_WIDTH, STRUCTURE_HEIGHT } from '@mander/structures';
+import { STRUCTURE_WIDTH, STRUCTURE_HEIGHT } from '@mander/structures';
 import { forEach, range } from 'lodash-es';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
@@ -17,13 +17,13 @@ const emit = defineEmits<{
   paint: [row: number, column: number, value: number];
 }>();
 
-const WIDTH = SECTOR_WIDTH * TILE_SIZE;
+const WIDTH = STRUCTURE_WIDTH * TILE_SIZE;
 const HEIGHT = STRUCTURE_HEIGHT * TILE_SIZE;
 
 const GRID_LINE = 'rgba(159, 176, 195, 0.13)';
 const HOVER_LINE = '#f4762c';
 
-const columns = range(SECTOR_WIDTH);
+const columns = range(STRUCTURE_WIDTH);
 const rows = range(STRUCTURE_HEIGHT);
 
 interface Cell {
@@ -41,7 +41,7 @@ const strokeValue = ref(props.brush);
 function drawGridLines(target: CanvasRenderingContext2D): void {
   target.strokeStyle = GRID_LINE;
   target.lineWidth = 1;
-  forEach(range(SECTOR_WIDTH + 1), (column) => {
+  forEach(range(STRUCTURE_WIDTH + 1), (column) => {
     target.beginPath();
     target.moveTo(column * TILE_SIZE + 0.5, 0);
     target.lineTo(column * TILE_SIZE + 0.5, HEIGHT);
@@ -82,13 +82,16 @@ function cellAt(event: PointerEvent): Cell | null {
   if (element === null) return null;
   const box = element.getBoundingClientRect();
   const column = Math.floor(
-    ((event.clientX - box.left) / box.width) * SECTOR_WIDTH,
+    ((event.clientX - box.left) / box.width) * STRUCTURE_WIDTH,
   );
   const row = Math.floor(
     ((event.clientY - box.top) / box.height) * STRUCTURE_HEIGHT,
   );
   const isInside =
-    column >= 0 && column < SECTOR_WIDTH && row >= 0 && row < STRUCTURE_HEIGHT;
+    column >= 0 &&
+    column < STRUCTURE_WIDTH &&
+    row >= 0 &&
+    row < STRUCTURE_HEIGHT;
   return isInside ? { row, column } : null;
 }
 

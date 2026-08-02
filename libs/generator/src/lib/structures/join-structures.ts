@@ -1,6 +1,6 @@
 import { isSolidTile, TILE_AIR, type Tile } from '@mander/engine';
 import {
-  SECTOR_WIDTH,
+  STRUCTURE_WIDTH,
   STRUCTURE_END,
   STRUCTURE_HEIGHT,
   STRUCTURE_START,
@@ -38,7 +38,7 @@ interface Placement {
 const DEFAULT_START: Cell = { row: STRUCTURE_HEIGHT - 1, column: 0 };
 const DEFAULT_END: Cell = {
   row: STRUCTURE_HEIGHT - 1,
-  column: SECTOR_WIDTH - 1,
+  column: STRUCTURE_WIDTH - 1,
 };
 
 const findMarker = (structure: Structure, marker: number): Cell | undefined =>
@@ -100,7 +100,7 @@ const heightOf = (placements: Placement[]): number =>
   max(map(placements, (placement) => placement.row + STRUCTURE_HEIGHT)) ?? 0;
 
 const widthOf = (placements: Placement[]): number =>
-  max(map(placements, (placement) => placement.column + SECTOR_WIDTH)) ?? 0;
+  max(map(placements, (placement) => placement.column + STRUCTURE_WIDTH)) ?? 0;
 
 /**
  * Markers are notes to this function rather than tiles, and air is left alone

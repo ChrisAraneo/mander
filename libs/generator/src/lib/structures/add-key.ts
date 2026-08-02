@@ -1,5 +1,5 @@
 import { isSolidTile, type Tile, TILE_AIR, TILE_KEY } from '@mander/model';
-import { SECTOR_WIDTH } from '@mander/structures';
+import { STRUCTURE_WIDTH } from '@mander/structures';
 import { find, findIndex, floor, map, range, size, sortBy } from 'lodash-es';
 
 /**
@@ -7,7 +7,7 @@ import { find, findIndex, floor, map, range, size, sortBy } from 'lodash-es';
  * the level falls in, which is also where the structure to its left runs out.
  */
 const middleSeam = (width: number): number =>
-  floor(width / 2 / SECTOR_WIDTH) * SECTOR_WIDTH;
+  floor(width / 2 / STRUCTURE_WIDTH) * STRUCTURE_WIDTH;
 
 /**
  * Every column, nearest the seam first. Ties fall to the left, so a key that
