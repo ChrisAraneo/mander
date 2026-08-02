@@ -3,7 +3,7 @@ import { hashString } from '@mander/utils';
 
 const pad2 = (value: number): string => padStart(String(value), 2, '0');
 
-export const computeSeeds = (date: Date): string[] =>
+export const computeLevelSeeds = (date: Date): string[] =>
   chain(date)
     .thru((date) =>
       range(8).map((number: number) =>

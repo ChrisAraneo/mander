@@ -71,7 +71,7 @@ export const addPortal = (tiles: Tile[][]): Tile[][] => {
   );
 
   if (column === undefined) {
-    return marked
+    return marked;
   }
 
   forEach(stackRows(surfaceRow(marked, column)), (row) => {

@@ -1,3 +1,1 @@
-export type ItemEffect =
-  | { kind: 'NONE' }
-  | { kind: 'HEART'; amount: number };
+export type ItemEffect = { kind: 'NONE' } | { kind: 'HEART'; amount: number };

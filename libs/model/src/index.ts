@@ -42,3 +42,4 @@ export * from './lib/blocks/wood';
 export * from './lib/world/consts';
 export * from './lib/enemies/find-enemy-tiles';
 export * from './lib/items/heart';
+export * from './lib/world/world';

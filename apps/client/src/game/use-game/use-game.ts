@@ -2,9 +2,11 @@ import {
   type Action,
   createInitialState,
   type GameState,
+  type Level,
   reduce,
 } from '@mander/engine';
-import { generateLevel, LEVELS_PER_SEED, levelSeed } from '@mander/generator';
+import { generate } from '@mander/generator';
+import { renderGame, syncViewport } from '@mander/render';
 import {
   animationFrames,
   map,
@@ -15,11 +17,10 @@ import {
   Subject,
   type Subscription,
 } from 'rxjs';
-import { onMounted, onUnmounted, type Ref, shallowRef } from 'vue';
 import { match, P } from 'ts-pattern';
+import { onMounted, onUnmounted, type Ref, shallowRef } from 'vue';
 
 import { createKeyboard, type Keyboard } from '../input';
-import { renderGame, syncViewport } from '@mander/render';
 import {
   loadSave,
   markLevelCompleted,
@@ -29,17 +30,14 @@ import {
 import { firstUncompletedIndex } from './first-uncompleted-index';
 import type { GameController } from './game-controller';
 
-const startState = (baseSeed: string): GameState => {
+const startState = (levels: Level[]): GameState => {
   const save = loadSave();
   const startIndex = Math.min(
-    firstUncompletedIndex(baseSeed, save.completedLevels),
-    LEVELS_PER_SEED - 1,
+    firstUncompletedIndex(levels, save.completedLevels),
+    levels.length - 1,
   );
-  return createInitialState(
-    generateLevel(levelSeed(baseSeed, startIndex), startIndex, baseSeed),
-    startIndex,
-    save.inventory,
-  );
+
+  return createInitialState(levels[startIndex], startIndex, save.inventory);
 };
 
 const tickStream = (): Observable<Action> =>
@@ -70,11 +68,17 @@ const persistProgress = (previous: GameState, next: GameState): void => {
     .otherwise(() => undefined);
 };
 
+/**
+ * Runs one day of the game. The generator deals the whole day at once, so the
+ * levels are built here and then handed out in order — no level is rebuilt on
+ * the way to it, and the run cannot drift from the one the date describes.
+ */
 export const useGame = (
-  baseSeed: string,
+  day: string,
   canvas: Ref<HTMLCanvasElement | null>,
 ): GameController => {
-  const initial = startState(baseSeed);
+  const { name, levels } = generate(new Date(day));
+  const initial = startState(levels);
 
   const state = shallowRef(initial);
   const actions$ = new Subject<Action>();
@@ -88,7 +92,7 @@ export const useGame = (
       .with(
         { element: P.nonNullable, context: P.nonNullable },
         ({ element, context }) => {
-          saveLastSeed(baseSeed);
+          saveLastSeed(day);
           keyboard = createKeyboard();
 
           subscription = merge(tickStream(), keyboard.actions$, actions$)
@@ -112,15 +116,17 @@ export const useGame = (
 
   return {
     state,
+    worldName: name,
+    levelCount: levels.length,
     dispatch: (action) => actions$.next(action),
     nextLevel: () => {
       const index = state.value.levelIndex + 1;
-      match(index >= LEVELS_PER_SEED)
+      match(index >= levels.length)
         .with(true, () => undefined)
         .otherwise(() =>
           actions$.next({
             type: 'LOAD_LEVEL',
-            level: generateLevel(levelSeed(baseSeed, index), index, baseSeed),
+            level: levels[index],
             levelIndex: index,
           }),
         );

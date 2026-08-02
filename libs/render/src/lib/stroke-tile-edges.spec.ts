@@ -78,6 +78,15 @@ const isRight = (bar: Bar, column: number): boolean =>
   bar.x === (column + 1) * TILE_SIZE - STROKE_WIDTH &&
   bar.width === STROKE_WIDTH;
 
+const isCornerSquare = (bar: Bar): boolean =>
+  bar.width === STROKE_WIDTH && bar.height === STROKE_WIDTH;
+
+/** The square a tile fills at its own top-left corner. */
+const isTopLeftSquare = (bar: Bar, column: number, row: number): boolean =>
+  isCornerSquare(bar) &&
+  bar.x === column * TILE_SIZE &&
+  bar.y === row * TILE_SIZE;
+
 describe('strokeTileEdges', () => {
   it('outlines a lone block on all four sides', () => {
     const bars = barsFor(tileMap(['...', '.#.', '...']), 1, 1);
@@ -90,7 +99,11 @@ describe('strokeTileEdges', () => {
   });
 
   it('leaves the edges a block shares with its neighbours bare', () => {
-    expect(barsFor(tileMap(['.#.', '###', '.#.']), 1, 1)).toHaveLength(0);
+    const bars = barsFor(tileMap(['.#.', '###', '.#.']), 1, 1);
+
+    // Every side is buried, so nothing is drawn along one — only the four
+    // diagonal notches the neighbours leave behind.
+    expect(filter(bars, (bar) => !isCornerSquare(bar))).toHaveLength(0);
   });
 
   it('draws only the sides of a wall that face open air', () => {
@@ -128,5 +141,36 @@ describe('strokeTileEdges', () => {
     expect(bars).toHaveLength(2);
     expect(some(bars, (bar) => isTop(bar, 0))).toBe(true);
     expect(some(bars, (bar) => isLeft(bar, 0))).toBe(true);
+  });
+
+  it('fills the notch an inside corner leaves', () => {
+    // .#
+    // #X — both of X's own sides are buried, but the diagonal is open, so the
+    // bars either side of that pocket stop dead at X's corner.
+    const bars = barsFor(tileMap(['.#', '##']), 1, 1);
+
+    expect(bars).toHaveLength(3);
+    expect(some(bars, (bar) => isTopLeftSquare(bar, 1, 1))).toBe(true);
+  });
+
+  it('leaves a corner alone when its own sides already face air', () => {
+    const bars = barsFor(tileMap(['..', '.#']), 1, 1);
+
+    // Four full-length edge bars cover every corner between them.
+    expect(bars).toHaveLength(4);
+    expect(some(bars, isCornerSquare)).toBe(false);
+  });
+
+  it('leaves a corner alone when the diagonal is filled in', () => {
+    expect(some(barsFor(tileMap(['##', '##']), 1, 1), isCornerSquare)).toBe(
+      false,
+    );
+  });
+
+  it('fills all four notches when a block is nipped at every diagonal', () => {
+    const bars = barsFor(tileMap(['.#.', '###', '.#.']), 1, 1);
+
+    expect(bars).toHaveLength(4);
+    expect(filter(bars, isCornerSquare)).toHaveLength(4);
   });
 });

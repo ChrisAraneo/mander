@@ -22,6 +22,10 @@ const palette = (block: string): Palette => ({
 
 const BROWN = palette('HSL(30, 25%, 27%)');
 
+/** Shortest way round the wheel between two hues. */
+const hueGap = (left: number, right: number): number =>
+  Math.abs(((left - right + 540) % 360) - 180);
+
 const lightnessOf = (color: string): number => {
   const hsl = parseHsl(color);
   if (!hsl) throw new Error(`not an HSL color: ${color}`);
@@ -41,7 +45,20 @@ describe('materialPalette', () => {
     expect(styles(TILE_BRICK).base).toBe('HSL(10, 37%, 43%)');
     expect(styles(TILE_STONE).base).toBe('HSL(213, 3%, 46%)');
     expect(styles(TILE_WOOD).base).toBe('HSL(26, 25%, 45%)');
-    expect(styles(TILE_CERAMIC).base).toBe('HSL(207, 13%, 73%)');
+    expect(styles(TILE_CERAMIC).base).toBe('HSL(295, 47%, 49%)');
+  });
+
+  it('gives ceramic a hue of its own rather than a paler stone', () => {
+    const styles = materialPalette(BROWN);
+    const ceramic = parseHsl(styles(TILE_CERAMIC).base);
+    const stone = parseHsl(styles(TILE_STONE).base);
+    const dirt = parseHsl(styles(TILE_DIRT).base);
+
+    expect(hueGap(ceramic?.hue ?? 0, stone?.hue ?? 0)).toBeGreaterThan(60);
+    expect(hueGap(ceramic?.hue ?? 0, dirt?.hue ?? 0)).toBeGreaterThan(60);
+    // Colour, not highlight: it must not simply be the ground turned white.
+    expect(ceramic?.saturation ?? 0).toBeGreaterThan(30);
+    expect(ceramic?.lightness ?? 0).toBeLessThan(65);
   });
 
   it('follows the ground round the colour wheel', () => {

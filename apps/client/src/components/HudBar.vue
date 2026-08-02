@@ -3,10 +3,14 @@ import { computed } from 'vue';
 import { floor, padStart, range } from 'lodash-es';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
-import { LEVELS_PER_SEED } from '@mander/generator';
 import type { GameState } from '@mander/engine';
 
-const props = defineProps<{ state: GameState; seed: string }>();
+const props = defineProps<{
+  state: GameState;
+  day: string;
+  worldName: string;
+  levelCount: number;
+}>();
 defineEmits<{ exit: [] }>();
 
 const time = computed(() =>
@@ -38,9 +42,11 @@ const keyLabel = computed(() =>
   <header class="hud">
     <div class="group">
       <span class="logo">MANDER</span>
-      <span class="chip" :title="`Seed: ${seed}`">{{ seed }}</span>
+      <span class="chip" :title="`${day} · level seed ${state.level.seed}`"
+        >World {{ worldName }}</span
+      >
       <span class="chip"
-        >Level {{ state.levelIndex + 1 }}/{{ LEVELS_PER_SEED }}</span
+        >Level {{ state.levelIndex + 1 }}/{{ levelCount }}</span
       >
       <span class="chip">{{ time }}</span>
       <span class="chip hearts" title="Hearts">
