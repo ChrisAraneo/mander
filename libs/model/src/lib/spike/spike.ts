@@ -7,7 +7,7 @@ export const TILE_SPIKE_CEILING: Tile = 3;
 export const SPIKE_TILES: Tile[] = [TILE_SPIKE, TILE_SPIKE_CEILING];
 
 export const SPIKE_PRONGS = 3;
-export const SPIKE_HEIGHT_FRACTION = 0.72;
+export const SPIKE_HEIGHT_FRACTION = 0.68;
 
 /**
  * Each prong owns an even slice of the tile and stands in the middle of it.
