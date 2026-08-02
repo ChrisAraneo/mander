@@ -1,10 +1,4 @@
-import {
-  type Palette,
-  SOLID_TILES,
-  type Tile,
-  TILE_DIRT,
-  TILE_WOOD,
-} from '@mander/engine';
+import { SOLID_TILES, type Tile, TILE_DIRT, TILE_WOOD } from '@mander/engine';
 import { type Hsl, hslCss, parseHsl, shiftHsl } from '@mander/utils';
 import { map } from 'lodash-es';
 import { match, P } from 'ts-pattern';
@@ -12,6 +6,7 @@ import { match, P } from 'ts-pattern';
 import type { MaterialStyle } from './material-style';
 import { materialStyle } from './material-styles';
 import { CAP_LIGHTNESS_GAIN, materialTint } from './material-tint';
+import type { Palette } from './palette';
 
 /**
  * A level's own set of block colours: the palette it rolled, read as the five

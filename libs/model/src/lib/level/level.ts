@@ -1,5 +1,4 @@
 import type { Item } from '../items/item';
-import type { Palette } from './palette';
 import type { Tile } from '../tile/tile';
 
 export interface Level {
@@ -7,6 +6,5 @@ export interface Level {
   width: number;
   height: number;
   tiles: Tile[][];
-  palette: Palette;
   chestItems: Item[];
 }

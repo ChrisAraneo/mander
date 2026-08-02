@@ -1,28 +1,15 @@
-import {
-  type Level,
-  type Palette,
-  type Tile,
-  TILE_AIR,
-  TILE_ENEMY,
-} from '@mander/model';
+import { type Level, type Tile, TILE_AIR } from '@mander/model';
 import { STRUCTURE_START, STRUCTURE_END } from '@mander/structures';
 import { head, includes, map, size } from 'lodash-es';
 
 /**
  * A grid already holds the game's own tile values, so the map is all but a
- * copy. The exceptions come out as air: an enemy stands on the block below and
- * is drawn on top rather than being a tile, and a marker is a note to the
- * generator that the player never sees.
+ * copy. Markers are the exception and come out as air: they are a note to the
+ * generator that the player never sees. The enemy tile stays where it is —
+ * nothing draws it as a block, and it is what the spawns are read back out of,
+ * exactly as in a generated level.
  */
-const NOT_DRAWN = [TILE_ENEMY, STRUCTURE_START, STRUCTURE_END];
-
-const EMPTY_PALETTE: Palette = {
-  sky: ['', '', ''],
-  hills: ['', ''],
-  block: '',
-  blockCap: '',
-  blockCapHighlight: '',
-};
+const NOT_DRAWN = [STRUCTURE_START, STRUCTURE_END];
 
 export const structureTileMap = (grid: number[][]): Level => ({
   seed: '',
@@ -31,7 +18,5 @@ export const structureTileMap = (grid: number[][]): Level => ({
   tiles: map(grid, (cells) =>
     map(cells, (cell): Tile => (includes(NOT_DRAWN, cell) ? TILE_AIR : cell)),
   ),
-  palette: EMPTY_PALETTE,
   chestItems: [],
-  enemies: [],
 });

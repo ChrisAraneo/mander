@@ -16,7 +16,6 @@ export * from './lib/tile/find-tile';
 export * from './lib/tile/consts';
 export * from './lib/blocks/is-solid';
 export * from './lib/level/level';
-export * from './lib/level/palette';
 export * from './lib/spike/is-spike';
 export * from './lib/spike/is-spike-tile';
 export * from './lib/spike/spike-orientation';

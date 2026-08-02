@@ -11,6 +11,7 @@ import { drawMaterial } from './draw-material';
 import { drawSpike } from './draw-spike';
 import { type MaterialPalette, materialPalette } from './material-palette';
 import type { MaterialStyle } from './material-style';
+import type { Palette } from './palette';
 import { solidAt } from './solid-at';
 import { strokeTileEdges } from './stroke-tile-edges';
 import type { Viewport } from './viewport';
@@ -45,11 +46,12 @@ const drawSolidTile = (
 export const drawTiles = (
   context: CanvasRenderingContext2D,
   level: Level,
+  palette: Palette,
   cameraX: number,
   cameraY: number,
   viewport: Viewport,
 ): void => {
-  const materials: MaterialPalette = materialPalette(level.palette);
+  const materials: MaterialPalette = materialPalette(palette);
   const firstColumn = Math.max(0, floor(cameraX / TILE_SIZE) - 1);
   const lastColumn = Math.min(
     level.width - 1,

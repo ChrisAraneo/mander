@@ -77,7 +77,7 @@ export const useGame = (
   day: string,
   canvas: Ref<HTMLCanvasElement | null>,
 ): GameController => {
-  const { name, levels } = generate(new Date(day));
+  const { name, levels, palette } = generate(new Date(day));
   const initial = startState(levels);
 
   const state = shallowRef(initial);
@@ -102,7 +102,7 @@ export const useGame = (
               state.value = next;
               syncDebugGlobals(next, (action) => actions$.next(action));
               persistProgress(previous, next);
-              renderGame(context, next, syncViewport(element));
+              renderGame(context, next, palette, syncViewport(element));
             });
         },
       )

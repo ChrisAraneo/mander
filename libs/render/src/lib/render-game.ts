@@ -12,11 +12,13 @@ import { drawPlayer } from './draw-player';
 import { drawPortal } from './draw-portal';
 import { drawSky } from './draw-sky';
 import { drawTiles } from './draw-tiles';
+import type { Palette } from './palette';
 import type { Viewport } from './viewport';
 
 export const renderGame = (
   context: CanvasRenderingContext2D,
   state: GameState,
+  palette: Palette,
   viewport: Viewport,
 ): void => {
   const { level, player, enemies, time } = state;
@@ -38,20 +40,14 @@ export const renderGame = (
   );
 
   context.setTransform(viewport.scale, 0, 0, viewport.scale, 0, 0);
-  drawSky(context, level.palette, viewport);
+  drawSky(context, palette, viewport);
   forEach(HILL_LAYERS, (layer, index) =>
-    drawHillLayer(
-      context,
-      cameraX,
-      layer,
-      level.palette.hills[index],
-      viewport,
-    ),
+    drawHillLayer(context, cameraX, layer, palette.hills[index], viewport),
   );
 
   context.save();
   context.translate(-cameraX, -cameraY);
-  drawTiles(context, level, cameraX, cameraY, viewport);
+  drawTiles(context, level, palette, cameraX, cameraY, viewport);
   drawKey(context, state);
   drawChest(context, state);
   drawPortal(context, state);

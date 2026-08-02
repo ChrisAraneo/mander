@@ -1,4 +1,4 @@
-import type { Palette } from '@mander/model';
+import type { Palette } from '@mander/render';
 import { createRandom, type Hsl, hslCss, wrapHue } from '@mander/utils';
 import { match } from 'ts-pattern';
 

@@ -10,8 +10,6 @@ export const PLAYER_HITBOX_INSET_X = 4;
 export const PLAYER_HITBOX_INSET_TOP = 2;
 export const PLAYER_HITBOX_INSET_BOTTOM = 0;
 
-export const MAX_SPEED_BONUS_PERCENT = 15;
-
 export const PLAYER_DEATH_SECONDS = 0.75;
 export const PLAYER_DEATH_LAUNCH_VELOCITY = 340;
 

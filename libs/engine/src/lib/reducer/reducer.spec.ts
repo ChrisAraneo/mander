@@ -13,7 +13,6 @@ import {
 import { capabilitiesFor } from './player/capabilities-for';
 import {
   INVINCIBLE_SECONDS,
-  MAX_SPEED_BONUS_PERCENT,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
 } from './player/consts';
@@ -25,11 +24,11 @@ import {
   type Item,
   type Level,
   MAX_JUMP_TILES,
-  type Palette,
   type Tile,
   TILE_AIR,
   TILE_CHEST,
   TILE_DIRT,
+  TILE_ENEMY,
   TILE_KEY,
   TILE_PORTAL,
   TILE_SPAWN,
@@ -37,14 +36,6 @@ import {
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
 } from '@mander/model';
-
-const PALETTE: Palette = {
-  sky: ['HSL(0, 0%, 10%)', 'HSL(0, 0%, 20%)', 'HSL(0, 0%, 30%)'],
-  hills: ['HSL(0, 0%, 16%)', 'HSL(0, 0%, 12%)'],
-  block: 'HSL(0, 0%, 26%)',
-  blockCap: 'HSL(90, 40%, 50%)',
-  blockCapHighlight: 'HSL(90, 45%, 56%)',
-};
 
 const WIDTH = 30;
 const HEIGHT = 15;
@@ -60,7 +51,7 @@ const item = (id: string, effect?: Item['effect']): Item => ({
 
 const CARDS: Item[] = [
   item('CARD-0'),
-  item('CARD-1', { kind: 'SPEED', percent: 5 }),
+  item('CARD-1'),
   item('CARD-2'),
   item('CARD-3'),
   item('CARD-4'),
@@ -86,14 +77,15 @@ const testLevel = (enemies: Point[] = []): Level => {
   tiles[groundRow - 1][20] = TILE_CHEST;
   tiles[groundRow - 1][25] = TILE_PORTAL;
   tiles[groundRow - 2][25] = TILE_PORTAL;
+  // Enemies are spawned off the tiles they stand on, the same as in a
+  // generated level, so a spawn is a tile rather than a list beside the map.
+  for (const spawn of enemies) tiles[spawn.y][spawn.x] = TILE_ENEMY;
   return {
     seed: 'TEST',
     width: WIDTH,
     height: HEIGHT,
     tiles,
     chestItems: CARDS,
-    enemies,
-    palette: PALETTE,
   };
 };
 
@@ -265,29 +257,6 @@ describe('jumping', () => {
     expect(rise).toBeGreaterThan((MAX_JUMP_TILES - 1) * TILE_SIZE);
     expect(rise).toBeLessThan(MAX_JUMP_TILES * TILE_SIZE);
   });
-
-  it('stacks speed items and caps the bonus at 15%', () => {
-    const base = capabilitiesFor([]);
-    const one = capabilitiesFor([item('BOOTS', { kind: 'SPEED', percent: 3 })]);
-    expect(one.x.max).toBeCloseTo(base.x.max * 1.03, 5);
-
-    const two = capabilitiesFor([
-      item('BOOTS', { kind: 'SPEED', percent: 3 }),
-      item('SKIMMERS', { kind: 'SPEED', percent: 5 }),
-    ]);
-    expect(two.x.max).toBeCloseTo(base.x.max * 1.08, 5);
-
-    const overCap = capabilitiesFor([
-      item('A', { kind: 'SPEED', percent: 7 }),
-      item('B', { kind: 'SPEED', percent: 7 }),
-      item('C', { kind: 'SPEED', percent: 7 }),
-    ]);
-    expect(overCap.x.max).toBeCloseTo(
-      base.x.max * (1 + MAX_SPEED_BONUS_PERCENT / 100),
-      5,
-    );
-    expect(overCap.y.max).toBe(base.y.max);
-  });
 });
 
 describe('key and chest', () => {
@@ -446,7 +415,7 @@ describe('enemies', () => {
       'the enemy launched upward',
     ).toBeLessThan(0);
 
-    expect(ENEMY_JUMP_VELOCITY).toBeLessThan(capabilitiesFor([]).y.max);
+    expect(ENEMY_JUMP_VELOCITY).toBeLessThan(capabilitiesFor().y.max);
   });
 
   it('ignores the player alongside it, only reacting to one overhead', () => {
@@ -516,7 +485,7 @@ describe('enemies', () => {
     expect(state.enemies).toHaveLength(1);
     state = act(state, {
       type: 'LOAD_LEVEL',
-      level: testLevel([enemySpawn, enemySpawn]),
+      level: testLevel([enemySpawn, { x: 7, y: 11 }]),
       levelIndex: 1,
     });
     expect(state.enemies).toHaveLength(2);
@@ -620,8 +589,23 @@ describe('enemies', () => {
   });
 
   it('kills an enemy that ends up on a spike, clearing it once it fades', () => {
-    let state = createInitialState(withSpike(5, [enemySpawn]), 0, []);
+    // A tile is either a spawn or a spike, never both, so the enemy is stood
+    // on the spike rather than born on it — which is the case that matters:
+    // one that paced into a hazard, not one dealt onto it.
+    let state = createInitialState(withSpike(5, [{ x: 7, y: 11 }]), 0, []);
     expect(state.enemies).toHaveLength(1);
+    state = {
+      ...state,
+      enemies: [
+        {
+          ...state.enemies[0],
+          position: {
+            x: 5 * TILE_SIZE + (TILE_SIZE - ENEMY_WIDTH) / 2,
+            y: floorEnemyY,
+          },
+        },
+      ],
+    };
     state = tick(state);
     expect(state.enemies, 'lingers while it fades').toHaveLength(1);
     expect(state.enemies[0].timers.death).toBe(0);

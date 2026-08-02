@@ -1,6 +1,5 @@
 import {
   type Level,
-  type Palette,
   type Tile,
   TILE_AIR,
   TILE_DIRT,
@@ -13,14 +12,6 @@ import { describe, expect, it } from 'vitest';
 
 import { STROKE_WIDTH } from './stroke';
 import { strokeTileEdges } from './stroke-tile-edges';
-
-const EMPTY_PALETTE: Palette = {
-  sky: ['', '', ''],
-  hills: ['', ''],
-  block: '',
-  blockCap: '',
-  blockCapHighlight: '',
-};
 
 /** `#` is a block, `^` a spike, anything else air. */
 const tileMap = (rows: string[]): Level => {
@@ -38,9 +29,7 @@ const tileMap = (rows: string[]): Level => {
     width: tiles[0].length,
     height: tiles.length,
     tiles,
-    palette: EMPTY_PALETTE,
     chestItems: [],
-    enemies: [],
   };
 };
 

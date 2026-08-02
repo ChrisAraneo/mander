@@ -1,4 +1,4 @@
-import type { Palette } from '@mander/engine';
+import type { Palette } from './palette';
 
 import type { Viewport } from './viewport';
 

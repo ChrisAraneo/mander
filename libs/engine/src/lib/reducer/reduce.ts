@@ -49,7 +49,7 @@ const withItem = (state: GameState, item: Item): GameState => {
           value: state.player.hearts.value + heartGain(item),
         },
       },
-      capabilitiesFor(inventory),
+      capabilitiesFor(),
     ),
   };
 };

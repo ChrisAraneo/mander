@@ -15,7 +15,7 @@ export const createInitialState = (
   levelIndex,
   player: createPlayer(level, {
     hearts: { value: startingHearts(inventory) },
-    velocity: capabilitiesFor(inventory),
+    velocity: capabilitiesFor(),
   }),
   enemies: createEnemies(level),
   input: { isLeft: false, isRight: false, isJump: false },

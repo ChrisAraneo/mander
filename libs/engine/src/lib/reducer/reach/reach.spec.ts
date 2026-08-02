@@ -5,7 +5,6 @@ import { checkPlayerReach } from './check-player-reach';
 import { isReachableCell } from './is-reachable-cell';
 import {
   type Level,
-  type Palette,
   type Tile,
   TILE_AIR,
   TILE_DIRT,
@@ -18,22 +17,12 @@ const HEIGHT = 8;
 const AIR_ROW: Tile[] = map(range(WIDTH), (): Tile => TILE_AIR);
 const GROUND_ROW: Tile[] = map(range(WIDTH), (): Tile => TILE_DIRT);
 
-const EMPTY_PALETTE: Palette = {
-  sky: ['', '', ''],
-  hills: ['', ''],
-  block: '',
-  blockCap: '',
-  blockCapHighlight: '',
-};
-
 const tileMap = (rows: Record<number, Tile[]>): Level => ({
   seed: 'TEST',
   width: WIDTH,
   height: HEIGHT,
   tiles: map(range(HEIGHT), (row) => rows[row] ?? AIR_ROW),
-  palette: EMPTY_PALETTE,
   chestItems: [],
-  enemies: [],
 });
 
 const pitRow = (from: number, to: number): Tile[] =>

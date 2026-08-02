@@ -1,4 +1,5 @@
-import type { Level, World } from '@mander/model';
+import type { Level } from '@mander/model';
+import type { RenderedWorld } from '@mander/render';
 import { addChest } from './structures/add-chest';
 import { computeLevelSeeds } from './seed/compute-level-seeds';
 import { addPadding } from './structures/add-padding';
@@ -12,14 +13,21 @@ import { addKey } from './structures/add-key';
 import { generateChestItems } from './items/generate-chest-items';
 import { computeWorldName } from './seed/compute-world-name';
 
-export const generate = (date: Date): World => {
+/**
+ * A day is eight levels, and only the last three are dealt from the hard pool.
+ * Everything up to it is built from the normal structures, so the run has a
+ * long enough runway before the difficulty turns.
+ */
+const FIRST_HARD_LEVEL = 6;
+
+export const generate = (date: Date): RenderedWorld => {
   const worldName = computeWorldName(date);
   const seeds = computeLevelSeeds(date);
   const palette = generatePalette(worldName);
 
   const levels: Level[] = seeds.map((seed, index) => {
     const levelNumber = index + 1;
-    const difficulty = levelNumber + 1 >= 5 ? 'hard' : 'normal';
+    const difficulty = levelNumber >= FIRST_HARD_LEVEL ? 'hard' : 'normal';
 
     const chestItems = generateChestItems(seed);
 
@@ -37,7 +45,6 @@ export const generate = (date: Date): World => {
       width: withChest[0].length,
       height: withChest.length,
       tiles: withChest,
-      palette,
       chestItems,
     };
 
@@ -47,5 +54,6 @@ export const generate = (date: Date): World => {
   return {
     name: computeWorldName(date),
     levels,
+    palette,
   };
 };
