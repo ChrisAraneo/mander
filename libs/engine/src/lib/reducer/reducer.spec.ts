@@ -1013,8 +1013,8 @@ describe('score', () => {
   });
 
   it('charges whole seconds only, rounding the clock before it bills', () => {
-    expect(enterPortal(atPortal(12.4)).score, 'rounds down').toBe(48800);
-    expect(enterPortal(atPortal(12.6)).score, 'rounds up').toBe(48700);
+    expect(enterPortal(atPortal(12.4)).score, 'rounds down').toBe(8800);
+    expect(enterPortal(atPortal(12.6)).score, 'rounds up').toBe(8700);
   });
 
   it('never pays a slow run less than nothing', () => {
@@ -1023,7 +1023,7 @@ describe('score', () => {
 
   it('adds up over a run, with the clock running on into the next level', () => {
     let state = enterPortal(atPortal(10));
-    expect(state.score, 'the first level, taken in ten seconds').toBe(49000);
+    expect(state.score, 'the first level, taken in ten seconds').toBe(9000);
 
     state = act(state, {
       type: 'LOAD_LEVEL',
@@ -1034,7 +1034,7 @@ describe('score', () => {
     expect(
       state.score,
       'the second is billed against the same clock, not its own',
-    ).toBe(49000 + 47000);
+    ).toBe(9000 + 7000);
   });
 
   it('pays out a red diamond on the spot', () => {
