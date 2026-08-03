@@ -24,7 +24,6 @@ const palette = (block: string): Palette => ({
 
 const BROWN = palette('HSL(30, 25%, 27%)');
 
-/** Shortest way round the wheel between two hues. */
 const hueGap = (left: number, right: number): number =>
   Math.abs(((left - right + 540) % 360) - 180);
 
@@ -58,7 +57,6 @@ describe('materialPalette', () => {
 
     expect(hueGap(ceramic?.hue ?? 0, stone?.hue ?? 0)).toBeGreaterThan(60);
     expect(hueGap(ceramic?.hue ?? 0, dirt?.hue ?? 0)).toBeGreaterThan(60);
-    // Colour, not highlight: it must not simply be the ground turned white.
     expect(ceramic?.saturation ?? 0).toBeGreaterThan(30);
     expect(ceramic?.lightness ?? 0).toBeLessThan(65);
   });

@@ -57,11 +57,6 @@ describe('pickStructures', () => {
     );
   });
 
-  /**
-   * The pools share all but one structure, so a seed used bare would walk both
-   * shuffles down the same random stream and open the hard level on whatever
-   * the normal level opened on.
-   */
   it('does not deal the hard level the front of the normal one', () => {
     const sameOpening = filter(seeds, (seed) => {
       const normal = pickStructures(seed, 42, 'normal');

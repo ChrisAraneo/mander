@@ -19,10 +19,6 @@ export const computeSpikeTriangles = (
   shape: SpikeShape,
 ): Triangle[] => {
   const prongs = prongCount(shape);
-  // The prongs reach from the left edge of the first to the right edge of the
-  // last, gaps and all. Whatever that leaves over is split evenly, which lands
-  // a full comb half a gap from each tile edge — and a lone prong in the middle
-  // of its tile.
   const span = (prongs - 1) * PRONG_PITCH + PRONG_WIDTH;
   const geometry = match(orientation)
     .with('CEILING', () => ({

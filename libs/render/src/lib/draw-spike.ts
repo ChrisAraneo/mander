@@ -8,13 +8,6 @@ import { forEach } from 'lodash-es';
 
 import { strokeOutline } from './stroke';
 
-/**
- * Orientation and shape are read off the level rather than passed in, so the
- * prongs drawn here are the very triangles the collision check hits.
- *
- * Each prong is outlined on its own, so a row of them reads as separate teeth
- * rather than one black-edged sawtooth band.
- */
 export const drawSpike = (
   context: CanvasRenderingContext2D,
   level: Level,

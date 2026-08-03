@@ -4,11 +4,6 @@ import { match } from 'ts-pattern';
 
 const HUE_MAX = 359;
 
-/**
- * The sky is rolled dark and only lightly coloured: it sits behind everything
- * the player has to read, so it carries the level's hue without competing for
- * attention. The three stops run top, middle, horizon, brightening downward.
- */
 const SKY_SATURATION_MIN = 18;
 const SKY_SATURATION_MAX = 46;
 const SKY_TOP_LIGHTNESS_MIN = 10;
@@ -17,7 +12,6 @@ const SKY_MIDDLE_LIGHTNESS_GAIN = 10;
 const SKY_HORIZON_LIGHTNESS_GAIN = 16;
 const SKY_HORIZON_HUE_DRIFT = 16;
 
-/** Hills are the sky again, a shade greyer and a shade lighter. */
 const HILL_SATURATION_DROP = 4;
 const FAR_HILL_LIGHTNESS_GAIN = 6;
 const NEAR_HILL_LIGHTNESS_GAIN = 2;
@@ -27,11 +21,6 @@ const GROUND_SATURATION_MAX = 44;
 const GROUND_LIGHTNESS_MIN = 22;
 const GROUND_LIGHTNESS_MAX = 32;
 
-/**
- * The cap is the grass on top of the dirt, rolled well away from the body of
- * the block so the surface the player runs along stands out from what is
- * underneath it.
- */
 const CAP_HUE_OFFSET_MIN = 45;
 const CAP_HUE_OFFSET_MAX = 150;
 const CAP_SATURATION_MIN = 30;
@@ -41,7 +30,6 @@ const CAP_LIGHTNESS_MAX = 56;
 const CAP_HIGHLIGHT_SATURATION_GAIN = 5;
 const CAP_HIGHLIGHT_LIGHTNESS_GAIN = 6;
 
-/** The hue the player and the enemies are drawn in, and the berth to give it. */
 const ENTITY_HUE = 24;
 const ENTITY_HUE_GUARD = 30;
 
@@ -61,11 +49,6 @@ interface Ground {
   capLightness: number;
 }
 
-/**
- * Pushes a hue clear of the one the entities wear. A cap that lands on the
- * player's own colour would hide them against the ground they stand on, so a
- * hue inside the guard is moved out to whichever side of it is nearer.
- */
 const awayFromEntityHue = (hue: number): number =>
   match(wrapHue(hue - ENTITY_HUE))
     .when(
@@ -91,10 +74,6 @@ const rollSky = (random: ReturnType<typeof createRandom>): Sky => {
   };
 };
 
-/**
- * The ground rolls its own hue rather than borrowing the sky's, so a level is
- * two colours meeting rather than one wash over everything.
- */
 const rollGround = (random: ReturnType<typeof createRandom>): Ground => {
   const hue = random.int(0, HUE_MAX);
 
@@ -137,12 +116,6 @@ const hillShades = (sky: Sky): readonly [Hsl, Hsl] => [
   },
 ];
 
-/**
- * A level's colours, decided by its seed alone — the same seed paints the same
- * level every time. Everything is written in the `HSL(h, s%, l%)` form the
- * renderer reads back, which is what lets the block colour be shifted into the
- * five material tints rather than each one being picked by hand.
- */
 export const generatePalette = (seed: string): Palette => {
   const random = createRandom(seed);
   const sky = rollSky(random);

@@ -13,7 +13,6 @@ import { describe, expect, it } from 'vitest';
 import { STROKE_WIDTH } from './stroke';
 import { strokeTileEdges } from './stroke-tile-edges';
 
-/** `#` is a block, `^` a spike, anything else air. */
 const tileMap = (rows: string[]): Level => {
   const tiles: Tile[][] = map(rows, (row) =>
     map(row.split(''), (cell): Tile =>
@@ -40,7 +39,6 @@ interface Bar {
   height: number;
 }
 
-/** The bars a tile paints, caught off a context that only records them. */
 const barsFor = (level: Level, column: number, row: number): Bar[] => {
   const bars: Bar[] = [];
   const context = {
@@ -70,7 +68,6 @@ const isRight = (bar: Bar, column: number): boolean =>
 const isCornerSquare = (bar: Bar): boolean =>
   bar.width === STROKE_WIDTH && bar.height === STROKE_WIDTH;
 
-/** The square a tile fills at its own top-left corner. */
 const isTopLeftSquare = (bar: Bar, column: number, row: number): boolean =>
   isCornerSquare(bar) &&
   bar.x === column * TILE_SIZE &&
@@ -90,8 +87,6 @@ describe('strokeTileEdges', () => {
   it('leaves the edges a block shares with its neighbours bare', () => {
     const bars = barsFor(tileMap(['.#.', '###', '.#.']), 1, 1);
 
-    // Every side is buried, so nothing is drawn along one — only the four
-    // diagonal notches the neighbours leave behind.
     expect(filter(bars, (bar) => !isCornerSquare(bar))).toHaveLength(0);
   });
 
@@ -133,9 +128,6 @@ describe('strokeTileEdges', () => {
   });
 
   it('fills the notch an inside corner leaves', () => {
-    // .#
-    // #X — both of X's own sides are buried, but the diagonal is open, so the
-    // bars either side of that pocket stop dead at X's corner.
     const bars = barsFor(tileMap(['.#', '##']), 1, 1);
 
     expect(bars).toHaveLength(3);
@@ -145,7 +137,6 @@ describe('strokeTileEdges', () => {
   it('leaves a corner alone when its own sides already face air', () => {
     const bars = barsFor(tileMap(['..', '.#']), 1, 1);
 
-    // Four full-length edge bars cover every corner between them.
     expect(bars).toHaveLength(4);
     expect(some(bars, isCornerSquare)).toBe(false);
   });

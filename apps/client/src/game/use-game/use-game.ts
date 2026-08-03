@@ -2,8 +2,8 @@ import {
   type Action,
   createInitialState,
   type GameState,
-  type Level,
   reduce,
+  type World,
 } from '@mander/engine';
 import { generate } from '@mander/generator';
 import { renderGame, syncViewport } from '@mander/render';
@@ -21,24 +21,11 @@ import { match, P } from 'ts-pattern';
 import { onMounted, onUnmounted, type Ref, shallowRef } from 'vue';
 
 import { createKeyboard, type Keyboard } from '../input';
-import {
-  loadSave,
-  markLevelCompleted,
-  saveInventory,
-  saveLastSeed,
-} from '../storage';
-import { firstUncompletedIndex } from './first-uncompleted-index';
+import { completeWorld, saveScore } from '../storage';
 import type { GameController } from './game-controller';
 
-const startState = (levels: Level[]): GameState => {
-  const save = loadSave();
-  const startIndex = Math.min(
-    firstUncompletedIndex(levels, save.completedLevels),
-    levels.length - 1,
-  );
-
-  return createInitialState(levels[startIndex], startIndex, save.inventory);
-};
+const startState = (world: World): GameState =>
+  createInitialState(world.levels[0], 0, [], world.score);
 
 const tickStream = (): Observable<Action> =>
   animationFrames().pipe(
@@ -59,26 +46,26 @@ const syncDebugGlobals = (
     })
     .otherwise(() => undefined);
 
-const persistProgress = (previous: GameState, next: GameState): void => {
-  match(next.inventory !== previous.inventory)
-    .with(true, () => saveInventory(next.inventory))
-    .otherwise(() => undefined);
+const persistProgress = (
+  world: World,
+  previous: GameState,
+  next: GameState,
+): void =>
   match(next.status === 'COMPLETE' && previous.status !== 'COMPLETE')
-    .with(true, () => markLevelCompleted(next.level.seed))
+    .with(true, () =>
+      match(next.levelIndex >= world.levels.length - 1)
+        .with(true, () => completeWorld(world.name, next.score))
+        .otherwise(() => saveScore(next.score)),
+    )
     .otherwise(() => undefined);
-};
 
-/**
- * Runs one day of the game. The generator deals the whole day at once, so the
- * levels are built here and then handed out in order — no level is rebuilt on
- * the way to it, and the run cannot drift from the one the date describes.
- */
 export const useGame = (
   day: string,
   canvas: Ref<HTMLCanvasElement | null>,
 ): GameController => {
-  const { name, levels, palette } = generate(new Date(day));
-  const initial = startState(levels);
+  const world = generate(new Date(day));
+  const { name, levels, palette } = world;
+  const initial = startState(world);
 
   const state = shallowRef(initial);
   const actions$ = new Subject<Action>();
@@ -92,7 +79,7 @@ export const useGame = (
       .with(
         { element: P.nonNullable, context: P.nonNullable },
         ({ element, context }) => {
-          saveLastSeed(day);
+          saveScore(initial.score);
           keyboard = createKeyboard();
 
           subscription = merge(tickStream(), keyboard.actions$, actions$)
@@ -101,7 +88,7 @@ export const useGame = (
               const previous = state.value;
               state.value = next;
               syncDebugGlobals(next, (action) => actions$.next(action));
-              persistProgress(previous, next);
+              persistProgress(world, previous, next);
               renderGame(context, next, palette, syncViewport(element));
             });
         },
@@ -130,6 +117,10 @@ export const useGame = (
             levelIndex: index,
           }),
         );
+    },
+    restart: () => {
+      saveScore(0);
+      actions$.next({ type: 'RESTART', level: levels[0] });
     },
   };
 };

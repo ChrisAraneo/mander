@@ -1,8 +1,3 @@
-/**
- * Points the canvas at the device pixels it actually covers, so tile textures
- * stay sharp on a high-DPI screen instead of being scaled up after the fact.
- * The returned context is pre-scaled, so callers keep drawing in CSS pixels.
- */
 export const fitCanvas = (
   canvas: HTMLCanvasElement,
   width: number,

@@ -4,8 +4,6 @@ import { describe, expect, it } from 'vitest';
 
 import { snapToDevicePixel, wholeTileScale } from './device-pixel';
 
-// Awkward window sizes over awkward pixel ratios: the scales that used to put
-// tile edges halfway across a device pixel.
 const RAW_SCALES = [0.5, 0.83, 1, 1.25, 1.3333333, 1.5625, 2, 2.7, 3.1];
 
 describe('wholeTileScale', () => {

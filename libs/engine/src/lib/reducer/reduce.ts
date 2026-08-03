@@ -7,6 +7,9 @@ import { createEnemies } from './enemy/create-enemies';
 import { capabilitiesFor } from './player/capabilities-for';
 import { createPlayer } from './player/create-player';
 import { withCapabilities } from './player/with-capabilities';
+import { levelScore } from './score/level-score';
+import { scoreGain } from './score/score-gain';
+import { createInitialState } from '../state/create-initial-state';
 import type { GameState } from '../state/game-state';
 import { withInput } from '../state/with-input';
 import { tick } from './tick';
@@ -41,6 +44,7 @@ const withItem = (state: GameState, item: Item): GameState => {
     isChestOpened: true,
     isNearChest: false,
     inventory,
+    score: state.score + scoreGain(item),
     player: withCapabilities(
       {
         ...state.player,
@@ -64,6 +68,12 @@ const chooseItem = (state: GameState, index: number): GameState =>
     })
     .otherwise((): GameState => state);
 
+const complete = (state: GameState): GameState => ({
+  ...state,
+  status: 'COMPLETE',
+  score: state.score + levelScore(state.time),
+});
+
 const interact = (state: GameState): GameState =>
   match(state.status)
     .with('PLAYING', (): GameState =>
@@ -74,7 +84,7 @@ const interact = (state: GameState): GameState =>
         }))
         .otherwise(() =>
           match(state.isNearPortal)
-            .with(true, (): GameState => ({ ...state, status: 'COMPLETE' }))
+            .with(true, (): GameState => complete(state))
             .otherwise((): GameState => state),
         ),
     )
@@ -109,7 +119,6 @@ const loadLevel = (
   isChestOpened: false,
   isNearChest: false,
   isNearPortal: false,
-  time: 0,
 });
 
 export const reduce = (state: GameState, action: Action): GameState =>
@@ -132,4 +141,5 @@ export const reduce = (state: GameState, action: Action): GameState =>
     .with({ type: 'LOAD_LEVEL' }, ({ level, levelIndex }) =>
       loadLevel(state, level, levelIndex),
     )
+    .with({ type: 'RESTART' }, ({ level }) => createInitialState(level, 0, []))
     .exhaustive();

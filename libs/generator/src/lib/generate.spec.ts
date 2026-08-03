@@ -9,7 +9,6 @@ const dayOf = (day: number): Date => new Date(Date.UTC(2026, 0, 1 + day));
 
 const days = times(10, dayOf);
 
-/** A level read as one string, to tell two of them apart by their tiles. */
 const fingerprint = (tiles: number[][]): string =>
   join(
     map(tiles, (row) => join(row, ',')),

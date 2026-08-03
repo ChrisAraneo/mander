@@ -36,6 +36,8 @@ const keyLabel = computed(() =>
     .with(true, () => '🔑 Key found')
     .otherwise(() => '🔒 No key'),
 );
+
+const score = computed(() => props.state.score.toLocaleString('en-US'));
 </script>
 
 <template>
@@ -49,6 +51,7 @@ const keyLabel = computed(() =>
         >Level {{ state.levelIndex + 1 }}/{{ levelCount }}</span
       >
       <span class="chip">{{ time }}</span>
+      <span class="chip score" title="Score">★ {{ score }}</span>
       <span class="chip hearts" title="Hearts">
         <span
           v-for="(filled, index) in hearts"
@@ -67,17 +70,6 @@ const keyLabel = computed(() =>
     </div>
 
     <div class="group">
-      <span v-if="state.inventory.length === 0" class="empty"
-        >No items yet</span
-      >
-      <span
-        v-for="(item, index) in state.inventory"
-        :key="index"
-        class="item"
-        :class="item.rarity.toLowerCase()"
-        :title="item.description">
-        {{ item.name }}
-      </span>
       <button class="ghost" @click="$emit('exit')">Exit</button>
     </div>
   </header>
@@ -141,6 +133,11 @@ const keyLabel = computed(() =>
   text-shadow: 0 0 6px rgba(255, 84, 112, 0.5);
 }
 
+.score {
+  color: #ffd166;
+  border-color: #8a6d2f;
+}
+
 .deaths {
   color: #ff8f8f;
   border-color: #5a3344;
@@ -154,32 +151,5 @@ const keyLabel = computed(() =>
 .key.found {
   color: #ffd166;
   border-color: #8a6d2f;
-}
-
-.empty {
-  color: #64758a;
-  font-size: 13px;
-}
-
-.item {
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 13px;
-  border: 1px solid;
-}
-
-.item.common {
-  color: #a9c2b8;
-  border-color: #3d5a4e;
-}
-
-.item.rare {
-  color: #7fc3ff;
-  border-color: #2e5f88;
-}
-
-.item.epic {
-  color: #c9a2ff;
-  border-color: #6a4a9e;
 }
 </style>

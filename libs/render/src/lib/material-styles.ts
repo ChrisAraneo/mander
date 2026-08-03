@@ -44,7 +44,6 @@ export const WOOD_STYLE: MaterialStyle = {
   highlight: 'RGBA(220, 174, 142, 0.18)',
 };
 
-/** The glaze, kept in step with what CERAMIC_TINT paints over a rolled ground. */
 export const CERAMIC_STYLE: MaterialStyle = {
   base: '#AE42B8',
   cap: '#BB5AC4',

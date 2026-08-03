@@ -1,7 +1,9 @@
-import type { Item } from '@mander/engine';
+export interface CompletedWorld {
+  name: string;
+  score: number;
+}
 
 export interface SaveData {
-  inventory: Item[];
-  completedLevels: string[];
-  lastSeed: string | null;
+  score: number;
+  completedWorlds: CompletedWorld[];
 }

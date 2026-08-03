@@ -17,4 +17,5 @@ export interface GameState {
   isNearPortal: boolean;
   time: number;
   deaths: number;
+  score: number;
 }

@@ -4,11 +4,6 @@ import { STRUCTURE_END } from '@mander/structures';
 const START_COLOUR = '#7ea653';
 const END_COLOUR = '#e0b83a';
 
-/**
- * Editor chrome, not a tile: the game draws air here, so a marker is a badge
- * over the cell rather than something the renderer knows about. It is kept
- * see-through so whatever the player will run past stays readable underneath.
- */
 export const drawMarker = (
   context: CanvasRenderingContext2D,
   cell: number,

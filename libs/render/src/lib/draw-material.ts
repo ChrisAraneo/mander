@@ -47,8 +47,6 @@ const drawStone = (
   context.fillRect(pixelX + 20, pixelY + 6, 5, 4);
 };
 
-// The planks are shades of the material's own body, so wood follows the level
-// palette like every other block. Everything laid over them is colourless.
 const PLANK_LIGHTNESS = [0, -2, 4, -6, -1];
 const PLANK_TOP = 'RGBA(255, 255, 255, 0.18)';
 const PLANK_BOTTOM = 'RGBA(0, 0, 0, 0.20)';

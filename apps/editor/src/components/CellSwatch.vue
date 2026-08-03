@@ -9,10 +9,6 @@ const props = defineProps<{ value: number }>();
 const canvas = ref<HTMLCanvasElement | null>(null);
 const context = ref<CanvasRenderingContext2D | null>(null);
 
-/**
- * A one-cell structure, drawn by the game's renderer. Nothing sits above it,
- * so a block shows its exposed cap — the same face it wears on a surface.
- */
 function repaint(): void {
   const target = context.value;
   if (target === null) return;
@@ -37,7 +33,6 @@ watch(() => props.value, repaint);
 .swatch {
   display: block;
   flex: none;
-  /* Framed like the grid, so the swatch is one tile at its true size. */
   box-sizing: content-box;
   outline: 1px solid #222c3c;
   background: #0b0f17;

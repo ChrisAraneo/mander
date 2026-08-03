@@ -11,15 +11,8 @@ import {
   size,
 } from 'lodash-es';
 
-/** The portal stands two tiles tall, the way the entity box measures it. */
 const PORTAL_HEIGHT = 2;
 
-/**
- * How far in from the right edge to try, in order. The way out sits just
- * inside the level rather than flush against the wall, so the second to last
- * column is asked first and the edge itself is only taken once the room beside
- * it is spoken for. Further back is a last resort, walking left.
- */
 const PREFERRED_OFFSETS = [1, 2, 3, 0];
 
 const columnOrder = (width: number): number[] =>
@@ -31,22 +24,12 @@ const columnOrder = (width: number): number[] =>
     (column) => column >= 0,
   );
 
-/**
- * The row of the first thing that would be landed on, dropping down this
- * column, or -1 when the column is open all the way down with nothing to stand
- * on at all.
- */
 const surfaceRow = (tiles: Tile[][], column: number): number =>
   findIndex(tiles, (row) => isSolidTile(row[column]));
 
 const stackRows = (surface: number): number[] =>
   map(range(1, PORTAL_HEIGHT + 1), (offset) => surface - offset);
 
-/**
- * A column is free when it has ground and the portal's own height of clear air
- * directly above it. Air rather than merely "not solid", which also keeps the
- * portal off a column already holding the player's spawn.
- */
 const isFree = (tiles: Tile[][], column: number): boolean => {
   const surface = surfaceRow(tiles, column);
 
@@ -56,14 +39,6 @@ const isFree = (tiles: Tile[][], column: number): boolean => {
   );
 };
 
-/**
- * Marks the way out of the level: a stack of portal tiles standing on the
- * ground near the right edge. `findPortalTile` takes the top of the stack and
- * walks down to the tile it stands on, so the pair reads as one doorway.
- *
- * A level with nowhere to stand comes back unmarked, rather than with the
- * portal buried in the terrain.
- */
 export const addPortal = (tiles: Tile[][]): Tile[][] => {
   const marked = map(tiles, (row) => [...row]);
   const column = find(columnOrder(size(marked[0])), (candidate) =>

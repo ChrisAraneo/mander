@@ -73,10 +73,6 @@ interface EnemyMotion {
   isGrounded: boolean;
 }
 
-/**
- * An enemy that drops out of the world is gone for good — only the player
- * respawns. Marking it fully faded lets the reducer drop it on this same tick.
- */
 const lostToThePit = (enemy: Enemy): Enemy => ({
   ...enemy,
   velocity: {

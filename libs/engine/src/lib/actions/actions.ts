@@ -12,4 +12,5 @@ export type Action =
   | { type: 'CHOOSE_ITEM'; index: number }
   | { type: 'CLOSE' }
   | { type: 'LOAD_LEVEL'; level: Level; levelIndex: number }
-  | { type: 'RESPAWN' };
+  | { type: 'RESPAWN' }
+  | { type: 'RESTART'; level: Level };

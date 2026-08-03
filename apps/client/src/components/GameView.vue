@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { match } from 'ts-pattern';
+import type { GameState } from '@mander/engine';
 import { useGame } from '../game/use-game';
 import ChestModal from './ChestModal.vue';
 import HudBar from './HudBar.vue';
@@ -9,7 +10,7 @@ const props = defineProps<{ day: string }>();
 const emit = defineEmits<{ exit: [] }>();
 
 const canvas = ref<HTMLCanvasElement | null>(null);
-const { state, dispatch, nextLevel, levelCount, worldName } = useGame(
+const { state, dispatch, nextLevel, restart, levelCount, worldName } = useGame(
   props.day,
   canvas,
 );
@@ -19,6 +20,8 @@ const isRunFinished = computed(
     state.value.status === 'COMPLETE' &&
     state.value.levelIndex >= levelCount - 1,
 );
+
+const score = computed(() => state.value.score.toLocaleString('en-US'));
 
 const hint = computed(() =>
   match(state.value.status)
@@ -43,16 +46,24 @@ const confirmComplete = (): void =>
     .with(true, () => emit('exit'))
     .otherwise(() => nextLevel());
 
-const completeReady = ref(false);
+const confirm = (): void =>
+  match(state.value.status)
+    .with('GAME_OVER', () => restart())
+    .otherwise(() => confirmComplete());
+
+const isModalStatus = (status: GameState['status']): boolean =>
+  status === 'COMPLETE' || status === 'GAME_OVER';
+
+const modalReady = ref(false);
 
 watch(
   () => state.value.status,
   (status) => {
-    completeReady.value = false;
-    match(status === 'COMPLETE')
+    modalReady.value = false;
+    match(isModalStatus(status))
       .with(true, () =>
         requestAnimationFrame(() => {
-          completeReady.value = state.value.status === 'COMPLETE';
+          modalReady.value = isModalStatus(state.value.status);
         }),
       )
       .otherwise(() => undefined);
@@ -61,13 +72,11 @@ watch(
 
 const onModalKey = (event: KeyboardEvent): void =>
   match({
-    active: completeReady.value && state.value.status === 'COMPLETE',
+    active: modalReady.value && isModalStatus(state.value.status),
     repeat: event.repeat,
     code: event.code,
   })
-    .with({ active: true, repeat: false, code: 'Enter' }, () =>
-      confirmComplete(),
-    )
+    .with({ active: true, repeat: false, code: 'Enter' }, () => confirm())
     .with({ active: true, repeat: false, code: 'Escape' }, () => emit('exit'))
     .otherwise(() => undefined);
 
@@ -111,6 +120,7 @@ onUnmounted(() => window.removeEventListener('keydown', onModalKey));
         <p>
           All {{ levelCount }} levels of World {{ worldName }} are behind you.
         </p>
+        <p class="score">★ {{ score }}</p>
         <button class="primary" @click="$emit('exit')">
           Back to the start
         </button>
@@ -118,9 +128,25 @@ onUnmounted(() => window.removeEventListener('keydown', onModalKey));
       <div v-else class="panel">
         <h2>Level {{ state.levelIndex + 1 }} complete!</h2>
         <p>The portal hums and pulls you onward.</p>
+        <p class="score">★ {{ score }}</p>
         <button class="primary" @click="nextLevel">
           Enter level {{ state.levelIndex + 2 }}
         </button>
+      </div>
+    </div>
+
+    <div v-if="state.status === 'GAME_OVER'" class="overlay">
+      <div class="panel">
+        <h2>Out of hearts</h2>
+        <p>
+          World {{ worldName }} took the last of them on level
+          {{ state.levelIndex + 1 }}. The run ends here.
+        </p>
+        <p class="score">★ {{ score }}</p>
+        <button class="primary" @click="restart">
+          Start again from level 1
+        </button>
+        <button class="ghost" @click="$emit('exit')">Back to the start</button>
       </div>
     </div>
   </div>
@@ -173,6 +199,12 @@ onUnmounted(() => window.removeEventListener('keydown', onModalKey));
   border: 1px solid #ffd166;
   color: #ffd166;
   font-size: 14px;
+}
+
+.score {
+  font-size: 24px;
+  font-weight: 700;
+  color: #ffd166;
 }
 
 .controls {

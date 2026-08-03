@@ -11,10 +11,8 @@ import { describe, expect, it } from 'vitest';
 import { generate } from '../generate';
 import { addSpikes } from './add-spikes';
 
-/** Past the levels walked bare or thinned, so the rules all run in full. */
 const GROWN_LEVEL = 8;
 
-/** The air the player needs over a spike to have a jump that clears it. */
 const HEADROOM = 3;
 
 const WIDTH = 12;
@@ -67,9 +65,6 @@ describe('addSpikes', () => {
     fillRow(tiles, 8, TILE_DIRT);
     fillRow(tiles, 4, TILE_DIRT);
 
-    // Rows 5, 6 and 7 are open, so a spike on the corridor floor would leave
-    // two. The open sky over the slab at row 4 is another matter, and keeps
-    // its spikes.
     const laid = addSpikes(tiles, GROWN_LEVEL);
 
     expect(filter(spikesIn(laid), ({ row }) => row === 7)).toEqual([]);

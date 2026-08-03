@@ -10,6 +10,7 @@ export const createInitialState = (
   level: Level,
   levelIndex: number,
   inventory: Item[],
+  score = 0,
 ): GameState => ({
   level,
   levelIndex,
@@ -27,4 +28,5 @@ export const createInitialState = (
   isNearPortal: false,
   time: 0,
   deaths: 0,
+  score,
 });

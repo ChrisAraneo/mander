@@ -8,22 +8,20 @@ import { dailyDate } from '../game/use-game';
 const emit = defineEmits<{ start: [day: string] }>();
 
 const date = dailyDate();
-/** What the generator will name today's world, read straight off the date. */
 const worldName = computeWorldName(new Date(date));
 
 const save = ref(loadSave());
-const isContinuing = computed(() => save.value.lastSeed === date);
 
-const startLabel = computed(() =>
-  match(isContinuing.value)
-    .with(true, () => "Continue today's run")
-    .otherwise(() => "Start today's run"),
+const finishedToday = computed(() =>
+  save.value.completedWorlds.find((world) => world.name === worldName),
 );
 
 const pluralSuffix = (count: number): string =>
   match(count)
     .with(1, () => '')
     .otherwise(() => 's');
+
+const formatScore = (score: number): string => score.toLocaleString('en-US');
 
 function resetSave(): void {
   clearSave();
@@ -39,23 +37,20 @@ function resetSave(): void {
       <span class="label">Today's world</span>
       <span class="world">World {{ worldName }}</span>
       <span class="hash">{{ date }}</span>
+      <span v-if="finishedToday" class="finished"
+        >✓ Finished · ★ {{ formatScore(finishedToday.score) }}</span
+      >
       <button class="primary" @click="emit('start', date)">
-        {{ startLabel }}
+        Start today's run
       </button>
     </div>
 
-    <div
-      v-if="save.completedLevels.length || save.inventory.length"
-      class="save-info">
+    <div v-if="save.completedWorlds.length" class="save-info">
       <p>
-        {{ save.completedLevels.length }} level{{
-          pluralSuffix(save.completedLevels.length)
+        {{ save.completedWorlds.length }} world{{
+          pluralSuffix(save.completedWorlds.length)
         }}
-        completed ·
-        {{ save.inventory.length }} item{{
-          pluralSuffix(save.inventory.length)
-        }}
-        collected
+        finished
       </p>
       <button class="ghost" @click="resetSave">Reset save</button>
     </div>
@@ -109,7 +104,6 @@ h1 {
   font-size: 28px;
   font-weight: 700;
   color: #e8eef6;
-  /* The name is a hash, so it has to be able to break rather than overflow. */
   overflow-wrap: anywhere;
 }
 
@@ -117,6 +111,11 @@ h1 {
   font-family: 'Cascadia Mono', Consolas, monospace;
   font-size: 13px;
   color: #64758a;
+}
+
+.finished {
+  font-size: 13px;
+  color: #ffd166;
 }
 
 .daily-card .primary {

@@ -31,11 +31,6 @@ const traceKeyTeeth = (
   context.rect(centerX, centerY + 7, 6, 2.5);
 };
 
-/**
- * Both outlines go down before either piece of gold, so the teeth do not cut a
- * black bar across the shaft they grow out of — the key reads as one shape
- * with a line round it rather than three parts stacked up.
- */
 const drawKeyGlyph = (
   context: CanvasRenderingContext2D,
   centerX: number,
