@@ -54,6 +54,21 @@ import {
   NORMAL_33,
   NORMAL_34,
   NORMAL_35,
+  NORMAL_36,
+  NORMAL_37,
+  NORMAL_38,
+  NORMAL_39,
+  NORMAL_40,
+  NORMAL_41,
+  NORMAL_42,
+  NORMAL_43,
+  NORMAL_44,
+  NORMAL_45,
+  NORMAL_46,
+  NORMAL_47,
+  NORMAL_48,
+  NORMAL_49,
+  NORMAL_50,
 } from './normal';
 import type { Structure } from './structure';
 
@@ -93,6 +108,21 @@ export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
   NORMAL_33,
   NORMAL_34,
   NORMAL_35,
+  NORMAL_36,
+  NORMAL_37,
+  NORMAL_38,
+  NORMAL_39,
+  NORMAL_40,
+  NORMAL_41,
+  NORMAL_42,
+  NORMAL_43,
+  NORMAL_44,
+  NORMAL_45,
+  NORMAL_46,
+  NORMAL_47,
+  NORMAL_48,
+  NORMAL_49,
+  NORMAL_50,
 ]);
 
 export const HARD_STRUCTURES: readonly Structure[] = Object.freeze([
