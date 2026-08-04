@@ -2,7 +2,10 @@ import type { Tile } from '../tile/tile';
 
 export const TILE_ENEMY: Tile = 7;
 
+export type EnemyKind = 'STANDARD' | 'HORNED' | 'FLYING';
+
 export interface Enemy {
+  kind: EnemyKind;
   position: {
     x: number;
     y: number;

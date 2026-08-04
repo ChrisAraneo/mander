@@ -9,6 +9,7 @@ import {
   ENEMY_JUMP_VELOCITY,
   ENEMY_MOVE_SPEED,
   ENEMY_WIDTH,
+  HORNED_ENEMY_JUMP_VELOCITY,
 } from './enemy/consts';
 import { capabilitiesFor } from './player/capabilities-for';
 import {
@@ -16,6 +17,7 @@ import {
   INVINCIBLE_SECONDS,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
+  STOMP_BOUNCE_VELOCITY,
 } from './player/consts';
 import {
   LEVEL_SCORE_BASE,
@@ -29,6 +31,7 @@ import { reduce } from './reduce';
 import { totalTime } from './score/total-time';
 import {
   DOUBLE_HEART,
+  type EnemyKind,
   type Item,
   type Level,
   MAX_JUMP_TILES,
@@ -382,8 +385,25 @@ describe('enemies', () => {
   const enemySpawn: Point = { x: 5, y: 11 };
   const floorEnemyY = SURFACE - ENEMY_HEIGHT;
 
-  const withEnemy = (): GameState =>
-    createInitialState(testLevel([enemySpawn]), 0, []);
+  // Enemy kind is chosen by a seeded roll in createEnemies, so tests that
+  // care about standard-enemy behaviour specifically pin it down here rather
+  // than depending on what that roll happens to produce for this seed.
+  const withEnemy = (): GameState => {
+    const state = createInitialState(testLevel([enemySpawn]), 0, []);
+    return {
+      ...state,
+      enemies: state.enemies.map((enemy) => ({
+        ...enemy,
+        kind: 'STANDARD' as EnemyKind,
+      })),
+    };
+  };
+
+  // Nothing solid sits below this tile, so createEnemies rolls it FLYING on
+  // its own — no need to pin the kind down by hand like withEnemy does.
+  const flyingEnemySpawn: Point = { x: 5, y: 5 };
+  const withFlyingEnemy = (): GameState =>
+    createInitialState(testLevel([flyingEnemySpawn]), 0, []);
 
   it('paces back and forth, turning at walls and platform edges without falling', () => {
     let state = withEnemy();
@@ -480,17 +500,58 @@ describe('enemies', () => {
     ).toHaveLength(0);
   });
 
-  it('does not bring enemies back when the player respawns', () => {
+  it('resets every enemy back to its own spawn point when the player respawns', () => {
     let state = withEnemy();
+    const enemySpawnPos = state.enemies[0].spawn;
     state = tickN(state, 5);
-    const enemyX = state.enemies[0].position.x;
+    expect(
+      state.enemies[0].position.x,
+      'paced away from its spawn by now',
+    ).not.toBe(enemySpawnPos.x);
 
     state = act(state, { type: 'RESPAWN' });
     expect(state.player.position.x, 'the player went back to spawn').toBe(
       SPAWN_X,
     );
-    expect(state.enemies, 'the enemy is still there').toHaveLength(1);
-    expect(state.enemies[0].position.x, 'and did not move').toBe(enemyX);
+    expect(state.enemies, 'still exactly one enemy').toHaveLength(1);
+    expect(
+      state.enemies[0].position,
+      'and it is back at its own spawn point too',
+    ).toEqual(enemySpawnPos);
+  });
+
+  it('respawns every enemy too when the player auto-respawns after a pit fall', () => {
+    let state = withEnemy();
+    const enemySpawnPos = state.enemies[0].spawn;
+    state = tickN(state, 5);
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        position: { x: 10 * TILE_SIZE + 5, y: SURFACE - PLAYER_HEIGHT },
+      },
+    };
+    // Tick through the fall and the death animation, stopping the instant
+    // stepPlayerDeath's internal respawn completes — the enemy keeps
+    // patrolling on every tick afterward, so checking any later would just
+    // catch it mid-patrol again instead of freshly reset.
+    for (let i = 0; i < 300 && state.player.timers.death === null; i++) {
+      state = tick(state);
+    }
+    expect(
+      state.player.timers.death,
+      'the fall started the death throes',
+    ).not.toBeNull();
+    for (let i = 0; i < 300 && state.player.timers.death !== null; i++) {
+      state = tick(state);
+    }
+    expect(state.player.timers.death, 'and the respawn completed').toBeNull();
+    expect(state.player.position.x, 'respawned at spawn').toBe(SPAWN_X);
+    expect(state.enemies, 'still exactly one enemy').toHaveLength(1);
+    expect(
+      state.enemies[0].position,
+      'the enemy reset to its own spawn point too',
+    ).toEqual(enemySpawnPos);
   });
 
   it('spawns the new levels enemies on LOAD_LEVEL', () => {
@@ -593,7 +654,14 @@ describe('enemies', () => {
   });
 
   it('turns enemies back at a spike and keeps them alive', () => {
-    let state = createInitialState(withSpike(9, [enemySpawn]), 0, []);
+    const initial = createInitialState(withSpike(9, [enemySpawn]), 0, []);
+    let state: GameState = {
+      ...initial,
+      enemies: initial.enemies.map((enemy) => ({
+        ...enemy,
+        kind: 'STANDARD' as EnemyKind,
+      })),
+    };
     let maxRight = 0;
     for (let i = 0; i < 400; i++) {
       state = tick(state);
@@ -625,9 +693,44 @@ describe('enemies', () => {
     expect(state.enemies, 'lingers while it fades').toHaveLength(1);
     expect(state.enemies[0].timers.death).toBe(0);
     expect(state.enemies[0].velocity.x.current, 'stops dead').toBe(0);
+    expect(
+      state.enemies[0].position.y,
+      'already on solid ground — nowhere to fall',
+    ).toBe(floorEnemyY);
 
     state = tickN(state, ticksFor(ENEMY_DEATH_SECONDS));
     expect(state.enemies).toHaveLength(0);
+  });
+
+  it('keeps a dying enemy falling instead of freezing wherever it died', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      enemies: [
+        {
+          ...enemy,
+          position: { ...enemy.position, y: enemy.position.y - 3 * TILE_SIZE },
+          velocity: {
+            ...enemy.velocity,
+            y: { ...enemy.velocity.y, current: 0 },
+          },
+          statuses: { ...enemy.statuses, isGrounded: false },
+          timers: { death: 0 },
+        },
+      ],
+    };
+    const startY = state.enemies[0].position.y;
+    state = tick(state);
+    expect(
+      state.enemies[0].position.y,
+      'the corpse keeps falling instead of hanging frozen in the air',
+    ).toBeGreaterThan(startY);
+    expect(
+      state.enemies[0].velocity.y.current,
+      'gravity is still acting on it',
+    ).toBeGreaterThan(0);
   });
 
   it('lets the player walk through a dying enemy unharmed', () => {
@@ -739,6 +842,7 @@ describe('enemies', () => {
       },
       enemies: [
         {
+          kind: 'STANDARD',
           position: { x: px + 17, y: enemyFloorY },
           velocity: {
             x: { current: 0, max: ENEMY_MOVE_SPEED },
@@ -754,6 +858,328 @@ describe('enemies', () => {
     state = tick(state);
     expect(state.deaths, 'grazing the bounding boxes is not lethal').toBe(
       before,
+    );
+  });
+
+  it('kills an enemy the player lands on from above at terminal velocity, without costing a heart', () => {
+    // The player starts just barely above the enemy's head but falling at
+    // terminal velocity, so this single tick's movement lands it well past
+    // the enemy's head — a fast fall covering more ground than a fixed
+    // "shallow depth" check would allow used to get misread as a side hit.
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        position: {
+          x: enemy.position.x,
+          y: enemy.position.y + 1 - PLAYER_HEIGHT,
+        },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 1000 },
+        },
+        statuses: { ...state.player.statuses, isGrounded: false },
+      },
+    };
+    const before = state.deaths;
+    state = tick(state);
+    expect(
+      state.enemies[0].timers.death,
+      'still a clean stomp, even landing well past the head',
+    ).toBe(0);
+    expect(state.player.hearts.value, 'no damage from a clean stomp').toBe(
+      BASE_HEARTS,
+    );
+    expect(state.player.velocity.y.current, 'the player bounces back up').toBe(
+      -STOMP_BOUNCE_VELOCITY,
+    );
+    expect(state.deaths).toBe(before);
+  });
+
+  it('clears a stomped enemy from the array once its death fade finishes', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        position: {
+          x: enemy.position.x,
+          y: enemy.position.y + 1 - PLAYER_HEIGHT,
+        },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 1000 },
+        },
+        statuses: { ...state.player.statuses, isGrounded: false },
+      },
+    };
+    state = tick(state);
+    expect(state.enemies, 'lingers while it fades').toHaveLength(1);
+    state = tickN(state, ticksFor(ENEMY_DEATH_SECONDS));
+    expect(state.enemies, 'gone once fully faded').toHaveLength(0);
+  });
+
+  it('stomping an enemy while holding jump launches a full jump instead of the small bounce', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = act(state, { type: 'JUMP_START' });
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        position: {
+          x: enemy.position.x,
+          y: enemy.position.y + 1 - PLAYER_HEIGHT,
+        },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 1000 },
+        },
+        statuses: { ...state.player.statuses, isGrounded: false },
+      },
+    };
+    state = tick(state);
+    expect(state.enemies[0].timers.death, 'still a clean stomp').toBe(0);
+    expect(state.player.hearts.value, 'no damage from a clean stomp').toBe(
+      BASE_HEARTS,
+    );
+    expect(
+      state.player.velocity.y.current,
+      'a held jump button turns the bounce into a full jump',
+    ).toBe(-state.player.velocity.y.max);
+    expect(
+      -state.player.velocity.y.current,
+      'stronger than the ordinary stomp bounce',
+    ).toBeGreaterThan(STOMP_BOUNCE_VELOCITY);
+  });
+
+  it('an enemy landing on the player from above still costs a heart, not a stomp', () => {
+    let state = withEnemy();
+    const player = {
+      ...state.player,
+      position: { x: 6 * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT },
+      velocity: {
+        x: { ...state.player.velocity.x, current: 0 },
+        y: { ...state.player.velocity.y, current: 0 },
+      },
+      statuses: { ...state.player.statuses, isGrounded: true },
+    };
+    state = {
+      ...state,
+      player,
+      enemies: [
+        {
+          ...state.enemies[0],
+          position: { x: player.position.x, y: player.position.y - 10 },
+          velocity: {
+            x: { current: 0, max: ENEMY_MOVE_SPEED },
+            y: { current: 200, max: ENEMY_JUMP_VELOCITY },
+          },
+          statuses: { ...state.enemies[0].statuses, isGrounded: false },
+        },
+      ],
+    };
+    const before = state.deaths;
+    state = tick(state);
+    expect(state.player.hearts.value, 'a falling enemy still hurts').toBe(
+      BASE_HEARTS - 1,
+    );
+    expect(
+      state.enemies[0].timers.death,
+      'the enemy dealt the blow, not the other way round',
+    ).toBeNull();
+    expect(state.deaths).toBe(before);
+  });
+
+  it('a horned enemy dies and costs a heart when touched from the side', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      enemies: [{ ...enemy, kind: 'HORNED' }],
+      player: {
+        ...state.player,
+        position: { x: enemy.position.x, y: enemy.position.y },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 0 },
+        },
+      },
+    };
+    const before = state.deaths;
+    state = tick(state);
+    expect(state.player.hearts.value, 'the trade costs a heart').toBe(
+      BASE_HEARTS - 1,
+    );
+    expect(state.enemies[0].timers.death, 'and the horn breaks').toBe(0);
+    expect(state.deaths).toBe(before);
+  });
+
+  it('a horned enemy dies and costs a heart even when stomped from above — never a free kill', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      enemies: [{ ...enemy, kind: 'HORNED' }],
+      player: {
+        ...state.player,
+        position: {
+          x: enemy.position.x,
+          y: enemy.position.y + 1 - PLAYER_HEIGHT,
+        },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 1000 },
+        },
+        statuses: { ...state.player.statuses, isGrounded: false },
+      },
+    };
+    const before = state.deaths;
+    state = tick(state);
+    expect(state.enemies[0].timers.death, 'the hit kills it too').toBe(0);
+    expect(state.player.hearts.value, 'landing on it still hurts').toBe(
+      BASE_HEARTS - 1,
+    );
+    expect(
+      state.player.velocity.y.current,
+      'no stomp bounce for a horned enemy',
+    ).toBeGreaterThan(0);
+    expect(state.deaths).toBe(before);
+  });
+
+  it('spares a horned enemy the player is currently invincible to', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      enemies: [{ ...enemy, kind: 'HORNED' }],
+      player: {
+        ...state.player,
+        position: { x: enemy.position.x, y: enemy.position.y },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 0 },
+        },
+        timers: { ...state.player.timers, invincibility: INVINCIBLE_SECONDS },
+      },
+    };
+    state = tick(state);
+    expect(
+      state.enemies[0].timers.death,
+      'an invincible player cannot gore it',
+    ).toBeNull();
+    expect(state.player.hearts.value, 'and takes no further damage').toBe(
+      BASE_HEARTS,
+    );
+  });
+
+  it('a horned enemy hops 30% lower than a standard enemy', () => {
+    // Both hops are measured after the same single tick of gravity, so that
+    // contribution is identical either way and cancels out in the
+    // comparison below — this isolates just the jump-velocity difference.
+    const hopVelocity = (kind: EnemyKind, jumpMax: number): number => {
+      let state = withEnemy();
+      for (let i = 0; i < 10; i++) state = tick(state);
+      const enemy = state.enemies[0];
+      state = {
+        ...state,
+        enemies: [
+          {
+            ...enemy,
+            kind,
+            velocity: { ...enemy.velocity, y: { current: 0, max: jumpMax } },
+          },
+        ],
+        player: {
+          ...state.player,
+          position: {
+            x: enemy.position.x,
+            y: enemy.position.y - 3 * TILE_SIZE,
+          },
+          velocity: {
+            ...state.player.velocity,
+            y: { ...state.player.velocity.y, current: 0 },
+          },
+        },
+      };
+      state = tick(state);
+      return state.enemies[0].velocity.y.current;
+    };
+
+    const standardVy = hopVelocity('STANDARD', ENEMY_JUMP_VELOCITY);
+    const hornedVy = hopVelocity('HORNED', HORNED_ENEMY_JUMP_VELOCITY);
+
+    expect(standardVy, 'the standard enemy launched upward').toBeLessThan(0);
+    expect(hornedVy, 'the horned enemy launched upward too').toBeLessThan(0);
+    expect(
+      hornedVy - standardVy,
+      'but 30% weaker than the standard enemy',
+    ).toBeCloseTo(ENEMY_JUMP_VELOCITY - HORNED_ENEMY_JUMP_VELOCITY);
+  });
+
+  it('a flying enemy holds its column and bounces exactly one block above and below spawn', () => {
+    let state = withFlyingEnemy();
+    expect(state.enemies[0].kind, 'nothing solid sits beneath this tile').toBe(
+      'FLYING',
+    );
+    const spawn = state.enemies[0].spawn;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (let i = 0; i < 400; i++) {
+      state = tick(state);
+      const enemy = state.enemies[0];
+      expect(enemy.statuses.isGrounded, `never grounded at tick ${i}`).toBe(
+        false,
+      );
+      expect(enemy.position.x, `never drifts sideways at tick ${i}`).toBe(
+        spawn.x,
+      );
+      minY = Math.min(minY, enemy.position.y);
+      maxY = Math.max(maxY, enemy.position.y);
+    }
+    expect(minY, 'rises a full block above spawn').toBeCloseTo(
+      spawn.y - TILE_SIZE,
+    );
+    expect(maxY, 'and falls a full block below spawn').toBeCloseTo(
+      spawn.y + TILE_SIZE,
+    );
+  });
+
+  it('a flying enemy can be stomped from above and killed, same as a standard one', () => {
+    let state = withFlyingEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        position: {
+          x: enemy.position.x,
+          y: enemy.position.y + 1 - PLAYER_HEIGHT,
+        },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 1000 },
+        },
+        statuses: { ...state.player.statuses, isGrounded: false },
+      },
+    };
+    state = tick(state);
+    expect(state.enemies[0].timers.death, 'a clean stomp kills it too').toBe(0);
+    expect(state.player.hearts.value, 'no damage from a clean stomp').toBe(
+      BASE_HEARTS,
+    );
+    expect(state.player.velocity.y.current, 'the player bounces back up').toBe(
+      -STOMP_BOUNCE_VELOCITY,
     );
   });
 });

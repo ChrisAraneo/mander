@@ -102,6 +102,7 @@ const respawn = (state: GameState): GameState =>
     .with('PLAYING', (): GameState => ({
       ...state,
       player: createPlayer(state.level, state.player),
+      enemies: createEnemies(state.level),
     }))
     .otherwise((): GameState => state);
 

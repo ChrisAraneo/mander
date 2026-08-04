@@ -86,6 +86,7 @@ const toEnemy = (motion: EnemyMotion, enemy: Enemy, level: Level): Enemy =>
   match(motion.y > (level.height + 2) * TILE_SIZE)
     .with(true, (): Enemy => lostToThePit(enemy))
     .otherwise((): Enemy => ({
+      kind: enemy.kind,
       position: { x: motion.x, y: motion.y },
       velocity: {
         x: {
