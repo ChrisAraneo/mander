@@ -4,7 +4,7 @@ import {
   type Structure,
 } from '@mander/structures';
 import { createRandom } from '@mander/utils';
-import { sortBy, take } from 'lodash-es';
+import { ceil, flatMap, range, size, sortBy, take } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 type Difficulty = 'normal' | 'hard';
@@ -26,7 +26,9 @@ export const pickStructures = (
   const pool = poolFor(difficulty);
 
   return take(
-    sortBy(pool, () => random.next()),
+    flatMap(range(ceil(count / size(pool))), () =>
+      sortBy(pool, () => random.next()),
+    ),
     count,
   );
 };

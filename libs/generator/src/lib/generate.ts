@@ -15,7 +15,7 @@ import { addKey } from './structures/add-key';
 import { generateChestItems } from './items/generate-chest-items';
 import { computeWorldName } from './seed/compute-world-name';
 
-const FIRST_HARD_LEVEL = 6;
+const FIRST_HARD_LEVEL = 7;
 
 const NORMAL_LEVELS = FIRST_HARD_LEVEL - 1;
 

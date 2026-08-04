@@ -23,6 +23,7 @@ const HEADROOM = 3;
 const LEAP_HEADROOM = HEADROOM + 1;
 const MAX_RUN = 2;
 const STRUCTURES_PER_LEVEL = 7;
+const NORMAL_LEVELS = 6;
 
 const WIDTH = 12;
 const HEIGHT = 12;
@@ -217,7 +218,7 @@ describe('addSpikes', () => {
           (date) =>
             flatten(
               map(
-                times(5, (index) => index),
+                times(NORMAL_LEVELS, (index) => index),
                 (index) => {
                   const preSpike = addPadding(
                     addPortal(
@@ -225,7 +226,7 @@ describe('addSpikes', () => {
                         joinStructures(
                           pickStructures(
                             computeWorldName(date),
-                            5 * STRUCTURES_PER_LEVEL,
+                            NORMAL_LEVELS * STRUCTURES_PER_LEVEL,
                             'normal',
                           ).slice(
                             index * STRUCTURES_PER_LEVEL,
