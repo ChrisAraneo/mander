@@ -13,7 +13,9 @@ defineProps<{ issues: string[]; isValid: boolean }>();
       <code>libs/generator/src/lib/structures/library.ts</code>.
     </p>
     <ul v-else>
-      <li v-for="issue in issues" :key="issue">{{ issue }}</li>
+      <li v-for="issue in issues" :key="issue">
+        {{ issue }}
+      </li>
     </ul>
   </section>
 </template>

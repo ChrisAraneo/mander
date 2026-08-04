@@ -16,6 +16,7 @@ export interface GameState {
   isNearChest: boolean;
   isNearPortal: boolean;
   time: number;
+  levelTimes: number[];
   deaths: number;
   score: number;
 }

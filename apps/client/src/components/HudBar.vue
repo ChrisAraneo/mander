@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { floor, padStart, range } from 'lodash-es';
+import { range } from 'lodash-es';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 import type { GameState } from '@mander/engine';
+import { formatClock } from '../game/format';
 
 const props = defineProps<{
   state: GameState;
@@ -13,15 +14,7 @@ const props = defineProps<{
 }>();
 defineEmits<{ exit: [] }>();
 
-const time = computed(() =>
-  chain(floor(props.state.time))
-    .thru((total) => ({
-      minutes: floor(total / 60),
-      seconds: padStart(String(total % 60), 2, '0'),
-    }))
-    .thru(({ minutes, seconds }) => `${minutes}:${seconds}`)
-    .value(),
-);
+const time = computed(() => formatClock(props.state.time));
 
 const hearts = computed(() =>
   chain(Math.max(0, props.state.player.hearts.value))

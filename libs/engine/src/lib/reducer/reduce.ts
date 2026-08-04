@@ -72,6 +72,7 @@ const complete = (state: GameState): GameState => ({
   ...state,
   status: 'COMPLETE',
   score: state.score + levelScore(state.time),
+  levelTimes: concat(state.levelTimes, state.time),
 });
 
 const interact = (state: GameState): GameState =>
@@ -119,6 +120,7 @@ const loadLevel = (
   isChestOpened: false,
   isNearChest: false,
   isNearPortal: false,
+  time: 0,
 });
 
 export const reduce = (state: GameState, action: Action): GameState =>

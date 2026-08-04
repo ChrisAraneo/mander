@@ -1,4 +1,5 @@
-import { isArray, isFinite, isObjectLike, isString } from 'lodash-es';
+import type { PackedReplay } from '@mander/engine';
+import { every, isArray, isFinite, isObjectLike, isString } from 'lodash-es';
 import { tryCatch } from 'ramda';
 import { match, P } from 'ts-pattern';
 
@@ -27,15 +28,40 @@ const numberOrZero = (value: unknown): number =>
     )
     .otherwise(() => 0);
 
-const isCompletedWorld = (value: unknown): value is CompletedWorld =>
+const stringOrEmpty = (value: unknown): string =>
+  match(value)
+    .with(
+      P.when((candidate): candidate is string => isString(candidate)),
+      (text) => text,
+    )
+    .otherwise(() => '');
+
+const isPackedEntry = (value: unknown): value is number[] =>
+  isArray(value) && every(value, isFinite);
+
+const isPackedReplay = (value: unknown): value is PackedReplay =>
+  isObjectLike(value) &&
+  isString((value as PackedReplay).worldName) &&
+  isArray((value as PackedReplay).entries) &&
+  every((value as PackedReplay).entries, isPackedEntry);
+
+const replayOrNull = (value: unknown): PackedReplay | null =>
+  match(value)
+    .with(P.when(isPackedReplay), (replay) => replay)
+    .otherwise(() => null);
+
+const isCompletedWorld = (value: unknown): value is Partial<CompletedWorld> =>
   isObjectLike(value) && isString((value as CompletedWorld).name);
 
 const completedWorlds = (value: unknown): CompletedWorld[] =>
   arrayOrEmpty<unknown>(value)
     .filter(isCompletedWorld)
     .map((world): CompletedWorld => ({
-      name: world.name,
+      name: stringOrEmpty(world.name),
+      day: stringOrEmpty(world.day),
       score: numberOrZero(world.score),
+      seconds: numberOrZero(world.seconds),
+      replay: replayOrNull(world.replay),
     }));
 
 const fromRaw = (raw: string | null): SaveData =>

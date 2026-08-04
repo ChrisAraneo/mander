@@ -27,6 +27,7 @@ export const createInitialState = (
   isNearChest: false,
   isNearPortal: false,
   time: 0,
+  levelTimes: [],
   deaths: 0,
   score,
 });

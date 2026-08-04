@@ -1,4 +1,4 @@
-import { type GameState, PLAYER_HEIGHT, PLAYER_WIDTH } from '@mander/engine';
+import type { GameState } from '@mander/engine';
 import { TILE_SIZE } from '@mander/engine';
 import { clamp, forEach } from 'lodash-es';
 
@@ -12,7 +12,9 @@ import { drawPlayer } from './draw-player';
 import { drawPortal } from './draw-portal';
 import { drawSky } from './draw-sky';
 import { drawTiles } from './draw-tiles';
+import type { Focus } from './focus';
 import type { Palette } from './palette';
+import { playerFocus } from './player-focus';
 import type { Viewport } from './viewport';
 
 export const renderGame = (
@@ -20,11 +22,12 @@ export const renderGame = (
   state: GameState,
   palette: Palette,
   viewport: Viewport,
+  focus: Focus = playerFocus(state),
 ): void => {
   const { level, player, enemies, time } = state;
   const cameraX = snapToDevicePixel(
     clamp(
-      player.position.x + PLAYER_WIDTH / 2 - viewport.width / 2,
+      focus.x - viewport.width / 2,
       0,
       Math.max(0, level.width * TILE_SIZE - viewport.width),
     ),
@@ -32,7 +35,7 @@ export const renderGame = (
   );
   const cameraY = snapToDevicePixel(
     clamp(
-      player.position.y + PLAYER_HEIGHT / 2 - viewport.height / 2,
+      focus.y - viewport.height / 2,
       0,
       Math.max(0, level.height * TILE_SIZE - viewport.height),
     ),

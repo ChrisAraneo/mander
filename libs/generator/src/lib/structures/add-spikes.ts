@@ -10,9 +10,9 @@ import {
 } from '@mander/model';
 import { createRandom } from '@mander/utils';
 import {
+  drop,
   every,
   flatMap,
-  floor,
   flow,
   forEach,
   includes,
@@ -22,20 +22,24 @@ import {
   map,
   range,
   reduce,
+  round,
   size,
   sortBy,
-  take,
 } from 'lodash-es';
+import { match } from 'ts-pattern';
 
 const BARE_LEVEL = 1;
-const HALVED_LEVEL = 2;
-const HALVED_UNTIL_LEVEL = 5;
+
+const FULL_DENSITY = 1;
+
+const SPIKE_DENSITY: readonly number[] = Object.freeze([0, 0.4, 0.6, 0.7, 0.8]);
 
 const HEADROOM = 3;
+const LEAP_HEADROOM = HEADROOM + 1;
 
 const SHOULDERS = [-1, 0, 1];
 
-const MAX_RUN = 3;
+const MAX_RUN = 2;
 const RUN_SPACING = 3;
 
 const ENEMY_CLEARANCE = 2;
@@ -55,6 +59,9 @@ interface Run {
 const isSpike = (tile: Tile): boolean =>
   tile === TILE_SPIKE || tile === TILE_SPIKE_CEILING;
 
+const densityFor = (levelNumber: number): number =>
+  SPIKE_DENSITY[levelNumber - 1] ?? FULL_DENSITY;
+
 const clone = (tiles: Tile[][]): Tile[][] => map(tiles, (row) => [...row]);
 
 const at = (tiles: Tile[][], row: number, column: number): Tile =>
@@ -72,13 +79,28 @@ const forEachCell = (
   );
 };
 
-const spikeCells = (tiles: Tile[][]): Cell[] => {
+const floorSpikeCells = (tiles: Tile[][]): Cell[] => {
   const found: Cell[] = [];
   forEachCell(tiles, (tile, row, column) => {
-    if (isSpike(tile)) found.push({ row, column });
+    if (tile === TILE_SPIKE) found.push({ row, column });
   });
 
   return found;
+};
+
+const withoutFloorSpikes = (tiles: Tile[][]): Tile[][] =>
+  map(tiles, (row) =>
+    map(row, (tile) => (tile === TILE_SPIKE ? TILE_AIR : tile)),
+  );
+
+const stampSpikes = (tiles: Tile[][], cells: Cell[]): Tile[][] => {
+  const next = clone(tiles);
+
+  forEach(cells, ({ row, column }) => {
+    next[row][column] = TILE_SPIKE;
+  });
+
+  return next;
 };
 
 const seedOf = (tiles: Tile[][], levelNumber: number): string =>
@@ -90,15 +112,16 @@ const seedOf = (tiles: Tile[][], levelNumber: number): string =>
 const withoutSpikes = (tiles: Tile[][]): Tile[][] =>
   map(tiles, (row) => map(row, (tile) => (isSpike(tile) ? TILE_AIR : tile)));
 
-const halveSpikes = (
+const thinToDensity = (
   tiles: Tile[][],
   random: ReturnType<typeof createRandom>,
+  density: number,
 ): Tile[][] => {
   const next = clone(tiles);
-  const spikes = spikeCells(tiles);
-  const doomed = take(
+  const spikes = floorSpikeCells(tiles);
+  const doomed = drop(
     sortBy(spikes, () => random.next()),
-    floor(size(spikes) / 2),
+    round(size(spikes) * density),
   );
 
   forEach(doomed, ({ row, column }) => {
@@ -108,11 +131,20 @@ const halveSpikes = (
   return next;
 };
 
+const hasAirAbove = (
+  tiles: Tile[][],
+  row: number,
+  column: number,
+  height: number,
+): boolean =>
+  every(range(1, height + 1), (up) => at(tiles, row - up, column) === TILE_AIR);
+
 const hasHeadroom = (tiles: Tile[][], row: number, column: number): boolean =>
-  every(
-    range(1, HEADROOM + 1),
-    (up) => at(tiles, row - up, column) === TILE_AIR,
-  );
+  hasAirAbove(tiles, row, column, HEADROOM);
+
+const isLeapable = (tiles: Tile[][], row: number, column: number): boolean =>
+  hasAirAbove(tiles, row, column, LEAP_HEADROOM) &&
+  hasAirAbove(tiles, row, column - 1, LEAP_HEADROOM);
 
 const hasRoomToSow = (tiles: Tile[][], row: number, column: number): boolean =>
   every(
@@ -166,13 +198,10 @@ const runsIn = (cells: Tile[], row: number): Run[] =>
   reduce(
     cells,
     (runs: Run[], tile, column): Run[] => {
-      if (!isSpike(tile)) return runs;
+      if (tile !== TILE_SPIKE) return runs;
 
       const open = last(runs);
-      const joins =
-        open !== undefined &&
-        open.end === column - 1 &&
-        cells[open.start] === tile;
+      const joins = open !== undefined && open.end === column - 1;
 
       return joins
         ? [...initial(runs), { ...open, end: column }]
@@ -192,6 +221,41 @@ const thinRuns = (tiles: Tile[][]): Tile[][] => {
       next[run.row][column] = TILE_AIR;
     });
   });
+
+  return next;
+};
+
+const keyOf = ({ row, column }: Cell): string => `${row},${column}`;
+
+const doomedOfPair = (
+  left: Cell,
+  right: Cell,
+  spared: Set<string>,
+): Cell | null =>
+  match({ left: spared.has(keyOf(left)), right: spared.has(keyOf(right)) })
+    .with({ right: false }, () => right)
+    .with({ left: false }, () => left)
+    .otherwise(() => null);
+
+const partCappedPairs = (tiles: Tile[][], spared: Cell[]): Tile[][] => {
+  const next = clone(tiles);
+  const kept = new Set(map(spared, keyOf));
+
+  forEach(flatMap(tiles, runsIn), (run) =>
+    forEach(range(run.start + 1, run.end + 1), (column) => {
+      const left: Cell = { row: run.row, column: column - 1 };
+      const right: Cell = { row: run.row, column };
+
+      if (next[left.row][left.column] !== TILE_SPIKE) return;
+      if (next[right.row][right.column] !== TILE_SPIKE) return;
+      if (isLeapable(tiles, run.row, column)) return;
+
+      const doomed = doomedOfPair(left, right, kept);
+      if (doomed === null) return;
+
+      next[doomed.row][doomed.column] = TILE_AIR;
+    }),
+  );
 
   return next;
 };
@@ -225,11 +289,8 @@ export const addSpikes = (tiles: Tile[][], levelNumber: number): Tile[][] => {
     return withoutSpikes(tiles);
   }
 
-  if (levelNumber === HALVED_LEVEL) {
-    return halveSpikes(dropCrampedSpikes(tiles), random);
-  }
-
-  const grown = flow(
+  const original = floorSpikeCells(tiles);
+  const sown = flow(
     sowSpikes,
     dropCrampedSpikes,
     dropEdgeSpikes,
@@ -237,7 +298,8 @@ export const addSpikes = (tiles: Tile[][], levelNumber: number): Tile[][] => {
     (laid: Tile[][]) => clearAround(laid, [TILE_ENEMY], ENEMY_CLEARANCE),
     (laid: Tile[][]) =>
       clearAround(laid, [TILE_SPAWN, TILE_PORTAL], MARKER_CLEARANCE),
-  )(tiles);
+    (laid: Tile[][]) => thinToDensity(laid, random, densityFor(levelNumber)),
+  )(withoutFloorSpikes(tiles));
 
-  return levelNumber <= HALVED_UNTIL_LEVEL ? halveSpikes(grown, random) : grown;
+  return partCappedPairs(stampSpikes(sown, original), original);
 };

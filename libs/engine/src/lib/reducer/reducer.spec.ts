@@ -12,14 +12,21 @@ import {
 } from './enemy/consts';
 import { capabilitiesFor } from './player/capabilities-for';
 import {
+  BASE_HEARTS,
   INVINCIBLE_SECONDS,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
 } from './player/consts';
+import {
+  LEVEL_SCORE_BASE,
+  LEVEL_SCORE_MIN,
+  LEVEL_SCORE_PER_SECOND,
+} from './score/consts';
 import { spawnPosition } from './player/spawn-position';
 import { createInitialState } from '../state/create-initial-state';
 import type { GameState } from '../state/game-state';
 import { reduce } from './reduce';
+import { totalTime } from './score/total-time';
 import {
   DOUBLE_HEART,
   type Item,
@@ -181,7 +188,9 @@ describe('movement actions', () => {
     const state = tickN(start, 120);
     expect(state.deaths).toBe(1);
     expect(state.player.position.x).toBe(SPAWN_X);
-    expect(state.player.hearts.value, 'the fall cost a heart').toBe(2);
+    expect(state.player.hearts.value, 'the fall cost a heart').toBe(
+      BASE_HEARTS - 1,
+    );
     expect(state.status, 'with hearts to spare the run goes on').toBe(
       'PLAYING',
     );
@@ -346,7 +355,7 @@ describe('portal and level loading', () => {
     expect(tick(state)).toEqual(state);
   });
 
-  it('LOAD_LEVEL starts fresh but keeps the inventory and the clock', () => {
+  it('LOAD_LEVEL starts fresh, winding back the clock but keeping the inventory', () => {
     let state = settledAt(20 * TILE_SIZE - 20);
     state = { ...state, hasKey: true };
     state = act(state, { type: 'INTERACT' });
@@ -363,7 +372,7 @@ describe('portal and level loading', () => {
     expect(state.hasKey).toBe(false);
     expect(state.isChestOpened).toBe(false);
     expect(carried, 'the first level put time on the clock').toBeGreaterThan(0);
-    expect(state.time, 'which the next level does not wind back').toBe(carried);
+    expect(state.time, 'which the next level winds back').toBe(0);
     expect(state.player.position.x).toBe(SPAWN_X);
     expect(state.inventory.map((i) => i.id)).toEqual(['CARD-3']);
   });
@@ -510,10 +519,12 @@ describe('enemies', () => {
         position: { x: 6 * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT },
       },
     };
-    expect(state.player.hearts.value).toBe(3);
+    expect(state.player.hearts.value).toBe(BASE_HEARTS);
     const before = state.deaths;
     state = tick(state);
-    expect(state.player.hearts.value, 'the prick drains a heart').toBe(2);
+    expect(state.player.hearts.value, 'the prick drains a heart').toBe(
+      BASE_HEARTS - 1,
+    );
     expect(
       state.player.timers.invincibility,
       'and buys a moment of mercy',
@@ -660,7 +671,9 @@ describe('enemies', () => {
     const before = state.deaths;
     const restingX = enemy.position.x;
     state = tick(state);
-    expect(state.player.hearts.value, 'the bump drains a heart').toBe(2);
+    expect(state.player.hearts.value, 'the bump drains a heart').toBe(
+      BASE_HEARTS - 1,
+    );
     expect(state.player.timers.invincibility).toBeGreaterThan(0);
     expect(state.player.timers.death, 'no death, no respawn').toBeNull();
     expect(state.player.position.x, 'and no knockback').toBe(restingX);
@@ -772,11 +785,15 @@ describe('ceiling spikes', () => {
       },
     };
     state = tick(state);
-    expect(state.player.hearts.value, 'safe while standing underneath').toBe(3);
+    expect(state.player.hearts.value, 'safe while standing underneath').toBe(
+      BASE_HEARTS,
+    );
 
     state = act(state, { type: 'JUMP_START' });
     state = tickN(state, 20);
-    expect(state.player.hearts.value, 'the jump ran into the prongs').toBe(2);
+    expect(state.player.hearts.value, 'the jump ran into the prongs').toBe(
+      BASE_HEARTS - 1,
+    );
     expect(state.player.timers.invincibility).toBeGreaterThan(0);
     expect(
       state.player.timers.death,
@@ -872,13 +889,15 @@ describe('hearts', () => {
     },
   });
 
-  it('starts level one with three hearts', () => {
-    expect(createInitialState(testLevel(), 0, []).player.hearts.value).toBe(3);
+  it('starts level one with a full complement of hearts', () => {
+    expect(createInitialState(testLevel(), 0, []).player.hearts.value).toBe(
+      BASE_HEARTS,
+    );
   });
 
   it('collecting a chest heart adds a heart on the spot', () => {
     let state = createInitialState(testLevel(), 0, []);
-    expect(state.player.hearts.value).toBe(3);
+    expect(state.player.hearts.value).toBe(BASE_HEARTS);
 
     state = {
       ...state,
@@ -889,13 +908,15 @@ describe('hearts', () => {
     expect(
       state.player.hearts.value,
       'the collected heart lands immediately',
-    ).toBe(4);
+    ).toBe(BASE_HEARTS + 1);
     expect(state.inventory).toHaveLength(1);
   });
 
   it('carries hearts to the next level without topping them back up', () => {
     let state = createInitialState(testLevel(), 0, [emberHeart()]);
-    expect(state.player.hearts.value, 'base plus one collected').toBe(4);
+    expect(state.player.hearts.value, 'base plus one collected').toBe(
+      BASE_HEARTS + 1,
+    );
 
     state = {
       ...state,
@@ -914,7 +935,7 @@ describe('hearts', () => {
       emberHeart('H1'),
       emberHeart('H2'),
     ]);
-    expect(state.player.hearts.value).toBe(5);
+    expect(state.player.hearts.value).toBe(BASE_HEARTS + 2);
 
     state = {
       ...state,
@@ -925,7 +946,9 @@ describe('hearts', () => {
     };
     state = tickN(state, 120);
     expect(state.player.position.x, 'respawned at spawn').toBe(SPAWN_X);
-    expect(state.player.hearts.value, 'down just one heart').toBe(4);
+    expect(state.player.hearts.value, 'down just one heart').toBe(
+      BASE_HEARTS + 1,
+    );
     expect(state.deaths).toBe(1);
   });
 
@@ -934,10 +957,12 @@ describe('hearts', () => {
       createInitialState(spikeLevel(6), 0, [emberHeart()]),
       spikeX,
     );
-    expect(state.player.hearts.value).toBe(4);
+    expect(state.player.hearts.value).toBe(BASE_HEARTS + 1);
 
     state = tick(state);
-    expect(state.player.hearts.value, 'the spike takes one heart').toBe(3);
+    expect(state.player.hearts.value, 'the spike takes one heart').toBe(
+      BASE_HEARTS,
+    );
     const granted = state.player.timers.invincibility;
     expect(granted).toBeGreaterThan(0);
 
@@ -945,7 +970,7 @@ describe('hearts', () => {
     expect(
       state.player.hearts.value,
       'a second bite bounces off the i-frames',
-    ).toBe(3);
+    ).toBe(BASE_HEARTS);
     expect(
       state.player.timers.invincibility,
       'and the timer keeps ticking',
@@ -956,10 +981,14 @@ describe('hearts', () => {
       state.player.timers.invincibility,
       'invincibility has worn off',
     ).toBe(0);
-    expect(state.player.hearts.value, 'no damage taken while safe').toBe(3);
+    expect(state.player.hearts.value, 'no damage taken while safe').toBe(
+      BASE_HEARTS,
+    );
 
     state = tick(placeAt(state, spikeX));
-    expect(state.player.hearts.value, 'the spike bites once more').toBe(2);
+    expect(state.player.hearts.value, 'the spike bites once more').toBe(
+      BASE_HEARTS - 1,
+    );
     expect(state.player.timers.invincibility).toBeGreaterThan(0);
   });
 
@@ -971,10 +1000,12 @@ describe('hearts', () => {
       ]),
       spikeX,
     );
-    expect(state.player.hearts.value, 'base plus two collected').toBe(5);
+    expect(state.player.hearts.value, 'base plus two collected').toBe(
+      BASE_HEARTS + 2,
+    );
     const deaths = state.deaths;
 
-    for (let heartsLeft = 4; heartsLeft >= 1; heartsLeft--) {
+    for (let heartsLeft = BASE_HEARTS + 1; heartsLeft >= 1; heartsLeft--) {
       state = tick(placeAt(state, spikeX));
       expect(state.player.hearts.value).toBe(heartsLeft);
       expect(state.player.timers.death, 'still alive').toBeNull();
@@ -1007,23 +1038,38 @@ describe('score', () => {
     expect(createInitialState(testLevel(), 0, []).score).toBe(0);
   });
 
+  const paidFor = (seconds: number): number =>
+    LEVEL_SCORE_BASE - LEVEL_SCORE_PER_SECOND * seconds;
+
   it('pays the base rate less a hundred for every second on the clock', () => {
-    expect(enterPortal(atPortal(0)).score).toBe(10000);
-    expect(enterPortal(atPortal(12)).score).toBe(8800);
+    expect(enterPortal(atPortal(0)).score).toBe(LEVEL_SCORE_BASE);
+    expect(enterPortal(atPortal(12)).score).toBe(paidFor(12));
   });
 
   it('charges whole seconds only, rounding the clock before it bills', () => {
-    expect(enterPortal(atPortal(12.4)).score, 'rounds down').toBe(8800);
-    expect(enterPortal(atPortal(12.6)).score, 'rounds up').toBe(8700);
+    expect(enterPortal(atPortal(12.4)).score, 'rounds down').toBe(paidFor(12));
+    expect(enterPortal(atPortal(12.6)).score, 'rounds up').toBe(paidFor(13));
   });
 
-  it('never pays a slow run less than nothing', () => {
-    expect(enterPortal(atPortal(900)).score).toBe(0);
+  it('still pays a hundred for a level that took all day', () => {
+    const floorSeconds =
+      (LEVEL_SCORE_BASE - LEVEL_SCORE_MIN) / LEVEL_SCORE_PER_SECOND;
+
+    expect(enterPortal(atPortal(900)).score).toBe(LEVEL_SCORE_MIN);
+    expect(
+      enterPortal(atPortal(floorSeconds)).score,
+      'the last second it pays more',
+    ).toBe(LEVEL_SCORE_MIN);
+    expect(enterPortal(atPortal(floorSeconds - 1)).score).toBe(
+      LEVEL_SCORE_MIN + LEVEL_SCORE_PER_SECOND,
+    );
   });
 
-  it('adds up over a run, with the clock running on into the next level', () => {
+  it('adds up over a run, each level billed against its own clock', () => {
     let state = enterPortal(atPortal(10));
-    expect(state.score, 'the first level, taken in ten seconds').toBe(9000);
+    expect(state.score, 'the first level, taken in ten seconds').toBe(
+      paidFor(10),
+    );
 
     state = act(state, {
       type: 'LOAD_LEVEL',
@@ -1033,8 +1079,21 @@ describe('score', () => {
     state = enterPortal({ ...state, time: 30, isNearPortal: true });
     expect(
       state.score,
-      'the second is billed against the same clock, not its own',
-    ).toBe(9000 + 7000);
+      'the second is billed against its own thirty seconds',
+    ).toBe(paidFor(10) + paidFor(30));
+  });
+
+  it('keeps the seconds each level took, for a total at the end of the run', () => {
+    let state = enterPortal(atPortal(10));
+    state = act(state, {
+      type: 'LOAD_LEVEL',
+      level: testLevel(),
+      levelIndex: 1,
+    });
+    state = enterPortal({ ...state, time: 30, isNearPortal: true });
+
+    expect(state.levelTimes).toEqual([10, 30]);
+    expect(totalTime(state.levelTimes)).toBe(40);
   });
 
   it('pays out a red diamond on the spot', () => {
@@ -1065,18 +1124,18 @@ describe('items', () => {
   };
 
   it('a double heart is worth two hearts', () => {
-    expect(opened(DOUBLE_HEART).player.hearts.value).toBe(5);
+    expect(opened(DOUBLE_HEART).player.hearts.value).toBe(BASE_HEARTS + 2);
   });
 
   it('a red diamond is worth points, not hearts', () => {
     const state = opened(RED_DIAMOND);
-    expect(state.player.hearts.value).toBe(3);
+    expect(state.player.hearts.value).toBe(BASE_HEARTS);
     expect(state.score).toBe(2500);
   });
 });
 
 describe('restarting after a run ends', () => {
-  it('deals level one again, with three hearts and nothing scored', () => {
+  it('deals level one again, with hearts refilled and nothing scored', () => {
     let state = act(
       {
         ...createInitialState(testLevel(), 0, []),
@@ -1097,7 +1156,9 @@ describe('restarting after a run ends', () => {
 
     expect(state.levelIndex, 'back to level one').toBe(0);
     expect(state.status).toBe('PLAYING');
-    expect(state.player.hearts.value, 'with a full three hearts').toBe(3);
+    expect(state.player.hearts.value, 'with a full complement').toBe(
+      BASE_HEARTS,
+    );
     expect(state.score, 'and nothing carried over').toBe(0);
     expect(state.time, 'on a clock wound back to zero').toBe(0);
     expect(state.deaths).toBe(0);

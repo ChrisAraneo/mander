@@ -13,6 +13,10 @@ import {
   HARD_12,
   HARD_13,
   HARD_14,
+  HARD_15,
+  HARD_16,
+  HARD_17,
+  HARD_18,
 } from './hard';
 import {
   NORMAL_01,
@@ -40,6 +44,16 @@ import {
   NORMAL_23,
   NORMAL_24,
   NORMAL_25,
+  NORMAL_26,
+  NORMAL_27,
+  NORMAL_28,
+  NORMAL_29,
+  NORMAL_30,
+  NORMAL_31,
+  NORMAL_32,
+  NORMAL_33,
+  NORMAL_34,
+  NORMAL_35,
 } from './normal';
 import type { Structure } from './structure';
 
@@ -69,6 +83,16 @@ export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
   NORMAL_23,
   NORMAL_24,
   NORMAL_25,
+  NORMAL_26,
+  NORMAL_27,
+  NORMAL_28,
+  NORMAL_29,
+  NORMAL_30,
+  NORMAL_31,
+  NORMAL_32,
+  NORMAL_33,
+  NORMAL_34,
+  NORMAL_35,
 ]);
 
 export const HARD_STRUCTURES: readonly Structure[] = Object.freeze([
@@ -86,4 +110,8 @@ export const HARD_STRUCTURES: readonly Structure[] = Object.freeze([
   HARD_12,
   HARD_13,
   HARD_14,
+  HARD_15,
+  HARD_16,
+  HARD_17,
+  HARD_18,
 ]);
