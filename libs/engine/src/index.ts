@@ -1,4 +1,6 @@
 export * from './lib/actions/actions';
+export * from './lib/game-level';
+export * from './lib/game-world';
 export * from './lib/reducer/collision/overlaps-spike';
 export * from './lib/reducer/enemy/consts';
 export * from './lib/reducer/enemy/create-enemies';

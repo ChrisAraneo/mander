@@ -1,7 +1,7 @@
-import type { World } from '@mander/engine';
+import type { GameWorld } from '@mander/engine';
 
 import type { Palette } from './palette';
 
-export interface RenderedWorld extends World {
+export interface RenderedWorld extends GameWorld {
   palette: Palette;
 }

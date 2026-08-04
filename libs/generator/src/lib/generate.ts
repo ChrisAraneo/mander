@@ -1,7 +1,8 @@
-import type { Level } from '@mander/model';
+import { type GameLevel, HORNED_ENEMY_CHANCE } from '@mander/engine';
 import type { RenderedWorld } from '@mander/render';
 import type { Structure } from '@mander/structures';
 import { floor, size, slice } from 'lodash-es';
+import { match } from 'ts-pattern';
 import { addChest } from './structures/add-chest';
 import { computeLevelSeeds } from './seed/compute-level-seeds';
 import { addPadding } from './structures/add-padding';
@@ -20,6 +21,26 @@ const FIRST_HARD_LEVEL = 7;
 const NORMAL_LEVELS = FIRST_HARD_LEVEL - 1;
 
 const STRUCTURES_PER_LEVEL = 7;
+
+const FIRST_MIXED_ENEMY_LEVEL = 3;
+
+const FIRST_HORNED_ENEMY_LEVEL = 6;
+
+const NO_HORNED_ENEMIES = 0;
+
+const ONLY_HORNED_ENEMIES = 1;
+
+const hornedEnemyChanceFor = (levelNumber: number): number =>
+  match(levelNumber)
+    .when(
+      (number) => number >= FIRST_HORNED_ENEMY_LEVEL,
+      () => ONLY_HORNED_ENEMIES,
+    )
+    .when(
+      (number) => number >= FIRST_MIXED_ENEMY_LEVEL,
+      () => HORNED_ENEMY_CHANCE,
+    )
+    .otherwise(() => NO_HORNED_ENEMIES);
 
 const sliceForLevel = (
   dealt: Structure[],
@@ -47,7 +68,7 @@ export const generate = (date: Date): RenderedWorld => {
     'hard',
   );
 
-  const levels: Level[] = seeds.map((seed, index) => {
+  const levels: GameLevel[] = seeds.map((seed, index) => {
     const levelNumber = index + 1;
     const difficulty = levelNumber >= FIRST_HARD_LEVEL ? 'hard' : 'normal';
     const chestItems = generateChestItems(seed);
@@ -64,12 +85,13 @@ export const generate = (date: Date): RenderedWorld => {
     const withKey = addKey(withSpikes);
     const withChest = addChest(withKey);
 
-    const level: Level = {
+    const level: GameLevel = {
       seed,
       width: withChest[0].length,
       height: withChest.length,
       tiles: withChest,
       chestItems,
+      hornedEnemyChance: hornedEnemyChanceFor(levelNumber),
     };
 
     return level;

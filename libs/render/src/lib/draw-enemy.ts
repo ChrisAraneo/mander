@@ -53,8 +53,6 @@ const drawEnemyBody = (
   halfHeight: number,
   palette: EnemyPalette,
 ): void => {
-  // The feet poke out past the body's rounded corners, so they carry their own
-  // outline; the body is drawn over them and covers the rest of it.
   context.beginPath();
   context.rect(-halfWidth + 3, halfHeight - 4, 5, 3);
   context.rect(halfWidth - 8, halfHeight - 4, 5, 3);

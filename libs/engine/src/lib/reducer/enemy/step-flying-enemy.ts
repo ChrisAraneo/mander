@@ -14,15 +14,6 @@ const turnAtBound = (isBlocked: boolean, facing: 1 | -1): 1 | -1 =>
     .with(true, () => opposite(facing))
     .otherwise(() => facing);
 
-// A flying enemy ignores gravity while alive and never moves sideways — it
-// only rises and falls, bouncing between one block above and one block
-// below its own spawn point. velocity.y.current doubles as both its current
-// speed and direction (negative = rising), the same way a ground enemy's
-// velocity.x.current already encodes its patrol direction; velocity.y.max
-// holds its (slower) vertical patrol speed, the same role velocity.x.max
-// plays for a ground enemy's horizontal one. Once killed, advanceEnemy
-// hands it off to stepDyingEnemy, where gravity takes over like any other
-// enemy.
 export const stepFlyingEnemy = (
   level: Level,
   enemy: Enemy,

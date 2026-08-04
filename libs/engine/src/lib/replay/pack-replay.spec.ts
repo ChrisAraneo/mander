@@ -1,6 +1,5 @@
 import {
   type Item,
-  type Level,
   type Tile,
   TILE_AIR,
   TILE_DIRT,
@@ -11,6 +10,7 @@ import { filter, map, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import type { Action } from '../actions/actions';
+import type { GameLevel } from '../game-level';
 import { packReplay } from './pack-replay';
 import type { Replay } from './replay';
 import { unpackReplay } from './unpack-replay';
@@ -28,7 +28,7 @@ const item = (id: string): Item => ({
   effect: { kind: 'NONE' },
 });
 
-const testLevel = (seed: string): Level => {
+const testLevel = (seed: string): GameLevel => {
   const tiles: Tile[][] = times(HEIGHT, (row) =>
     times(WIDTH, (): Tile => (row >= GROUND_ROW ? TILE_DIRT : TILE_AIR)),
   );
@@ -41,10 +41,11 @@ const testLevel = (seed: string): Level => {
     height: HEIGHT,
     tiles,
     chestItems: [item('CARD-0')],
+    hornedEnemyChance: 0,
   };
 };
 
-const LEVELS: Level[] = [testLevel('ONE'), testLevel('TWO')];
+const LEVELS: GameLevel[] = [testLevel('ONE'), testLevel('TWO')];
 
 const script: Action[] = [
   { type: 'TICK', deltaSeconds: DELTA_SECONDS },

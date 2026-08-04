@@ -93,9 +93,6 @@ interface Bounced {
   enemies: Enemy[];
 }
 
-// Holding the jump button through a stomp turns the little bounce into a
-// full jump, exactly as if it had been thrown from the ground — the same
-// velocity afterJump uses when launching a grounded jump in step-player.ts.
 const bounceVelocityFor = (isJumpHeld: boolean, player: Player): number =>
   match(isJumpHeld)
     .with(true, () => -player.velocity.y.max)
@@ -127,10 +124,6 @@ const applyStomps = (
     .otherwise((): Bounced => ({ player, enemies }));
 };
 
-// A horned enemy dies from any touch, in any direction — unlike a standard
-// enemy it is never "cleanly" stompable, so this is checked independently of
-// applyStomps. Gated on invincibility the same way resolveHarm gates being
-// struck, so it only dies when the touch would actually count as a hit.
 const hornedVictims = (player: Player, enemies: Enemy[]): Enemy[] =>
   match(player.timers.invincibility <= 0)
     .with(true, () =>
@@ -210,10 +203,6 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
   match(state.status)
     .with('PLAYING', (): GameState => {
       const moved = advancePlayer(state, deltaSeconds);
-      // A pit-fall respawn resets the player to their spawn in one tick (see
-      // stepPlayerDeath); catching that same transition here resets the
-      // enemies alongside them instead of leaving that tick's physics step
-      // run on their old, still-in-progress positions.
       const respawned =
         state.player.timers.death !== null && moved.timers.death === null;
       const steppedEnemies = respawned

@@ -1,4 +1,4 @@
-import type { Level } from '@mander/model';
+import type { GameLevel } from '../game-level';
 
 export type Action =
   | { type: 'TICK'; deltaSeconds: number }
@@ -11,6 +11,6 @@ export type Action =
   | { type: 'INTERACT' }
   | { type: 'CHOOSE_ITEM'; index: number }
   | { type: 'CLOSE' }
-  | { type: 'LOAD_LEVEL'; level: Level; levelIndex: number }
+  | { type: 'LOAD_LEVEL'; level: GameLevel; levelIndex: number }
   | { type: 'RESPAWN' }
-  | { type: 'RESTART'; level: Level };
+  | { type: 'RESTART'; level: GameLevel };

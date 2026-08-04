@@ -1,6 +1,5 @@
 import {
   type Item,
-  type Level,
   type Tile,
   TILE_AIR,
   TILE_CHEST,
@@ -12,6 +11,7 @@ import {
 import { describe, expect, it } from 'vitest';
 
 import type { Action } from '../actions/actions';
+import type { GameLevel } from '../game-level';
 import { reduce } from '../reducer/reduce';
 import { createInitialState } from '../state/create-initial-state';
 import type { GameState } from '../state/game-state';
@@ -38,7 +38,7 @@ const item = (id: string): Item => ({
   effect: { kind: 'NONE' },
 });
 
-const testLevel = (): Level => {
+const testLevel = (): GameLevel => {
   const tiles: Tile[][] = [];
   for (let y = 0; y < HEIGHT; y++) {
     const fillTile: Tile = y >= GROUND_ROW ? TILE_DIRT : TILE_AIR;
@@ -60,6 +60,7 @@ const testLevel = (): Level => {
     height: HEIGHT,
     tiles,
     chestItems: [item('CARD-0'), item('CARD-1')],
+    hornedEnemyChance: 0,
   };
 };
 

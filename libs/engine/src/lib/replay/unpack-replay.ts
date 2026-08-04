@@ -1,17 +1,17 @@
-import type { Level } from '@mander/model';
 import { compact, map } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import type { Action } from '../actions/actions';
+import type { GameLevel } from '../game-level';
 import { ACTION_CODES } from './action-codes';
 import type { PackedEntry, PackedReplay } from './packed-replay';
 import type { RecordedAction } from './recorded-action';
 import type { Replay } from './replay';
 
-const levelAt = (levels: Level[], index: number): Level | undefined =>
+const levelAt = (levels: GameLevel[], index: number): GameLevel | undefined =>
   levels[index];
 
-const unpackAction = (entry: PackedEntry, levels: Level[]): Action | null =>
+const unpackAction = (entry: PackedEntry, levels: GameLevel[]): Action | null =>
   match(ACTION_CODES[entry[1]])
     .with('TICK', (): Action => ({ type: 'TICK', deltaSeconds: entry[2] }))
     .with('CHOOSE_ITEM', (): Action => ({
@@ -37,7 +37,7 @@ const unpackAction = (entry: PackedEntry, levels: Level[]): Action | null =>
 
 const unpackEntry = (
   entry: PackedEntry,
-  levels: Level[],
+  levels: GameLevel[],
 ): RecordedAction | null =>
   match(unpackAction(entry, levels))
     .with(P.nonNullable, (action): RecordedAction => ({
@@ -48,7 +48,7 @@ const unpackEntry = (
 
 export const unpackReplay = (
   packed: PackedReplay,
-  levels: Level[],
+  levels: GameLevel[],
 ): Replay => ({
   worldName: packed.worldName,
   startedAtMs: 0,

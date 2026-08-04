@@ -1,15 +1,22 @@
-import { type Level, TILE_AIR, TILE_DIRT, TILE_ENEMY, type Tile } from '@mander/model';
+import { TILE_AIR, TILE_DIRT, TILE_ENEMY, type Tile } from '@mander/model';
 import { describe, expect, it } from 'vitest';
+
+import type { GameLevel } from '../../game-level';
 
 import {
   ENEMY_JUMP_VELOCITY,
   ENEMY_MOVE_SPEED,
   FLYING_ENEMY_MOVE_SPEED,
+  HORNED_ENEMY_CHANCE,
   HORNED_ENEMY_JUMP_VELOCITY,
 } from './consts';
 import { createEnemies } from './create-enemies';
 
-const levelWithEnemies = (seed: string, count: number): Level => {
+const levelWithEnemies = (
+  seed: string,
+  count: number,
+  hornedEnemyChance = HORNED_ENEMY_CHANCE,
+): GameLevel => {
   const width = count + 2;
   const tiles: Tile[][] = [
     Array.from({ length: width }, (): Tile => TILE_AIR),
@@ -18,12 +25,21 @@ const levelWithEnemies = (seed: string, count: number): Level => {
     ),
     Array.from({ length: width }, (): Tile => TILE_DIRT),
   ];
-  return { seed, width, height: tiles.length, tiles, chestItems: [] };
+  return {
+    seed,
+    width,
+    height: tiles.length,
+    tiles,
+    chestItems: [],
+    hornedEnemyChance,
+  };
 };
 
-// Same layout, but nothing solid sits below the enemy row — every tile here
-// is "in the air".
-const levelWithAirborneEnemies = (seed: string, count: number): Level => {
+const levelWithAirborneEnemies = (
+  seed: string,
+  count: number,
+  hornedEnemyChance = HORNED_ENEMY_CHANCE,
+): GameLevel => {
   const width = count + 2;
   const tiles: Tile[][] = [
     Array.from({ length: width }, (): Tile => TILE_AIR),
@@ -32,7 +48,14 @@ const levelWithAirborneEnemies = (seed: string, count: number): Level => {
     ),
     Array.from({ length: width }, (): Tile => TILE_AIR),
   ];
-  return { seed, width, height: tiles.length, tiles, chestItems: [] };
+  return {
+    seed,
+    width,
+    height: tiles.length,
+    tiles,
+    chestItems: [],
+    hornedEnemyChance,
+  };
 };
 
 describe('createEnemies', () => {
@@ -52,6 +75,28 @@ describe('createEnemies', () => {
     expect(enemies).toHaveLength(200);
     expect(hornedCount, 'not suspiciously rare').toBeGreaterThan(60);
     expect(hornedCount, 'not suspiciously common').toBeLessThan(140);
+  });
+
+  it('hatches nothing but standard enemies on a level that asks for no horned ones', () => {
+    const level = levelWithEnemies('SEED-STANDARD-ONLY', 200, 0);
+    const enemies = createEnemies(level);
+    expect(enemies).toHaveLength(200);
+    expect(enemies.every((enemy) => enemy.kind === 'STANDARD')).toBe(true);
+  });
+
+  it('hatches nothing but horned enemies on a level that asks for them alone', () => {
+    const level = levelWithEnemies('SEED-HORNED-ONLY', 200, 1);
+    const enemies = createEnemies(level);
+    expect(enemies).toHaveLength(200);
+    expect(enemies.every((enemy) => enemy.kind === 'HORNED')).toBe(true);
+  });
+
+  it('still spawns flying enemies in the air whatever the level asks of the ground', () => {
+    const grounded = createEnemies(levelWithAirborneEnemies('SEED-AIR', 40, 0));
+    const horned = createEnemies(levelWithAirborneEnemies('SEED-AIR', 40, 1));
+
+    expect(grounded.every((enemy) => enemy.kind === 'FLYING')).toBe(true);
+    expect(horned.every((enemy) => enemy.kind === 'FLYING')).toBe(true);
   });
 
   it('a different level seed can roll a different split', () => {

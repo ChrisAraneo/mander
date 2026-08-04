@@ -9,6 +9,7 @@ import {
   ENEMY_JUMP_VELOCITY,
   ENEMY_MOVE_SPEED,
   ENEMY_WIDTH,
+  HORNED_ENEMY_CHANCE,
   HORNED_ENEMY_JUMP_VELOCITY,
 } from './enemy/consts';
 import { capabilitiesFor } from './player/capabilities-for';
@@ -25,6 +26,7 @@ import {
   LEVEL_SCORE_PER_SECOND,
 } from './score/consts';
 import { spawnPosition } from './player/spawn-position';
+import type { GameLevel } from '../game-level';
 import { createInitialState } from '../state/create-initial-state';
 import type { GameState } from '../state/game-state';
 import { reduce } from './reduce';
@@ -69,7 +71,7 @@ const CARDS: Item[] = [
   item('CARD-4'),
 ];
 
-const testLevel = (enemies: Point[] = []): Level => {
+const testLevel = (enemies: Point[] = []): GameLevel => {
   const tiles: Tile[][] = [];
   for (let y = 0; y < HEIGHT; y++) {
     const fillTile: Tile = y >= 12 ? TILE_DIRT : TILE_AIR;
@@ -96,6 +98,7 @@ const testLevel = (enemies: Point[] = []): Level => {
     height: HEIGHT,
     tiles,
     chestItems: CARDS,
+    hornedEnemyChance: HORNED_ENEMY_CHANCE,
   };
 };
 
@@ -385,9 +388,6 @@ describe('enemies', () => {
   const enemySpawn: Point = { x: 5, y: 11 };
   const floorEnemyY = SURFACE - ENEMY_HEIGHT;
 
-  // Enemy kind is chosen by a seeded roll in createEnemies, so tests that
-  // care about standard-enemy behaviour specifically pin it down here rather
-  // than depending on what that roll happens to produce for this seed.
   const withEnemy = (): GameState => {
     const state = createInitialState(testLevel([enemySpawn]), 0, []);
     return {
@@ -399,8 +399,6 @@ describe('enemies', () => {
     };
   };
 
-  // Nothing solid sits below this tile, so createEnemies rolls it FLYING on
-  // its own — no need to pin the kind down by hand like withEnemy does.
   const flyingEnemySpawn: Point = { x: 5, y: 5 };
   const withFlyingEnemy = (): GameState =>
     createInitialState(testLevel([flyingEnemySpawn]), 0, []);
@@ -531,10 +529,6 @@ describe('enemies', () => {
         position: { x: 10 * TILE_SIZE + 5, y: SURFACE - PLAYER_HEIGHT },
       },
     };
-    // Tick through the fall and the death animation, stopping the instant
-    // stepPlayerDeath's internal respawn completes — the enemy keeps
-    // patrolling on every tick afterward, so checking any later would just
-    // catch it mid-patrol again instead of freshly reset.
     for (let i = 0; i < 300 && state.player.timers.death === null; i++) {
       state = tick(state);
     }
@@ -565,7 +559,7 @@ describe('enemies', () => {
     expect(state.enemies).toHaveLength(2);
   });
 
-  const withSpike = (col: number, enemies: Point[] = []): Level => {
+  const withSpike = (col: number, enemies: Point[] = []): GameLevel => {
     const level = testLevel(enemies);
     level.tiles[11][col] = TILE_SPIKE;
     return level;
@@ -862,10 +856,6 @@ describe('enemies', () => {
   });
 
   it('kills an enemy the player lands on from above at terminal velocity, without costing a heart', () => {
-    // The player starts just barely above the enemy's head but falling at
-    // terminal velocity, so this single tick's movement lands it well past
-    // the enemy's head — a fast fall covering more ground than a fixed
-    // "shallow depth" check would allow used to get misread as a side hit.
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -1083,9 +1073,6 @@ describe('enemies', () => {
   });
 
   it('a horned enemy hops 30% lower than a standard enemy', () => {
-    // Both hops are measured after the same single tick of gravity, so that
-    // contribution is identical either way and cancels out in the
-    // comparison below — this isolates just the jump-velocity difference.
     const hopVelocity = (kind: EnemyKind, jumpMax: number): number => {
       let state = withEnemy();
       for (let i = 0; i < 10; i++) state = tick(state);
@@ -1184,13 +1171,13 @@ describe('enemies', () => {
   });
 });
 
-const spikeLevel = (col: number): Level => {
+const spikeLevel = (col: number): GameLevel => {
   const level = testLevel();
   level.tiles[11][col] = TILE_SPIKE;
   return level;
 };
 
-const ceilingSpikeLevel = (col: number, row: number): Level => {
+const ceilingSpikeLevel = (col: number, row: number): GameLevel => {
   const level = testLevel();
   level.tiles[row - 1][col] = TILE_DIRT;
   level.tiles[row][col] = TILE_SPIKE_CEILING;

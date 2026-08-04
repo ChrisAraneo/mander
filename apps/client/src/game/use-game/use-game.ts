@@ -3,11 +3,11 @@ import {
   createInitialState,
   createRecorder,
   type GameState,
+  type GameWorld,
   type PackedReplay,
   packReplay,
   reduce,
   totalTime,
-  type World,
 } from '@mander/engine';
 import { generate } from '@mander/generator';
 import { renderGame, syncViewport } from '@mander/render';
@@ -29,7 +29,7 @@ import { tickStream } from '../tick';
 import { useReplay } from '../use-replay';
 import type { GameController } from './game-controller';
 
-const startState = (world: World): GameState =>
+const startState = (world: GameWorld): GameState =>
   createInitialState(world.levels[0], 0, [], world.score);
 
 const syncDebugGlobals = (
@@ -42,12 +42,12 @@ const syncDebugGlobals = (
     })
     .otherwise(() => undefined);
 
-const isRunOver = (world: World, state: GameState): boolean =>
+const isRunOver = (world: GameWorld, state: GameState): boolean =>
   state.status === 'GAME_OVER' ||
   (state.status === 'COMPLETE' && state.levelIndex >= world.levels.length - 1);
 
 interface Run {
-  world: World;
+  world: GameWorld;
   day: string;
   replay: () => PackedReplay;
 }
