@@ -37,7 +37,6 @@ const hover = ref<Cell | null>(null);
 const isPainting = ref(false);
 const strokeValue = ref(props.brush);
 
-/** Editor chrome, drawn over the game graphics rather than baked into them. */
 function drawGridLines(target: CanvasRenderingContext2D): void {
   target.strokeStyle = GRID_LINE;
   target.lineWidth = 1;
@@ -76,7 +75,6 @@ function repaint(): void {
   drawHover(target);
 }
 
-/** Reads through the element's box, so a scaled canvas still maps correctly. */
 function cellAt(event: PointerEvent): Cell | null {
   const element = canvas.value;
   if (element === null) return null;
@@ -199,14 +197,6 @@ watch(hover, repaint);
 
 .stage {
   display: block;
-  /*
-   * A tile has to land on exactly TILE_SIZE screen pixels, or the textures are
-   * resampled off the pixel grid and the preview stops being honest. Two
-   * things would spoil that, so the frame is an outline rather than a border:
-   * the page sets border-box globally, which would shrink the drawing surface
-   * by the border, and a border would also push the canvas a pixel clear of
-   * the rulers. An outline is painted outside the box and costs no layout.
-   */
   box-sizing: content-box;
   outline: 1px solid #222c3c;
   background: #0b0f17;

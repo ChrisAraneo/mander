@@ -1,26 +1,37 @@
-import { HEART, type Item } from '@mander/model';
+import {
+  DOUBLE_HEART,
+  HEART,
+  type Item,
+  type ItemRarity,
+  RED_DIAMOND,
+} from '@mander/model';
 import { createRandom } from '@mander/utils';
 import { size, sortBy, take } from 'lodash-es';
 
-/** How much a chest holds. */
 const CHEST_ITEM_COUNT = 1;
 
-/**
- * Everything a chest can hold. One entry for now, so every chest carries the
- * same thing — the draw below is what makes room for the second.
- */
-const ITEM_POOL: readonly Item[] = Object.freeze([HEART]);
+const ITEM_POOL: readonly Item[] = Object.freeze([
+  HEART,
+  DOUBLE_HEART,
+  RED_DIAMOND,
+]);
 
-/**
- * What the chest in this level holds, decided by the level's own seed so the
- * same day always gives the same reward. Items are drawn without replacement,
- * so a chest never holds two of the same thing.
- */
+const RARITY_WEIGHT: Readonly<Record<ItemRarity, number>> = Object.freeze({
+  COMMON: 6,
+  RARE: 3,
+  EPIC: 1,
+});
+
+const seedFor = (seed: string): string => `${seed}#chest`;
+
+const drawKey = (item: Item, roll: number): number =>
+  -(roll ** (1 / RARITY_WEIGHT[item.rarity]));
+
 export const generateChestItems = (seed: string): Item[] => {
-  const random = createRandom(seed);
+  const random = createRandom(seedFor(seed));
 
   return take(
-    sortBy(ITEM_POOL, () => random.next()),
+    sortBy(ITEM_POOL, (item) => drawKey(item, random.next())),
     Math.min(CHEST_ITEM_COUNT, size(ITEM_POOL)),
   );
 };

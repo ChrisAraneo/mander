@@ -3,12 +3,16 @@ import {
   NORMAL_STRUCTURES,
   type Structure,
 } from '@mander/structures';
-import { filter, map, size, times, uniq } from 'lodash-es';
+import { filter, map, max, size, take, times, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { pickStructures } from './pick-structures';
 
 const SEED = 'PROBE-SEED';
+
+const OVER_NORMAL = size(NORMAL_STRUCTURES) + 7;
+
+const OVER_HARD = size(HARD_STRUCTURES) + 7;
 
 const seeds = times(20, (day) => `DAY-${day}`);
 
@@ -17,7 +21,9 @@ const hasDuplicates = (picked: Structure[]): boolean =>
 
 describe('pickStructures', () => {
   it('never deals the same structure twice', () => {
-    const dealt = map(seeds, (seed) => pickStructures(seed, 42, 'normal'));
+    const dealt = map(seeds, (seed) =>
+      pickStructures(seed, size(NORMAL_STRUCTURES), 'normal'),
+    );
 
     expect(filter(dealt, hasDuplicates)).toEqual([]);
   });
@@ -32,11 +38,30 @@ describe('pickStructures', () => {
     expect(size(pickStructures(SEED, 7, 'normal'))).toBe(7);
   });
 
-  it('deals the whole pool rather than repeat itself to reach the count', () => {
-    expect(size(pickStructures(SEED, 999, 'normal'))).toBe(
-      size(NORMAL_STRUCTURES),
+  it('deals as many as asked for once the pool has run short', () => {
+    expect(size(pickStructures(SEED, OVER_NORMAL, 'normal'))).toBe(OVER_NORMAL);
+    expect(size(pickStructures(SEED, OVER_HARD, 'hard'))).toBe(OVER_HARD);
+  });
+
+  it('deals the whole pool out before it repeats any of it', () => {
+    const dealt = map(seeds, (seed) =>
+      pickStructures(seed, OVER_NORMAL, 'normal'),
     );
-    expect(size(pickStructures(SEED, 999, 'hard'))).toBe(size(HARD_STRUCTURES));
+
+    expect(
+      filter(dealt, (picked) =>
+        hasDuplicates(take(picked, size(NORMAL_STRUCTURES))),
+      ),
+    ).toEqual([]);
+  });
+
+  it('repeats no structure more often than the count forces it to', () => {
+    const dealt = pickStructures(SEED, OVER_NORMAL, 'normal');
+    const dealtEach = map(NORMAL_STRUCTURES, (structure) =>
+      size(filter(dealt, (picked) => picked === structure)),
+    );
+
+    expect(max(dealtEach)).toBe(2);
   });
 
   it('deals every structure in the pool when it is asked for them all', () => {
@@ -57,11 +82,6 @@ describe('pickStructures', () => {
     );
   });
 
-  /**
-   * The pools share all but one structure, so a seed used bare would walk both
-   * shuffles down the same random stream and open the hard level on whatever
-   * the normal level opened on.
-   */
   it('does not deal the hard level the front of the normal one', () => {
     const sameOpening = filter(seeds, (seed) => {
       const normal = pickStructures(seed, 42, 'normal');

@@ -82,11 +82,6 @@ const tracePlayerSkull = (context: CanvasRenderingContext2D): void => {
   context.arc(1, HEAD_CENTER_Y, HEAD_RADIUS, 0, Math.PI * 2);
 };
 
-/**
- * The hair sits a shade higher and wider than the skull it caps, so it is
- * clipped to the skull: left loose it would paint over the top of the outline
- * and thin the black to a hairline exactly where the head meets the sky.
- */
 const drawPlayerHair = (context: CanvasRenderingContext2D): void => {
   context.save();
   tracePlayerSkull(context);

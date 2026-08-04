@@ -13,7 +13,6 @@ import { STRUCTURE_START, STRUCTURE_END } from '@mander/structures';
 
 import type { Brush } from './brush';
 
-/** Shortcut keys run in the order the brushes are listed, not by tile value. */
 export const BRUSHES: Brush[] = [
   { value: TILE_AIR, label: 'Air', shortcut: '0', group: 'Empty' },
   { value: TILE_DIRT, label: 'Dirt', shortcut: '1', group: 'Blocks' },

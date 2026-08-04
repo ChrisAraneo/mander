@@ -8,23 +8,28 @@ import {
   type Player,
   PORTAL_ENTITY_BOX,
 } from '@mander/model';
-import { filter, map, some } from 'lodash-es';
+import { filter, includes, map, some } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import { overlapsSpike } from './collision/overlaps-spike';
 import { advanceEnemy } from './enemy/advance-enemy';
+import { createEnemies } from './enemy/create-enemies';
 import { hasFaded } from './enemy/has-faded';
+import { isStompingEnemy } from './enemy/is-stomping-enemy';
 import { isTouchingEnemy } from './enemy/is-touching-enemy';
+import { killEnemy } from './enemy/kill-enemy';
 import {
   INVINCIBLE_SECONDS,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
+  STOMP_BOUNCE_VELOCITY,
 } from './player/consts';
 import { isAlive } from './player/is-alive';
 import { killPlayer } from './player/kill-player';
 import { stepPlayer } from './player/step-player';
 import { stepPlayerDeath } from './player/step-player-death';
 import type { GameState } from '../state/game-state';
+import type { GameStatus } from '../state/game-status';
 import { hasFallenIntoPit } from './has-fallen-into-pit';
 import { isNearTile } from './is-near-tile';
 
@@ -34,6 +39,7 @@ const PICKUP_RANGE = 4;
 interface Outcome {
   player: Player;
   deaths: number;
+  status: GameStatus;
 }
 
 const coolInvincibility = (player: Player, deltaSeconds: number): Player => ({
@@ -68,6 +74,69 @@ const advanceEnemies = (
     (enemy) => !hasFaded(enemy),
   );
 
+const stompVictims = (
+  previousPlayer: Player,
+  player: Player,
+  enemies: Enemy[],
+): Enemy[] =>
+  filter(
+    enemies,
+    (enemy) =>
+      enemy.kind !== 'HORNED' &&
+      isAlive(enemy) &&
+      isTouchingEnemy(player, enemy) &&
+      isStompingEnemy(previousPlayer, player, enemy),
+  );
+
+interface Bounced {
+  player: Player;
+  enemies: Enemy[];
+}
+
+const bounceVelocityFor = (isJumpHeld: boolean, player: Player): number =>
+  match(isJumpHeld)
+    .with(true, () => -player.velocity.y.max)
+    .otherwise(() => -STOMP_BOUNCE_VELOCITY);
+
+const applyStomps = (
+  previousPlayer: Player,
+  player: Player,
+  enemies: Enemy[],
+  isJumpHeld: boolean,
+): Bounced => {
+  const victims = stompVictims(previousPlayer, player, enemies);
+  return match(victims.length > 0)
+    .with(true, (): Bounced => ({
+      player: {
+        ...player,
+        velocity: {
+          ...player.velocity,
+          y: {
+            ...player.velocity.y,
+            current: bounceVelocityFor(isJumpHeld, player),
+          },
+        },
+      },
+      enemies: map(enemies, (enemy) =>
+        includes(victims, enemy) ? killEnemy(enemy) : enemy,
+      ),
+    }))
+    .otherwise((): Bounced => ({ player, enemies }));
+};
+
+const hornedVictims = (player: Player, enemies: Enemy[]): Enemy[] =>
+  match(player.timers.invincibility <= 0)
+    .with(true, () =>
+      filter(
+        enemies,
+        (enemy) =>
+          enemy.kind === 'HORNED' &&
+          isAlive(enemy) &&
+          isTouchingEnemy(player, enemy),
+      ),
+    )
+    .otherwise((): Enemy[] => []);
+
 const touchesHazard = (
   state: GameState,
   player: Player,
@@ -90,6 +159,7 @@ const loseHeart = (hearts: Player['hearts']): Player['hearts'] => ({
 const fell = (state: GameState, player: Player): Outcome => ({
   player: { ...killPlayer(player), hearts: loseHeart(player.hearts) },
   deaths: state.deaths + 1,
+  status: 'PLAYING',
 });
 
 const hurt = (player: Player): Player => ({
@@ -98,9 +168,10 @@ const hurt = (player: Player): Player => ({
   timers: { ...player.timers, invincibility: INVINCIBLE_SECONDS },
 });
 
-const struckDown = (state: GameState, player: Player): Outcome => ({
-  player: killPlayer(player),
+const gameOver = (state: GameState, player: Player): Outcome => ({
+  player: { ...killPlayer(player), hearts: loseHeart(player.hearts) },
   deaths: state.deaths + 1,
+  status: 'GAME_OVER',
 });
 
 const resolveHarm = (
@@ -112,24 +183,50 @@ const resolveHarm = (
     fellIntoPit: hasFallenIntoPit(state.level, player),
     struck:
       player.timers.invincibility <= 0 && touchesHazard(state, player, enemies),
-    hasHeartsLeft: player.hearts.value > 0,
+    survives: player.hearts.value > 1,
   })
-    .with({ fellIntoPit: true }, () => fell(state, player))
-    .with({ struck: true, hasHeartsLeft: true }, (): Outcome => ({
+    .with({ fellIntoPit: true, survives: true }, () => fell(state, player))
+    .with({ fellIntoPit: true }, () => gameOver(state, player))
+    .with({ struck: true, survives: true }, (): Outcome => ({
       player: hurt(player),
       deaths: state.deaths,
+      status: 'PLAYING',
     }))
-    .with({ struck: true }, (): Outcome => struckDown(state, player))
-    .otherwise((): Outcome => ({ player, deaths: state.deaths }));
+    .with({ struck: true }, () => gameOver(state, player))
+    .otherwise((): Outcome => ({
+      player,
+      deaths: state.deaths,
+      status: 'PLAYING',
+    }));
 
 export const tick = (state: GameState, deltaSeconds: number): GameState =>
   match(state.status)
     .with('PLAYING', (): GameState => {
       const moved = advancePlayer(state, deltaSeconds);
-      const enemies = advanceEnemies(state, moved, deltaSeconds);
-      const { player, deaths } = match(isAlive(moved))
-        .with(true, () => resolveHarm(state, moved, enemies))
-        .otherwise((): Outcome => ({ player: moved, deaths: state.deaths }));
+      const respawned =
+        state.player.timers.death !== null && moved.timers.death === null;
+      const steppedEnemies = respawned
+        ? createEnemies(state.level)
+        : advanceEnemies(state, moved, deltaSeconds);
+      const alive = isAlive(moved);
+      const { player: bounced, enemies: afterStomps } = match(alive)
+        .with(true, () =>
+          applyStomps(state.player, moved, steppedEnemies, state.input.isJump),
+        )
+        .otherwise((): Bounced => ({ player: moved, enemies: steppedEnemies }));
+      const gored = match(alive)
+        .with(true, () => hornedVictims(bounced, afterStomps))
+        .otherwise((): Enemy[] => []);
+      const { player, deaths, status } = match(alive)
+        .with(true, () => resolveHarm(state, bounced, afterStomps))
+        .otherwise((): Outcome => ({
+          player: bounced,
+          deaths: state.deaths,
+          status: 'PLAYING',
+        }));
+      const enemies = map(afterStomps, (enemy) =>
+        includes(gored, enemy) ? killEnemy(enemy) : enemy,
+      );
       const canReach = isAlive(player);
 
       return {
@@ -137,6 +234,7 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         player,
         enemies,
         deaths,
+        status,
         time: state.time + deltaSeconds,
         hasKey:
           state.hasKey ||

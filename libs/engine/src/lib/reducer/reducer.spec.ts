@@ -9,21 +9,35 @@ import {
   ENEMY_JUMP_VELOCITY,
   ENEMY_MOVE_SPEED,
   ENEMY_WIDTH,
+  HORNED_ENEMY_CHANCE,
+  HORNED_ENEMY_JUMP_VELOCITY,
 } from './enemy/consts';
 import { capabilitiesFor } from './player/capabilities-for';
 import {
+  BASE_HEARTS,
   INVINCIBLE_SECONDS,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
+  STOMP_BOUNCE_VELOCITY,
 } from './player/consts';
+import {
+  LEVEL_SCORE_BASE,
+  LEVEL_SCORE_MIN,
+  LEVEL_SCORE_PER_SECOND,
+} from './score/consts';
 import { spawnPosition } from './player/spawn-position';
+import type { GameLevel } from '../game-level';
 import { createInitialState } from '../state/create-initial-state';
 import type { GameState } from '../state/game-state';
 import { reduce } from './reduce';
+import { totalTime } from './score/total-time';
 import {
+  DOUBLE_HEART,
+  type EnemyKind,
   type Item,
   type Level,
   MAX_JUMP_TILES,
+  RED_DIAMOND,
   type Tile,
   TILE_AIR,
   TILE_CHEST,
@@ -57,7 +71,7 @@ const CARDS: Item[] = [
   item('CARD-4'),
 ];
 
-const testLevel = (enemies: Point[] = []): Level => {
+const testLevel = (enemies: Point[] = []): GameLevel => {
   const tiles: Tile[][] = [];
   for (let y = 0; y < HEIGHT; y++) {
     const fillTile: Tile = y >= 12 ? TILE_DIRT : TILE_AIR;
@@ -77,8 +91,6 @@ const testLevel = (enemies: Point[] = []): Level => {
   tiles[groundRow - 1][20] = TILE_CHEST;
   tiles[groundRow - 1][25] = TILE_PORTAL;
   tiles[groundRow - 2][25] = TILE_PORTAL;
-  // Enemies are spawned off the tiles they stand on, the same as in a
-  // generated level, so a spawn is a tile rather than a list beside the map.
   for (const spawn of enemies) tiles[spawn.y][spawn.x] = TILE_ENEMY;
   return {
     seed: 'TEST',
@@ -86,6 +98,7 @@ const testLevel = (enemies: Point[] = []): Level => {
     height: HEIGHT,
     tiles,
     chestItems: CARDS,
+    hornedEnemyChance: HORNED_ENEMY_CHANCE,
   };
 };
 
@@ -181,7 +194,12 @@ describe('movement actions', () => {
     const state = tickN(start, 120);
     expect(state.deaths).toBe(1);
     expect(state.player.position.x).toBe(SPAWN_X);
-    expect(state.player.hearts.value, 'the fall cost a heart').toBe(0);
+    expect(state.player.hearts.value, 'the fall cost a heart').toBe(
+      BASE_HEARTS - 1,
+    );
+    expect(state.status, 'with hearts to spare the run goes on').toBe(
+      'PLAYING',
+    );
   });
 
   it('RESPAWN resets the player position but keeps key and inventory', () => {
@@ -343,11 +361,12 @@ describe('portal and level loading', () => {
     expect(tick(state)).toEqual(state);
   });
 
-  it('LOAD_LEVEL starts fresh but keeps the inventory', () => {
+  it('LOAD_LEVEL starts fresh, winding back the clock but keeping the inventory', () => {
     let state = settledAt(20 * TILE_SIZE - 20);
     state = { ...state, hasKey: true };
     state = act(state, { type: 'INTERACT' });
     state = act(state, { type: 'CHOOSE_ITEM', index: 3 });
+    const carried = state.time;
     state = act(state, {
       type: 'LOAD_LEVEL',
       level: testLevel(),
@@ -358,7 +377,8 @@ describe('portal and level loading', () => {
     expect(state.status).toBe('PLAYING');
     expect(state.hasKey).toBe(false);
     expect(state.isChestOpened).toBe(false);
-    expect(state.time).toBe(0);
+    expect(carried, 'the first level put time on the clock').toBeGreaterThan(0);
+    expect(state.time, 'which the next level winds back').toBe(0);
     expect(state.player.position.x).toBe(SPAWN_X);
     expect(state.inventory.map((i) => i.id)).toEqual(['CARD-3']);
   });
@@ -368,8 +388,20 @@ describe('enemies', () => {
   const enemySpawn: Point = { x: 5, y: 11 };
   const floorEnemyY = SURFACE - ENEMY_HEIGHT;
 
-  const withEnemy = (): GameState =>
-    createInitialState(testLevel([enemySpawn]), 0, []);
+  const withEnemy = (): GameState => {
+    const state = createInitialState(testLevel([enemySpawn]), 0, []);
+    return {
+      ...state,
+      enemies: state.enemies.map((enemy) => ({
+        ...enemy,
+        kind: 'STANDARD' as EnemyKind,
+      })),
+    };
+  };
+
+  const flyingEnemySpawn: Point = { x: 5, y: 5 };
+  const withFlyingEnemy = (): GameState =>
+    createInitialState(testLevel([flyingEnemySpawn]), 0, []);
 
   it('paces back and forth, turning at walls and platform edges without falling', () => {
     let state = withEnemy();
@@ -448,7 +480,6 @@ describe('enemies', () => {
       'the enemy is on the floor to begin with',
     ).toHaveLength(1);
 
-    // drop it over the pit the level carves at columns 10 and 11
     state = {
       ...state,
       enemies: [
@@ -467,17 +498,54 @@ describe('enemies', () => {
     ).toHaveLength(0);
   });
 
-  it('does not bring enemies back when the player respawns', () => {
+  it('resets every enemy back to its own spawn point when the player respawns', () => {
     let state = withEnemy();
+    const enemySpawnPos = state.enemies[0].spawn;
     state = tickN(state, 5);
-    const enemyX = state.enemies[0].position.x;
+    expect(
+      state.enemies[0].position.x,
+      'paced away from its spawn by now',
+    ).not.toBe(enemySpawnPos.x);
 
     state = act(state, { type: 'RESPAWN' });
     expect(state.player.position.x, 'the player went back to spawn').toBe(
       SPAWN_X,
     );
-    expect(state.enemies, 'the enemy is still there').toHaveLength(1);
-    expect(state.enemies[0].position.x, 'and did not move').toBe(enemyX);
+    expect(state.enemies, 'still exactly one enemy').toHaveLength(1);
+    expect(
+      state.enemies[0].position,
+      'and it is back at its own spawn point too',
+    ).toEqual(enemySpawnPos);
+  });
+
+  it('respawns every enemy too when the player auto-respawns after a pit fall', () => {
+    let state = withEnemy();
+    const enemySpawnPos = state.enemies[0].spawn;
+    state = tickN(state, 5);
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        position: { x: 10 * TILE_SIZE + 5, y: SURFACE - PLAYER_HEIGHT },
+      },
+    };
+    for (let i = 0; i < 300 && state.player.timers.death === null; i++) {
+      state = tick(state);
+    }
+    expect(
+      state.player.timers.death,
+      'the fall started the death throes',
+    ).not.toBeNull();
+    for (let i = 0; i < 300 && state.player.timers.death !== null; i++) {
+      state = tick(state);
+    }
+    expect(state.player.timers.death, 'and the respawn completed').toBeNull();
+    expect(state.player.position.x, 'respawned at spawn').toBe(SPAWN_X);
+    expect(state.enemies, 'still exactly one enemy').toHaveLength(1);
+    expect(
+      state.enemies[0].position,
+      'the enemy reset to its own spawn point too',
+    ).toEqual(enemySpawnPos);
   });
 
   it('spawns the new levels enemies on LOAD_LEVEL', () => {
@@ -491,7 +559,7 @@ describe('enemies', () => {
     expect(state.enemies).toHaveLength(2);
   });
 
-  const withSpike = (col: number, enemies: Point[] = []): Level => {
+  const withSpike = (col: number, enemies: Point[] = []): GameLevel => {
     const level = testLevel(enemies);
     level.tiles[11][col] = TILE_SPIKE;
     return level;
@@ -506,10 +574,12 @@ describe('enemies', () => {
         position: { x: 6 * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT },
       },
     };
-    expect(state.player.hearts.value).toBe(1);
+    expect(state.player.hearts.value).toBe(BASE_HEARTS);
     const before = state.deaths;
     state = tick(state);
-    expect(state.player.hearts.value, 'the prick drains a heart').toBe(0);
+    expect(state.player.hearts.value, 'the prick drains a heart').toBe(
+      BASE_HEARTS - 1,
+    );
     expect(
       state.player.timers.invincibility,
       'and buys a moment of mercy',
@@ -522,28 +592,31 @@ describe('enemies', () => {
     expect(state.deaths, 'a survived hit is not a death').toBe(before);
   });
 
-  it('a spike at zero hearts is fatal and sends the player back to spawn', () => {
+  it('a spike on the last heart ends the run instead of respawning', () => {
     let state = createInitialState(withSpike(6), 0, []);
     state = {
       ...state,
       player: {
         ...state.player,
         position: { x: 6 * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT },
-        hearts: { value: 0 },
+        hearts: { value: 1 },
       },
     };
     const before = state.deaths;
     state = tick(state);
-    expect(state.player.hearts.value, 'cannot drop below zero').toBe(0);
+    expect(state.player.hearts.value, 'the last heart is spent').toBe(0);
     expect(
       state.player.timers.death,
-      'with no hearts left the prick is lethal',
+      'with nothing in reserve the prick is lethal',
     ).not.toBeNull();
+    expect(state.status, 'and the run is over').toBe('GAME_OVER');
     expect(state.deaths, 'and it counts as a death').toBe(before + 1);
 
-    state = tickN(state, 120);
-    expect(state.player.position.x, 'respawned at spawn').toBe(SPAWN_X);
-    expect(state.player.timers.death, 'back on their feet').toBeNull();
+    const later = tickN(state, 120);
+    expect(later.player.position.x, 'there is no respawn out of it').not.toBe(
+      SPAWN_X,
+    );
+    expect(later, 'a finished run does not move on').toEqual(state);
   });
 
   it('ignores input while the player is dying from a pit fall', () => {
@@ -575,7 +648,14 @@ describe('enemies', () => {
   });
 
   it('turns enemies back at a spike and keeps them alive', () => {
-    let state = createInitialState(withSpike(9, [enemySpawn]), 0, []);
+    const initial = createInitialState(withSpike(9, [enemySpawn]), 0, []);
+    let state: GameState = {
+      ...initial,
+      enemies: initial.enemies.map((enemy) => ({
+        ...enemy,
+        kind: 'STANDARD' as EnemyKind,
+      })),
+    };
     let maxRight = 0;
     for (let i = 0; i < 400; i++) {
       state = tick(state);
@@ -589,9 +669,6 @@ describe('enemies', () => {
   });
 
   it('kills an enemy that ends up on a spike, clearing it once it fades', () => {
-    // A tile is either a spawn or a spike, never both, so the enemy is stood
-    // on the spike rather than born on it — which is the case that matters:
-    // one that paced into a hazard, not one dealt onto it.
     let state = createInitialState(withSpike(5, [{ x: 7, y: 11 }]), 0, []);
     expect(state.enemies).toHaveLength(1);
     state = {
@@ -610,9 +687,44 @@ describe('enemies', () => {
     expect(state.enemies, 'lingers while it fades').toHaveLength(1);
     expect(state.enemies[0].timers.death).toBe(0);
     expect(state.enemies[0].velocity.x.current, 'stops dead').toBe(0);
+    expect(
+      state.enemies[0].position.y,
+      'already on solid ground — nowhere to fall',
+    ).toBe(floorEnemyY);
 
     state = tickN(state, ticksFor(ENEMY_DEATH_SECONDS));
     expect(state.enemies).toHaveLength(0);
+  });
+
+  it('keeps a dying enemy falling instead of freezing wherever it died', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      enemies: [
+        {
+          ...enemy,
+          position: { ...enemy.position, y: enemy.position.y - 3 * TILE_SIZE },
+          velocity: {
+            ...enemy.velocity,
+            y: { ...enemy.velocity.y, current: 0 },
+          },
+          statuses: { ...enemy.statuses, isGrounded: false },
+          timers: { death: 0 },
+        },
+      ],
+    };
+    const startY = state.enemies[0].position.y;
+    state = tick(state);
+    expect(
+      state.enemies[0].position.y,
+      'the corpse keeps falling instead of hanging frozen in the air',
+    ).toBeGreaterThan(startY);
+    expect(
+      state.enemies[0].velocity.y.current,
+      'gravity is still acting on it',
+    ).toBeGreaterThan(0);
   });
 
   it('lets the player walk through a dying enemy unharmed', () => {
@@ -656,14 +768,16 @@ describe('enemies', () => {
     const before = state.deaths;
     const restingX = enemy.position.x;
     state = tick(state);
-    expect(state.player.hearts.value, 'the bump drains a heart').toBe(0);
+    expect(state.player.hearts.value, 'the bump drains a heart').toBe(
+      BASE_HEARTS - 1,
+    );
     expect(state.player.timers.invincibility).toBeGreaterThan(0);
     expect(state.player.timers.death, 'no death, no respawn').toBeNull();
     expect(state.player.position.x, 'and no knockback').toBe(restingX);
     expect(state.deaths).toBe(before);
   });
 
-  it('an enemy at zero hearts kills the player and respawns them', () => {
+  it('an enemy taking the last heart ends the run', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -676,21 +790,19 @@ describe('enemies', () => {
           ...state.player.velocity,
           y: { ...state.player.velocity.y, current: 0 },
         },
-        hearts: { value: 0 },
+        hearts: { value: 1 },
       },
     };
     const before = state.deaths;
     state = tick(state);
-    expect(state.player.hearts.value, 'stays clamped at zero').toBe(0);
+    expect(state.player.hearts.value, 'the last heart is spent').toBe(0);
     expect(
       state.player.timers.death,
-      'with no hearts left the bump is lethal',
+      'with nothing in reserve the bump is lethal',
     ).not.toBeNull();
+    expect(state.status, 'and the run is over').toBe('GAME_OVER');
     expect(state.deaths).toBe(before + 1);
-
-    state = tickN(state, 120);
-    expect(state.player.position.x, 'respawned at spawn').toBe(SPAWN_X);
-    expect(state.player.timers.death, 'back on their feet').toBeNull();
+    expect(tickN(state, 120), 'a finished run does not move on').toEqual(state);
   });
 
   it('does not kill a player kept apart by the pit', () => {
@@ -724,6 +836,7 @@ describe('enemies', () => {
       },
       enemies: [
         {
+          kind: 'STANDARD',
           position: { x: px + 17, y: enemyFloorY },
           velocity: {
             x: { current: 0, max: ENEMY_MOVE_SPEED },
@@ -741,15 +854,330 @@ describe('enemies', () => {
       before,
     );
   });
+
+  it('kills an enemy the player lands on from above at terminal velocity, without costing a heart', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        position: {
+          x: enemy.position.x,
+          y: enemy.position.y + 1 - PLAYER_HEIGHT,
+        },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 1000 },
+        },
+        statuses: { ...state.player.statuses, isGrounded: false },
+      },
+    };
+    const before = state.deaths;
+    state = tick(state);
+    expect(
+      state.enemies[0].timers.death,
+      'still a clean stomp, even landing well past the head',
+    ).toBe(0);
+    expect(state.player.hearts.value, 'no damage from a clean stomp').toBe(
+      BASE_HEARTS,
+    );
+    expect(state.player.velocity.y.current, 'the player bounces back up').toBe(
+      -STOMP_BOUNCE_VELOCITY,
+    );
+    expect(state.deaths).toBe(before);
+  });
+
+  it('clears a stomped enemy from the array once its death fade finishes', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        position: {
+          x: enemy.position.x,
+          y: enemy.position.y + 1 - PLAYER_HEIGHT,
+        },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 1000 },
+        },
+        statuses: { ...state.player.statuses, isGrounded: false },
+      },
+    };
+    state = tick(state);
+    expect(state.enemies, 'lingers while it fades').toHaveLength(1);
+    state = tickN(state, ticksFor(ENEMY_DEATH_SECONDS));
+    expect(state.enemies, 'gone once fully faded').toHaveLength(0);
+  });
+
+  it('stomping an enemy while holding jump launches a full jump instead of the small bounce', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = act(state, { type: 'JUMP_START' });
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        position: {
+          x: enemy.position.x,
+          y: enemy.position.y + 1 - PLAYER_HEIGHT,
+        },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 1000 },
+        },
+        statuses: { ...state.player.statuses, isGrounded: false },
+      },
+    };
+    state = tick(state);
+    expect(state.enemies[0].timers.death, 'still a clean stomp').toBe(0);
+    expect(state.player.hearts.value, 'no damage from a clean stomp').toBe(
+      BASE_HEARTS,
+    );
+    expect(
+      state.player.velocity.y.current,
+      'a held jump button turns the bounce into a full jump',
+    ).toBe(-state.player.velocity.y.max);
+    expect(
+      -state.player.velocity.y.current,
+      'stronger than the ordinary stomp bounce',
+    ).toBeGreaterThan(STOMP_BOUNCE_VELOCITY);
+  });
+
+  it('an enemy landing on the player from above still costs a heart, not a stomp', () => {
+    let state = withEnemy();
+    const player = {
+      ...state.player,
+      position: { x: 6 * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT },
+      velocity: {
+        x: { ...state.player.velocity.x, current: 0 },
+        y: { ...state.player.velocity.y, current: 0 },
+      },
+      statuses: { ...state.player.statuses, isGrounded: true },
+    };
+    state = {
+      ...state,
+      player,
+      enemies: [
+        {
+          ...state.enemies[0],
+          position: { x: player.position.x, y: player.position.y - 10 },
+          velocity: {
+            x: { current: 0, max: ENEMY_MOVE_SPEED },
+            y: { current: 200, max: ENEMY_JUMP_VELOCITY },
+          },
+          statuses: { ...state.enemies[0].statuses, isGrounded: false },
+        },
+      ],
+    };
+    const before = state.deaths;
+    state = tick(state);
+    expect(state.player.hearts.value, 'a falling enemy still hurts').toBe(
+      BASE_HEARTS - 1,
+    );
+    expect(
+      state.enemies[0].timers.death,
+      'the enemy dealt the blow, not the other way round',
+    ).toBeNull();
+    expect(state.deaths).toBe(before);
+  });
+
+  it('a horned enemy dies and costs a heart when touched from the side', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      enemies: [{ ...enemy, kind: 'HORNED' }],
+      player: {
+        ...state.player,
+        position: { x: enemy.position.x, y: enemy.position.y },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 0 },
+        },
+      },
+    };
+    const before = state.deaths;
+    state = tick(state);
+    expect(state.player.hearts.value, 'the trade costs a heart').toBe(
+      BASE_HEARTS - 1,
+    );
+    expect(state.enemies[0].timers.death, 'and the horn breaks').toBe(0);
+    expect(state.deaths).toBe(before);
+  });
+
+  it('a horned enemy dies and costs a heart even when stomped from above — never a free kill', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      enemies: [{ ...enemy, kind: 'HORNED' }],
+      player: {
+        ...state.player,
+        position: {
+          x: enemy.position.x,
+          y: enemy.position.y + 1 - PLAYER_HEIGHT,
+        },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 1000 },
+        },
+        statuses: { ...state.player.statuses, isGrounded: false },
+      },
+    };
+    const before = state.deaths;
+    state = tick(state);
+    expect(state.enemies[0].timers.death, 'the hit kills it too').toBe(0);
+    expect(state.player.hearts.value, 'landing on it still hurts').toBe(
+      BASE_HEARTS - 1,
+    );
+    expect(
+      state.player.velocity.y.current,
+      'no stomp bounce for a horned enemy',
+    ).toBeGreaterThan(0);
+    expect(state.deaths).toBe(before);
+  });
+
+  it('spares a horned enemy the player is currently invincible to', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      enemies: [{ ...enemy, kind: 'HORNED' }],
+      player: {
+        ...state.player,
+        position: { x: enemy.position.x, y: enemy.position.y },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 0 },
+        },
+        timers: { ...state.player.timers, invincibility: INVINCIBLE_SECONDS },
+      },
+    };
+    state = tick(state);
+    expect(
+      state.enemies[0].timers.death,
+      'an invincible player cannot gore it',
+    ).toBeNull();
+    expect(state.player.hearts.value, 'and takes no further damage').toBe(
+      BASE_HEARTS,
+    );
+  });
+
+  it('a horned enemy hops 30% lower than a standard enemy', () => {
+    const hopVelocity = (kind: EnemyKind, jumpMax: number): number => {
+      let state = withEnemy();
+      for (let i = 0; i < 10; i++) state = tick(state);
+      const enemy = state.enemies[0];
+      state = {
+        ...state,
+        enemies: [
+          {
+            ...enemy,
+            kind,
+            velocity: { ...enemy.velocity, y: { current: 0, max: jumpMax } },
+          },
+        ],
+        player: {
+          ...state.player,
+          position: {
+            x: enemy.position.x,
+            y: enemy.position.y - 3 * TILE_SIZE,
+          },
+          velocity: {
+            ...state.player.velocity,
+            y: { ...state.player.velocity.y, current: 0 },
+          },
+        },
+      };
+      state = tick(state);
+      return state.enemies[0].velocity.y.current;
+    };
+
+    const standardVy = hopVelocity('STANDARD', ENEMY_JUMP_VELOCITY);
+    const hornedVy = hopVelocity('HORNED', HORNED_ENEMY_JUMP_VELOCITY);
+
+    expect(standardVy, 'the standard enemy launched upward').toBeLessThan(0);
+    expect(hornedVy, 'the horned enemy launched upward too').toBeLessThan(0);
+    expect(
+      hornedVy - standardVy,
+      'but 30% weaker than the standard enemy',
+    ).toBeCloseTo(ENEMY_JUMP_VELOCITY - HORNED_ENEMY_JUMP_VELOCITY);
+  });
+
+  it('a flying enemy holds its column and bounces exactly one block above and below spawn', () => {
+    let state = withFlyingEnemy();
+    expect(state.enemies[0].kind, 'nothing solid sits beneath this tile').toBe(
+      'FLYING',
+    );
+    const spawn = state.enemies[0].spawn;
+    let minY = Infinity;
+    let maxY = -Infinity;
+    for (let i = 0; i < 400; i++) {
+      state = tick(state);
+      const enemy = state.enemies[0];
+      expect(enemy.statuses.isGrounded, `never grounded at tick ${i}`).toBe(
+        false,
+      );
+      expect(enemy.position.x, `never drifts sideways at tick ${i}`).toBe(
+        spawn.x,
+      );
+      minY = Math.min(minY, enemy.position.y);
+      maxY = Math.max(maxY, enemy.position.y);
+    }
+    expect(minY, 'rises a full block above spawn').toBeCloseTo(
+      spawn.y - TILE_SIZE,
+    );
+    expect(maxY, 'and falls a full block below spawn').toBeCloseTo(
+      spawn.y + TILE_SIZE,
+    );
+  });
+
+  it('a flying enemy can be stomped from above and killed, same as a standard one', () => {
+    let state = withFlyingEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        position: {
+          x: enemy.position.x,
+          y: enemy.position.y + 1 - PLAYER_HEIGHT,
+        },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 1000 },
+        },
+        statuses: { ...state.player.statuses, isGrounded: false },
+      },
+    };
+    state = tick(state);
+    expect(state.enemies[0].timers.death, 'a clean stomp kills it too').toBe(0);
+    expect(state.player.hearts.value, 'no damage from a clean stomp').toBe(
+      BASE_HEARTS,
+    );
+    expect(state.player.velocity.y.current, 'the player bounces back up').toBe(
+      -STOMP_BOUNCE_VELOCITY,
+    );
+  });
 });
 
-const spikeLevel = (col: number): Level => {
+const spikeLevel = (col: number): GameLevel => {
   const level = testLevel();
   level.tiles[11][col] = TILE_SPIKE;
   return level;
 };
 
-const ceilingSpikeLevel = (col: number, row: number): Level => {
+const ceilingSpikeLevel = (col: number, row: number): GameLevel => {
   const level = testLevel();
   level.tiles[row - 1][col] = TILE_DIRT;
   level.tiles[row][col] = TILE_SPIKE_CEILING;
@@ -770,11 +1198,15 @@ describe('ceiling spikes', () => {
       },
     };
     state = tick(state);
-    expect(state.player.hearts.value, 'safe while standing underneath').toBe(1);
+    expect(state.player.hearts.value, 'safe while standing underneath').toBe(
+      BASE_HEARTS,
+    );
 
     state = act(state, { type: 'JUMP_START' });
     state = tickN(state, 20);
-    expect(state.player.hearts.value, 'the jump ran into the prongs').toBe(0);
+    expect(state.player.hearts.value, 'the jump ran into the prongs').toBe(
+      BASE_HEARTS - 1,
+    );
     expect(state.player.timers.invincibility).toBeGreaterThan(0);
     expect(
       state.player.timers.death,
@@ -829,7 +1261,6 @@ describe('precise spike collision', () => {
 describe('lone spikes', () => {
   const col = 6;
   const left = col * TILE_SIZE;
-  // The left third of the tile, from the ground up to the prong tips.
   const edgeBox = (level: Level, tileLeft: number): boolean =>
     overlapsSpike(level, tileLeft + 1, 11 * TILE_SIZE + 8, 8, TILE_SIZE - 8);
 
@@ -871,13 +1302,15 @@ describe('hearts', () => {
     },
   });
 
-  it('starts a new level with a single heart', () => {
-    expect(createInitialState(testLevel(), 0, []).player.hearts.value).toBe(1);
+  it('starts level one with a full complement of hearts', () => {
+    expect(createInitialState(testLevel(), 0, []).player.hearts.value).toBe(
+      BASE_HEARTS,
+    );
   });
 
   it('collecting a chest heart adds a heart on the spot', () => {
     let state = createInitialState(testLevel(), 0, []);
-    expect(state.player.hearts.value).toBe(1);
+    expect(state.player.hearts.value).toBe(BASE_HEARTS);
 
     state = {
       ...state,
@@ -888,13 +1321,15 @@ describe('hearts', () => {
     expect(
       state.player.hearts.value,
       'the collected heart lands immediately',
-    ).toBe(2);
+    ).toBe(BASE_HEARTS + 1);
     expect(state.inventory).toHaveLength(1);
   });
 
   it('carries hearts to the next level without topping them back up', () => {
     let state = createInitialState(testLevel(), 0, [emberHeart()]);
-    expect(state.player.hearts.value, 'base plus one collected').toBe(2);
+    expect(state.player.hearts.value, 'base plus one collected').toBe(
+      BASE_HEARTS + 1,
+    );
 
     state = {
       ...state,
@@ -913,7 +1348,7 @@ describe('hearts', () => {
       emberHeart('H1'),
       emberHeart('H2'),
     ]);
-    expect(state.player.hearts.value).toBe(3);
+    expect(state.player.hearts.value).toBe(BASE_HEARTS + 2);
 
     state = {
       ...state,
@@ -924,7 +1359,9 @@ describe('hearts', () => {
     };
     state = tickN(state, 120);
     expect(state.player.position.x, 'respawned at spawn').toBe(SPAWN_X);
-    expect(state.player.hearts.value, 'down just one heart').toBe(2);
+    expect(state.player.hearts.value, 'down just one heart').toBe(
+      BASE_HEARTS + 1,
+    );
     expect(state.deaths).toBe(1);
   });
 
@@ -933,10 +1370,12 @@ describe('hearts', () => {
       createInitialState(spikeLevel(6), 0, [emberHeart()]),
       spikeX,
     );
-    expect(state.player.hearts.value).toBe(2);
+    expect(state.player.hearts.value).toBe(BASE_HEARTS + 1);
 
     state = tick(state);
-    expect(state.player.hearts.value, 'the spike takes one heart').toBe(1);
+    expect(state.player.hearts.value, 'the spike takes one heart').toBe(
+      BASE_HEARTS,
+    );
     const granted = state.player.timers.invincibility;
     expect(granted).toBeGreaterThan(0);
 
@@ -944,7 +1383,7 @@ describe('hearts', () => {
     expect(
       state.player.hearts.value,
       'a second bite bounces off the i-frames',
-    ).toBe(1);
+    ).toBe(BASE_HEARTS);
     expect(
       state.player.timers.invincibility,
       'and the timer keeps ticking',
@@ -955,10 +1394,14 @@ describe('hearts', () => {
       state.player.timers.invincibility,
       'invincibility has worn off',
     ).toBe(0);
-    expect(state.player.hearts.value, 'no damage taken while safe').toBe(1);
+    expect(state.player.hearts.value, 'no damage taken while safe').toBe(
+      BASE_HEARTS,
+    );
 
     state = tick(placeAt(state, spikeX));
-    expect(state.player.hearts.value, 'the spike bites once more').toBe(0);
+    expect(state.player.hearts.value, 'the spike bites once more').toBe(
+      BASE_HEARTS - 1,
+    );
     expect(state.player.timers.invincibility).toBeGreaterThan(0);
   });
 
@@ -970,23 +1413,169 @@ describe('hearts', () => {
       ]),
       spikeX,
     );
-    expect(state.player.hearts.value, 'base plus two collected').toBe(3);
+    expect(state.player.hearts.value, 'base plus two collected').toBe(
+      BASE_HEARTS + 2,
+    );
     const deaths = state.deaths;
 
-    for (let heartsLeft = 2; heartsLeft >= 0; heartsLeft--) {
+    for (let heartsLeft = BASE_HEARTS + 1; heartsLeft >= 1; heartsLeft--) {
       state = tick(placeAt(state, spikeX));
       expect(state.player.hearts.value).toBe(heartsLeft);
       expect(state.player.timers.death, 'still alive').toBeNull();
+      expect(state.status, 'and still playing').toBe('PLAYING');
       state = tickN(placeAt(state, safeX), ticksFor(INVINCIBLE_SECONDS));
     }
     expect(state.deaths, 'survived every hit').toBe(deaths);
 
     state = tick(placeAt(state, spikeX));
-    expect(state.player.hearts.value, 'cannot drop below zero').toBe(0);
+    expect(state.player.hearts.value, 'the last heart is spent').toBe(0);
     expect(
       state.player.timers.death,
-      'the hit that finds an empty bar is fatal',
+      'the hit that takes the last heart is fatal',
     ).not.toBeNull();
+    expect(state.status, 'and ends the run').toBe('GAME_OVER');
     expect(state.deaths, 'and counts as a death').toBe(deaths + 1);
+  });
+});
+
+describe('score', () => {
+  const atPortal = (seconds: number): GameState => ({
+    ...settledAt(25 * TILE_SIZE - 10),
+    time: seconds,
+  });
+
+  const enterPortal = (state: GameState): GameState =>
+    act(state, { type: 'INTERACT' });
+
+  it('starts a run with nothing scored', () => {
+    expect(createInitialState(testLevel(), 0, []).score).toBe(0);
+  });
+
+  const paidFor = (seconds: number): number =>
+    LEVEL_SCORE_BASE - LEVEL_SCORE_PER_SECOND * seconds;
+
+  it('pays the base rate less a hundred for every second on the clock', () => {
+    expect(enterPortal(atPortal(0)).score).toBe(LEVEL_SCORE_BASE);
+    expect(enterPortal(atPortal(12)).score).toBe(paidFor(12));
+  });
+
+  it('charges whole seconds only, rounding the clock before it bills', () => {
+    expect(enterPortal(atPortal(12.4)).score, 'rounds down').toBe(paidFor(12));
+    expect(enterPortal(atPortal(12.6)).score, 'rounds up').toBe(paidFor(13));
+  });
+
+  it('still pays a hundred for a level that took all day', () => {
+    const floorSeconds =
+      (LEVEL_SCORE_BASE - LEVEL_SCORE_MIN) / LEVEL_SCORE_PER_SECOND;
+
+    expect(enterPortal(atPortal(900)).score).toBe(LEVEL_SCORE_MIN);
+    expect(
+      enterPortal(atPortal(floorSeconds)).score,
+      'the last second it pays more',
+    ).toBe(LEVEL_SCORE_MIN);
+    expect(enterPortal(atPortal(floorSeconds - 1)).score).toBe(
+      LEVEL_SCORE_MIN + LEVEL_SCORE_PER_SECOND,
+    );
+  });
+
+  it('adds up over a run, each level billed against its own clock', () => {
+    let state = enterPortal(atPortal(10));
+    expect(state.score, 'the first level, taken in ten seconds').toBe(
+      paidFor(10),
+    );
+
+    state = act(state, {
+      type: 'LOAD_LEVEL',
+      level: testLevel(),
+      levelIndex: 1,
+    });
+    state = enterPortal({ ...state, time: 30, isNearPortal: true });
+    expect(
+      state.score,
+      'the second is billed against its own thirty seconds',
+    ).toBe(paidFor(10) + paidFor(30));
+  });
+
+  it('keeps the seconds each level took, for a total at the end of the run', () => {
+    let state = enterPortal(atPortal(10));
+    state = act(state, {
+      type: 'LOAD_LEVEL',
+      level: testLevel(),
+      levelIndex: 1,
+    });
+    state = enterPortal({ ...state, time: 30, isNearPortal: true });
+
+    expect(state.levelTimes).toEqual([10, 30]);
+    expect(totalTime(state.levelTimes)).toBe(40);
+  });
+
+  it('pays out a red diamond on the spot', () => {
+    let state: GameState = {
+      ...createInitialState(testLevel(), 0, []),
+      status: 'CHEST',
+    };
+    state = {
+      ...state,
+      level: { ...state.level, chestItems: [RED_DIAMOND] },
+    };
+    state = act(state, { type: 'CHOOSE_ITEM', index: 0 });
+    expect(state.score).toBe(2500);
+  });
+});
+
+describe('items', () => {
+  const opened = (item: Item): GameState => {
+    const state = createInitialState(testLevel(), 0, []);
+    return act(
+      {
+        ...state,
+        status: 'CHEST',
+        level: { ...state.level, chestItems: [item] },
+      },
+      { type: 'CHOOSE_ITEM', index: 0 },
+    );
+  };
+
+  it('a double heart is worth two hearts', () => {
+    expect(opened(DOUBLE_HEART).player.hearts.value).toBe(BASE_HEARTS + 2);
+  });
+
+  it('a red diamond is worth points, not hearts', () => {
+    const state = opened(RED_DIAMOND);
+    expect(state.player.hearts.value).toBe(BASE_HEARTS);
+    expect(state.score).toBe(2500);
+  });
+});
+
+describe('restarting after a run ends', () => {
+  it('deals level one again, with hearts refilled and nothing scored', () => {
+    let state = act(
+      {
+        ...createInitialState(testLevel(), 0, []),
+        status: 'CHEST',
+      },
+      { type: 'CHOOSE_ITEM', index: 0 },
+    );
+    state = {
+      ...state,
+      time: 40,
+      deaths: 2,
+      levelIndex: 3,
+      score: 12345,
+      status: 'GAME_OVER',
+    };
+
+    state = act(state, { type: 'RESTART', level: testLevel() });
+
+    expect(state.levelIndex, 'back to level one').toBe(0);
+    expect(state.status).toBe('PLAYING');
+    expect(state.player.hearts.value, 'with a full complement').toBe(
+      BASE_HEARTS,
+    );
+    expect(state.score, 'and nothing carried over').toBe(0);
+    expect(state.time, 'on a clock wound back to zero').toBe(0);
+    expect(state.deaths).toBe(0);
+    expect(state.inventory, 'and an empty pack').toHaveLength(0);
+    expect(state.player.position.x).toBe(SPAWN_X);
   });
 });

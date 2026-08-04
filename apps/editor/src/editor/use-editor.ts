@@ -25,10 +25,6 @@ export const useEditor = () => {
     );
   };
 
-  /**
-   * A structure has one way in and one way out, so painting a marker moves it
-   * rather than adding a second.
-   */
   const clearMarker = (marker: number): void => {
     grid.value = cloneGrid(grid.value).map((row) =>
       row.map((cell) => (cell === marker ? TILE_AIR : cell)),

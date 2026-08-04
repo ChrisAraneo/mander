@@ -1,11 +1,11 @@
-import type { Item } from '@mander/engine';
-import { isArray, isObjectLike, isString } from 'lodash-es';
+import type { PackedReplay } from '@mander/engine';
+import { every, isArray, isFinite, isObjectLike, isString } from 'lodash-es';
 import { tryCatch } from 'ramda';
 import { match, P } from 'ts-pattern';
 
 import { STORAGE_KEY } from './consts';
 import { emptySave } from './empty-save';
-import type { SaveData } from './save-data';
+import type { CompletedWorld, SaveData } from './save-data';
 
 const { nullish } = P;
 
@@ -20,17 +20,58 @@ const arrayOrEmpty = <Value>(value: unknown): Value[] =>
     )
     .otherwise((): Value[] => []);
 
+const numberOrZero = (value: unknown): number =>
+  match(value)
+    .with(
+      P.when((candidate): candidate is number => isFinite(candidate)),
+      (number) => number,
+    )
+    .otherwise(() => 0);
+
+const stringOrEmpty = (value: unknown): string =>
+  match(value)
+    .with(
+      P.when((candidate): candidate is string => isString(candidate)),
+      (text) => text,
+    )
+    .otherwise(() => '');
+
+const isPackedEntry = (value: unknown): value is number[] =>
+  isArray(value) && every(value, isFinite);
+
+const isPackedReplay = (value: unknown): value is PackedReplay =>
+  isObjectLike(value) &&
+  isString((value as PackedReplay).worldName) &&
+  isArray((value as PackedReplay).entries) &&
+  every((value as PackedReplay).entries, isPackedEntry);
+
+const replayOrNull = (value: unknown): PackedReplay | null =>
+  match(value)
+    .with(P.when(isPackedReplay), (replay) => replay)
+    .otherwise(() => null);
+
+const isCompletedWorld = (value: unknown): value is Partial<CompletedWorld> =>
+  isObjectLike(value) && isString((value as CompletedWorld).name);
+
+const completedWorlds = (value: unknown): CompletedWorld[] =>
+  arrayOrEmpty<unknown>(value)
+    .filter(isCompletedWorld)
+    .map((world): CompletedWorld => ({
+      name: stringOrEmpty(world.name),
+      day: stringOrEmpty(world.day),
+      score: numberOrZero(world.score),
+      seconds: numberOrZero(world.seconds),
+      replay: replayOrNull(world.replay),
+    }));
+
 const fromRaw = (raw: string | null): SaveData =>
   match(raw)
     .with(nullish, () => emptySave())
     .otherwise((rawValue) =>
       match(JSON.parse(rawValue) as unknown)
         .with(P.when(isSaveShape), (shaped): SaveData => ({
-          inventory: arrayOrEmpty<Item>(shaped.inventory),
-          completedLevels: arrayOrEmpty<string>(shaped.completedLevels),
-          lastSeed: match(shaped.lastSeed)
-            .with(P.when(isString), (value) => value)
-            .otherwise(() => null),
+          score: numberOrZero(shaped.score),
+          completedWorlds: completedWorlds(shaped.completedWorlds),
         }))
         .otherwise(() => emptySave()),
     );

@@ -1,7 +1,8 @@
-import type { Level } from '@mander/model';
+import { type GameLevel, HORNED_ENEMY_CHANCE } from '@mander/engine';
 import type { RenderedWorld } from '@mander/render';
 import type { Structure } from '@mander/structures';
 import { floor, size, slice } from 'lodash-es';
+import { match } from 'ts-pattern';
 import { addChest } from './structures/add-chest';
 import { computeLevelSeeds } from './seed/compute-level-seeds';
 import { addPadding } from './structures/add-padding';
@@ -15,27 +16,32 @@ import { addKey } from './structures/add-key';
 import { generateChestItems } from './items/generate-chest-items';
 import { computeWorldName } from './seed/compute-world-name';
 
-/**
- * A day is eight levels, and only the last three are dealt from the hard pool.
- * Everything up to it is built from the normal structures, so the run has a
- * long enough runway before the difficulty turns.
- */
-const FIRST_HARD_LEVEL = 6;
+const FIRST_HARD_LEVEL = 7;
 
-/** Levels before the difficulty turns, which is every level up to that one. */
 const NORMAL_LEVELS = FIRST_HARD_LEVEL - 1;
 
-/** How long a level runs, in structures, when the library can afford it. */
 const STRUCTURES_PER_LEVEL = 7;
 
-/**
- * A difficulty's structures are dealt once for the whole day and then cut into
- * levels, so no two levels of a run are built out of the same piece.
- *
- * The cut is even. A pool with too little in it to give every level its full
- * length takes the shortfall out of all of them alike, rather than running the
- * last level of the day out of pieces to keep the first ones long.
- */
+const FIRST_MIXED_ENEMY_LEVEL = 3;
+
+const FIRST_HORNED_ENEMY_LEVEL = 6;
+
+const NO_HORNED_ENEMIES = 0;
+
+const ONLY_HORNED_ENEMIES = 1;
+
+const hornedEnemyChanceFor = (levelNumber: number): number =>
+  match(levelNumber)
+    .when(
+      (number) => number >= FIRST_HORNED_ENEMY_LEVEL,
+      () => ONLY_HORNED_ENEMIES,
+    )
+    .when(
+      (number) => number >= FIRST_MIXED_ENEMY_LEVEL,
+      () => HORNED_ENEMY_CHANCE,
+    )
+    .otherwise(() => NO_HORNED_ENEMIES);
+
 const sliceForLevel = (
   dealt: Structure[],
   levels: number,
@@ -62,7 +68,7 @@ export const generate = (date: Date): RenderedWorld => {
     'hard',
   );
 
-  const levels: Level[] = seeds.map((seed, index) => {
+  const levels: GameLevel[] = seeds.map((seed, index) => {
     const levelNumber = index + 1;
     const difficulty = levelNumber >= FIRST_HARD_LEVEL ? 'hard' : 'normal';
     const chestItems = generateChestItems(seed);
@@ -79,12 +85,13 @@ export const generate = (date: Date): RenderedWorld => {
     const withKey = addKey(withSpikes);
     const withChest = addChest(withKey);
 
-    const level: Level = {
+    const level: GameLevel = {
       seed,
       width: withChest[0].length,
       height: withChest.length,
       tiles: withChest,
       chestItems,
+      hornedEnemyChance: hornedEnemyChanceFor(levelNumber),
     };
 
     return level;
@@ -94,5 +101,6 @@ export const generate = (date: Date): RenderedWorld => {
     name: computeWorldName(date),
     levels,
     palette,
+    score: 0,
   };
 };

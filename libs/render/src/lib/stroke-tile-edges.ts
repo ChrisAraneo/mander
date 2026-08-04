@@ -6,10 +6,8 @@ import { solidAt } from './solid-at';
 import { STROKE_COLOR, STROKE_WIDTH } from './stroke';
 
 interface Edge {
-  /** The neighbour this edge faces. */
   column: number;
   row: number;
-  /** The bar to paint, inside the tile's own square. */
   x: number;
   y: number;
   width: number;
@@ -38,10 +36,8 @@ const EDGES: readonly Edge[] = [
 ];
 
 interface Corner {
-  /** The diagonal neighbour that has to be open for the corner to show. */
   column: number;
   row: number;
-  /** The square to paint, tucked into the tile's own corner. */
   x: number;
   y: number;
 }
@@ -55,24 +51,6 @@ const CORNERS: readonly Corner[] = [
   { column: 1, row: 1, x: FAR, y: FAR },
 ];
 
-/**
- * Fills the notch an inside corner leaves. Where a block has neighbours on two
- * touching sides but open air on the diagonal between them —
- *
- * ```
- * 0 1
- * 1 X
- * ```
- *
- * — both of those neighbours bury the edge they share with X, so X draws
- * neither bar. The two bars that do get drawn, down the left of the block above
- * and along the top of the block beside, run into X's corner and stop dead at
- * the point where they meet, leaving one stroke-square of colour showing
- * through the outline. This puts that square back.
- *
- * A corner whose own sides face air needs nothing: the edge bar already runs
- * the full length of the tile and covers it.
- */
 const strokeInsideCorners = (
   context: CanvasRenderingContext2D,
   level: Level,
@@ -97,14 +75,6 @@ const strokeInsideCorners = (
   );
 };
 
-/**
- * Outlines the sides of a block that face open air. Two blocks shoulder to
- * shoulder share a buried edge and neither draws it, so a wall reads as one
- * mass with a line round the outside rather than a grid of boxes.
- *
- * The bars sit inside the tile rather than straddling its edge: a stroked path
- * would spill half its width into the neighbour and undo the pixel snapping.
- */
 export const strokeTileEdges = (
   context: CanvasRenderingContext2D,
   level: Level,

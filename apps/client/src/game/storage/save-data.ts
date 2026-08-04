@@ -1,7 +1,14 @@
-import type { Item } from '@mander/engine';
+import type { PackedReplay } from '@mander/engine';
+
+export interface CompletedWorld {
+  name: string;
+  day: string;
+  score: number;
+  seconds: number;
+  replay: PackedReplay | null;
+}
 
 export interface SaveData {
-  inventory: Item[];
-  completedLevels: string[];
-  lastSeed: string | null;
+  score: number;
+  completedWorlds: CompletedWorld[];
 }
