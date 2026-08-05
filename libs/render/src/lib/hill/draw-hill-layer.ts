@@ -1,7 +1,7 @@
 import { forEach, times } from 'lodash-es';
 
+import type { Viewport } from '../viewport/viewport';
 import type { HillLayer } from './hill-layer';
-import type { Viewport } from './viewport';
 
 const HILL_STEP = 16;
 

@@ -8,7 +8,7 @@ import type { Rectangle } from '@mander/utils';
 import { forEach, range } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import { strokeOutline } from './stroke';
+import { strokeOutline } from '../stroke/stroke';
 
 const drawPortalCore = (
   context: CanvasRenderingContext2D,

@@ -1,8 +1,8 @@
 import type { ItemArt } from '@mander/engine';
 import { match } from 'ts-pattern';
 
-import { drawGem, RED_GEM } from './gem';
-import { strokeOutline } from './stroke';
+import { drawGem, RED_GEM } from '../gem/gem';
+import { strokeOutline } from '../stroke/stroke';
 
 const HEART_LIGHT = '#FFC2CE';
 const HEART_BASE = '#FF5470';

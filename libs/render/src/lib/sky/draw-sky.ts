@@ -1,6 +1,6 @@
-import type { Palette } from './palette';
+import type { Palette } from '../palette/palette';
 
-import type { Viewport } from './viewport';
+import type { Viewport } from '../viewport/viewport';
 
 export const drawSky = (
   context: CanvasRenderingContext2D,

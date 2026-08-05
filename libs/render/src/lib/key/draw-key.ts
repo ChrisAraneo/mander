@@ -5,7 +5,7 @@ import {
   toEntityRectangle,
 } from '@mander/engine';
 
-import { strokeOutline } from './stroke';
+import { strokeOutline } from '../stroke/stroke';
 
 const KEY_COLOR = '#FFD166';
 const KEY_LINE = 3;

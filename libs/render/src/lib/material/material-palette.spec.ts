@@ -10,9 +10,9 @@ import { parseHsl, shiftHsl } from '@mander/utils';
 import { forEach } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
+import type { Palette } from '../palette/palette';
 import { materialPalette } from './material-palette';
 import { DIRT_STYLE, materialStyle, STONE_STYLE } from './material-styles';
-import type { Palette } from './palette';
 
 const palette = (block: string): Palette => ({
   sky: ['HSL(210, 30%, 12%)', 'HSL(210, 30%, 22%)', 'HSL(210, 30%, 28%)'],

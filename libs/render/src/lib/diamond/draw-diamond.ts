@@ -6,7 +6,7 @@ import {
 import type { Point } from '@mander/utils';
 import { forEach } from 'lodash-es';
 
-import { CYAN_GEM, drawGem } from './gem';
+import { CYAN_GEM, drawGem } from '../gem/gem';
 
 const BOB_SPEED = 3;
 const BOB_HEIGHT = 3;

@@ -8,7 +8,7 @@ import {
 import { clamp } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import { strokeOutline } from './stroke';
+import { strokeOutline } from '../stroke/stroke';
 
 const HALF_HEIGHT = PLAYER_HEIGHT / 2;
 const HEAD_RADIUS = 7;

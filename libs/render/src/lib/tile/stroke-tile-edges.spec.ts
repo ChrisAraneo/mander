@@ -10,7 +10,7 @@ import { filter, map, some } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
-import { STROKE_WIDTH } from './stroke';
+import { STROKE_WIDTH } from '../stroke/stroke';
 import { strokeTileEdges } from './stroke-tile-edges';
 
 const tileMap = (rows: string[]): Level => {

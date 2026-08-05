@@ -2,8 +2,8 @@ import { type Level, TILE_SIZE } from '@mander/engine';
 import { forEach } from 'lodash-es';
 import { match } from 'ts-pattern';
 
+import { STROKE_COLOR, STROKE_WIDTH } from '../stroke/stroke';
 import { solidAt } from './solid-at';
-import { STROKE_COLOR, STROKE_WIDTH } from './stroke';
 
 interface Edge {
   column: number;

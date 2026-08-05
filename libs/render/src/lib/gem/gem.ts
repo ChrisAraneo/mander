@@ -1,4 +1,4 @@
-import { strokeOutline } from './stroke';
+import { strokeOutline } from '../stroke/stroke';
 
 export interface GemColors {
   light: string;

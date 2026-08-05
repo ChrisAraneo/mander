@@ -7,14 +7,17 @@ import {
 import { ceil, floor, forEach, range } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import { drawMaterial } from './draw-material';
-import { drawSpike } from './draw-spike';
-import { type MaterialPalette, materialPalette } from './material-palette';
-import type { MaterialStyle } from './material-style';
-import type { Palette } from './palette';
+import { drawMaterial } from '../material/draw-material';
+import {
+  type MaterialPalette,
+  materialPalette,
+} from '../material/material-palette';
+import type { MaterialStyle } from '../material/material-style';
+import type { Palette } from '../palette/palette';
+import { drawSpike } from '../spike/draw-spike';
+import type { Viewport } from '../viewport/viewport';
 import { solidAt } from './solid-at';
 import { strokeTileEdges } from './stroke-tile-edges';
-import type { Viewport } from './viewport';
 
 const drawSolidTile = (
   context: CanvasRenderingContext2D,

@@ -3,10 +3,10 @@ import { type Hsl, hslCss, parseHsl, shiftHsl } from '@mander/utils';
 import { map } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
+import type { Palette } from '../palette/palette';
 import type { MaterialStyle } from './material-style';
 import { materialStyle } from './material-styles';
 import { CAP_LIGHTNESS_GAIN, materialTint } from './material-tint';
-import type { Palette } from './palette';
 
 export type MaterialPalette = (tile: Tile) => MaterialStyle;
 

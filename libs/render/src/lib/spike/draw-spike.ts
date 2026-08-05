@@ -6,7 +6,7 @@ import {
 } from '@mander/engine';
 import { forEach } from 'lodash-es';
 
-import { strokeOutline } from './stroke';
+import { strokeOutline } from '../stroke/stroke';
 
 export const drawSpike = (
   context: CanvasRenderingContext2D,

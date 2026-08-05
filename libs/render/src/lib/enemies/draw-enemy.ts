@@ -9,7 +9,7 @@ import {
 import { clamp } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import { strokeOutline } from './stroke';
+import { strokeOutline } from '../stroke/stroke';
 
 const SQUASH_FLOOR = 0.15;
 

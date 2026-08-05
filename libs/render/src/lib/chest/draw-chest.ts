@@ -7,7 +7,7 @@ import {
 import type { Rectangle } from '@mander/utils';
 import { match } from 'ts-pattern';
 
-import { strokeOutline } from './stroke';
+import { strokeOutline } from '../stroke/stroke';
 
 const drawChestLid = (
   context: CanvasRenderingContext2D,
