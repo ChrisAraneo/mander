@@ -20,7 +20,7 @@ interface EnemyPalette {
   brow: string;
 }
 
-const STANDARD_PALETTE: EnemyPalette = {
+const HOPPING_PALETTE: EnemyPalette = {
   feet: '#2A7D2A',
   body: '#3FB53F',
   belly: '#5FD55F',
@@ -45,7 +45,7 @@ const paletteFor = (kind: EnemyKind): EnemyPalette =>
   match(kind)
     .with('HORNED', () => HORNED_PALETTE)
     .with('FLYING', () => FLYING_PALETTE)
-    .otherwise(() => STANDARD_PALETTE);
+    .otherwise(() => HOPPING_PALETTE);
 
 const drawEnemyBody = (
   context: CanvasRenderingContext2D,

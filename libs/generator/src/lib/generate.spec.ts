@@ -79,14 +79,14 @@ describe('generate', () => {
     expect(some(early, (enemy) => enemy.kind === 'HORNED')).toBe(false);
   });
 
-  it('sends no standard enemy out on the last three levels of any day', () => {
+  it('sends no hopping enemy out on the last three levels of any day', () => {
     const late = flatMap(days, (date) =>
       flatMap(times(3), (index) =>
         createEnemies(generate(date).levels[LEVELS_A_DAY - 1 - index]),
       ),
     );
 
-    expect(some(late, (enemy) => enemy.kind === 'STANDARD')).toBe(false);
+    expect(some(late, (enemy) => enemy.kind === 'HOPPING')).toBe(false);
   });
 
   it('lets flying enemies through at every step of the ramp', () => {
@@ -100,7 +100,7 @@ describe('generate', () => {
         ),
       );
 
-    expect(flyingOn([0, 1]), 'on the standard-only levels').toBe(true);
+    expect(flyingOn([0, 1]), 'on the hopping-only levels').toBe(true);
     expect(flyingOn([2, 3, 4]), 'on the mixed levels').toBe(true);
     expect(flyingOn([5, 6, 7]), 'on the horned-only levels').toBe(true);
   });

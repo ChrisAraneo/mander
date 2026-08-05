@@ -33,7 +33,7 @@ const moveSpeedFor = (kind: EnemyKind): number =>
 const groundKindFor = (isHorned: boolean): EnemyKind =>
   match(isHorned)
     .with(true, (): EnemyKind => 'HORNED')
-    .otherwise((): EnemyKind => 'STANDARD');
+    .otherwise((): EnemyKind => 'HOPPING');
 
 const kindFor = (isAirborne: boolean, isHorned: boolean): EnemyKind =>
   match(isAirborne)

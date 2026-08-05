@@ -45,3 +45,8 @@ export * from './lib/items/heart';
 export * from './lib/items/double-heart';
 export * from './lib/items/red-diamond';
 export * from './lib/world/world';
+export * from './lib/enemies/enemy-kind';
+export * from './lib/enemies/enemy-spawn';
+export * from './lib/enemies/hopping-enemy';
+export * from './lib/enemies/horned-enemy';
+export * from './lib/enemies/flying-enemy';

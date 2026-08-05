@@ -397,7 +397,7 @@ describe('enemies', () => {
       ...state,
       enemies: state.enemies.map((enemy) => ({
         ...enemy,
-        kind: 'STANDARD' as EnemyKind,
+        kind: 'HOPPING' as EnemyKind,
       })),
     };
   };
@@ -656,7 +656,7 @@ describe('enemies', () => {
       ...initial,
       enemies: initial.enemies.map((enemy) => ({
         ...enemy,
-        kind: 'STANDARD' as EnemyKind,
+        kind: 'HOPPING' as EnemyKind,
       })),
     };
     let maxRight = 0;
@@ -839,7 +839,7 @@ describe('enemies', () => {
       },
       enemies: [
         {
-          kind: 'STANDARD',
+          kind: 'HOPPING',
           position: { x: px + 17, y: enemyFloorY },
           velocity: {
             x: { current: 0, max: ENEMY_MOVE_SPEED },
@@ -1147,7 +1147,7 @@ describe('enemies', () => {
     );
   });
 
-  it('a horned enemy hops 30% lower than a standard enemy', () => {
+  it('a horned enemy hops 30% lower than a hopping enemy', () => {
     const hopVelocity = (kind: EnemyKind, jumpMax: number): number => {
       let state = withEnemy();
       for (let i = 0; i < 10; i++) state = tick(state);
@@ -1177,14 +1177,14 @@ describe('enemies', () => {
       return state.enemies[0].velocity.y.current;
     };
 
-    const standardVy = hopVelocity('STANDARD', ENEMY_JUMP_VELOCITY);
+    const hoppingVy = hopVelocity('HOPPING', ENEMY_JUMP_VELOCITY);
     const hornedVy = hopVelocity('HORNED', HORNED_ENEMY_JUMP_VELOCITY);
 
-    expect(standardVy, 'the standard enemy launched upward').toBeLessThan(0);
+    expect(hoppingVy, 'the hopping enemy launched upward').toBeLessThan(0);
     expect(hornedVy, 'the horned enemy launched upward too').toBeLessThan(0);
     expect(
-      hornedVy - standardVy,
-      'but 30% weaker than the standard enemy',
+      hornedVy - hoppingVy,
+      'but 30% weaker than the hopping enemy',
     ).toBeCloseTo(ENEMY_JUMP_VELOCITY - HORNED_ENEMY_JUMP_VELOCITY);
   });
 
@@ -1216,7 +1216,7 @@ describe('enemies', () => {
     );
   });
 
-  it('a flying enemy can be stomped from above and killed, same as a standard one', () => {
+  it('a flying enemy can be stomped from above and killed, same as a hopping one', () => {
     let state = withFlyingEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];

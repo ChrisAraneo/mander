@@ -66,7 +66,7 @@ describe('createEnemies', () => {
     expect(second).toEqual(first);
   });
 
-  it('splits roughly 50/50 between standard and horned enemies over many spawns', () => {
+  it('splits roughly 50/50 between hopping and horned enemies over many spawns', () => {
     const level = levelWithEnemies('SEED-B', 200);
     const enemies = createEnemies(level);
     const hornedCount = enemies.filter(
@@ -77,11 +77,11 @@ describe('createEnemies', () => {
     expect(hornedCount, 'not suspiciously common').toBeLessThan(140);
   });
 
-  it('hatches nothing but standard enemies on a level that asks for no horned ones', () => {
-    const level = levelWithEnemies('SEED-STANDARD-ONLY', 200, 0);
+  it('hatches nothing but hopping enemies on a level that asks for no horned ones', () => {
+    const level = levelWithEnemies('SEED-HOPPING-ONLY', 200, 0);
     const enemies = createEnemies(level);
     expect(enemies).toHaveLength(200);
-    expect(enemies.every((enemy) => enemy.kind === 'STANDARD')).toBe(true);
+    expect(enemies.every((enemy) => enemy.kind === 'HOPPING')).toBe(true);
   });
 
   it('hatches nothing but horned enemies on a level that asks for them alone', () => {
@@ -109,13 +109,13 @@ describe('createEnemies', () => {
     expect(a).not.toEqual(b);
   });
 
-  it('gives horned enemies a 30% lower jump than standard enemies', () => {
+  it('gives horned enemies a 30% lower jump than hopping enemies', () => {
     const level = levelWithEnemies('SEED-E', 60);
     const enemies = createEnemies(level);
-    const standard = enemies.find((enemy) => enemy.kind === 'STANDARD');
+    const hopping = enemies.find((enemy) => enemy.kind === 'HOPPING');
     const horned = enemies.find((enemy) => enemy.kind === 'HORNED');
 
-    expect(standard?.velocity.y.max).toBe(ENEMY_JUMP_VELOCITY);
+    expect(hopping?.velocity.y.max).toBe(ENEMY_JUMP_VELOCITY);
     expect(horned?.velocity.y.max).toBe(HORNED_ENEMY_JUMP_VELOCITY);
     expect(horned?.velocity.y.max).toBeCloseTo(ENEMY_JUMP_VELOCITY * 0.7);
   });

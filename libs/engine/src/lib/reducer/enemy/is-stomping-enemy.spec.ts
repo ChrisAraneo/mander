@@ -16,7 +16,7 @@ const ENEMY_X = 100;
 const ENEMY_Y = 200;
 
 const enemyAt = (y = ENEMY_Y, vy = 0): Enemy => ({
-  kind: 'STANDARD',
+  kind: 'HOPPING',
   position: { x: ENEMY_X, y },
   velocity: {
     x: { current: 0, max: 78 },
