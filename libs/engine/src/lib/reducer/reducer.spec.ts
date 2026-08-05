@@ -952,6 +952,78 @@ describe('enemies', () => {
     ).toBeGreaterThan(STOMP_BOUNCE_VELOCITY);
   });
 
+  it('kills an enemy that hops up into the falling player, sparing the heart', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      enemies: [
+        {
+          ...enemy,
+          position: { x: enemy.position.x, y: enemy.position.y - TILE_SIZE },
+          velocity: {
+            x: { current: 0, max: ENEMY_MOVE_SPEED },
+            y: { current: -ENEMY_JUMP_VELOCITY, max: ENEMY_JUMP_VELOCITY },
+          },
+          statuses: { ...enemy.statuses, isGrounded: false },
+        },
+      ],
+      player: {
+        ...state.player,
+        position: {
+          x: enemy.position.x,
+          y: enemy.position.y - TILE_SIZE + 9 - PLAYER_HEIGHT,
+        },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 400 },
+        },
+        statuses: { ...state.player.statuses, isGrounded: false },
+      },
+    };
+    const before = state.deaths;
+    state = tick(state);
+    expect(
+      state.enemies[0].timers.death,
+      'meeting it head-on on the way down is still a stomp',
+    ).toBe(0);
+    expect(state.player.hearts.value, 'and costs nothing').toBe(BASE_HEARTS);
+    expect(state.player.velocity.y.current, 'the player bounces back up').toBe(
+      -STOMP_BOUNCE_VELOCITY,
+    );
+    expect(state.deaths).toBe(before);
+  });
+
+  it('kills an enemy the player only clips the edge of on the way down', () => {
+    let state = withEnemy();
+    for (let i = 0; i < 10; i++) state = tick(state);
+    const enemy = state.enemies[0];
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        position: {
+          x: enemy.position.x - 17,
+          y: enemy.position.y + 1 - PLAYER_HEIGHT,
+        },
+        velocity: {
+          ...state.player.velocity,
+          y: { ...state.player.velocity.y, current: 400 },
+        },
+        statuses: { ...state.player.statuses, isGrounded: false },
+      },
+    };
+    state = tick(state);
+    expect(
+      state.enemies[0].timers.death,
+      'clipping the head with the edge of the boot counts',
+    ).toBe(0);
+    expect(state.player.hearts.value, 'no damage from a clipped stomp').toBe(
+      BASE_HEARTS,
+    );
+  });
+
   it('an enemy landing on the player from above still costs a heart, not a stomp', () => {
     let state = withEnemy();
     const player = {

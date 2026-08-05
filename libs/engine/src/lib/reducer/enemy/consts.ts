@@ -4,6 +4,10 @@ export const ENEMY_WIDTH = 22;
 export const ENEMY_HEIGHT = 22;
 
 export const ENEMY_HITBOX_INSET = 3;
+
+export const STOMP_GRACE_X = 4;
+export const STOMP_GRACE_Y = ENEMY_HEIGHT / 2;
+
 export const ENEMY_MOVE_SPEED = 78;
 export const ENEMY_JUMP_VELOCITY = 430;
 export const HORNED_ENEMY_JUMP_VELOCITY = ENEMY_JUMP_VELOCITY * 0.7;

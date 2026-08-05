@@ -81,14 +81,14 @@ const stompVictims = (
   previousPlayer: Player,
   player: Player,
   enemies: Enemy[],
+  deltaSeconds: number,
 ): Enemy[] =>
   filter(
     enemies,
     (enemy) =>
       enemy.kind !== 'HORNED' &&
       isAlive(enemy) &&
-      isTouchingEnemy(player, enemy) &&
-      isStompingEnemy(previousPlayer, player, enemy),
+      isStompingEnemy(previousPlayer, player, enemy, deltaSeconds),
   );
 
 interface Bounced {
@@ -106,8 +106,9 @@ const applyStomps = (
   player: Player,
   enemies: Enemy[],
   isJumpHeld: boolean,
+  deltaSeconds: number,
 ): Bounced => {
-  const victims = stompVictims(previousPlayer, player, enemies);
+  const victims = stompVictims(previousPlayer, player, enemies, deltaSeconds);
   return match(victims.length > 0)
     .with(true, (): Bounced => ({
       player: {
@@ -220,7 +221,13 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
       const alive = isAlive(moved);
       const { player: bounced, enemies: afterStomps } = match(alive)
         .with(true, () =>
-          applyStomps(state.player, moved, steppedEnemies, state.input.isJump),
+          applyStomps(
+            state.player,
+            moved,
+            steppedEnemies,
+            state.input.isJump,
+            deltaSeconds,
+          ),
         )
         .otherwise((): Bounced => ({ player: moved, enemies: steppedEnemies }));
       const gored = match(alive)
