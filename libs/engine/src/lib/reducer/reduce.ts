@@ -1,4 +1,4 @@
-import type { Item } from '@mander/model';
+import { findDiamondTiles, type Item } from '@mander/model';
 import { concat } from 'lodash-es';
 import { match } from 'ts-pattern';
 
@@ -116,6 +116,7 @@ const loadLevel = (
   levelIndex,
   player: createPlayer(level, state.player),
   enemies: createEnemies(level),
+  diamonds: findDiamondTiles(level),
   status: 'PLAYING',
   hasKey: false,
   isChestOpened: false,

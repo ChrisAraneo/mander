@@ -5,5 +5,6 @@ export const HEART: Item = {
   name: 'Extra life',
   description: 'Gives you extra chance to survive',
   rarity: 'COMMON',
+  art: 'HEART',
   effect: { kind: 'HEART', amount: 1 },
 };

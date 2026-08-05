@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Item } from '@mander/engine';
+import ItemArt from './ItemArt.vue';
 
 defineProps<{ items: Item[] }>();
 defineEmits<{ choose: [index: number]; close: [] }>();
@@ -18,6 +19,7 @@ defineEmits<{ choose: [index: number]; close: [] }>();
           class="card"
           :class="item.rarity.toLowerCase()"
           @click="$emit('choose', index)">
+          <ItemArt :art="item.art" />
           <span class="rarity">{{ item.rarity }}</span>
           <span class="name">{{ item.name }}</span>
           <span class="description">{{ item.description }}</span>
@@ -46,7 +48,7 @@ defineEmits<{ choose: [index: number]; close: [] }>();
 
 .card {
   width: 150px;
-  min-height: 170px;
+  min-height: 230px;
   display: flex;
   flex-direction: column;
   gap: 8px;

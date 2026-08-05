@@ -1,5 +1,6 @@
 import {
   CHEST_ENTITY_BOX,
+  DIAMOND_ENTITY_BOX,
   type Enemy,
   findChestTile,
   findKeyTile,
@@ -8,7 +9,8 @@ import {
   type Player,
   PORTAL_ENTITY_BOX,
 } from '@mander/model';
-import { filter, includes, map, some } from 'lodash-es';
+import type { Point } from '@mander/utils';
+import { filter, includes, map, size, some } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import { overlapsSpike } from './collision/overlaps-spike';
@@ -28,6 +30,7 @@ import { isAlive } from './player/is-alive';
 import { killPlayer } from './player/kill-player';
 import { stepPlayer } from './player/step-player';
 import { stepPlayerDeath } from './player/step-player-death';
+import { DIAMOND_SCORE } from './score/consts';
 import type { GameState } from '../state/game-state';
 import type { GameStatus } from '../state/game-status';
 import { hasFallenIntoPit } from './has-fallen-into-pit';
@@ -174,6 +177,12 @@ const gameOver = (state: GameState, player: Player): Outcome => ({
   status: 'GAME_OVER',
 });
 
+const leftBehind = (player: Player, diamonds: Point[]): Point[] =>
+  filter(
+    diamonds,
+    (diamond) => !isNearTile(player, diamond, DIAMOND_ENTITY_BOX, PICKUP_RANGE),
+  );
+
 const resolveHarm = (
   state: GameState,
   player: Player,
@@ -228,14 +237,20 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         includes(gored, enemy) ? killEnemy(enemy) : enemy,
       );
       const canReach = isAlive(player);
+      const diamonds = match(canReach)
+        .with(true, () => leftBehind(player, state.diamonds))
+        .otherwise((): Point[] => state.diamonds);
 
       return {
         ...state,
         player,
         enemies,
+        diamonds,
         deaths,
         status,
         time: state.time + deltaSeconds,
+        score:
+          state.score + (size(state.diamonds) - size(diamonds)) * DIAMOND_SCORE,
         hasKey:
           state.hasKey ||
           (canReach &&

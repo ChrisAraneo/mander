@@ -5,5 +5,6 @@ export const RED_DIAMOND: Item = {
   name: 'Red diamond',
   description: 'Worth 2 500 points on the spot',
   rarity: 'COMMON',
+  art: 'GEM',
   effect: { kind: 'SCORE', amount: 2500 },
 };

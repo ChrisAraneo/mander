@@ -25,6 +25,7 @@ const item = (id: string): Item => ({
   name: id,
   description: id,
   rarity: 'COMMON',
+  art: 'GEM',
   effect: { kind: 'NONE' },
 });
 

@@ -1,4 +1,4 @@
-import type { Item } from '@mander/model';
+import { findDiamondTiles, type Item } from '@mander/model';
 
 import type { GameLevel } from '../game-level';
 import { createEnemies } from '../reducer/enemy/create-enemies';
@@ -20,6 +20,7 @@ export const createInitialState = (
     velocity: capabilitiesFor(),
   }),
   enemies: createEnemies(level),
+  diamonds: findDiamondTiles(level),
   input: { isLeft: false, isRight: false, isJump: false },
   status: 'PLAYING',
   hasKey: false,

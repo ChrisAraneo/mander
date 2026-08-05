@@ -5,6 +5,7 @@ import { clamp, forEach } from 'lodash-es';
 import { HILL_LAYERS } from './consts';
 import { snapToDevicePixel } from './device-pixel';
 import { drawChest } from './draw-chest';
+import { drawDiamonds } from './draw-diamond';
 import { drawEnemy } from './draw-enemy';
 import { drawHillLayer } from './draw-hill-layer';
 import { drawKey } from './draw-key';
@@ -51,6 +52,7 @@ export const renderGame = (
   context.save();
   context.translate(-cameraX, -cameraY);
   drawTiles(context, level, palette, cameraX, cameraY, viewport);
+  drawDiamonds(context, state);
   drawKey(context, state);
   drawChest(context, state);
   drawPortal(context, state);

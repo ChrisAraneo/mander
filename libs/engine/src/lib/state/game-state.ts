@@ -1,4 +1,5 @@
 import type { Enemy, Item, Player } from '@mander/model';
+import type { Point } from '@mander/utils';
 
 import type { GameLevel } from '../game-level';
 import type { GameStatus } from './game-status';
@@ -9,6 +10,7 @@ export interface GameState {
   levelIndex: number;
   player: Player;
   enemies: Enemy[];
+  diamonds: Point[];
   input: InputState;
   status: GameStatus;
   hasKey: boolean;

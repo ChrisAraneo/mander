@@ -5,5 +5,6 @@ export const DOUBLE_HEART: Item = {
   name: 'Double heart',
   description: 'Gives you two extra chances to survive',
   rarity: 'RARE',
+  art: 'DOUBLE_HEART',
   effect: { kind: 'HEART', amount: 2 },
 };

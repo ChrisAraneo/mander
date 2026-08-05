@@ -4,6 +4,7 @@ import type { Structure } from '@mander/structures';
 import { floor, size, slice } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { addChest } from './structures/add-chest';
+import { addDiamonds } from './structures/add-diamonds';
 import { computeLevelSeeds } from './seed/compute-level-seeds';
 import { addPadding } from './structures/add-padding';
 import { addPlayerSpawn } from './structures/add-player-spawn';
@@ -84,12 +85,13 @@ export const generate = (date: Date): RenderedWorld => {
     const withSpikes = addSpikes(withPadding, levelNumber);
     const withKey = addKey(withSpikes);
     const withChest = addChest(withKey);
+    const withDiamonds = addDiamonds(withChest);
 
     const level: GameLevel = {
       seed,
-      width: withChest[0].length,
-      height: withChest.length,
-      tiles: withChest,
+      width: withDiamonds[0].length,
+      height: withDiamonds.length,
+      tiles: withDiamonds,
       chestItems,
       hornedEnemyChance: hornedEnemyChanceFor(levelNumber),
     };
