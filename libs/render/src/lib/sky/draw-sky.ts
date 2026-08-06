@@ -1,8 +1,6 @@
-import { fillRect, styledWith } from '../canvas/commands';
-import { linearGradient } from '../canvas/gradient';
-import { paint } from '../canvas/paint';
-import type { Palette } from '../palette/palette';
-import type { Viewport } from '../viewport/viewport';
+import { fillRect, linearGradient, paint, styledWith } from '../canvas';
+import type { Palette } from '../palette';
+import type { Viewport } from '../viewport';
 
 export const drawSky = (
   context: CanvasRenderingContext2D,

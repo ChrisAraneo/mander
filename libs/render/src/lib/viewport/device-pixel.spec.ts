@@ -2,7 +2,8 @@ import { TILE_SIZE } from '@mander/engine';
 import { chain, forEach, range, round } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { snapToDevicePixel, wholeTileScale } from './device-pixel';
+import { snapToDevicePixel } from './snap-to-device-pixel';
+import { wholeTileScale } from './whole-tile-scale';
 
 const RAW_SCALES = [0.5, 0.83, 1, 1.25, 1.3333333, 1.5625, 2, 2.7, 3.1];
 

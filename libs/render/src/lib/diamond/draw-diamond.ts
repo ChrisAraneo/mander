@@ -6,9 +6,8 @@ import {
 import type { Point } from '@mander/utils';
 import { chain, map } from 'lodash-es';
 
-import type { CanvasStep } from '../canvas/canvas-step';
-import { paint } from '../canvas/paint';
-import { CYAN_GEM, gemStep } from '../gem/gem';
+import { type CanvasStep, paint } from '../canvas';
+import { CYAN_GEM, gemStep } from '../gem';
 
 const BOB_SPEED = 3;
 const BOB_HEIGHT = 3;

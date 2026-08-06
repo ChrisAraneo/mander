@@ -7,10 +7,11 @@ import {
   fill,
   lineTo,
   moveTo,
+  paint,
+  sequence,
   styled,
-} from '../canvas/commands';
-import { paint, sequence } from '../canvas/paint';
-import type { Viewport } from '../viewport/viewport';
+} from '../canvas';
+import type { Viewport } from '../viewport';
 import type { HillLayer } from './hill-layer';
 
 const HILL_STEP = 16;

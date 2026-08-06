@@ -7,20 +7,26 @@ import {
 import { ceil, chain, flatMap, floor, map, range } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import type { CanvasStep } from '../canvas/canvas-step';
-import { fillRect, styled } from '../canvas/commands';
-import { paint, sequence, skip, when } from '../canvas/paint';
-import { materialStep } from '../material/draw-material';
+import {
+  type CanvasStep,
+  fillRect,
+  paint,
+  sequence,
+  skip,
+  styled,
+  when,
+} from '../canvas';
 import {
   type MaterialPalette,
   materialPalette,
-} from '../material/material-palette';
-import type { MaterialStyle } from '../material/material-style';
-import type { Palette } from '../palette/palette';
-import { spikeStep } from '../spike/draw-spike';
-import type { Viewport } from '../viewport/viewport';
+  materialStep,
+  type MaterialStyle,
+} from '../material';
+import type { Palette } from '../palette';
+import { spikeStep } from '../spike';
+import type { Viewport } from '../viewport';
 import { solidAt } from './solid-at';
-import { tileEdgesStep } from './stroke-tile-edges';
+import { tileEdgesStep } from './tile-edges-step';
 
 const solidTileStep = (
   level: Level,

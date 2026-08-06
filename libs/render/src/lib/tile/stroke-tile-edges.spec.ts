@@ -10,7 +10,7 @@ import { chain, filter, map, size, some, split } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
-import { STROKE_WIDTH } from '../stroke/stroke';
+import { STROKE_WIDTH } from '../stroke';
 import { strokeTileEdges } from './stroke-tile-edges';
 
 const toTile = (cell: string): Tile =>

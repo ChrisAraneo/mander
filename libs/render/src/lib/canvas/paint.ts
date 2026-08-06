@@ -1,19 +1,7 @@
-import { chain, identity, noop, reduce } from 'lodash-es';
-import { match } from 'ts-pattern';
+import { chain, noop } from 'lodash-es';
 
 import type { CanvasStep } from './canvas-step';
-
-export const skip: CanvasStep = identity;
-
-export const sequence =
-  (steps: readonly CanvasStep[]): CanvasStep =>
-  (context) =>
-    reduce(steps, (current, next) => next(current), context);
-
-export const when = (condition: boolean, ...steps: CanvasStep[]): CanvasStep =>
-  match(condition)
-    .with(true, () => sequence(steps))
-    .otherwise(() => skip);
+import { sequence } from './sequence';
 
 export const paint = (
   context: CanvasRenderingContext2D,

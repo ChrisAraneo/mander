@@ -8,21 +8,22 @@ import type { Rectangle } from '@mander/utils';
 import { chain, noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import type { CanvasStep } from '../canvas/canvas-step';
 import {
   arc,
   beginPath,
+  type CanvasStep,
   fill,
   lineTo,
   moveTo,
+  paint,
   rect,
   restore,
   save,
+  sequence,
   stroke,
   styled,
-} from '../canvas/commands';
-import { paint, sequence } from '../canvas/paint';
-import { outline } from '../stroke/stroke';
+} from '../canvas';
+import { outline } from '../stroke';
 
 const { not, nullish } = P;
 

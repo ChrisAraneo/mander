@@ -9,18 +9,20 @@ import type { Rectangle } from '@mander/utils';
 import { chain, noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import type { CanvasStep } from '../canvas/canvas-step';
 import {
   beginPath,
+  type CanvasStep,
   fill,
   fillRect,
+  paint,
   rect,
   restore,
   save,
+  sequence,
   styled,
-} from '../canvas/commands';
-import { paint, sequence, when } from '../canvas/paint';
-import { outline } from '../stroke/stroke';
+  when,
+} from '../canvas';
+import { outline } from '../stroke';
 
 const { nullish } = P;
 

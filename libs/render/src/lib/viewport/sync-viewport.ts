@@ -2,7 +2,7 @@ import { assign, chain, round } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import { VIEW_HEIGHT, VIEW_WIDTH } from './consts';
-import { wholeTileScale } from './device-pixel';
+import { wholeTileScale } from './whole-tile-scale';
 import type { Viewport } from './viewport';
 
 type CanvasSize = Partial<Pick<HTMLCanvasElement, 'width' | 'height'>>;

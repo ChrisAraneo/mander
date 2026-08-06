@@ -1,30 +1,27 @@
-import type { GameState } from '@mander/engine';
-import { TILE_SIZE } from '@mander/engine';
+import { type GameState, TILE_SIZE } from '@mander/engine';
 import { chain, clamp, map } from 'lodash-es';
 
 import {
+  paint,
   restore,
   run,
   save,
+  sequence,
   setTransform,
   translate,
-} from '../canvas/commands';
-import { paint, sequence } from '../canvas/paint';
-import { drawChest } from '../chest/draw-chest';
-import { drawDiamonds } from '../diamond/draw-diamond';
-import { drawEnemy } from '../enemies/draw-enemy';
-import type { Focus } from '../focus/focus';
-import { playerFocus } from '../focus/player-focus';
-import { HILL_LAYERS } from '../hill/consts';
-import { drawHillLayer } from '../hill/draw-hill-layer';
-import { drawKey } from '../key/draw-key';
-import type { Palette } from '../palette/palette';
-import { drawPlayer } from '../player/draw-player';
-import { drawPortal } from '../portal/draw-portal';
-import { drawSky } from '../sky/draw-sky';
-import { drawTiles } from '../tile/draw-tiles';
-import { snapToDevicePixel } from '../viewport/device-pixel';
-import type { Viewport } from '../viewport/viewport';
+} from '../canvas';
+import { drawChest } from '../chest';
+import { drawDiamonds } from '../diamond';
+import { drawEnemy } from '../enemies';
+import { type Focus, playerFocus } from '../focus';
+import { drawHillLayer, HILL_LAYERS } from '../hill';
+import { drawKey } from '../key';
+import type { Palette } from '../palette';
+import { drawPlayer } from '../player';
+import { drawPortal } from '../portal';
+import { drawSky } from '../sky';
+import { drawTiles } from '../tile';
+import { snapToDevicePixel, type Viewport } from '../viewport';
 
 const cameraAxis = (
   focusAt: number,

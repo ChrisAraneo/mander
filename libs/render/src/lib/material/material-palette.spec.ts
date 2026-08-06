@@ -11,9 +11,10 @@ import { assign, chain, forEach, get } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
-import type { Palette } from '../palette/palette';
-import { materialPalette } from './material-palette';
-import { DIRT_STYLE, materialStyle, STONE_STYLE } from './material-styles';
+import type { Palette } from '../palette';
+import { DIRT_STYLE, STONE_STYLE } from './consts';
+import { materialPalette } from './material-palettes';
+import { materialStyle } from './material-styles';
 
 const palette = (block: string): Palette => ({
   sky: ['HSL(210, 30%, 12%)', 'HSL(210, 30%, 22%)', 'HSL(210, 30%, 28%)'],

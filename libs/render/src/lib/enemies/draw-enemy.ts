@@ -9,27 +9,29 @@ import {
 import { assign, chain, clamp, map } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import type { CanvasStep } from '../canvas/canvas-step';
 import {
   arc,
   beginPath,
+  type CanvasStep,
   closePath,
   ellipse,
   fill,
   lineTo,
   moveTo,
+  paint,
   rect,
   restore,
   rotate,
   roundRect,
   save,
   scale,
+  sequence,
   stroke,
   styled,
   translate,
-} from '../canvas/commands';
-import { paint, sequence, when } from '../canvas/paint';
-import { outline } from '../stroke/stroke';
+  when,
+} from '../canvas';
+import { outline } from '../stroke';
 
 const { number } = P;
 

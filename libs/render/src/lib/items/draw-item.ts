@@ -2,23 +2,24 @@ import type { ItemArt } from '@mander/engine';
 import { chain } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import type { CanvasStep } from '../canvas/canvas-step';
 import {
   arc,
   beginPath,
+  type CanvasStep,
   closePath,
   ellipse,
   fill,
+  linearGradient,
   lineTo,
+  paint,
   restore,
   save,
+  sequence,
   styled,
   styledWith,
-} from '../canvas/commands';
-import { linearGradient } from '../canvas/gradient';
-import { paint, sequence } from '../canvas/paint';
-import { gemStep, RED_GEM } from '../gem/gem';
-import { outline } from '../stroke/stroke';
+} from '../canvas';
+import { gemStep, RED_GEM } from '../gem';
+import { outline } from '../stroke';
 
 const HEART_LIGHT = '#FFC2CE';
 const HEART_BASE = '#FF5470';

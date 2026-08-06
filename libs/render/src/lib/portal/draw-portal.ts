@@ -9,20 +9,22 @@ import type { Rectangle } from '@mander/utils';
 import { chain, map, noop, range } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import type { CanvasStep } from '../canvas/canvas-step';
 import {
   beginPath,
+  type CanvasStep,
+  type ColorStop,
   ellipse,
   fill,
+  paint,
+  radialGradient,
   restore,
   save,
+  sequence,
   stroke,
   styled,
   styledWith,
-} from '../canvas/commands';
-import { type ColorStop, radialGradient } from '../canvas/gradient';
-import { paint, sequence } from '../canvas/paint';
-import { outline } from '../stroke/stroke';
+} from '../canvas';
+import { outline } from '../stroke';
 
 const { nullish } = P;
 
