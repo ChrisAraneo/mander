@@ -7,7 +7,7 @@ import {
   TILE_WOOD,
 } from '@mander/engine';
 import { parseHsl, shiftHsl } from '@mander/utils';
-import { chain, forEach } from 'lodash-es';
+import { assign, chain, forEach, get } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -57,10 +57,14 @@ describe('materialPalette', () => {
     const stone = parseHsl(styles(TILE_STONE).base);
     const dirt = parseHsl(styles(TILE_DIRT).base);
 
-    expect(hueGap(ceramic?.hue ?? 0, stone?.hue ?? 0)).toBeGreaterThan(60);
-    expect(hueGap(ceramic?.hue ?? 0, dirt?.hue ?? 0)).toBeGreaterThan(60);
-    expect(ceramic?.saturation ?? 0).toBeGreaterThan(30);
-    expect(ceramic?.lightness ?? 0).toBeLessThan(65);
+    expect(
+      hueGap(get(ceramic, 'hue', 0), get(stone, 'hue', 0)),
+    ).toBeGreaterThan(60);
+    expect(hueGap(get(ceramic, 'hue', 0), get(dirt, 'hue', 0))).toBeGreaterThan(
+      60,
+    );
+    expect(get(ceramic, 'saturation', 0)).toBeGreaterThan(30);
+    expect(get(ceramic, 'lightness', 0)).toBeLessThan(65);
   });
 
   it('follows the ground round the colour wheel', () => {
@@ -107,7 +111,9 @@ describe('hsl maths', () => {
 
   it('wraps hues and stops saturation and lightness at the ends', () => {
     const color = { hue: 350, saturation: 90, lightness: 10 };
-    expect(shiftHsl(color, { hue: 30 })).toEqual({ ...color, hue: 20 });
+    expect(shiftHsl(color, { hue: 30 })).toEqual(
+      assign({}, color, { hue: 20 }),
+    );
     expect(shiftHsl(color, { saturation: 40 }).saturation).toBe(100);
     expect(shiftHsl(color, { lightness: -40 }).lightness).toBe(0);
   });

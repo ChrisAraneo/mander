@@ -5,7 +5,7 @@ import {
   TILE_DIRT,
   TILE_SIZE,
 } from '@mander/engine';
-import { chain, map } from 'lodash-es';
+import { chain, map, size, split } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -18,11 +18,11 @@ const toTile = (cell: string): Tile =>
 
 const tileMap = (rows: string[]): Level =>
   chain(rows)
-    .thru((lines) => map(lines, (row) => map(row.split(''), toTile)))
+    .thru((lines) => map(lines, (row) => map(split(row, ''), toTile)))
     .thru((tiles) => ({
       seed: 'FOCUS',
-      width: tiles[0].length,
-      height: tiles.length,
+      width: size(tiles[0]),
+      height: size(tiles),
       tiles,
       chestItems: [],
     }))

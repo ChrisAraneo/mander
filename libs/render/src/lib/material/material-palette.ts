@@ -1,6 +1,6 @@
 import { SOLID_TILES, type Tile, TILE_DIRT, TILE_WOOD } from '@mander/engine';
 import { type Hsl, hslCss, parseHsl, shiftHsl } from '@mander/utils';
-import { chain, map } from 'lodash-es';
+import { assign, chain, map } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import type { Palette } from '../palette/palette';
@@ -38,12 +38,12 @@ const capOf = (tile: Tile, palette: Palette, base: Hsl): Cap =>
 
 const styleFor = (tile: Tile, palette: Palette, ground: Hsl): MaterialStyle =>
   chain(shiftHsl(ground, materialTint(tile)))
-    .thru((base) => ({
-      base: hslCss(base),
-      ...capOf(tile, palette, base),
-      joint: jointOf(tile),
-      highlight: HIGHLIGHT,
-    }))
+    .thru((base): MaterialStyle =>
+      assign({ base: hslCss(base) }, capOf(tile, palette, base), {
+        joint: jointOf(tile),
+        highlight: HIGHLIGHT,
+      }),
+    )
     .value();
 
 const groundedPalette = (palette: Palette, ground: Hsl): MaterialPalette =>

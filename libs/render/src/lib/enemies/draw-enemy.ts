@@ -6,7 +6,7 @@ import {
   ENEMY_WIDTH,
   isAlive,
 } from '@mander/engine';
-import { chain, clamp, map } from 'lodash-es';
+import { assign, chain, clamp, map } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import type { CanvasStep } from '../canvas/canvas-step';
@@ -201,16 +201,17 @@ export const drawEnemy = (
     progress: deathProgress(enemy.timers.death),
     palette: paletteFor(enemy.kind),
   })
-    .thru((stage) => ({
-      ...stage,
-      squash: 1 - stage.progress * (1 - SQUASH_FLOOR),
-      facing: match(enemy.statuses.isFacingRight)
-        .with(true, () => 1)
-        .otherwise(() => -1),
-      wobble: match(enemy.statuses.isGrounded && !stage.isDying)
-        .with(true, () => Math.sin(time * 9 + enemy.spawn.x * 0.2) * 1.2)
-        .otherwise(() => 0),
-    }))
+    .thru((stage) =>
+      assign({}, stage, {
+        squash: 1 - stage.progress * (1 - SQUASH_FLOOR),
+        facing: match(enemy.statuses.isFacingRight)
+          .with(true, () => 1)
+          .otherwise(() => -1),
+        wobble: match(enemy.statuses.isGrounded && !stage.isDying)
+          .with(true, () => Math.sin(time * 9 + enemy.spawn.x * 0.2) * 1.2)
+          .otherwise(() => 0),
+      }),
+    )
     .thru(({ isDying, progress, palette, squash, facing, wobble }) =>
       paint(
         context,

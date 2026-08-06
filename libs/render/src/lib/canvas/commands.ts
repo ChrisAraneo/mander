@@ -1,16 +1,17 @@
-import { tap } from 'ramda';
+import { assign, tap } from 'lodash-es';
 
 import type { CanvasStep } from './canvas-step';
 import type { CanvasStyle } from './canvas-style';
 
-export const run = (
-  action: (context: CanvasRenderingContext2D) => unknown,
-): CanvasStep => tap(action);
+export const run =
+  (action: (context: CanvasRenderingContext2D) => unknown): CanvasStep =>
+  (context) =>
+    tap(context, action);
 
 export const styled =
   (style: CanvasStyle): CanvasStep =>
   (context) =>
-    Object.assign(context, style);
+    assign(context, style);
 
 export const styledWith =
   (toStyle: (context: CanvasRenderingContext2D) => CanvasStyle): CanvasStep =>

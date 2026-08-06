@@ -6,8 +6,7 @@ import {
   TILE_SIZE,
   TILE_SPIKE,
 } from '@mander/engine';
-import { chain, filter, map, some } from 'lodash-es';
-import { tap } from 'ramda';
+import { chain, filter, map, size, some, split } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -22,11 +21,11 @@ const toTile = (cell: string): Tile =>
 
 const tileMap = (rows: string[]): Level =>
   chain(rows)
-    .thru((lines) => map(lines, (row) => map(row.split(''), toTile)))
+    .thru((lines) => map(lines, (row) => map(split(row, ''), toTile)))
     .thru((tiles) => ({
       seed: 'TEST',
-      width: tiles[0].length,
-      height: tiles.length,
+      width: size(tiles[0]),
+      height: size(tiles),
       tiles,
       chestItems: [],
     }))
@@ -58,11 +57,7 @@ const recorder = (): Recorder =>
 
 const barsFor = (level: Level, column: number, row: number): Bar[] =>
   chain(recorder())
-    .thru(
-      tap(({ context }: Recorder) =>
-        strokeTileEdges(context, level, column, row),
-      ),
-    )
+    .tap(({ context }) => strokeTileEdges(context, level, column, row))
     .thru(({ bars }) => bars)
     .value();
 

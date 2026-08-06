@@ -1,4 +1,4 @@
-import { chain, round } from 'lodash-es';
+import { assign, chain, round } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import { VIEW_HEIGHT, VIEW_WIDTH } from './consts';
@@ -33,11 +33,14 @@ const resizeToDisplay = (
     deviceWidth: round(cssWidth * pixelRatio),
     deviceHeight: round(cssHeight * pixelRatio),
   })
-    .thru(({ deviceWidth, deviceHeight }) => ({
-      ...widthChange(canvas, deviceWidth),
-      ...heightChange(canvas, deviceHeight),
-    }))
-    .thru((size) => Object.assign(canvas, size))
+    .thru(({ deviceWidth, deviceHeight }): CanvasSize =>
+      assign(
+        {},
+        widthChange(canvas, deviceWidth),
+        heightChange(canvas, deviceHeight),
+      ),
+    )
+    .thru((size) => assign(canvas, size))
     .value();
 
 export const syncViewport = (canvas: HTMLCanvasElement): Viewport =>

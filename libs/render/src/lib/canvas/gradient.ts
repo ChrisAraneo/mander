@@ -1,5 +1,4 @@
-import { chain, reduce } from 'lodash-es';
-import { tap } from 'ramda';
+import { chain, reduce, tap } from 'lodash-es';
 
 export type ColorStop = readonly [number, string];
 
@@ -9,9 +8,7 @@ const withStops =
     reduce(
       stops,
       (current, [offset, color]) =>
-        tap((target: CanvasGradient) => target.addColorStop(offset, color))(
-          current,
-        ),
+        tap(current, (target) => target.addColorStop(offset, color)),
       gradient,
     );
 

@@ -1,5 +1,5 @@
 import type { Point } from '@mander/utils';
-import { chain, map, times } from 'lodash-es';
+import { chain, floor, map, times } from 'lodash-es';
 
 import {
   beginPath,
@@ -16,7 +16,7 @@ import type { HillLayer } from './hill-layer';
 const HILL_STEP = 16;
 
 const stepsAcross = (width: number): number[] =>
-  times(Math.floor(width / HILL_STEP) + 1, (index) => index * HILL_STEP);
+  times(floor(width / HILL_STEP) + 1, (index) => index * HILL_STEP);
 
 const hillPoint = (
   screenX: number,

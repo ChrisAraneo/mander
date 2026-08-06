@@ -7,7 +7,7 @@ import {
   TILE_WOOD,
 } from '@mander/engine';
 import { hslCss, parseHsl, shiftHsl } from '@mander/utils';
-import { chain, map, memoize, range } from 'lodash-es';
+import { chain, map, memoize, range, size } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import type { CanvasStep } from '../canvas/canvas-step';
@@ -89,7 +89,7 @@ const plankStep = (
 ): CanvasStep =>
   chain(plankTones(style.base))
     .thru((tones) => ({
-      tone: tones[seed % tones.length],
+      tone: tones[seed % size(tones)],
       buttX: 3 + (seed % 24),
     }))
     .thru(({ tone, buttX }) =>

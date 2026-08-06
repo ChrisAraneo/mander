@@ -1,5 +1,5 @@
 import { TILE_SIZE } from '@mander/engine';
-import { chain, forEach, range } from 'lodash-es';
+import { chain, forEach, range, round } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { snapToDevicePixel, wholeTileScale } from './device-pixel';
@@ -10,7 +10,7 @@ describe('wholeTileScale', () => {
   it('gives every tile a whole number of device pixels', () => {
     forEach(RAW_SCALES, (raw) =>
       chain(wholeTileScale(raw) * TILE_SIZE)
-        .thru((tile) => expect(tile, `${raw}`).toBe(Math.round(tile)))
+        .thru((tile) => expect(tile, `${raw}`).toBe(round(tile)))
         .value(),
     );
   });
@@ -41,7 +41,7 @@ describe('snapToDevicePixel', () => {
             chain((column * TILE_SIZE - camera) * scale)
               .thru((edge) =>
                 expect(
-                  Math.abs(edge - Math.round(edge)),
+                  Math.abs(edge - round(edge)),
                   `${raw} @ ${column}`,
                 ).toBeLessThan(1e-6),
               )
