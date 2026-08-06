@@ -38,16 +38,26 @@ describe('isSolid', () => {
     expect(isSolid(LEVEL, 2, 0)).toBe(true);
   });
 
-  it('returns true for out-of-bounds coordinates (y < 0)', () => {
-    expect(isSolid(LEVEL, 0, -1)).toBe(true);
+  it('returns false for out-of-bounds coordinates (y < 0)', () => {
+    expect(isSolid(LEVEL, 0, -1)).toBe(false);
   });
 
-  it('returns true for out-of-bounds coordinates (y >= height)', () => {
-    expect(isSolid(LEVEL, 0, 2)).toBe(true);
+  it('returns false for out-of-bounds coordinates (y >= height)', () => {
+    expect(isSolid(LEVEL, 0, 2)).toBe(false);
   });
 
   it('returns true for diagonal out-of-bounds coordinates', () => {
     expect(isSolid(LEVEL, -1, -1)).toBe(true);
     expect(isSolid(LEVEL, 2, 2)).toBe(true);
+  });
+
+  it('returns true past the side walls at any row, in bounds or not', () => {
+    expect(isSolid(LEVEL, -1, 5)).toBe(true);
+    expect(isSolid(LEVEL, 2, -5)).toBe(true);
+  });
+
+  it('returns false far below the level, so a falling never ends', () => {
+    expect(isSolid(LEVEL, 0, 100)).toBe(false);
+    expect(isSolid(LEVEL, 1, 100)).toBe(false);
   });
 });

@@ -1,4 +1,4 @@
-import { every, some } from 'lodash-es';
+import { some } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { TILE_AIR } from '../air/air';
