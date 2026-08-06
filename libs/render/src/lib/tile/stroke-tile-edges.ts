@@ -1,7 +1,9 @@
 import { type Level, TILE_SIZE } from '@mander/engine';
-import { forEach } from 'lodash-es';
-import { match } from 'ts-pattern';
+import { map } from 'lodash-es';
 
+import type { CanvasStep } from '../canvas/canvas-step';
+import { fillRect, styled } from '../canvas/commands';
+import { paint, sequence, when } from '../canvas/paint';
 import { STROKE_COLOR, STROKE_WIDTH } from '../stroke/stroke';
 import { solidAt } from './solid-at';
 
@@ -51,48 +53,54 @@ const CORNERS: readonly Corner[] = [
   { column: 1, row: 1, x: FAR, y: FAR },
 ];
 
-const strokeInsideCorners = (
-  context: CanvasRenderingContext2D,
+const edgeStep = (
   level: Level,
   column: number,
   row: number,
-): void => {
-  forEach(CORNERS, (corner) =>
-    match(
-      !solidAt(level, column + corner.column, row + corner.row) &&
-        solidAt(level, column + corner.column, row) &&
-        solidAt(level, column, row + corner.row),
-    )
-      .with(true, () =>
-        context.fillRect(
-          column * TILE_SIZE + corner.x,
-          row * TILE_SIZE + corner.y,
-          STROKE_WIDTH,
-          STROKE_WIDTH,
-        ),
-      )
-      .otherwise(() => undefined),
+  edge: Edge,
+): CanvasStep =>
+  when(
+    !solidAt(level, column + edge.column, row + edge.row),
+    fillRect(
+      column * TILE_SIZE + edge.x,
+      row * TILE_SIZE + edge.y,
+      edge.width,
+      edge.height,
+    ),
   );
-};
+
+const cornerStep = (
+  level: Level,
+  column: number,
+  row: number,
+  corner: Corner,
+): CanvasStep =>
+  when(
+    !solidAt(level, column + corner.column, row + corner.row) &&
+      solidAt(level, column + corner.column, row) &&
+      solidAt(level, column, row + corner.row),
+    fillRect(
+      column * TILE_SIZE + corner.x,
+      row * TILE_SIZE + corner.y,
+      STROKE_WIDTH,
+      STROKE_WIDTH,
+    ),
+  );
+
+export const tileEdgesStep = (
+  level: Level,
+  column: number,
+  row: number,
+): CanvasStep =>
+  sequence([
+    styled({ fillStyle: STROKE_COLOR }),
+    sequence(map(EDGES, (edge) => edgeStep(level, column, row, edge))),
+    sequence(map(CORNERS, (corner) => cornerStep(level, column, row, corner))),
+  ]);
 
 export const strokeTileEdges = (
   context: CanvasRenderingContext2D,
   level: Level,
   column: number,
   row: number,
-): void => {
-  context.fillStyle = STROKE_COLOR;
-  forEach(EDGES, (edge) =>
-    match(solidAt(level, column + edge.column, row + edge.row))
-      .with(false, () =>
-        context.fillRect(
-          column * TILE_SIZE + edge.x,
-          row * TILE_SIZE + edge.y,
-          edge.width,
-          edge.height,
-        ),
-      )
-      .otherwise(() => undefined),
-  );
-  strokeInsideCorners(context, level, column, row);
-};
+): void => paint(context, tileEdgesStep(level, column, row));

@@ -5,29 +5,28 @@ import {
   TILE_DIRT,
   TILE_SIZE,
 } from '@mander/engine';
-import { map } from 'lodash-es';
+import { chain, map } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
 import { midLevelFocus } from './mid-level-focus';
 
-const tileMap = (rows: string[]): Level => {
-  const tiles: Tile[][] = map(rows, (row) =>
-    map(row.split(''), (cell): Tile =>
-      match(cell)
-        .with('#', () => TILE_DIRT)
-        .otherwise(() => TILE_AIR),
-    ),
-  );
+const toTile = (cell: string): Tile =>
+  match(cell)
+    .with('#', () => TILE_DIRT)
+    .otherwise(() => TILE_AIR);
 
-  return {
-    seed: 'FOCUS',
-    width: tiles[0].length,
-    height: tiles.length,
-    tiles,
-    chestItems: [],
-  };
-};
+const tileMap = (rows: string[]): Level =>
+  chain(rows)
+    .thru((lines) => map(lines, (row) => map(row.split(''), toTile)))
+    .thru((tiles) => ({
+      seed: 'FOCUS',
+      width: tiles[0].length,
+      height: tiles.length,
+      tiles,
+      chestItems: [],
+    }))
+    .value();
 
 const LEVEL = tileMap([
   '..........',

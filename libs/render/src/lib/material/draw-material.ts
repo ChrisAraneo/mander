@@ -7,45 +7,58 @@ import {
   TILE_WOOD,
 } from '@mander/engine';
 import { hslCss, parseHsl, shiftHsl } from '@mander/utils';
-import { forEach, map, memoize, range } from 'lodash-es';
+import { chain, map, memoize, range } from 'lodash-es';
 import { match } from 'ts-pattern';
 
+import type { CanvasStep } from '../canvas/canvas-step';
+import { fillRect, styled } from '../canvas/commands';
+import { paint, sequence, skip } from '../canvas/paint';
 import type { MaterialStyle } from './material-style';
 
-const drawBrick = (
-  context: CanvasRenderingContext2D,
-  pixelX: number,
-  pixelY: number,
-  style: MaterialStyle,
-): void => {
-  const courseHeight = TILE_SIZE / 4;
-  context.fillStyle = style.joint;
-  forEach(range(1, 4), (course) =>
-    context.fillRect(pixelX, pixelY + course * courseHeight, TILE_SIZE, 1),
-  );
-  forEach(range(0, 4), (course) =>
-    context.fillRect(
-      pixelX + (course % 2 === 0 ? TILE_SIZE / 2 : TILE_SIZE / 4),
-      pixelY + course * courseHeight,
-      1,
-      courseHeight,
-    ),
-  );
-};
+const COURSE_HEIGHT = TILE_SIZE / 4;
+const HALF_TILE = TILE_SIZE / 2;
+const QUARTER_TILE = TILE_SIZE / 4;
 
-const drawStone = (
-  context: CanvasRenderingContext2D,
+const brickStep = (
   pixelX: number,
   pixelY: number,
   style: MaterialStyle,
-): void => {
-  context.fillStyle = style.joint;
-  context.fillRect(pixelX + 6, pixelY + 7, 7, 5);
-  context.fillRect(pixelX + 19, pixelY + 16, 8, 6);
-  context.fillStyle = style.highlight;
-  context.fillRect(pixelX + 8, pixelY + 20, 6, 4);
-  context.fillRect(pixelX + 20, pixelY + 6, 5, 4);
-};
+): CanvasStep =>
+  sequence([
+    styled({ fillStyle: style.joint }),
+    sequence(
+      map(range(1, 4), (course) =>
+        fillRect(pixelX, pixelY + course * COURSE_HEIGHT, TILE_SIZE, 1),
+      ),
+    ),
+    sequence(
+      map(range(0, 4), (course) =>
+        fillRect(
+          pixelX +
+            match(course % 2)
+              .with(0, () => HALF_TILE)
+              .otherwise(() => QUARTER_TILE),
+          pixelY + course * COURSE_HEIGHT,
+          1,
+          COURSE_HEIGHT,
+        ),
+      ),
+    ),
+  ]);
+
+const stoneStep = (
+  pixelX: number,
+  pixelY: number,
+  style: MaterialStyle,
+): CanvasStep =>
+  sequence([
+    styled({ fillStyle: style.joint }),
+    fillRect(pixelX + 6, pixelY + 7, 7, 5),
+    fillRect(pixelX + 19, pixelY + 16, 8, 6),
+    styled({ fillStyle: style.highlight }),
+    fillRect(pixelX + 8, pixelY + 20, 6, 4),
+    fillRect(pixelX + 20, pixelY + 6, 5, 4),
+  ]);
 
 const PLANK_LIGHTNESS = [0, -2, 4, -6, -1];
 const PLANK_TOP = 'RGBA(255, 255, 255, 0.18)';
@@ -68,76 +81,89 @@ const plankTones = memoize((base: string): string[] =>
 const tileNoise = (a: number, b: number): number =>
   (((a * 73856093) ^ (b * 19349663)) >>> 0) % 9973;
 
-const drawPlank = (
-  context: CanvasRenderingContext2D,
+const plankStep = (
   pixelX: number,
   top: number,
   seed: number,
   style: MaterialStyle,
-): void => {
-  const tones = plankTones(style.base);
-  context.fillStyle = tones[seed % tones.length];
-  context.fillRect(pixelX, top, TILE_SIZE, PLANK_HEIGHT);
+): CanvasStep =>
+  chain(plankTones(style.base))
+    .thru((tones) => ({
+      tone: tones[seed % tones.length],
+      buttX: 3 + (seed % 24),
+    }))
+    .thru(({ tone, buttX }) =>
+      sequence([
+        styled({ fillStyle: tone }),
+        fillRect(pixelX, top, TILE_SIZE, PLANK_HEIGHT),
+        styled({ fillStyle: PLANK_TOP }),
+        fillRect(pixelX, top + 1, TILE_SIZE, 2),
+        styled({ fillStyle: PLANK_BOTTOM }),
+        fillRect(pixelX, top + PLANK_HEIGHT - 3, TILE_SIZE, 2),
+        styled({ fillStyle: GRAIN_DARK }),
+        fillRect(pixelX + (seed % 5), top + 3 + (seed % 3), TILE_SIZE - 6, 1),
+        fillRect(
+          pixelX + 6 + (seed % 7),
+          top + PLANK_HEIGHT - 5,
+          TILE_SIZE - 10,
+          1,
+        ),
+        styled({ fillStyle: GRAIN_LIGHT }),
+        fillRect(pixelX + 2 + (seed % 9), top + 5, TILE_SIZE - 14, 1),
+        styled({ fillStyle: style.joint }),
+        fillRect(pixelX, top + PLANK_HEIGHT - 1, TILE_SIZE, 1),
+        fillRect(pixelX + buttX, top, 1, PLANK_HEIGHT - 1),
+        styled({ fillStyle: GRAIN_LIGHT }),
+        fillRect(pixelX + buttX + 1, top, 1, PLANK_HEIGHT - 1),
+      ]),
+    )
+    .value();
 
-  context.fillStyle = PLANK_TOP;
-  context.fillRect(pixelX, top + 1, TILE_SIZE, 2);
-  context.fillStyle = PLANK_BOTTOM;
-  context.fillRect(pixelX, top + PLANK_HEIGHT - 3, TILE_SIZE, 2);
-
-  context.fillStyle = GRAIN_DARK;
-  context.fillRect(pixelX + (seed % 5), top + 3 + (seed % 3), TILE_SIZE - 6, 1);
-  context.fillRect(
-    pixelX + 6 + (seed % 7),
-    top + PLANK_HEIGHT - 5,
-    TILE_SIZE - 10,
-    1,
-  );
-  context.fillStyle = GRAIN_LIGHT;
-  context.fillRect(pixelX + 2 + (seed % 9), top + 5, TILE_SIZE - 14, 1);
-
-  context.fillStyle = style.joint;
-  context.fillRect(pixelX, top + PLANK_HEIGHT - 1, TILE_SIZE, 1);
-
-  const buttX = 3 + (seed % 24);
-  context.fillRect(pixelX + buttX, top, 1, PLANK_HEIGHT - 1);
-  context.fillStyle = GRAIN_LIGHT;
-  context.fillRect(pixelX + buttX + 1, top, 1, PLANK_HEIGHT - 1);
-};
-
-const drawWood = (
-  context: CanvasRenderingContext2D,
+const woodStep = (
   pixelX: number,
   pixelY: number,
   style: MaterialStyle,
-): void => {
-  const column = pixelX / TILE_SIZE;
-  const row = pixelY / TILE_SIZE;
+): CanvasStep =>
+  chain({ column: pixelX / TILE_SIZE, row: pixelY / TILE_SIZE })
+    .thru(({ column, row }) =>
+      map(range(2), (course) =>
+        plankStep(
+          pixelX,
+          pixelY + course * PLANK_HEIGHT,
+          tileNoise(column, row * 2 + course),
+          style,
+        ),
+      ),
+    )
+    .thru(sequence)
+    .value();
 
-  forEach(range(2), (course) =>
-    drawPlank(
-      context,
-      pixelX,
-      pixelY + course * PLANK_HEIGHT,
-      tileNoise(column, row * 2 + course),
-      style,
-    ),
-  );
-};
-
-const drawCeramic = (
-  context: CanvasRenderingContext2D,
+const ceramicStep = (
   pixelX: number,
   pixelY: number,
   style: MaterialStyle,
-): void => {
-  const half = TILE_SIZE / 2;
-  context.fillStyle = style.joint;
-  context.fillRect(pixelX + half, pixelY, 1, TILE_SIZE);
-  context.fillRect(pixelX, pixelY + half, TILE_SIZE, 1);
-  context.fillStyle = style.highlight;
-  context.fillRect(pixelX + 3, pixelY + 3, half - 7, 1);
-  context.fillRect(pixelX + half + 3, pixelY + half + 3, half - 7, 1);
-};
+): CanvasStep =>
+  sequence([
+    styled({ fillStyle: style.joint }),
+    fillRect(pixelX + HALF_TILE, pixelY, 1, TILE_SIZE),
+    fillRect(pixelX, pixelY + HALF_TILE, TILE_SIZE, 1),
+    styled({ fillStyle: style.highlight }),
+    fillRect(pixelX + 3, pixelY + 3, HALF_TILE - 7, 1),
+    fillRect(pixelX + HALF_TILE + 3, pixelY + HALF_TILE + 3, HALF_TILE - 7, 1),
+  ]);
+
+export const materialStep = (
+  tile: Tile,
+  pixelX: number,
+  pixelY: number,
+  style: MaterialStyle,
+): CanvasStep =>
+  match(tile)
+    .with(TILE_BRICK, () => brickStep(pixelX, pixelY, style))
+    .with(TILE_STONE, () => stoneStep(pixelX, pixelY, style))
+    .with(TILE_WOOD, () => woodStep(pixelX, pixelY, style))
+    .with(TILE_CERAMIC, () => ceramicStep(pixelX, pixelY, style))
+    .otherwise(() => skip);
 
 export const drawMaterial = (
   context: CanvasRenderingContext2D,
@@ -145,10 +171,4 @@ export const drawMaterial = (
   pixelX: number,
   pixelY: number,
   style: MaterialStyle,
-): void =>
-  match(tile)
-    .with(TILE_BRICK, () => drawBrick(context, pixelX, pixelY, style))
-    .with(TILE_STONE, () => drawStone(context, pixelX, pixelY, style))
-    .with(TILE_WOOD, () => drawWood(context, pixelX, pixelY, style))
-    .with(TILE_CERAMIC, () => drawCeramic(context, pixelX, pixelY, style))
-    .otherwise(() => undefined);
+): void => paint(context, materialStep(tile, pixelX, pixelY, style));

@@ -1,7 +1,15 @@
 import type { GameState } from '@mander/engine';
 import { TILE_SIZE } from '@mander/engine';
-import { clamp, forEach } from 'lodash-es';
+import { chain, clamp, map } from 'lodash-es';
 
+import {
+  restore,
+  run,
+  save,
+  setTransform,
+  translate,
+} from '../canvas/commands';
+import { paint, sequence } from '../canvas/paint';
 import { drawChest } from '../chest/draw-chest';
 import { drawDiamonds } from '../diamond/draw-diamond';
 import { drawEnemy } from '../enemies/draw-enemy';
@@ -18,45 +26,73 @@ import { drawTiles } from '../tile/draw-tiles';
 import { snapToDevicePixel } from '../viewport/device-pixel';
 import type { Viewport } from '../viewport/viewport';
 
+const cameraAxis = (
+  focusAt: number,
+  viewSize: number,
+  worldSize: number,
+  scale: number,
+): number =>
+  snapToDevicePixel(
+    clamp(focusAt - viewSize / 2, 0, Math.max(0, worldSize - viewSize)),
+    scale,
+  );
+
 export const renderGame = (
   context: CanvasRenderingContext2D,
   state: GameState,
   palette: Palette,
   viewport: Viewport,
   focus: Focus = playerFocus(state),
-): void => {
-  const { level, player, enemies, time } = state;
-  const cameraX = snapToDevicePixel(
-    clamp(
-      focus.x - viewport.width / 2,
-      0,
-      Math.max(0, level.width * TILE_SIZE - viewport.width),
-    ),
-    viewport.scale,
-  );
-  const cameraY = snapToDevicePixel(
-    clamp(
-      focus.y - viewport.height / 2,
-      0,
-      Math.max(0, level.height * TILE_SIZE - viewport.height),
-    ),
-    viewport.scale,
-  );
-
-  context.setTransform(viewport.scale, 0, 0, viewport.scale, 0, 0);
-  drawSky(context, palette, viewport);
-  forEach(HILL_LAYERS, (layer, index) =>
-    drawHillLayer(context, cameraX, layer, palette.hills[index], viewport),
-  );
-
-  context.save();
-  context.translate(-cameraX, -cameraY);
-  drawTiles(context, level, palette, cameraX, cameraY, viewport);
-  drawDiamonds(context, state);
-  drawKey(context, state);
-  drawChest(context, state);
-  drawPortal(context, state);
-  forEach(enemies, (enemy) => drawEnemy(context, enemy, time));
-  drawPlayer(context, player, time);
-  context.restore();
-};
+): void =>
+  chain(state.level)
+    .thru((level) => ({
+      cameraX: cameraAxis(
+        focus.x,
+        viewport.width,
+        level.width * TILE_SIZE,
+        viewport.scale,
+      ),
+      cameraY: cameraAxis(
+        focus.y,
+        viewport.height,
+        level.height * TILE_SIZE,
+        viewport.scale,
+      ),
+    }))
+    .thru(({ cameraX, cameraY }) =>
+      paint(
+        context,
+        setTransform(viewport.scale, 0, 0, viewport.scale, 0, 0),
+        run((target) => drawSky(target, palette, viewport)),
+        sequence(
+          map(HILL_LAYERS, (layer, index) =>
+            run((target) =>
+              drawHillLayer(
+                target,
+                cameraX,
+                layer,
+                palette.hills[index],
+                viewport,
+              ),
+            ),
+          ),
+        ),
+        save,
+        translate(-cameraX, -cameraY),
+        run((target) =>
+          drawTiles(target, state.level, palette, cameraX, cameraY, viewport),
+        ),
+        run((target) => drawDiamonds(target, state)),
+        run((target) => drawKey(target, state)),
+        run((target) => drawChest(target, state)),
+        run((target) => drawPortal(target, state)),
+        sequence(
+          map(state.enemies, (enemy) =>
+            run((target) => drawEnemy(target, enemy, state.time)),
+          ),
+        ),
+        run((target) => drawPlayer(target, state.player, state.time)),
+        restore,
+      ),
+    )
+    .value();

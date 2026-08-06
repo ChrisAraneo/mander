@@ -5,11 +5,33 @@ import {
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
 } from '@mander/engine';
-import { clamp } from 'lodash-es';
+import { chain, clamp } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import { strokeOutline } from '../stroke/stroke';
+import type { CanvasStep } from '../canvas/canvas-step';
+import {
+  arc,
+  beginPath,
+  clip,
+  fill,
+  lineTo,
+  moveTo,
+  rect,
+  restore,
+  rotate,
+  roundRect,
+  save,
+  scale,
+  stroke,
+  styled,
+  translate,
+} from '../canvas/commands';
+import { paint, sequence } from '../canvas/paint';
+import { outline } from '../stroke/stroke';
 
+const { number } = P;
+
+const HALF_WIDTH = PLAYER_WIDTH / 2;
 const HALF_HEIGHT = PLAYER_HEIGHT / 2;
 const HEAD_RADIUS = 7;
 const HEAD_CENTER_Y = -HALF_HEIGHT + HEAD_RADIUS + 1;
@@ -18,104 +40,100 @@ const LEG_HEIGHT = 18;
 const LEG_TOP = HALF_HEIGHT - LEG_HEIGHT;
 const DEATH_SPIN = Math.PI * 0.9;
 
-const drawPlayerLegs = (
-  context: CanvasRenderingContext2D,
-  isGrounded: boolean,
-  swing: number,
-): void => {
-  context.beginPath();
-  match(isGrounded)
-    .with(true, () => {
-      context.rect(-7 + swing / 2, LEG_TOP, 5, LEG_HEIGHT);
-      context.rect(2 - swing / 2, LEG_TOP, 5, LEG_HEIGHT);
-    })
-    .otherwise(() => {
-      context.rect(-7, LEG_TOP, 5, LEG_HEIGHT - 3);
-      context.rect(2, LEG_TOP + 3, 5, LEG_HEIGHT - 3);
-    });
-  strokeOutline(context);
-  context.fillStyle = '#3F5A86';
-  context.fill();
-};
+const groundedLegs = (swing: number): CanvasStep =>
+  sequence([
+    rect(-7 + swing / 2, LEG_TOP, 5, LEG_HEIGHT),
+    rect(2 - swing / 2, LEG_TOP, 5, LEG_HEIGHT),
+  ]);
 
-const drawPlayerBody = (
-  context: CanvasRenderingContext2D,
-  swing: number,
-): void => {
-  context.beginPath();
-  context.roundRect(-8, TORSO_TOP, 16, LEG_TOP - TORSO_TOP + 4, 5);
-  strokeOutline(context);
-  context.fillStyle = '#F4762C';
-  context.fill();
+const airborneLegs: CanvasStep = sequence([
+  rect(-7, LEG_TOP, 5, LEG_HEIGHT - 3),
+  rect(2, LEG_TOP + 3, 5, LEG_HEIGHT - 3),
+]);
 
-  context.fillStyle = '#E0651F';
-  context.beginPath();
-  context.roundRect(-2 - swing / 2, TORSO_TOP + 3, 4, 12, 2);
-  context.fill();
-};
+const legsStep = (isGrounded: boolean, swing: number): CanvasStep =>
+  sequence([
+    beginPath,
+    match(isGrounded)
+      .with(true, () => groundedLegs(swing))
+      .otherwise(() => airborneLegs),
+    outline(),
+    styled({ fillStyle: '#3F5A86' }),
+    fill,
+  ]);
 
-const drawPlayerEye = (
-  context: CanvasRenderingContext2D,
-  isDying: boolean,
-): void => {
-  context.fillStyle = '#1C1C28';
-  match(isDying)
-    .with(true, () => {
-      context.strokeStyle = '#1C1C28';
-      context.lineWidth = 1.4;
-      context.beginPath();
-      context.moveTo(2.4, HEAD_CENTER_Y - 1.4);
-      context.lineTo(6, HEAD_CENTER_Y + 2.2);
-      context.moveTo(6, HEAD_CENTER_Y - 1.4);
-      context.lineTo(2.4, HEAD_CENTER_Y + 2.2);
-      context.stroke();
-    })
-    .otherwise(() => {
-      context.beginPath();
-      context.arc(4.2, HEAD_CENTER_Y + 0.4, 1.5, 0, Math.PI * 2);
-      context.fill();
-    });
-};
+const bodyStep = (swing: number): CanvasStep =>
+  sequence([
+    beginPath,
+    roundRect(-8, TORSO_TOP, 16, LEG_TOP - TORSO_TOP + 4, 5),
+    outline(),
+    styled({ fillStyle: '#F4762C' }),
+    fill,
+    styled({ fillStyle: '#E0651F' }),
+    beginPath,
+    roundRect(-2 - swing / 2, TORSO_TOP + 3, 4, 12, 2),
+    fill,
+  ]);
 
-const tracePlayerSkull = (context: CanvasRenderingContext2D): void => {
-  context.beginPath();
-  context.arc(1, HEAD_CENTER_Y, HEAD_RADIUS, 0, Math.PI * 2);
-};
+const deadEyeStep: CanvasStep = sequence([
+  styled({ strokeStyle: '#1C1C28', lineWidth: 1.4 }),
+  beginPath,
+  moveTo(2.4, HEAD_CENTER_Y - 1.4),
+  lineTo(6, HEAD_CENTER_Y + 2.2),
+  moveTo(6, HEAD_CENTER_Y - 1.4),
+  lineTo(2.4, HEAD_CENTER_Y + 2.2),
+  stroke,
+]);
 
-const drawPlayerHair = (context: CanvasRenderingContext2D): void => {
-  context.save();
-  tracePlayerSkull(context);
-  context.clip();
+const livingEyeStep: CanvasStep = sequence([
+  beginPath,
+  arc(4.2, HEAD_CENTER_Y + 0.4, 1.5, 0, Math.PI * 2),
+  fill,
+]);
 
-  context.fillStyle = '#4A3021';
-  context.beginPath();
-  context.arc(
+const eyeStep = (isDying: boolean): CanvasStep =>
+  sequence([
+    styled({ fillStyle: '#1C1C28' }),
+    match(isDying)
+      .with(true, () => deadEyeStep)
+      .otherwise(() => livingEyeStep),
+  ]);
+
+const traceSkull: CanvasStep = sequence([
+  beginPath,
+  arc(1, HEAD_CENTER_Y, HEAD_RADIUS, 0, Math.PI * 2),
+]);
+
+const hairStep: CanvasStep = sequence([
+  save,
+  traceSkull,
+  clip,
+  styled({ fillStyle: '#4A3021' }),
+  beginPath,
+  arc(
     0.5,
     HEAD_CENTER_Y - 1.5,
     HEAD_RADIUS - 0.2,
     Math.PI * 0.95,
     Math.PI * 2.02,
-  );
-  context.fill();
-  context.restore();
-};
+  ),
+  fill,
+  restore,
+]);
 
-const drawPlayerHead = (
-  context: CanvasRenderingContext2D,
-  isDying: boolean,
-): void => {
-  tracePlayerSkull(context);
-  strokeOutline(context);
-  context.fillStyle = '#F2C49B';
-  context.fill();
-
-  drawPlayerHair(context);
-  drawPlayerEye(context, isDying);
-};
+const headStep = (isDying: boolean): CanvasStep =>
+  sequence([
+    traceSkull,
+    outline(),
+    styled({ fillStyle: '#F2C49B' }),
+    fill,
+    hairStep,
+    eyeStep(isDying),
+  ]);
 
 const deathProgress = (death: Player['timers']['death']): number =>
   match(death)
-    .with(P.number, (seconds) => clamp(seconds / PLAYER_DEATH_SECONDS, 0, 1))
+    .with(number, (seconds) => clamp(seconds / PLAYER_DEATH_SECONDS, 0, 1))
     .otherwise(() => 0);
 
 const invincibleAlpha = (player: Player, time: number): number =>
@@ -127,28 +145,37 @@ export const drawPlayer = (
   context: CanvasRenderingContext2D,
   player: Player,
   time: number,
-): void => {
-  const centerX = player.position.x + PLAYER_WIDTH / 2;
-  const centerY = player.position.y + PLAYER_HEIGHT / 2;
-  const isDying = !isAlive(player);
-  const progress = deathProgress(player.timers.death);
-  const isRunning =
-    Math.abs(player.velocity.x.current) > 1 && player.statuses.isGrounded;
-  const facing = player.statuses.isFacingRight ? 1 : -1;
-  const swing = match(isRunning)
-    .with(true, () => Math.sin(time * 14) * 5)
-    .otherwise(() => 0);
-
-  context.save();
-  context.translate(centerX, centerY);
-  context.globalAlpha =
-    (1 - progress * progress) * invincibleAlpha(player, time);
-  context.rotate(-facing * progress * DEATH_SPIN);
-  context.scale(facing, 1);
-
-  drawPlayerLegs(context, player.statuses.isGrounded, swing);
-  drawPlayerBody(context, swing);
-  drawPlayerHead(context, isDying);
-
-  context.restore();
-};
+): void =>
+  chain({
+    isDying: !isAlive(player),
+    progress: deathProgress(player.timers.death),
+    facing: match(player.statuses.isFacingRight)
+      .with(true, () => 1)
+      .otherwise(() => -1),
+    swing: match(
+      Math.abs(player.velocity.x.current) > 1 && player.statuses.isGrounded,
+    )
+      .with(true, () => Math.sin(time * 14) * 5)
+      .otherwise(() => 0),
+  })
+    .thru(({ isDying, progress, facing, swing }) =>
+      paint(
+        context,
+        save,
+        translate(
+          player.position.x + HALF_WIDTH,
+          player.position.y + HALF_HEIGHT,
+        ),
+        styled({
+          globalAlpha:
+            (1 - progress * progress) * invincibleAlpha(player, time),
+        }),
+        rotate(-facing * progress * DEATH_SPIN),
+        scale(facing, 1),
+        legsStep(player.statuses.isGrounded, swing),
+        bodyStep(swing),
+        headStep(isDying),
+        restore,
+      ),
+    )
+    .value();

@@ -1,4 +1,19 @@
-import { strokeOutline } from '../stroke/stroke';
+import type { CanvasStep } from '../canvas/canvas-step';
+import {
+  beginPath,
+  closePath,
+  fill,
+  lineTo,
+  moveTo,
+  restore,
+  save,
+  stroke,
+  styled,
+  styledWith,
+} from '../canvas/commands';
+import { linearGradient } from '../canvas/gradient';
+import { paint, sequence } from '../canvas/paint';
+import { outline } from '../stroke/stroke';
 
 export interface GemColors {
   light: string;
@@ -26,33 +41,33 @@ const CROWN = 0.25;
 const FACET_ALPHA = 0.45;
 
 const traceGem = (
-  context: CanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   halfWidth: number,
   halfHeight: number,
-): void => {
-  context.beginPath();
-  context.moveTo(centerX, centerY - halfHeight);
-  context.lineTo(centerX + halfWidth, centerY - halfHeight * CROWN);
-  context.lineTo(centerX, centerY + halfHeight);
-  context.lineTo(centerX - halfWidth, centerY - halfHeight * CROWN);
-  context.closePath();
-};
+): CanvasStep =>
+  sequence([
+    beginPath,
+    moveTo(centerX, centerY - halfHeight),
+    lineTo(centerX + halfWidth, centerY - halfHeight * CROWN),
+    lineTo(centerX, centerY + halfHeight),
+    lineTo(centerX - halfWidth, centerY - halfHeight * CROWN),
+    closePath,
+  ]);
 
 const traceFacet = (
-  context: CanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   halfWidth: number,
   halfHeight: number,
-): void => {
-  context.beginPath();
-  context.moveTo(centerX, centerY - halfHeight);
-  context.lineTo(centerX, centerY + halfHeight);
-  context.lineTo(centerX - halfWidth, centerY - halfHeight * CROWN);
-  context.closePath();
-};
+): CanvasStep =>
+  sequence([
+    beginPath,
+    moveTo(centerX, centerY - halfHeight),
+    lineTo(centerX, centerY + halfHeight),
+    lineTo(centerX - halfWidth, centerY - halfHeight * CROWN),
+    closePath,
+  ]);
 
 const gemFill = (
   context: CanvasRenderingContext2D,
@@ -60,19 +75,50 @@ const gemFill = (
   centerY: number,
   halfHeight: number,
   colors: GemColors,
-): CanvasGradient => {
-  const gradient = context.createLinearGradient(
+): CanvasGradient =>
+  linearGradient(
+    context,
     centerX,
     centerY - halfHeight,
     centerX,
     centerY + halfHeight,
+    [
+      [0, colors.light],
+      [0.45, colors.base],
+      [1, colors.deep],
+    ],
   );
-  gradient.addColorStop(0, colors.light);
-  gradient.addColorStop(0.45, colors.base);
-  gradient.addColorStop(1, colors.deep);
 
-  return gradient;
-};
+export const gemStep = (
+  centerX: number,
+  centerY: number,
+  halfWidth: number,
+  halfHeight: number,
+  colors: GemColors,
+  glowBlur: number,
+): CanvasStep =>
+  sequence([
+    save,
+    styled({ shadowColor: colors.glow, shadowBlur: glowBlur }),
+    traceGem(centerX, centerY, halfWidth, halfHeight),
+    outline(),
+    styledWith((context) => ({
+      fillStyle: gemFill(context, centerX, centerY, halfHeight, colors),
+    })),
+    fill,
+    restore,
+    save,
+    styled({ globalAlpha: FACET_ALPHA }),
+    traceFacet(centerX, centerY, halfWidth, halfHeight),
+    styled({ fillStyle: colors.light }),
+    fill,
+    restore,
+    styled({ strokeStyle: colors.deep, lineWidth: 1 }),
+    beginPath,
+    moveTo(centerX - halfWidth, centerY - halfHeight * CROWN),
+    lineTo(centerX + halfWidth, centerY - halfHeight * CROWN),
+    stroke,
+  ]);
 
 export const drawGem = (
   context: CanvasRenderingContext2D,
@@ -82,27 +128,8 @@ export const drawGem = (
   halfHeight: number,
   colors: GemColors,
   glowBlur: number,
-): void => {
-  context.save();
-  context.shadowColor = colors.glow;
-  context.shadowBlur = glowBlur;
-  traceGem(context, centerX, centerY, halfWidth, halfHeight);
-  strokeOutline(context);
-  context.fillStyle = gemFill(context, centerX, centerY, halfHeight, colors);
-  context.fill();
-  context.restore();
-
-  context.save();
-  context.globalAlpha = FACET_ALPHA;
-  traceFacet(context, centerX, centerY, halfWidth, halfHeight);
-  context.fillStyle = colors.light;
-  context.fill();
-  context.restore();
-
-  context.strokeStyle = colors.deep;
-  context.lineWidth = 1;
-  context.beginPath();
-  context.moveTo(centerX - halfWidth, centerY - halfHeight * CROWN);
-  context.lineTo(centerX + halfWidth, centerY - halfHeight * CROWN);
-  context.stroke();
-};
+): void =>
+  paint(
+    context,
+    gemStep(centerX, centerY, halfWidth, halfHeight, colors, glowBlur),
+  );

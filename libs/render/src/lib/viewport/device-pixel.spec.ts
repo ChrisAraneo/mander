@@ -1,5 +1,5 @@
 import { TILE_SIZE } from '@mander/engine';
-import { forEach, range } from 'lodash-es';
+import { chain, forEach, range } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { snapToDevicePixel, wholeTileScale } from './device-pixel';
@@ -8,10 +8,11 @@ const RAW_SCALES = [0.5, 0.83, 1, 1.25, 1.3333333, 1.5625, 2, 2.7, 3.1];
 
 describe('wholeTileScale', () => {
   it('gives every tile a whole number of device pixels', () => {
-    forEach(RAW_SCALES, (raw) => {
-      const tile = wholeTileScale(raw) * TILE_SIZE;
-      expect(tile, `${raw}`).toBe(Math.round(tile));
-    });
+    forEach(RAW_SCALES, (raw) =>
+      chain(wholeTileScale(raw) * TILE_SIZE)
+        .thru((tile) => expect(tile, `${raw}`).toBe(Math.round(tile)))
+        .value(),
+    );
   });
 
   it('stays within half a device pixel per tile of the scale asked for', () => {
@@ -29,17 +30,26 @@ describe('wholeTileScale', () => {
 
 describe('snapToDevicePixel', () => {
   it('puts every tile edge on a device pixel edge', () => {
-    forEach(RAW_SCALES, (raw) => {
-      const scale = wholeTileScale(raw);
-      const camera = snapToDevicePixel(137.4213, scale);
-      forEach(range(0, 40), (column) => {
-        const edge = (column * TILE_SIZE - camera) * scale;
-        expect(
-          Math.abs(edge - Math.round(edge)),
-          `${raw} @ ${column}`,
-        ).toBeLessThan(1e-6);
-      });
-    });
+    forEach(RAW_SCALES, (raw) =>
+      chain(wholeTileScale(raw))
+        .thru((scale) => ({
+          scale,
+          camera: snapToDevicePixel(137.4213, scale),
+        }))
+        .thru(({ scale, camera }) =>
+          forEach(range(0, 40), (column) =>
+            chain((column * TILE_SIZE - camera) * scale)
+              .thru((edge) =>
+                expect(
+                  Math.abs(edge - Math.round(edge)),
+                  `${raw} @ ${column}`,
+                ).toBeLessThan(1e-6),
+              )
+              .value(),
+          ),
+        )
+        .value(),
+    );
   });
 
   it('leaves a camera already on a pixel where it is', () => {

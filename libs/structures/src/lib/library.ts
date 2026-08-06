@@ -149,4 +149,3 @@ export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
   NORMAL_49,
   NORMAL_50,
 ]);
-

@@ -7,7 +7,8 @@ import {
   TILE_WOOD,
 } from '@mander/engine';
 import { parseHsl, shiftHsl } from '@mander/utils';
-import { forEach } from 'lodash-es';
+import { chain, forEach } from 'lodash-es';
+import { match, P } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
 import type { Palette } from '../palette/palette';
@@ -27,11 +28,12 @@ const BROWN = palette('HSL(30, 25%, 27%)');
 const hueGap = (left: number, right: number): number =>
   Math.abs(((left - right + 540) % 360) - 180);
 
-const lightnessOf = (color: string): number => {
-  const hsl = parseHsl(color);
-  if (!hsl) throw new Error(`not an HSL color: ${color}`);
-  return hsl.lightness;
-};
+const { nullish } = P;
+
+const lightnessOf = (color: string): number =>
+  match(parseHsl(color))
+    .with(nullish, () => Number.NaN)
+    .otherwise((hsl) => hsl.lightness);
 
 describe('materialPalette', () => {
   it('paints dirt in the colours the level rolled', () => {
@@ -69,16 +71,19 @@ describe('materialPalette', () => {
 
   it('caps every material lighter than its own body', () => {
     const styles = materialPalette(BROWN);
-    forEach(SOLID_TILES, (tile) => {
-      const style = styles(tile);
-      expect(lightnessOf(style.cap), `${tile} cap`).toBeGreaterThan(
-        lightnessOf(style.base),
-      );
-      expect(
-        lightnessOf(style.capHighlight),
-        `${tile} cap highlight`,
-      ).toBeGreaterThan(lightnessOf(style.cap));
-    });
+    forEach(SOLID_TILES, (tile) =>
+      chain(styles(tile))
+        .thru((style) => ({
+          base: lightnessOf(style.base),
+          cap: lightnessOf(style.cap),
+          capHighlight: lightnessOf(style.capHighlight),
+        }))
+        .thru(({ base, cap, capHighlight }) => {
+          expect(cap, `${tile} cap`).toBeGreaterThan(base);
+          expect(capHighlight, `${tile} cap highlight`).toBeGreaterThan(cap);
+        })
+        .value(),
+    );
   });
 
   it('keeps the hand-picked styles when there is no ground colour', () => {

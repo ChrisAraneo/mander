@@ -137,7 +137,9 @@ describe('createEnemies', () => {
     const level = levelWithAirborneEnemies('SEED-FLY-2', 5);
     const enemies = createEnemies(level);
     expect(
-      enemies.every((enemy) => enemy.velocity.y.max === FLYING_ENEMY_MOVE_SPEED),
+      enemies.every(
+        (enemy) => enemy.velocity.y.max === FLYING_ENEMY_MOVE_SPEED,
+      ),
     ).toBe(true);
     expect(FLYING_ENEMY_MOVE_SPEED).toBeCloseTo(ENEMY_MOVE_SPEED * 0.75);
   });

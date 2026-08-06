@@ -4,69 +4,91 @@ import {
   KEY_ENTITY_BOX,
   toEntityRectangle,
 } from '@mander/engine';
+import type { Rectangle } from '@mander/utils';
+import { chain, noop } from 'lodash-es';
+import { match, P } from 'ts-pattern';
 
-import { strokeOutline } from '../stroke/stroke';
+import type { CanvasStep } from '../canvas/canvas-step';
+import {
+  arc,
+  beginPath,
+  fill,
+  lineTo,
+  moveTo,
+  rect,
+  restore,
+  save,
+  stroke,
+  styled,
+} from '../canvas/commands';
+import { paint, sequence } from '../canvas/paint';
+import { outline } from '../stroke/stroke';
+
+const { not, nullish } = P;
 
 const KEY_COLOR = '#FFD166';
 const KEY_LINE = 3;
 
-const traceKeyBow = (
-  context: CanvasRenderingContext2D,
-  centerX: number,
-  centerY: number,
-): void => {
-  context.beginPath();
-  context.arc(centerX, centerY - 5, 4.5, 0, Math.PI * 2);
-  context.moveTo(centerX, centerY - 0.5);
-  context.lineTo(centerX, centerY + 9);
-};
+const traceKeyBow = (centerX: number, centerY: number): CanvasStep =>
+  sequence([
+    beginPath,
+    arc(centerX, centerY - 5, 4.5, 0, Math.PI * 2),
+    moveTo(centerX, centerY - 0.5),
+    lineTo(centerX, centerY + 9),
+  ]);
 
-const traceKeyTeeth = (
-  context: CanvasRenderingContext2D,
-  centerX: number,
-  centerY: number,
-): void => {
-  context.beginPath();
-  context.rect(centerX, centerY + 3, 5, 2.5);
-  context.rect(centerX, centerY + 7, 6, 2.5);
-};
+const traceKeyTeeth = (centerX: number, centerY: number): CanvasStep =>
+  sequence([
+    beginPath,
+    rect(centerX, centerY + 3, 5, 2.5),
+    rect(centerX, centerY + 7, 6, 2.5),
+  ]);
 
-const drawKeyGlyph = (
-  context: CanvasRenderingContext2D,
-  centerX: number,
-  centerY: number,
-): void => {
-  traceKeyBow(context, centerX, centerY);
-  strokeOutline(context, KEY_LINE);
-  traceKeyTeeth(context, centerX, centerY);
-  strokeOutline(context);
+const keyGlyphStep = (centerX: number, centerY: number): CanvasStep =>
+  sequence([
+    traceKeyBow(centerX, centerY),
+    outline(KEY_LINE),
+    traceKeyTeeth(centerX, centerY),
+    outline(),
+    styled({ strokeStyle: KEY_COLOR, lineWidth: KEY_LINE }),
+    traceKeyBow(centerX, centerY),
+    stroke,
+    styled({ fillStyle: KEY_COLOR }),
+    traceKeyTeeth(centerX, centerY),
+    fill,
+  ]);
 
-  context.strokeStyle = KEY_COLOR;
-  context.lineWidth = KEY_LINE;
-  traceKeyBow(context, centerX, centerY);
-  context.stroke();
+const keyStep = (key: Rectangle, time: number): CanvasStep =>
+  chain(Math.sin(time * 3) * 3)
+    .thru((bob) => ({
+      centerX: key.x + key.width / 2,
+      centerY: key.y + key.height / 2 + bob,
+    }))
+    .thru(({ centerX, centerY }) =>
+      sequence([
+        save,
+        styled({ shadowColor: KEY_COLOR, shadowBlur: 14 }),
+        keyGlyphStep(centerX, centerY),
+        restore,
+      ]),
+    )
+    .value();
 
-  context.fillStyle = KEY_COLOR;
-  traceKeyTeeth(context, centerX, centerY);
-  context.fill();
-};
+const keyRectangle = (state: GameState): Rectangle | undefined =>
+  match({ hasKey: state.hasKey, tile: findKeyTile(state.level) })
+    .with({ hasKey: false, tile: not(nullish) }, ({ tile }) =>
+      toEntityRectangle(tile, KEY_ENTITY_BOX),
+    )
+    .otherwise(() => undefined);
 
 export const drawKey = (
   context: CanvasRenderingContext2D,
   state: GameState,
-): void => {
-  const tile = findKeyTile(state.level);
-  if (state.hasKey || tile === null) return;
-
-  const key = toEntityRectangle(tile, KEY_ENTITY_BOX);
-  const bob = Math.sin(state.time * 3) * 3;
-  const centerX = key.x + key.width / 2;
-  const centerY = key.y + key.height / 2 + bob;
-
-  context.save();
-  context.shadowColor = KEY_COLOR;
-  context.shadowBlur = 14;
-
-  drawKeyGlyph(context, centerX, centerY);
-  context.restore();
-};
+): void =>
+  chain(keyRectangle(state))
+    .thru((key) =>
+      match(key)
+        .with(nullish, noop)
+        .otherwise((box) => paint(context, keyStep(box, state.time))),
+    )
+    .value();

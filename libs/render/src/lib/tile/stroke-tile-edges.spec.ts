@@ -6,31 +6,31 @@ import {
   TILE_SIZE,
   TILE_SPIKE,
 } from '@mander/engine';
-import { filter, map, some } from 'lodash-es';
+import { chain, filter, map, some } from 'lodash-es';
+import { tap } from 'ramda';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
 import { STROKE_WIDTH } from '../stroke/stroke';
 import { strokeTileEdges } from './stroke-tile-edges';
 
-const tileMap = (rows: string[]): Level => {
-  const tiles: Tile[][] = map(rows, (row) =>
-    map(row.split(''), (cell): Tile =>
-      match(cell)
-        .with('#', () => TILE_DIRT)
-        .with('^', () => TILE_SPIKE)
-        .otherwise(() => TILE_AIR),
-    ),
-  );
+const toTile = (cell: string): Tile =>
+  match(cell)
+    .with('#', () => TILE_DIRT)
+    .with('^', () => TILE_SPIKE)
+    .otherwise(() => TILE_AIR);
 
-  return {
-    seed: 'TEST',
-    width: tiles[0].length,
-    height: tiles.length,
-    tiles,
-    chestItems: [],
-  };
-};
+const tileMap = (rows: string[]): Level =>
+  chain(rows)
+    .thru((lines) => map(lines, (row) => map(row.split(''), toTile)))
+    .thru((tiles) => ({
+      seed: 'TEST',
+      width: tiles[0].length,
+      height: tiles.length,
+      tiles,
+      chestItems: [],
+    }))
+    .value();
 
 interface Bar {
   x: number;
@@ -39,18 +39,32 @@ interface Bar {
   height: number;
 }
 
-const barsFor = (level: Level, column: number, row: number): Bar[] => {
-  const bars: Bar[] = [];
-  const context = {
-    fillStyle: '',
-    fillRect: (x: number, y: number, width: number, height: number): void => {
-      bars.push({ x, y, width, height });
-    },
-  } as unknown as CanvasRenderingContext2D;
+interface Recorder {
+  bars: Bar[];
+  context: CanvasRenderingContext2D;
+}
 
-  strokeTileEdges(context, level, column, row);
-  return bars;
-};
+const recorder = (): Recorder =>
+  chain([] as Bar[])
+    .thru((bars) => ({
+      bars,
+      context: {
+        fillStyle: '',
+        fillRect: (x: number, y: number, width: number, height: number) =>
+          bars.push({ x, y, width, height }),
+      } as unknown as CanvasRenderingContext2D,
+    }))
+    .value();
+
+const barsFor = (level: Level, column: number, row: number): Bar[] =>
+  chain(recorder())
+    .thru(
+      tap(({ context }: Recorder) =>
+        strokeTileEdges(context, level, column, row),
+      ),
+    )
+    .thru(({ bars }) => bars)
+    .value();
 
 const isTop = (bar: Bar, row: number): boolean =>
   bar.y === row * TILE_SIZE && bar.height === STROKE_WIDTH;

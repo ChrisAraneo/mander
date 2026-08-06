@@ -1,6 +1,6 @@
 import { SOLID_TILES, type Tile, TILE_DIRT, TILE_WOOD } from '@mander/engine';
 import { type Hsl, hslCss, parseHsl, shiftHsl } from '@mander/utils';
-import { map } from 'lodash-es';
+import { chain, map } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import type { Palette } from '../palette/palette';
@@ -11,6 +11,8 @@ import { CAP_LIGHTNESS_GAIN, materialTint } from './material-tint';
 export type MaterialPalette = (tile: Tile) => MaterialStyle;
 
 type Cap = Pick<MaterialStyle, 'cap' | 'capHighlight'>;
+
+const { nullish } = P;
 
 const JOINT = 'RGBA(0, 0, 0, 0.26)';
 const WOOD_JOINT = 'RGBA(0, 0, 0, 0.55)';
@@ -34,25 +36,33 @@ const capOf = (tile: Tile, palette: Palette, base: Hsl): Cap =>
       ),
     }));
 
-const styleFor = (tile: Tile, palette: Palette, ground: Hsl): MaterialStyle => {
-  const base = shiftHsl(ground, materialTint(tile));
-  return {
-    base: hslCss(base),
-    ...capOf(tile, palette, base),
-    joint: jointOf(tile),
-    highlight: HIGHLIGHT,
-  };
-};
+const styleFor = (tile: Tile, palette: Palette, ground: Hsl): MaterialStyle =>
+  chain(shiftHsl(ground, materialTint(tile)))
+    .thru((base) => ({
+      base: hslCss(base),
+      ...capOf(tile, palette, base),
+      joint: jointOf(tile),
+      highlight: HIGHLIGHT,
+    }))
+    .value();
+
+const groundedPalette = (palette: Palette, ground: Hsl): MaterialPalette =>
+  chain(SOLID_TILES)
+    .thru((tiles) =>
+      map(tiles, (tile): [Tile, MaterialStyle] => [
+        tile,
+        styleFor(tile, palette, ground),
+      ]),
+    )
+    .thru((entries) => new Map<Tile, MaterialStyle>(entries))
+    .thru(
+      (styles): MaterialPalette =>
+        (tile) =>
+          styles.get(tile) ?? materialStyle(tile),
+    )
+    .value();
 
 export const materialPalette = (palette: Palette): MaterialPalette =>
   match(parseHsl(palette.block))
-    .with(P.nullish, (): MaterialPalette => materialStyle)
-    .otherwise((ground): MaterialPalette => {
-      const styles = new Map<Tile, MaterialStyle>(
-        map(SOLID_TILES, (tile): [Tile, MaterialStyle] => [
-          tile,
-          styleFor(tile, palette, ground),
-        ]),
-      );
-      return (tile) => styles.get(tile) ?? materialStyle(tile);
-    });
+    .with(nullish, (): MaterialPalette => materialStyle)
+    .otherwise((ground): MaterialPalette => groundedPalette(palette, ground));

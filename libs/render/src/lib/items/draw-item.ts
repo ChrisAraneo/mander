@@ -1,8 +1,24 @@
 import type { ItemArt } from '@mander/engine';
+import { chain } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import { drawGem, RED_GEM } from '../gem/gem';
-import { strokeOutline } from '../stroke/stroke';
+import type { CanvasStep } from '../canvas/canvas-step';
+import {
+  arc,
+  beginPath,
+  closePath,
+  ellipse,
+  fill,
+  lineTo,
+  restore,
+  save,
+  styled,
+  styledWith,
+} from '../canvas/commands';
+import { linearGradient } from '../canvas/gradient';
+import { paint, sequence } from '../canvas/paint';
+import { gemStep, RED_GEM } from '../gem/gem';
+import { outline } from '../stroke/stroke';
 
 const HEART_LIGHT = '#FFC2CE';
 const HEART_BASE = '#FF5470';
@@ -20,89 +36,88 @@ const GEM_GLOW = 18;
 const SHEEN_ALPHA = 0.55;
 
 const traceHeart = (
-  context: CanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   lobe: number,
-): void => {
-  const shoulder = centerY - lobe * HEART_LIFT;
-
-  context.beginPath();
-  context.arc(centerX - lobe, shoulder, lobe, Math.PI, 0);
-  context.arc(centerX + lobe, shoulder, lobe, Math.PI, 0);
-  context.lineTo(centerX, shoulder + lobe * HEART_TIP);
-  context.closePath();
-};
+): CanvasStep =>
+  chain(centerY - lobe * HEART_LIFT)
+    .thru((shoulder) =>
+      sequence([
+        beginPath,
+        arc(centerX - lobe, shoulder, lobe, Math.PI, 0),
+        arc(centerX + lobe, shoulder, lobe, Math.PI, 0),
+        lineTo(centerX, shoulder + lobe * HEART_TIP),
+        closePath,
+      ]),
+    )
+    .value();
 
 const heartFill = (
   context: CanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   lobe: number,
-): CanvasGradient => {
-  const gradient = context.createLinearGradient(
+): CanvasGradient =>
+  linearGradient(
+    context,
     centerX - lobe,
     centerY - lobe * 1.3,
     centerX + lobe,
     centerY + lobe * HEART_TIP,
+    [
+      [0, HEART_LIGHT],
+      [0.4, HEART_BASE],
+      [1, HEART_DEEP],
+    ],
   );
-  gradient.addColorStop(0, HEART_LIGHT);
-  gradient.addColorStop(0.4, HEART_BASE);
-  gradient.addColorStop(1, HEART_DEEP);
 
-  return gradient;
-};
-
-const drawHeart = (
-  context: CanvasRenderingContext2D,
+const heartStep = (
   centerX: number,
   centerY: number,
   lobe: number,
-): void => {
-  context.save();
-  context.shadowColor = HEART_GLOW;
-  context.shadowBlur = 16;
-  traceHeart(context, centerX, centerY, lobe);
-  strokeOutline(context);
-  context.fillStyle = heartFill(context, centerX, centerY, lobe);
-  context.fill();
-  context.restore();
+): CanvasStep =>
+  sequence([
+    save,
+    styled({ shadowColor: HEART_GLOW, shadowBlur: 16 }),
+    traceHeart(centerX, centerY, lobe),
+    outline(),
+    styledWith((context) => ({
+      fillStyle: heartFill(context, centerX, centerY, lobe),
+    })),
+    fill,
+    restore,
+    save,
+    styled({ globalAlpha: SHEEN_ALPHA }),
+    beginPath,
+    ellipse(
+      centerX - lobe * 0.85,
+      centerY - lobe * 0.75,
+      lobe * 0.34,
+      lobe * 0.22,
+      -Math.PI / 5,
+      0,
+      Math.PI * 2,
+    ),
+    styled({ fillStyle: HEART_LIGHT }),
+    fill,
+    restore,
+  ]);
 
-  context.save();
-  context.globalAlpha = SHEEN_ALPHA;
-  context.beginPath();
-  context.ellipse(
-    centerX - lobe * 0.85,
-    centerY - lobe * 0.75,
-    lobe * 0.34,
-    lobe * 0.22,
-    -Math.PI / 5,
-    0,
-    Math.PI * 2,
-  );
-  context.fillStyle = HEART_LIGHT;
-  context.fill();
-  context.restore();
-};
+const singleHeartStep = (size: number): CanvasStep =>
+  heartStep(size / 2, size * 0.46, size * HEART_LOBE);
 
-const drawSingleHeart = (
-  context: CanvasRenderingContext2D,
-  size: number,
-): void => drawHeart(context, size / 2, size * 0.46, size * HEART_LOBE);
+const doubleHeartStep = (size: number): CanvasStep =>
+  chain(size * HEART_LOBE * 0.66)
+    .thru((lobe) =>
+      sequence([
+        heartStep(size * 0.34, size * 0.32, lobe),
+        heartStep(size * 0.65, size * 0.6, lobe),
+      ]),
+    )
+    .value();
 
-const drawDoubleHeart = (
-  context: CanvasRenderingContext2D,
-  size: number,
-): void => {
-  const lobe = size * HEART_LOBE * 0.66;
-
-  drawHeart(context, size * 0.34, size * 0.32, lobe);
-  drawHeart(context, size * 0.65, size * 0.6, lobe);
-};
-
-const drawGemArt = (context: CanvasRenderingContext2D, size: number): void =>
-  drawGem(
-    context,
+const gemArtStep = (size: number): CanvasStep =>
+  gemStep(
     size / 2,
     size / 2,
     size * GEM_WIDTH,
@@ -116,8 +131,11 @@ export const drawItem = (
   art: ItemArt,
   size: number,
 ): void =>
-  match(art)
-    .with('HEART', () => drawSingleHeart(context, size))
-    .with('DOUBLE_HEART', () => drawDoubleHeart(context, size))
-    .with('GEM', () => drawGemArt(context, size))
-    .exhaustive();
+  paint(
+    context,
+    match(art)
+      .with('HEART', () => singleHeartStep(size))
+      .with('DOUBLE_HEART', () => doubleHeartStep(size))
+      .with('GEM', () => gemArtStep(size))
+      .exhaustive(),
+  );
