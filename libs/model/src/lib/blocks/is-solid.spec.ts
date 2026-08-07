@@ -18,45 +18,45 @@ const LEVEL: Level = {
 };
 
 describe('isSolid', () => {
-  it('returns true for solid tile coordinates', () => {
+  it('should return true when the coordinates hold a solid tile', () => {
     expect(isSolid(LEVEL, 1, 0)).toBe(true);
   });
 
-  it('returns false for air tile coordinates', () => {
+  it('should return false when the coordinates hold air', () => {
     expect(isSolid(LEVEL, 0, 0)).toBe(false);
   });
 
-  it('returns false for non-blocking tile coordinates', () => {
+  it('should return false when the coordinates hold a non-blocking tile', () => {
     expect(isSolid(LEVEL, 0, 1)).toBe(false);
   });
 
-  it('returns true for out-of-bounds coordinates (x < 0)', () => {
+  it('should return true when x lies past the left edge of the level', () => {
     expect(isSolid(LEVEL, -1, 0)).toBe(true);
   });
 
-  it('returns true for out-of-bounds coordinates (x >= width)', () => {
+  it('should return true when x lies past the right edge of the level', () => {
     expect(isSolid(LEVEL, 2, 0)).toBe(true);
   });
 
-  it('returns false for out-of-bounds coordinates (y < 0)', () => {
+  it('should return false when y lies above the top of the level', () => {
     expect(isSolid(LEVEL, 0, -1)).toBe(false);
   });
 
-  it('returns false for out-of-bounds coordinates (y >= height)', () => {
+  it('should return false when y lies below the bottom of the level', () => {
     expect(isSolid(LEVEL, 0, 2)).toBe(false);
   });
 
-  it('returns true for diagonal out-of-bounds coordinates', () => {
+  it('should return true when both x and y lie outside the level', () => {
     expect(isSolid(LEVEL, -1, -1)).toBe(true);
     expect(isSolid(LEVEL, 2, 2)).toBe(true);
   });
 
-  it('returns true past the side walls at any row, in bounds or not', () => {
+  it('should return true when x is past a side wall, whatever row it asks about', () => {
     expect(isSolid(LEVEL, -1, 5)).toBe(true);
     expect(isSolid(LEVEL, 2, -5)).toBe(true);
   });
 
-  it('returns false far below the level, so a falling never ends', () => {
+  it('should return false when the coordinates lie far below the level, so a fall never ends', () => {
     expect(isSolid(LEVEL, 0, 100)).toBe(false);
     expect(isSolid(LEVEL, 1, 100)).toBe(false);
   });

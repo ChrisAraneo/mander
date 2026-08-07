@@ -17,7 +17,7 @@ import { TILE_STONE } from './stone';
 import { TILE_WOOD } from './wood';
 
 describe('isSolidTile', () => {
-  it('returns true for solid terrain tile types', () => {
+  it('should return true when the tile is solid terrain', () => {
     expect(isSolidTile(TILE_DIRT)).toBe(true);
     expect(isSolidTile(TILE_BRICK)).toBe(true);
     expect(isSolidTile(TILE_STONE)).toBe(true);
@@ -25,7 +25,7 @@ describe('isSolidTile', () => {
     expect(isSolidTile(TILE_CERAMIC)).toBe(true);
   });
 
-  it('returns false for non-blocking and interactive tile types', () => {
+  it('should return false when the tile is non-blocking or interactive', () => {
     expect(
       some(
         [
@@ -44,7 +44,7 @@ describe('isSolidTile', () => {
     ).toBe(false);
   });
 
-  it('returns false for unmapped/invalid tile', () => {
+  it('should return false when the tile is unmapped', () => {
     expect(isSolidTile(99999)).toBe(false);
   });
 });
