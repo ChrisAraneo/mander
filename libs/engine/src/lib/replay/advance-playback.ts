@@ -1,9 +1,9 @@
 import { map, slice } from 'lodash-es';
 
-import type { RecordedAction } from './recorded-action';
+import type { RecordedAction } from './types/recorded-action';
 import { applyActions } from './apply-actions';
-import type { Replay } from './replay';
-import type { ReplayPlayback } from './replay-playback';
+import type { Replay } from './types/replay';
+import type { ReplayPlayback } from './types/replay-playback';
 
 const dueIndex = (
   entries: RecordedAction[],

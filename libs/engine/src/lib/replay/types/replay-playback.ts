@@ -1,4 +1,4 @@
-import type { GameState } from '../state/game-state';
+import type { GameState } from '../../state/types/game-state';
 
 export interface ReplayPlayback {
   elapsedMs: number;

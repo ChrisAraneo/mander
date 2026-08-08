@@ -1,4 +1,4 @@
-import type { Replay } from './replay';
+import type { Replay } from './types/replay';
 
 export const emptyReplay = (worldName: string): Replay => ({
   worldName,

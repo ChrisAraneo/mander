@@ -9,7 +9,7 @@ import { createRandom } from '@mander/utils';
 import { map } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import type { GameLevel } from '../../game-level';
+import type { GameLevel } from '../../types/game-level';
 import {
   ENEMY_HEIGHT,
   ENEMY_JUMP_VELOCITY,

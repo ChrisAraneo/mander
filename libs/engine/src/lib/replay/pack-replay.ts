@@ -1,10 +1,10 @@
 import { map } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import type { Action } from '../actions/actions';
+import type { Action } from '../actions/types/actions';
 import { codeOf } from './action-codes';
-import type { PackedEntry, PackedReplay } from './packed-replay';
-import type { Replay } from './replay';
+import type { PackedEntry, PackedReplay } from './types/packed-replay';
+import type { Replay } from './types/replay';
 
 const packAction = (action: Action): number[] =>
   match(action)

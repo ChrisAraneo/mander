@@ -1,6 +1,6 @@
 import { match } from 'ts-pattern';
 
-import type { ReachMap } from './reach-map';
+import type { ReachMap } from './types/reach-map';
 
 export const isReachableCell = (
   reach: ReachMap,

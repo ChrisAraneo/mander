@@ -1,7 +1,7 @@
 import { TILE_AIR, TILE_DIRT, TILE_ENEMY, type Tile } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
-import type { GameLevel } from '../../game-level';
+import type { GameLevel } from '../../types/game-level';
 
 import {
   ENEMY_JUMP_VELOCITY,

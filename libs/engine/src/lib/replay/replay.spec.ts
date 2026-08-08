@@ -11,17 +11,17 @@ import {
 import { omit } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { Action } from '../actions/actions';
-import type { GameLevel } from '../game-level';
+import type { Action } from '../actions/types/actions';
+import type { GameLevel } from '../types/game-level';
 import { reduce } from '../reducer/reduce';
 import { createInitialState } from '../state/create-initial-state';
-import type { GameState } from '../state/game-state';
+import type { GameState } from '../state/types/game-state';
 import { advancePlayback } from './advance-playback';
 import { createPlayback } from './create-playback';
 import { createRecorder } from './create-recorder';
 import { emptyReplay } from './empty-replay';
 import { isReplayFinished } from './is-replay-finished';
-import type { Replay } from './replay';
+import type { Replay } from './types/replay';
 import { replayDuration } from './replay-duration';
 import { replayProgress } from './replay-progress';
 

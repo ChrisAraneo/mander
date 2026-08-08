@@ -4,12 +4,8 @@ import { match } from 'ts-pattern';
 import { stepPlayer } from '../player/step-player';
 import { FRAME_SECONDS, MAX_GROUNDED_FRAMES, MAX_PLAN_FRAMES } from './consts';
 import { planInput } from './plan-input';
-import type { MovePlan } from './move-plan';
-
-interface Flight {
-  tiles: Level;
-  plan: MovePlan;
-}
+import type { Flight } from './types/flight';
+import type { MovePlan } from './types/move-plan';
 
 const hasFallenOut = (tiles: Level, player: Player): boolean =>
   player.position.y > tiles.height * TILE_SIZE;

@@ -9,10 +9,10 @@ import {
 import { filter, map, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { Action } from '../actions/actions';
-import type { GameLevel } from '../game-level';
+import type { Action } from '../actions/types/actions';
+import type { GameLevel } from '../types/game-level';
 import { packReplay } from './pack-replay';
-import type { Replay } from './replay';
+import type { Replay } from './types/replay';
 import { unpackReplay } from './unpack-replay';
 
 const WIDTH = 20;

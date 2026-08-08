@@ -1,4 +1,4 @@
-import type { GameLevel } from '../game-level';
+import type { GameLevel } from '../../types/game-level';
 
 export type Action =
   | { type: 'TICK'; deltaSeconds: number }

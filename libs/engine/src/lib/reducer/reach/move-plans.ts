@@ -2,7 +2,7 @@ import { chain } from '@mander/utils';
 import { map } from 'lodash-es';
 
 import { JUMP_HOLD_FRAMES } from './consts';
-import type { MovePlan } from './move-plan';
+import type { MovePlan } from './types/move-plan';
 
 const DIRECTIONS: (1 | 0 | -1)[] = [-1, 0, 1];
 

@@ -1,9 +1,9 @@
 import { clamp } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import type { Replay } from './replay';
+import type { Replay } from './types/replay';
 import { replayDuration } from './replay-duration';
-import type { ReplayPlayback } from './replay-playback';
+import type { ReplayPlayback } from './types/replay-playback';
 
 export const replayProgress = (
   replay: Replay,

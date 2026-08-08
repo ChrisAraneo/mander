@@ -1,8 +1,7 @@
 import type { Level, Player } from '@mander/model';
 
 import { spawnPosition } from './spawn-position';
-
-type PlayerAttributes = Pick<Player, 'hearts' | 'velocity'>;
+import type { PlayerAttributes } from './types/player-attributes';
 
 export const createPlayer = (
   level: Level,

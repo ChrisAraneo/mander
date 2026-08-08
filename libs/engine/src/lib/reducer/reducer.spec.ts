@@ -2,7 +2,7 @@ import type { Point } from '@mander/utils';
 import { omit } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { Action } from '../actions/actions';
+import type { Action } from '../actions/types/actions';
 import { overlapsSpike } from './collision/overlaps-spike';
 import {
   ENEMY_DEATH_SECONDS,
@@ -28,9 +28,9 @@ import {
   LEVEL_SCORE_PER_SECOND,
 } from './score/consts';
 import { spawnPosition } from './player/spawn-position';
-import type { GameLevel } from '../game-level';
+import type { GameLevel } from '../types/game-level';
 import { createInitialState } from '../state/create-initial-state';
-import type { GameState } from '../state/game-state';
+import type { GameState } from '../state/types/game-state';
 import { reduce } from './reduce';
 import { totalTime } from './score/total-time';
 import {

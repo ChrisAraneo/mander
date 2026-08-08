@@ -2,7 +2,7 @@ import type { Rectangle } from '@mander/utils';
 
 import type { Player } from '@mander/model';
 
-import { PLAYER_HEIGHT, PLAYER_WIDTH } from './player/consts';
+import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../player/consts';
 
 export const isIntersecting = (
   player: Player,

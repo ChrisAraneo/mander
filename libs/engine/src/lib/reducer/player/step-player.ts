@@ -11,7 +11,7 @@ import { match } from 'ts-pattern';
 import { moveHorizontal } from '../collision/move-horizontal';
 import { moveVertical } from '../collision/move-vertical';
 import { resolveLanding } from '../collision/resolve-landing';
-import type { InputState } from '../../state/input-state';
+import type { InputState } from '../../state/types/input-state';
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from './consts';
 
 const JUMP_CUT_GRAVITY_FACTOR = 2.6;

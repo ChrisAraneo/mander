@@ -1,7 +1,7 @@
 import type { Enemy, Item, Player } from '@mander/model';
 import type { Point } from '@mander/utils';
 
-import type { GameLevel } from '../game-level';
+import type { GameLevel } from '../../types/game-level';
 import type { GameStatus } from './game-status';
 import type { InputState } from './input-state';
 

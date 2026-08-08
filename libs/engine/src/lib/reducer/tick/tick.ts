@@ -13,37 +13,32 @@ import type { Point } from '@mander/utils';
 import { filter, includes, map, size, some } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import { overlapsSpike } from './collision/overlaps-spike';
-import { advanceEnemy } from './enemy/advance-enemy';
-import { createEnemies } from './enemy/create-enemies';
-import { hasFaded } from './enemy/has-faded';
-import { isStompingEnemy } from './enemy/is-stomping-enemy';
-import { isTouchingEnemy } from './enemy/is-touching-enemy';
-import { killEnemy } from './enemy/kill-enemy';
+import { overlapsSpike } from '../collision/overlaps-spike';
+import { advanceEnemy } from '../enemy/advance-enemy';
+import { createEnemies } from '../enemy/create-enemies';
+import { hasFaded } from '../enemy/has-faded';
+import { isStompingEnemy } from '../enemy/is-stomping-enemy';
+import { isTouchingEnemy } from '../enemy/is-touching-enemy';
+import { killEnemy } from '../enemy/kill-enemy';
 import {
   INVINCIBLE_SECONDS,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
   STOMP_BOUNCE_VELOCITY,
-} from './player/consts';
-import { isAlive } from './player/is-alive';
-import { killPlayer } from './player/kill-player';
-import { stepPlayer } from './player/step-player';
-import { stepPlayerDeath } from './player/step-player-death';
-import { DIAMOND_SCORE } from './score/consts';
-import type { GameState } from '../state/game-state';
-import type { GameStatus } from '../state/game-status';
+} from '../player/consts';
+import { isAlive } from '../player/is-alive';
+import { killPlayer } from '../player/kill-player';
+import { stepPlayer } from '../player/step-player';
+import { stepPlayerDeath } from '../player/step-player-death';
+import { DIAMOND_SCORE } from '../score/consts';
+import type { GameState } from '../../state/types/game-state';
 import { hasFallenIntoPit } from './has-fallen-into-pit';
 import { isNearTile } from './is-near-tile';
+import type { Bounced } from './types/bounced';
+import type { Outcome } from './types/outcome';
 
 const INTERACT_RANGE = 12;
 const PICKUP_RANGE = 4;
-
-interface Outcome {
-  player: Player;
-  deaths: number;
-  status: GameStatus;
-}
 
 const coolInvincibility = (player: Player, deltaSeconds: number): Player => ({
   ...player,
@@ -90,11 +85,6 @@ const stompVictims = (
       isAlive(enemy) &&
       isStompingEnemy(previousPlayer, player, enemy, deltaSeconds),
   );
-
-interface Bounced {
-  player: Player;
-  enemies: Enemy[];
-}
 
 const bounceVelocityFor = (isJumpHeld: boolean, player: Player): number =>
   match(isJumpHeld)

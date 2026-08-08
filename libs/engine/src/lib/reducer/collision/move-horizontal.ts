@@ -1,6 +1,6 @@
 import type { Level } from '@mander/model';
 
-import type { AxisMove } from './axis-move';
+import type { AxisMove } from './types/axis-move';
 import { overlapsSolid } from './overlaps-solid';
 import { sweep } from './sweep';
 

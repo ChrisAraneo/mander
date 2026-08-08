@@ -1,5 +1,5 @@
-import type { Replay } from './replay';
-import type { ReplayPlayback } from './replay-playback';
+import type { Replay } from './types/replay';
+import type { ReplayPlayback } from './types/replay-playback';
 
 export const isReplayFinished = (
   replay: Replay,
