@@ -60,7 +60,9 @@ const score = computed(() => props.state.score.toLocaleString('en-US'));
       <span class="chip key" :class="{ found: state.hasKey }">
         {{ keyLabel }}
       </span>
-      <span class="" title="Update Time">⏱ {{ (1000.0 / state.updateTime).toFixed(2) }} ms</span>
+      <span class="" title="Update Time"
+        >⏱ {{ (1000.0 / state.updateTime).toFixed(2) }} ms</span
+      >
     </div>
 
     <div class="group">
