@@ -8,6 +8,7 @@ import {
   TILE_PORTAL,
   TILE_SPAWN,
 } from '@mander/model';
+import { omit } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import type { Action } from '../actions/actions';
@@ -23,6 +24,9 @@ import { isReplayFinished } from './is-replay-finished';
 import type { Replay } from './replay';
 import { replayDuration } from './replay-duration';
 import { replayProgress } from './replay-progress';
+
+const simulation = (state: GameState): Omit<GameState, 'updateTime'> =>
+  omit(state, 'updateTime');
 
 const WIDTH = 30;
 const HEIGHT = 15;
@@ -168,13 +172,15 @@ describe('replayDuration', () => {
 describe('advancePlayback', () => {
   it('reproduces the recorded run exactly', () => {
     const { state, replay } = runScript();
-    expect(playToEnd(replay, FRAME_MS)).toEqual(state);
+    expect(simulation(playToEnd(replay, FRAME_MS))).toEqual(simulation(state));
   });
 
   it('reproduces the same run whatever the frame pacing', () => {
     const { state, replay } = runScript();
-    expect(playToEnd(replay, FRAME_MS * 4)).toEqual(state);
-    expect(playToEnd(replay, 1)).toEqual(state);
+    expect(simulation(playToEnd(replay, FRAME_MS * 4))).toEqual(
+      simulation(state),
+    );
+    expect(simulation(playToEnd(replay, 1))).toEqual(simulation(state));
   });
 
   it('releases only the actions that are due', () => {

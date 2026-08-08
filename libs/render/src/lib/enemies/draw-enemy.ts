@@ -1,11 +1,10 @@
 import {
-  type Enemy,
-  type EnemyKind,
   ENEMY_DEATH_SECONDS,
   ENEMY_HEIGHT,
   ENEMY_WIDTH,
   isAlive,
 } from '@mander/engine';
+import type { Enemy, EnemyKind } from '@mander/model';
 import { assign, chain, clamp, map } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 

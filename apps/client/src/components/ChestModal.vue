@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Item } from '@mander/engine';
+import type { Item } from '@mander/model';
 import ItemArt from './ItemArt.vue';
 
 defineProps<{ items: Item[] }>();

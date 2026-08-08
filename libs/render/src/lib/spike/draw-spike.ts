@@ -1,4 +1,4 @@
-import type { Level } from '@mander/engine';
+import type { Level } from '@mander/model';
 
 import { paint } from '../canvas';
 import { spikeStep } from './spike-step';

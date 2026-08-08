@@ -1,4 +1,4 @@
-import { type Level, TILE_SIZE } from '@mander/engine';
+import { type Level, TILE_SIZE } from '@mander/model';
 import { map } from 'lodash-es';
 
 import { type CanvasStep, fillRect, sequence, styled, when } from '../canvas';

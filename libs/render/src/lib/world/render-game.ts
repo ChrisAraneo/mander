@@ -1,4 +1,5 @@
-import { type GameState, TILE_SIZE } from '@mander/engine';
+import type { GameState } from '@mander/engine';
+import { TILE_SIZE } from '@mander/model';
 import { chain, clamp, map } from 'lodash-es';
 
 import {

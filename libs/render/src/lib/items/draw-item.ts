@@ -1,4 +1,4 @@
-import type { ItemArt } from '@mander/engine';
+import type { ItemArt } from '@mander/model';
 import { chain } from 'lodash-es';
 import { match } from 'ts-pattern';
 

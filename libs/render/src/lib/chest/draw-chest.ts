@@ -1,10 +1,10 @@
+import type { GameState } from '@mander/engine';
 import {
   CHEST_ENTITY_BOX,
   findChestTile,
-  type GameState,
   type Level,
   toEntityRectangle,
-} from '@mander/engine';
+} from '@mander/model';
 import type { Rectangle } from '@mander/utils';
 import { chain, noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';

@@ -1,4 +1,5 @@
 import type { Point } from '@mander/utils';
+import { omit } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import type { Action } from '../actions/actions';
@@ -52,6 +53,9 @@ import {
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
 } from '@mander/model';
+
+const simulation = (state: GameState): Omit<GameState, 'updateTime'> =>
+  omit(state, 'updateTime');
 
 const WIDTH = 30;
 const HEIGHT = 15;
@@ -351,7 +355,7 @@ describe('key and chest', () => {
     state = { ...state, hasKey: true };
     state = act(state, { type: 'INTERACT' });
     const unchanged = act(state, { type: 'CHOOSE_ITEM', index: 99 });
-    expect(unchanged).toEqual(state);
+    expect(simulation(unchanged)).toEqual(simulation(state));
   });
 });
 
@@ -361,7 +365,7 @@ describe('portal and level loading', () => {
     expect(state.isNearPortal).toBe(true);
     state = act(state, { type: 'INTERACT' });
     expect(state.status).toBe('COMPLETE');
-    expect(tick(state)).toEqual(state);
+    expect(simulation(tick(state))).toEqual(simulation(state));
   });
 
   it('LOAD_LEVEL starts fresh, winding back the clock but keeping the inventory', () => {
@@ -619,7 +623,9 @@ describe('enemies', () => {
     expect(later.player.position.x, 'there is no respawn out of it').not.toBe(
       SPAWN_X,
     );
-    expect(later, 'a finished run does not move on').toEqual(state);
+    expect(simulation(later), 'a finished run does not move on').toEqual(
+      simulation(state),
+    );
   });
 
   it('ignores input while the player is dying from a pit fall', () => {
@@ -805,7 +811,10 @@ describe('enemies', () => {
     ).not.toBeNull();
     expect(state.status, 'and the run is over').toBe('GAME_OVER');
     expect(state.deaths).toBe(before + 1);
-    expect(tickN(state, 120), 'a finished run does not move on').toEqual(state);
+    expect(
+      simulation(tickN(state, 120)),
+      'a finished run does not move on',
+    ).toEqual(simulation(state));
   });
 
   it('does not kill a player kept apart by the pit', () => {

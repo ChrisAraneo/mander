@@ -1,4 +1,4 @@
-import { isSolidTile, type Level, type Tile, TILE_SIZE } from '@mander/engine';
+import { isSolidTile, type Level, type Tile, TILE_SIZE } from '@mander/model';
 import { filter, findIndex, size } from 'lodash-es';
 import { match } from 'ts-pattern';
 

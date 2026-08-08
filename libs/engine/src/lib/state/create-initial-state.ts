@@ -32,4 +32,5 @@ export const createInitialState = (
   levelTimes: [],
   deaths: 0,
   score,
+  updateTime: 0,
 });

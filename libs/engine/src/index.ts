@@ -41,4 +41,3 @@ export * from './lib/state/create-initial-state';
 export * from './lib/state/game-state';
 export * from './lib/state/game-status';
 export * from './lib/state/input-state';
-export * from '@mander/model';

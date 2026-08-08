@@ -1,10 +1,10 @@
+import type { GameState } from '@mander/engine';
 import {
   findPortalTile,
-  type GameState,
   type Level,
   PORTAL_ENTITY_BOX,
   toEntityRectangle,
-} from '@mander/engine';
+} from '@mander/model';
 import type { Rectangle } from '@mander/utils';
 import { chain, map, noop, range } from 'lodash-es';
 import { match, P } from 'ts-pattern';

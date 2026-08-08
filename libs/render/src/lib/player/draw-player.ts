@@ -1,10 +1,10 @@
 import {
   isAlive,
-  type Player,
   PLAYER_DEATH_SECONDS,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
 } from '@mander/engine';
+import type { Player } from '@mander/model';
 import { chain, clamp } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 

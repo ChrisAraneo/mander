@@ -1,4 +1,4 @@
-import { TILE_SIZE } from '@mander/engine';
+import { TILE_SIZE } from '@mander/model';
 import { round } from 'lodash-es';
 
 export const wholeTileScale = (scale: number): number =>

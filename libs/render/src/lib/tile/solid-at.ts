@@ -1,4 +1,4 @@
-import { isSolidTile, type Level } from '@mander/engine';
+import { isSolidTile, type Level } from '@mander/model';
 import { inRange } from 'lodash-es';
 
 export const solidAt = (level: Level, tileX: number, tileY: number): boolean =>

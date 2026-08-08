@@ -1,8 +1,5 @@
-import {
-  DIAMOND_ENTITY_BOX,
-  type GameState,
-  toEntityRectangle,
-} from '@mander/engine';
+import type { GameState } from '@mander/engine';
+import { DIAMOND_ENTITY_BOX, toEntityRectangle } from '@mander/model';
 import type { Point } from '@mander/utils';
 import { chain, map } from 'lodash-es';
 

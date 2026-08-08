@@ -5,7 +5,7 @@ import {
   TILE_SIZE,
   TILE_STONE,
   TILE_WOOD,
-} from '@mander/engine';
+} from '@mander/model';
 import { hslCss, parseHsl, shiftHsl } from '@mander/utils';
 import { chain, map, memoize, range, size } from 'lodash-es';
 import { match } from 'ts-pattern';

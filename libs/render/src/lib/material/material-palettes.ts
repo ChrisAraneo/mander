@@ -1,4 +1,4 @@
-import { SOLID_TILES, type Tile, TILE_DIRT, TILE_WOOD } from '@mander/engine';
+import { SOLID_TILES, type Tile, TILE_DIRT, TILE_WOOD } from '@mander/model';
 import { type Hsl, hslCss, parseHsl, shiftHsl } from '@mander/utils';
 import { assign, chain, map } from 'lodash-es';
 import { match, P } from 'ts-pattern';

@@ -1,9 +1,5 @@
-import {
-  findKeyTile,
-  type GameState,
-  KEY_ENTITY_BOX,
-  toEntityRectangle,
-} from '@mander/engine';
+import type { GameState } from '@mander/engine';
+import { findKeyTile, KEY_ENTITY_BOX, toEntityRectangle } from '@mander/model';
 import type { Rectangle } from '@mander/utils';
 import { chain, noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';

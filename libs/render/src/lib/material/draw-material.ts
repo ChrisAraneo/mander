@@ -1,4 +1,4 @@
-import type { Tile } from '@mander/engine';
+import type { Tile } from '@mander/model';
 
 import { paint } from '../canvas';
 import type { MaterialStyle } from './material-style';

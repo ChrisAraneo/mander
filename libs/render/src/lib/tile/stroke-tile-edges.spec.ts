@@ -5,7 +5,7 @@ import {
   TILE_DIRT,
   TILE_SIZE,
   TILE_SPIKE,
-} from '@mander/engine';
+} from '@mander/model';
 import { chain, filter, map, size, some, split } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';

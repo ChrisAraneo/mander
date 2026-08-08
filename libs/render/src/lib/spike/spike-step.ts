@@ -3,7 +3,7 @@ import {
   type Level,
   spikeOrientation,
   spikeShape,
-} from '@mander/engine';
+} from '@mander/model';
 import type { Triangle } from '@mander/utils';
 import { chain, map } from 'lodash-es';
 

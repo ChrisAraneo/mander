@@ -4,7 +4,7 @@ import {
   TILE_CERAMIC,
   TILE_STONE,
   TILE_WOOD,
-} from '@mander/engine';
+} from '@mander/model';
 import { match } from 'ts-pattern';
 
 import {

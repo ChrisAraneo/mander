@@ -1,4 +1,5 @@
 import { findDiamondTiles, type Item } from '@mander/model';
+import { chain } from '@mander/utils';
 import { concat } from 'lodash-es';
 import { match } from 'ts-pattern';
 
@@ -126,24 +127,39 @@ const loadLevel = (
 });
 
 export const reduce = (state: GameState, action: Action): GameState =>
-  match(action)
-    .with({ type: 'TICK' }, ({ deltaSeconds }) => tick(state, deltaSeconds))
-    .with({ type: 'MOVE_LEFT_START' }, () => withInput(state, { isLeft: true }))
-    .with({ type: 'MOVE_LEFT_STOP' }, () => withInput(state, { isLeft: false }))
-    .with({ type: 'MOVE_RIGHT_START' }, () =>
-      withInput(state, { isRight: true }),
-    )
-    .with({ type: 'MOVE_RIGHT_STOP' }, () =>
-      withInput(state, { isRight: false }),
-    )
-    .with({ type: 'JUMP_START' }, () => startJump(state))
-    .with({ type: 'JUMP_STOP' }, () => withInput(state, { isJump: false }))
-    .with({ type: 'INTERACT' }, () => interact(state))
-    .with({ type: 'CHOOSE_ITEM' }, ({ index }) => chooseItem(state, index))
-    .with({ type: 'CLOSE' }, () => close(state))
-    .with({ type: 'RESPAWN' }, () => respawn(state))
-    .with({ type: 'LOAD_LEVEL' }, ({ level, levelIndex }) =>
-      loadLevel(state, level, levelIndex),
-    )
-    .with({ type: 'RESTART' }, ({ level }) => createInitialState(level, 0, []))
-    .exhaustive();
+  chain(performance.now())
+    .thru((startTime) => ({
+      startTime,
+      newState: match(action)
+        .with({ type: 'TICK' }, ({ deltaSeconds }) => tick(state, deltaSeconds))
+        .with({ type: 'MOVE_LEFT_START' }, () =>
+          withInput(state, { isLeft: true }),
+        )
+        .with({ type: 'MOVE_LEFT_STOP' }, () =>
+          withInput(state, { isLeft: false }),
+        )
+        .with({ type: 'MOVE_RIGHT_START' }, () =>
+          withInput(state, { isRight: true }),
+        )
+        .with({ type: 'MOVE_RIGHT_STOP' }, () =>
+          withInput(state, { isRight: false }),
+        )
+        .with({ type: 'JUMP_START' }, () => startJump(state))
+        .with({ type: 'JUMP_STOP' }, () => withInput(state, { isJump: false }))
+        .with({ type: 'INTERACT' }, () => interact(state))
+        .with({ type: 'CHOOSE_ITEM' }, ({ index }) => chooseItem(state, index))
+        .with({ type: 'CLOSE' }, () => close(state))
+        .with({ type: 'RESPAWN' }, () => respawn(state))
+        .with({ type: 'LOAD_LEVEL' }, ({ level, levelIndex }) =>
+          loadLevel(state, level, levelIndex),
+        )
+        .with({ type: 'RESTART' }, ({ level }) =>
+          createInitialState(level, 0, []),
+        )
+        .exhaustive(),
+    }))
+    .thru(({ startTime, newState }) => ({
+      ...newState,
+      updateTime: performance.now() - startTime,
+    }))
+    .value();

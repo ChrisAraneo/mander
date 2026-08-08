@@ -1,4 +1,4 @@
-import { TILE_SIZE } from '@mander/engine';
+import { TILE_SIZE } from '@mander/model';
 import { chain, forEach, range, round } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

@@ -22,4 +22,5 @@ export interface GameState {
   levelTimes: number[];
   deaths: number;
   score: number;
+  updateTime: number;
 }

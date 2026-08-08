@@ -5,7 +5,7 @@ import {
   TILE_DIRT,
   TILE_STONE,
   TILE_WOOD,
-} from '@mander/engine';
+} from '@mander/model';
 import { parseHsl, shiftHsl } from '@mander/utils';
 import { assign, chain, forEach, get } from 'lodash-es';
 import { match, P } from 'ts-pattern';

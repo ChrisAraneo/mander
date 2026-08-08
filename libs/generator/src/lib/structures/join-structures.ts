@@ -1,4 +1,4 @@
-import { isSolidTile, TILE_AIR, type Tile } from '@mander/engine';
+import { isSolidTile, TILE_AIR, type Tile } from '@mander/model';
 import {
   STRUCTURE_WIDTH,
   STRUCTURE_END,

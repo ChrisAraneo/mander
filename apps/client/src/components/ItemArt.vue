@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
-import type { ItemArt } from '@mander/engine';
+import type { ItemArt } from '@mander/model';
 import { drawItem } from '@mander/render';
 
 const ART_SIZE = 64;
