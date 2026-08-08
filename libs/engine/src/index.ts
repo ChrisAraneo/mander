@@ -19,7 +19,7 @@ export * from './lib/reducer/reach/types/reach-map';
 export * from './lib/reducer/reduce';
 export * from './lib/reducer/score/consts';
 export * from './lib/reducer/score/level-score';
-export * from './lib/reducer/score/score-gain';
+export * from './lib/reducer/choose-item/get-score-amount';
 export * from './lib/reducer/score/total-time';
 export * from './lib/replay/action-codes';
 export * from './lib/replay/advance-playback';
