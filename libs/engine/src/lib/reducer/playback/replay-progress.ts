@@ -1,7 +1,7 @@
 import { clamp } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import type { Replay } from './types/replay';
+import type { Replay } from '../recorder/types/replay';
 import { replayDuration } from './replay-duration';
 import type { ReplayPlayback } from './types/replay-playback';
 

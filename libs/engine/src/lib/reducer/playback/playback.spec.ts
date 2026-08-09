@@ -11,17 +11,17 @@ import {
 import { omit } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { Action } from '../actions/types/actions';
-import type { GameLevel } from '../types/game-level';
-import { reduce } from '../reducer/reduce';
-import { createInitialState } from '../state/create-initial-state';
-import type { GameState } from '../state/types/game-state';
+import type { Action } from '../../actions/types/actions';
+import type { GameLevel } from '../../types/game-level';
+import { reduce } from '../reduce';
+import { createInitialState } from '../../state/create-initial-state';
+import type { GameState } from '../../state/types/game-state';
 import { advancePlayback } from './advance-playback';
 import { createPlayback } from './create-playback';
-import { createRecorder } from './create-recorder';
-import { emptyReplay } from './empty-replay';
+import { createRecorder } from '../recorder/create-recorder';
+import { emptyReplay } from '../recorder/empty-replay';
 import { isReplayFinished } from './is-replay-finished';
-import type { Replay } from './types/replay';
+import type { Replay } from '../recorder/types/replay';
 import { replayDuration } from './replay-duration';
 import { replayProgress } from './replay-progress';
 
@@ -103,60 +103,6 @@ const playToEnd = (replay: Replay, stepMs: number): GameState => {
   }
   return playback.state;
 };
-
-describe('createRecorder', () => {
-  it('timestamps entries relative to the first recorded action', () => {
-    const recorder = createRecorder('TEST-WORLD');
-    recorder.record({ type: 'MOVE_LEFT_START' }, 1_200);
-    recorder.record({ type: 'MOVE_LEFT_STOP' }, 1_700);
-
-    const { worldName, startedAtMs, entries } = recorder.snapshot();
-    expect(worldName).toBe('TEST-WORLD');
-    expect(startedAtMs).toBe(1_200);
-    expect(entries).toEqual([
-      { atMs: 0, action: { type: 'MOVE_LEFT_START' } },
-      { atMs: 500, action: { type: 'MOVE_LEFT_STOP' } },
-    ]);
-  });
-
-  it('records every action, ticks included', () => {
-    const { replay } = runScript();
-    expect(replay.entries).toHaveLength(264);
-    expect(
-      replay.entries.filter(({ action }) => action.type === 'TICK'),
-    ).toHaveLength(260);
-  });
-
-  it('ignores actions once stopped', () => {
-    const recorder = createRecorder('TEST-WORLD');
-    recorder.record({ type: 'JUMP_START' }, 0);
-    recorder.stop();
-    recorder.record({ type: 'JUMP_STOP' }, 100);
-
-    expect(recorder.snapshot().entries).toHaveLength(1);
-  });
-
-  it('starts a fresh recording after reset', () => {
-    const recorder = createRecorder('TEST-WORLD');
-    recorder.record({ type: 'JUMP_START' }, 400);
-    recorder.stop();
-    recorder.reset();
-    recorder.record({ type: 'INTERACT' }, 900);
-
-    const { startedAtMs, entries } = recorder.snapshot();
-    expect(startedAtMs).toBe(900);
-    expect(entries).toEqual([{ atMs: 0, action: { type: 'INTERACT' } }]);
-  });
-
-  it('returns a snapshot detached from later recording', () => {
-    const recorder = createRecorder('TEST-WORLD');
-    recorder.record({ type: 'JUMP_START' }, 0);
-    const snapshot = recorder.snapshot();
-    recorder.record({ type: 'JUMP_STOP' }, 100);
-
-    expect(snapshot.entries).toHaveLength(1);
-  });
-});
 
 describe('replayDuration', () => {
   it('is zero for an empty replay', () => {

@@ -1,8 +1,8 @@
 import { map, slice } from 'lodash-es';
 
-import type { RecordedAction } from './types/recorded-action';
-import { applyActions } from './apply-actions';
-import type { Replay } from './types/replay';
+import type { RecordedAction } from '../recorder/types/recorded-action';
+import { applyActions } from '../apply-actions';
+import type { Replay } from '../recorder/types/replay';
 import type { ReplayPlayback } from './types/replay-playback';
 
 const dueIndex = (

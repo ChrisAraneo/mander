@@ -1,12 +1,12 @@
 import { compact, map } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import type { Action } from '../actions/types/actions';
-import type { GameLevel } from '../types/game-level';
+import type { Action } from '../../actions/types/actions';
+import type { GameLevel } from '../../types/game-level';
 import { ACTION_CODES } from './action-codes';
 import type { PackedEntry, PackedReplay } from './types/packed-replay';
-import type { RecordedAction } from './types/recorded-action';
-import type { Replay } from './types/replay';
+import type { RecordedAction } from '../recorder/types/recorded-action';
+import type { Replay } from '../recorder/types/replay';
 
 const levelAt = (levels: GameLevel[], index: number): GameLevel | undefined =>
   levels[index];

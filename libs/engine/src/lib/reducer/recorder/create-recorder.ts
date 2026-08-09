@@ -1,6 +1,6 @@
 import { match } from 'ts-pattern';
 
-import type { Action } from '../actions/types/actions';
+import type { Action } from '../../actions/types/actions';
 import type { RecordedAction } from './types/recorded-action';
 import type { Recorder } from './types/recorder';
 

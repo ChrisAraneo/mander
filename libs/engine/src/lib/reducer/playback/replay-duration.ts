@@ -1,7 +1,7 @@
 import { last } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import type { Replay } from './types/replay';
+import type { Replay } from '../recorder/types/replay';
 
 export const replayDuration = (replay: Replay): number =>
   match(last(replay.entries))
