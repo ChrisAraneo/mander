@@ -1,5 +1,5 @@
+import { EN, EE, BR, DR, SC, SP, ST, SS, WD, CR, __ } from './consts';
 import type { Structure } from './structure';
-import { BR, CR, DR, EE, EN, SC, SP, SS, ST, WD, __ } from './aliases';
 
 export const NORMAL_01: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],

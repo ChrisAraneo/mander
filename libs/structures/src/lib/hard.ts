@@ -1,5 +1,5 @@
 import type { Structure } from './structure';
-import { BR, CR, DR, EE, EN, SC, SP, SS, ST, WD, __ } from './aliases';
+import { BR, CR, DR, EE, EN, SC, SP, SS, ST, WD, __ } from './consts';
 
 export const HARD_01: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],

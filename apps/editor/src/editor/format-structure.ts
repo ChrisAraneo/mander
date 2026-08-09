@@ -1,9 +1,9 @@
-import { aliasOf } from '@mander/structures';
+import { getAlias } from '@mander/structures';
 import { join, map } from 'lodash-es';
 
 const formatRow = (row: number[]): string =>
   `  [${join(
-    map(row, (cell) => aliasOf(cell)),
+    map(row, (cell) => getAlias(cell)),
     ', ',
   )}],`;
 

@@ -171,5 +171,5 @@ export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
   NORMAL_58,
   NORMAL_59,
   NORMAL_60,
-  NORMAL_61,  
+  NORMAL_61,
 ]);
