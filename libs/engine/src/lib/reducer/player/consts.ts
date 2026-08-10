@@ -1,10 +1,15 @@
-import { TILE_SIZE } from '@mander/model';
+import { GRAVITY, MAX_JUMP_TILES, TILE_SIZE } from '@mander/model';
 
 export const PLAYER_WIDTH_TILES = 0.6875;
 export const PLAYER_HEIGHT_TILES = 1.5;
 
 export const PLAYER_WIDTH = PLAYER_WIDTH_TILES * TILE_SIZE;
 export const PLAYER_HEIGHT = PLAYER_HEIGHT_TILES * TILE_SIZE;
+
+export const PLAYER_MAX_MOVE_VELOCITY = 210;
+export const PLAYER_MAX_JUMP_VELOCITY = Math.sqrt(
+  2 * GRAVITY * MAX_JUMP_TILES * TILE_SIZE,
+);
 
 export const PLAYER_HITBOX_INSET_X = 4;
 export const PLAYER_HITBOX_INSET_TOP = 2;

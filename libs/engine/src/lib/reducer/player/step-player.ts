@@ -14,6 +14,8 @@ import { resolveLanding } from '../collision/resolve-landing';
 import type { InputState } from '../../state/types/input-state';
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from './consts';
 
+// TODO: refactoring
+
 const JUMP_CUT_GRAVITY_FACTOR = 2.6;
 
 const horizontalDirection = (input: InputState): number =>

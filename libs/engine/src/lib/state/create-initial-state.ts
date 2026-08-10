@@ -2,7 +2,6 @@ import { findDiamondTiles, type Item } from '@mander/model';
 
 import type { GameLevel } from '../types/game-level';
 import { createEnemies } from '../reducer/enemy/create-enemies';
-import { capabilitiesFor } from '../reducer/player/capabilities-for';
 import { createPlayer } from '../reducer/player/create-player';
 import { startingHearts } from '../reducer/player/starting-hearts';
 import type { GameState } from './types/game-state';
@@ -17,7 +16,6 @@ export const createInitialState = (
   levelIndex,
   player: createPlayer(level, {
     hearts: { value: startingHearts(inventory) },
-    velocity: capabilitiesFor(),
   }),
   enemies: createEnemies(level),
   diamonds: findDiamondTiles(level),
