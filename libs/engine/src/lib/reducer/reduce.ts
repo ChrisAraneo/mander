@@ -1,7 +1,7 @@
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 
-import type { Action } from '../actions/types/actions';
+import type { Action } from '../actions/actions';
 import type { GameState } from '../state/types/game-state';
 import { chooseItem } from './choose-item/choose-item';
 import { close } from './close/close';

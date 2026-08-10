@@ -1,4 +1,4 @@
-import type { Action } from '../../actions/types/actions';
+import type { Action } from '../../actions/actions';
 
 export const ACTION_CODES: readonly Action['type'][] = Object.freeze([
   'TICK',

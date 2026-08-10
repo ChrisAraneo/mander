@@ -7,8 +7,8 @@ import {
   spikeShape,
   type Level,
 } from '@mander/model';
-import { boxHitsTriangle } from './box-hits-triangle';
-import { tileRange } from './tile-range';
+import { boxHitsTriangle } from '../collision/box-hits-triangle';
+import { tileRange } from '../collision/tile-range';
 
 export const overlapsSpike = (
   level: Level,

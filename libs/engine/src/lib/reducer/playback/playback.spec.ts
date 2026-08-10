@@ -11,7 +11,7 @@ import {
 import { omit } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { Action } from '../../actions/types/actions';
+import type { Action } from '../../actions/actions';
 import type { GameLevel } from '../../types/game-level';
 import { reduce } from '../reduce';
 import { createInitialState } from '../../state/create-initial-state';

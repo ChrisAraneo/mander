@@ -13,10 +13,10 @@ import { match } from 'ts-pattern';
 import { moveHorizontal } from '../collision/move-horizontal';
 import { moveVertical } from '../collision/move-vertical';
 import { resolveLanding } from '../collision/resolve-landing';
+import { spikeAhead } from '../spike/spike-ahead';
 import { ENEMY_DEATH_SECONDS, ENEMY_HEIGHT, ENEMY_WIDTH } from './consts';
 import { ledgeAhead } from './ledge-ahead';
 import { playerOverhead } from './player-overhead';
-import { spikeAhead } from './spike-ahead';
 import type { EnemyMotion } from './types/enemy-motion';
 import { wallAhead } from './wall-ahead';
 

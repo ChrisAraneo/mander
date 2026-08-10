@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { Action } from '../../actions/types/actions';
+import type { Action } from '../../actions/actions';
 import { createRecorder } from './create-recorder';
 
 const DELTA_SECONDS = 1 / 60;

@@ -1,6 +1,6 @@
 import { reduce as fold } from 'lodash-es';
 
-import type { Action } from '../actions/types/actions';
+import type { Action } from '../actions/actions';
 import { reduce } from './reduce';
 import type { GameState } from '../state/types/game-state';
 

@@ -1,7 +1,7 @@
 import { map } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import type { Action } from '../../actions/types/actions';
+import type { Action } from '../../actions/actions';
 import { codeOf } from './action-codes';
 import type { PackedEntry, PackedReplay } from './types/packed-replay';
 import type { Replay } from '../recorder/types/replay';
