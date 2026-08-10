@@ -12,7 +12,7 @@ import {
   HORNED_ENEMY_CHANCE,
   HORNED_ENEMY_JUMP_VELOCITY,
 } from './enemy/consts';
-import { capabilitiesFor } from './player/capabilities-for';
+import { createBasePlayerVelocity } from './player/create-base-player-velocity';
 import {
   BASE_HEARTS,
   INVINCIBLE_SECONDS,
@@ -454,7 +454,7 @@ describe('enemies', () => {
       'the enemy launched upward',
     ).toBeLessThan(0);
 
-    expect(ENEMY_JUMP_VELOCITY).toBeLessThan(capabilitiesFor().y.max);
+    expect(ENEMY_JUMP_VELOCITY).toBeLessThan(createBasePlayerVelocity().y.max);
   });
 
   it('ignores the player alongside it, only reacting to one overhead', () => {

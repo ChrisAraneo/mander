@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../../state/create-initial-state';
 import type { GameState } from '../../state/types/game-state';
 import type { GameLevel } from '../../types/game-level';
-import { capabilitiesFor } from '../player/capabilities-for';
+import { createBasePlayerVelocity } from '../player/create-base-player-velocity';
 import { BASE_HEARTS } from '../player/consts';
 import { chooseItem } from './choose-item';
 
@@ -104,8 +104,8 @@ describe('chooseItem', () => {
       0,
     ).player;
 
-    expect(velocity.x.max).toBe(capabilitiesFor().x.max);
-    expect(velocity.y.max).toBe(capabilitiesFor().y.max);
+    expect(velocity.x.max).toBe(createBasePlayerVelocity().x.max);
+    expect(velocity.y.max).toBe(createBasePlayerVelocity().y.max);
   });
 
   it('should keep the current speed when an item is taken', () => {

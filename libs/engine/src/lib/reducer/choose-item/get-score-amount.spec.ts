@@ -13,7 +13,6 @@ const itemWith = (effect: Item['effect']): Item => ({
 });
 
 describe('getScoreAmount', () => {
-
   it('should give back the amount the effect carries when it scores', () => {
     expect(getScoreAmount(itemWith({ kind: 'SCORE', amount: 1 }))).toBe(1);
     expect(getScoreAmount(itemWith({ kind: 'SCORE', amount: 9000 }))).toBe(
