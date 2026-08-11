@@ -72,19 +72,23 @@ describe('generate', () => {
   });
 
   it('sends no horned enemy out on the first two levels of any day', () => {
-    const early = flatMap(days, (date) =>
-      flatMap(times(2), (index) => createEnemies(generate(date).levels[index])),
-    );
+    const early = flatMap(days, (date) => {
+      const world = generate(date);
+
+      return flatMap(times(2), (index) => createEnemies(world.levels[index]));
+    });
 
     expect(some(early, (enemy) => enemy.kind === 'HORNED')).toBe(false);
   });
 
   it('sends no hopping enemy out on the last three levels of any day', () => {
-    const late = flatMap(days, (date) =>
-      flatMap(times(3), (index) =>
-        createEnemies(generate(date).levels[LEVELS_A_DAY - 1 - index]),
-      ),
-    );
+    const late = flatMap(days, (date) => {
+      const world = generate(date);
+
+      return flatMap(times(3), (index) =>
+        createEnemies(world.levels[LEVELS_A_DAY - 1 - index]),
+      );
+    });
 
     expect(some(late, (enemy) => enemy.kind === 'HOPPING')).toBe(false);
   });

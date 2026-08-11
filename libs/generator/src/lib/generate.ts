@@ -16,6 +16,7 @@ import { pickStructures } from './structures/pick-structures';
 import { addKey } from './structures/add-key';
 import { generateChestItems } from './items/generate-chest-items';
 import { computeWorldName } from './seed/compute-world-name';
+import { addStones } from './structures/add-stones';
 
 const FIRST_HARD_LEVEL = 7;
 
@@ -86,12 +87,13 @@ export const generate = (date: Date): RenderedWorld => {
     const withKey = addKey(withSpikes);
     const withChest = addChest(withKey);
     const withDiamonds = addDiamonds(withChest);
+    const withStones = addStones(withDiamonds);
 
     const level: GameLevel = {
       seed,
-      width: withDiamonds[0].length,
-      height: withDiamonds.length,
-      tiles: withDiamonds,
+      width: withStones[0].length,
+      height: withStones.length,
+      tiles: withStones,
       chestItems,
       hornedEnemyChance: hornedEnemyChanceFor(levelNumber),
     };
