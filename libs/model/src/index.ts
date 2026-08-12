@@ -1,3 +1,6 @@
+export * from './lib/cannon/cannon';
+export * from './lib/cannon/cannonball';
+export * from './lib/cannon/find-cannon-tiles';
 export * from './lib/chest/find-chest-tile';
 export * from './lib/chest/chest-entity-box';
 export * from './lib/diamond/diamond-entity-box';
@@ -26,6 +29,7 @@ export * from './lib/spike/spike-shape';
 export * from './lib/spike/compute-spike-triangles';
 export * from './lib/air/air';
 export * from './lib/blocks/brick';
+export * from './lib/blocks/cannon';
 export * from './lib/blocks/ceramic';
 export * from './lib/chest/chest';
 export * from './lib/blocks/consts';

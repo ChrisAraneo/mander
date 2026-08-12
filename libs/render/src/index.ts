@@ -1,3 +1,4 @@
+export * from './lib/cannon';
 export * from './lib/chest';
 export * from './lib/diamond';
 export * from './lib/enemies';

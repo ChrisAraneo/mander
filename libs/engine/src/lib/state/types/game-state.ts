@@ -1,4 +1,4 @@
-import type { Enemy, Item, Player } from '@mander/model';
+import type { Cannon, Cannonball, Enemy, Item, Player } from '@mander/model';
 import type { Point } from '@mander/utils';
 
 import type { GameLevel } from '../../types/game-level';
@@ -10,6 +10,8 @@ export interface GameState {
   levelIndex: number;
   player: Player;
   enemies: Enemy[];
+  cannons: Cannon[];
+  cannonballs: Cannonball[];
   diamonds: Point[];
   input: InputState;
   status: GameStatus;

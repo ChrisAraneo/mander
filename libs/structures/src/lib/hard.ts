@@ -1,5 +1,5 @@
 import type { Structure } from './structure';
-import { BR, CR, DR, EE, EN, SC, SP, SS, ST, WD, __ } from './consts';
+import { BR, CN, CR, DR, EE, EN, SC, SP, SS, ST, WD, __ } from './consts';
 
 export const HARD_01: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -41,7 +41,7 @@ export const HARD_02: Structure = [
   [__, __, __, ST, ST, __, __, __, __, __, __, __, __, __, __, __, __, __, ST, ST],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, ST, ST],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, ST, ST],
-  [__, SS, __, __, __, __, __, EN, __, __, __, __, EN, __, __, __, __, __, ST, ST],
+  [__, SS, __, __, __, __, __, EN, __, __, __, __, CN, __, __, __, __, __, ST, ST],
   [ST, ST, ST, ST, __, __, ST, ST, ST, __, __, ST, ST, ST, __, __, ST, ST, ST, ST],
   [ST, ST, ST, ST, __, __, ST, ST, ST, __, __, ST, ST, ST, __, __, ST, ST, ST, ST],
   [ST, ST, ST, ST, __, __, ST, ST, ST, __, __, ST, ST, ST, __, __, ST, ST, ST, ST],
@@ -195,7 +195,7 @@ export const HARD_09: Structure = [
   [__, __, __, BR, __, __, __, __, __, __, __, __, __, __, __, __, BR, __, __, __],
   [__, __, __, BR, __, __, __, __, __, __, __, __, __, __, __, __, BR, __, __, __],
   [__, __, __, BR, __, __, __, __, __, __, __, __, __, __, __, __, BR, __, __, __],
-  [SS, __, __, BR, __, EN, __, __, EN, __, __, EN, __, __, EN, __, BR, __, __, EE],
+  [SS, __, __, BR, __, EN, CN, __, EN, __, __, EN, __, __, EN, __, BR, __, __, EE],
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
   [DR, ST, ST, ST, ST, DR, DR, DR, DR, DR, DR, ST, ST, ST, ST, ST, DR, DR, DR, DR],
@@ -242,7 +242,7 @@ export const HARD_11: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, DR, __, __, __, __, __, __, __, __, __, __, DR, __, __, __, __],
   [__, __, __, __, DR, __, __, __, __, __, __, __, __, __, __, DR, __, __, __, __],
-  [__, __, __, DR, DR, __, SP, EN, EN, EN, EN, EN, EN, SP, __, DR, DR, __, __, EE],
+  [__, __, __, DR, DR, __, SP, EN, EN, CN, EN, EN, EN, SP, __, DR, DR, __, __, EE],
   [__, __, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
   [__, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
   [__, DR, ST, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],

@@ -1,4 +1,5 @@
 import { TILE_BRICK } from './brick';
+import { TILE_CANNON } from './cannon';
 import { TILE_CERAMIC } from './ceramic';
 import { TILE_DIRT } from './dirt';
 import { TILE_STONE } from './stone';
@@ -11,4 +12,5 @@ export const SOLID_TILES: readonly Tile[] = Object.freeze([
   TILE_STONE,
   TILE_WOOD,
   TILE_CERAMIC,
+  TILE_CANNON,
 ]);

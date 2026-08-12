@@ -1,4 +1,10 @@
-import { isSolidTile, isSpikeTile, type Level, TILE_SIZE } from '@mander/model';
+import {
+  isSolidTile,
+  isSpikeTile,
+  type Level,
+  TILE_CANNON,
+  TILE_SIZE,
+} from '@mander/model';
 import { ceil, chain, flatMap, floor, map, range } from 'lodash-es';
 import { match } from 'ts-pattern';
 
@@ -63,9 +69,11 @@ const tileStep = (
       tile,
       isSpike: isSpikeTile(tile),
       isSolid: isSolidTile(tile),
+      isCannon: tile === TILE_CANNON,
     }))
-    .thru(({ tile, isSpike, isSolid }) =>
-      match({ isSpike, isSolid })
+    .thru(({ tile, isSpike, isSolid, isCannon }) =>
+      match({ isSpike, isSolid, isCannon })
+        .with({ isCannon: true }, () => skip)
         .with({ isSpike: true }, () => spikeStep(level, column, row))
         .with({ isSolid: true }, () =>
           solidTileStep(level, column, row, materials(tile)),

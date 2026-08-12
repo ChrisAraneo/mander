@@ -1,6 +1,6 @@
-import { createEnemies } from '@mander/engine';
+import { createCannons, createEnemies } from '@mander/engine';
 import { TILE_SIZE } from '@mander/model';
-import { drawEnemy, drawTiles, type Palette } from '@mander/render';
+import { drawCannon, drawEnemy, drawTiles, type Palette } from '@mander/render';
 import { STRUCTURE_END, STRUCTURE_START } from '@mander/structures';
 import { forEach } from 'lodash-es';
 
@@ -25,6 +25,7 @@ export const drawStructure = (
 
   context.clearRect(0, 0, width, height);
   drawTiles(context, level, NO_PALETTE, 0, 0, { width, height, scale: 1 });
+  forEach(createCannons(level), (cannon) => drawCannon(context, cannon));
   forEach(createEnemies(level), (enemy) => drawEnemy(context, enemy, 0));
   forEach(grid, (cells, row) =>
     forEach(cells, (cell, column) => {

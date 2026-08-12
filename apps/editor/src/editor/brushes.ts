@@ -1,6 +1,7 @@
 import {
   TILE_AIR,
   TILE_BRICK,
+  TILE_CANNON,
   TILE_CERAMIC,
   TILE_DIRT,
   TILE_ENEMY,
@@ -28,6 +29,7 @@ export const BRUSHES: Brush[] = [
     shortcut: '4',
     group: 'Hazards',
   },
+  { value: TILE_CANNON, label: 'Cannon', shortcut: '9', group: 'Hazards' },
   { value: STRUCTURE_START, label: 'Start', shortcut: 's', group: 'Markers' },
   { value: STRUCTURE_END, label: 'End', shortcut: 'e', group: 'Markers' },
 ];

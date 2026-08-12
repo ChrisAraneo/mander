@@ -10,6 +10,7 @@ import { TILE_SPAWN } from '../player/spawn';
 import { TILE_PORTAL } from '../portal/portal';
 import { TILE_SPIKE, TILE_SPIKE_CEILING } from '../spike/spike';
 import { TILE_BRICK } from './brick';
+import { TILE_CANNON } from './cannon';
 import { TILE_CERAMIC } from './ceramic';
 import { TILE_DIRT } from './dirt';
 import { isSolidTile } from './is-solid-tile';
@@ -23,6 +24,10 @@ describe('isSolidTile', () => {
     expect(isSolidTile(TILE_STONE)).toBe(true);
     expect(isSolidTile(TILE_WOOD)).toBe(true);
     expect(isSolidTile(TILE_CERAMIC)).toBe(true);
+  });
+
+  it('should return true when the tile is a cannon the player can stand on', () => {
+    expect(isSolidTile(TILE_CANNON)).toBe(true);
   });
 
   it('should return false when the tile is non-blocking or interactive', () => {

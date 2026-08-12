@@ -1,4 +1,5 @@
 import {
+  type Cannonball,
   CHEST_ENTITY_BOX,
   DIAMOND_ENTITY_BOX,
   type Enemy,
@@ -13,6 +14,11 @@ import type { Point } from '@mander/utils';
 import { filter, includes, map, size, some } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
+import { advanceCannonballs } from '../cannon/advance-cannonballs';
+import { advanceCannons } from '../cannon/advance-cannons';
+import { createCannons } from '../cannon/create-cannons';
+import { strikingCannonballs } from '../cannon/striking-cannonballs';
+import type { Barrage } from '../cannon/types/barrage';
 import { advanceEnemy } from '../enemy/advance-enemy';
 import { createEnemies } from '../enemy/create-enemies';
 import { hasFaded } from '../enemy/has-faded';
@@ -71,6 +77,27 @@ const advanceEnemies = (
     ),
     (enemy) => !hasFaded(enemy),
   );
+
+const advanceBarrage = (
+  state: GameState,
+  player: Player,
+  deltaSeconds: number,
+): Barrage => {
+  const fired = advanceCannons(state.cannons, player, deltaSeconds);
+
+  return {
+    cannons: fired.cannons,
+    cannonballs: [
+      ...advanceCannonballs(state.level, state.cannonballs, deltaSeconds),
+      ...fired.cannonballs,
+    ],
+  };
+};
+
+const reloadBarrage = (level: GameState['level']): Barrage => ({
+  cannons: createCannons(level),
+  cannonballs: [],
+});
 
 const stompVictims = (
   previousPlayer: Player,
@@ -135,6 +162,7 @@ const touchesHazard = (
   state: GameState,
   player: Player,
   enemies: Enemy[],
+  hits: Cannonball[],
 ): boolean =>
   overlapsSpike(
     state.level,
@@ -143,7 +171,8 @@ const touchesHazard = (
     PLAYER_WIDTH,
     PLAYER_HEIGHT,
   ) ||
-  some(enemies, (enemy) => isAlive(enemy) && isTouchingEnemy(player, enemy));
+  some(enemies, (enemy) => isAlive(enemy) && isTouchingEnemy(player, enemy)) ||
+  size(hits) > 0;
 
 const loseHeart = (hearts: Player['hearts']): Player['hearts'] => ({
   ...hearts,
@@ -178,11 +207,13 @@ const resolveHarm = (
   state: GameState,
   player: Player,
   enemies: Enemy[],
+  hits: Cannonball[],
 ): Outcome =>
   match({
     fellIntoPit: hasFallenIntoPit(state.level, player),
     struck:
-      player.timers.invincibility <= 0 && touchesHazard(state, player, enemies),
+      player.timers.invincibility <= 0 &&
+      touchesHazard(state, player, enemies, hits),
     survives: player.hearts.value > 1,
   })
     .with({ fellIntoPit: true, survives: true }, () => fell(state, player))
@@ -208,6 +239,9 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
       const steppedEnemies = respawned
         ? createEnemies(state.level)
         : advanceEnemies(state, moved, deltaSeconds);
+      const { cannons, cannonballs: flying } = respawned
+        ? reloadBarrage(state.level)
+        : advanceBarrage(state, moved, deltaSeconds);
       const alive = isAlive(moved);
       const { player: bounced, enemies: afterStomps } = match(alive)
         .with(true, () =>
@@ -223,8 +257,11 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
       const gored = match(alive)
         .with(true, () => hornedVictims(bounced, afterStomps))
         .otherwise((): Enemy[] => []);
+      const hits = match(alive)
+        .with(true, () => strikingCannonballs(bounced, flying))
+        .otherwise((): Cannonball[] => []);
       const { player, deaths, status } = match(alive)
-        .with(true, () => resolveHarm(state, bounced, afterStomps))
+        .with(true, () => resolveHarm(state, bounced, afterStomps, hits))
         .otherwise((): Outcome => ({
           player: bounced,
           deaths: state.deaths,
@@ -232,6 +269,10 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         }));
       const enemies = map(afterStomps, (enemy) =>
         includes(gored, enemy) ? killEnemy(enemy) : enemy,
+      );
+      const cannonballs = filter(
+        flying,
+        (cannonball) => !includes(hits, cannonball),
       );
       const canReach = isAlive(player);
       const diamonds = match(canReach)
@@ -242,6 +283,8 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         ...state,
         player,
         enemies,
+        cannons,
+        cannonballs,
         diamonds,
         deaths,
         status,

@@ -1,5 +1,6 @@
 import {
   TILE_AIR,
+  TILE_CANNON,
   TILE_DIRT,
   TILE_ENEMY,
   TILE_SPIKE,
@@ -23,5 +24,6 @@ export const BR = TILE_BRICK;
 export const ST = TILE_STONE;
 export const WD = TILE_WOOD;
 export const CR = TILE_CERAMIC;
+export const CN = TILE_CANNON;
 export const SS = STRUCTURE_START;
 export const EE = STRUCTURE_END;

@@ -23,7 +23,7 @@ async function copy(): Promise<void> {
 <template>
   <section class="output">
     <header>
-      <h2>Paste into library.ts</h2>
+      <h2>Structure source</h2>
       <button class="ghost" type="button" @click="copy">
         {{ copied ? 'Copied' : 'Copy' }}
       </button>

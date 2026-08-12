@@ -1,4 +1,5 @@
 import { createEnemies, HORNED_ENEMY_CHANCE } from '@mander/engine';
+import { findCannonTiles } from '@mander/model';
 import {
   every,
   filter,
@@ -13,6 +14,7 @@ import {
 import { describe, expect, it } from 'vitest';
 
 import { generate } from './generate';
+import { FIRST_CANNON_LEVEL } from './structures/clear-cannons';
 
 const LEVELS_A_DAY = 8;
 
@@ -107,6 +109,18 @@ describe('generate', () => {
     expect(flyingOn([0, 1]), 'on the hopping-only levels').toBe(true);
     expect(flyingOn([2, 3, 4]), 'on the mixed levels').toBe(true);
     expect(flyingOn([5, 6, 7]), 'on the horned-only levels').toBe(true);
+  });
+
+  it('holds the cannons back until the fifth level', () => {
+    const early = flatMap(days, (date) => {
+      const world = generate(date);
+
+      return flatMap(times(FIRST_CANNON_LEVEL - 1), (index) =>
+        findCannonTiles(world.levels[index]),
+      );
+    });
+
+    expect(early).toEqual([]);
   });
 
   it('deals the same day the same way twice', () => {

@@ -2,6 +2,7 @@ import {
   isSolidTile,
   type Tile,
   TILE_AIR,
+  TILE_CANNON,
   TILE_ENEMY,
   TILE_PORTAL,
   TILE_SPAWN,
@@ -158,7 +159,7 @@ const sowSpikes = (tiles: Tile[][]): Tile[][] => {
   const next = clone(tiles);
 
   forEachCell(tiles, (tile, row, column) => {
-    if (!isSolidTile(tile)) return;
+    if (!isSolidTile(tile) || tile === TILE_CANNON) return;
     if (!hasRoomToSow(tiles, row - 1, column)) return;
     next[row - 1][column] = TILE_SPIKE;
   });

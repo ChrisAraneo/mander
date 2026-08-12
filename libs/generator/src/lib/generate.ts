@@ -17,6 +17,7 @@ import { addKey } from './structures/add-key';
 import { generateChestItems } from './items/generate-chest-items';
 import { computeWorldName } from './seed/compute-world-name';
 import { addStones } from './structures/add-stones';
+import { clearCannons } from './structures/clear-cannons';
 
 const FIRST_HARD_LEVEL = 7;
 
@@ -79,7 +80,7 @@ export const generate = (date: Date): RenderedWorld => {
       difficulty === 'hard'
         ? sliceForLevel(hardStructures, hardLevels, index - NORMAL_LEVELS)
         : sliceForLevel(normalStructures, NORMAL_LEVELS, index);
-    const tiles = joinStructures(structures);
+    const tiles = clearCannons(joinStructures(structures), levelNumber);
     const withPlayer = addPlayerSpawn(tiles);
     const withPortal = addPortal(withPlayer);
     const withPadding = addPadding(withPortal);

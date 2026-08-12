@@ -1,6 +1,7 @@
 import { findDiamondTiles } from '@mander/model';
 
 import type { GameState } from '../../state/types/game-state';
+import { createCannons } from '../cannon/create-cannons';
 import { createEnemies } from '../enemy/create-enemies';
 import { createPlayer } from '../player/create-player';
 
@@ -14,6 +15,8 @@ export const loadLevel = (
   levelIndex,
   player: createPlayer(level, state.player),
   enemies: createEnemies(level),
+  cannons: createCannons(level),
+  cannonballs: [],
   diamonds: findDiamondTiles(level),
   status: 'PLAYING',
   hasKey: false,

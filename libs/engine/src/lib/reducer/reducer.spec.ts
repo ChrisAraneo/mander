@@ -1,8 +1,14 @@
 import type { Point } from '@mander/utils';
-import { omit } from 'lodash-es';
+import { omit, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import type { Action } from '../actions/actions';
+import {
+  CANNON_RANGE_TILES,
+  CANNON_RELOAD_SECONDS,
+  CANNONBALL_SIZE,
+  CANNONBALL_SPEED,
+} from './cannon/consts';
 import {
   ENEMY_DEATH_SECONDS,
   ENEMY_HEIGHT,
@@ -42,6 +48,7 @@ import {
   RED_DIAMOND,
   type Tile,
   TILE_AIR,
+  TILE_CANNON,
   TILE_CHEST,
   TILE_DIAMOND,
   TILE_DIRT,
@@ -1368,6 +1375,266 @@ describe('lone spikes', () => {
     expect(
       overlapsSpike(spikeLevel(col), left, 11 * TILE_SIZE + 23, TILE_SIZE, 6),
     ).toBe(true);
+  });
+});
+
+describe('cannons', () => {
+  const cannonTile: Point = { x: 8, y: 11 };
+  const cannonX = cannonTile.x * TILE_SIZE;
+  const cannonY = cannonTile.y * TILE_SIZE;
+
+  const cannonLevel = (): GameLevel => {
+    const level = testLevel();
+    level.tiles[cannonTile.y][cannonTile.x] = TILE_CANNON;
+    return level;
+  };
+
+  const standingAt = (level: GameLevel, x: number): GameState => {
+    const state = createInitialState(level, 0, []);
+    state.player.position.x = x;
+    state.player.position.y = SURFACE - PLAYER_HEIGHT;
+    return tick(state);
+  };
+
+  const withCannon = (x = 6 * TILE_SIZE): GameState =>
+    standingAt(cannonLevel(), x);
+
+  const OUTFIELD = 40;
+
+  const wideCannonLevel = (): GameLevel => {
+    const level = cannonLevel();
+    const tiles = level.tiles.map((row, y) => [
+      ...row,
+      ...Array.from({ length: OUTFIELD }, (): Tile =>
+        y >= 12 ? TILE_DIRT : TILE_AIR,
+      ),
+    ]);
+    return { ...level, width: level.width + OUTFIELD, tiles };
+  };
+
+  const atRange = (tiles: number): GameState =>
+    standingAt(wideCannonLevel(), cannonX + tiles * TILE_SIZE);
+
+  const untilFired = (start: GameState): GameState => {
+    let state = start;
+    for (let i = 0; i < ticksFor(CANNON_RELOAD_SECONDS); i++) {
+      if (size(state.cannonballs) > 0) return state;
+      state = tick(state);
+    }
+    return state;
+  };
+
+  const untilStruck = (start: GameState): GameState => {
+    let state = start;
+    for (let i = 0; i < ticksFor(1); i++) {
+      if (state.player.hearts.value < start.player.hearts.value) return state;
+      state = tick(state);
+    }
+    return state;
+  };
+
+  it('mounts one cannon on every cannon tile, loaded and waiting', () => {
+    const state = withCannon();
+    expect(state.cannons).toHaveLength(1);
+    expect(state.cannons[0].position).toEqual({ x: cannonX, y: cannonY });
+    expect(state.cannonballs).toEqual([]);
+  });
+
+  it('is solid enough to stop a run dead', () => {
+    let state = withCannon(4 * TILE_SIZE);
+    state = act(state, { type: 'MOVE_RIGHT_START' });
+    state = tickN(state, ticksFor(1));
+    expect(state.player.position.x + PLAYER_WIDTH).toBe(cannonX);
+  });
+
+  it('holds the player up when they stand on it, and shoots below their feet', () => {
+    let state = withCannon();
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        position: { x: cannonX + 5, y: cannonY - PLAYER_HEIGHT - 40 },
+      },
+    };
+    state = tickN(state, ticksFor(CANNON_RELOAD_SECONDS + 0.5));
+    expect(state.player.statuses.isGrounded, 'landed on the barrel').toBe(true);
+    expect(state.player.position.y).toBe(cannonY - PLAYER_HEIGHT);
+    expect(
+      state.player.hearts.value,
+      'the shot passes under the player standing on it',
+    ).toBe(BASE_HEARTS);
+  });
+
+  it('shoots a cannonball every three and a half seconds', () => {
+    let state = withCannon();
+    let fired = 0;
+    for (let i = 0; i < ticksFor(CANNON_RELOAD_SECONDS * 3 + 0.5); i++) {
+      const next = tick(state);
+      if (size(next.cannonballs) > size(state.cannonballs)) fired += 1;
+      state = next;
+    }
+    expect(fired).toBe(3);
+  });
+
+  it('holds its fire while the player keeps more than thirty blocks away', () => {
+    let state = atRange(CANNON_RANGE_TILES + 2);
+    state = tickN(state, ticksFor(CANNON_RELOAD_SECONDS * 2));
+    expect(state.cannonballs, 'nothing to fear from that far off').toEqual([]);
+  });
+
+  it('shoots the moment the player closes to thirty blocks', () => {
+    let state = atRange(CANNON_RANGE_TILES + 2);
+    state = tickN(state, ticksFor(CANNON_RELOAD_SECONDS * 2));
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        position: {
+          x: cannonX + (CANNON_RANGE_TILES - 2) * TILE_SIZE,
+          y: SURFACE - PLAYER_HEIGHT,
+        },
+      },
+    };
+    state = untilFired(state);
+    expect(state.cannonballs).toHaveLength(1);
+  });
+
+  it('keeps its powder dry while out of range, spending no reload', () => {
+    let state = atRange(CANNON_RANGE_TILES + 2);
+    const loaded = state.cannons[0].timers.reload;
+    state = tickN(state, ticksFor(CANNON_RELOAD_SECONDS));
+    expect(state.cannons[0].timers.reload).toBe(loaded);
+  });
+
+  it('turns to face the player, wherever they are standing', () => {
+    let state = withCannon(2 * TILE_SIZE);
+    expect(
+      state.cannons[0].statuses.isFacingRight,
+      'the player is off to its left',
+    ).toBe(false);
+
+    state = {
+      ...state,
+      player: {
+        ...state.player,
+        position: { x: 20 * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT },
+      },
+    };
+    state = tick(state);
+    expect(state.cannons[0].statuses.isFacingRight).toBe(true);
+  });
+
+  it('sends the shot the way the player went', () => {
+    expect(
+      untilFired(withCannon(2 * TILE_SIZE)).cannonballs[0].velocity.x,
+    ).toEqual({ current: -CANNONBALL_SPEED, max: CANNONBALL_SPEED });
+    expect(
+      untilFired(withCannon(20 * TILE_SIZE)).cannonballs[0].velocity.x.current,
+    ).toBe(CANNONBALL_SPEED);
+  });
+
+  it('flies flat and fast, with gravity never touching it', () => {
+    let state = untilFired(withCannon(2 * TILE_SIZE));
+    const start = state.cannonballs[0].position;
+    state = tickN(state, 12);
+    const flown = state.cannonballs[0].position;
+    expect(flown.y, 'not a hair of drop').toBe(start.y);
+    expect(start.x - flown.x).toBeCloseTo(
+      CANNONBALL_SPEED * 12 * DELTA_SECONDS,
+    );
+  });
+
+  it('flies on through walls, keeping to a layer of its own', () => {
+    const level = cannonLevel();
+    const wallX = 5 * TILE_SIZE;
+    level.tiles[11][5] = TILE_DIRT;
+    let state = untilFired(standingAt(level, 2 * TILE_SIZE));
+    for (let i = 0; i < ticksFor(1); i++) {
+      if (size(state.cannonballs) === 0) break;
+      if (state.cannonballs[0].position.x < wallX) break;
+      state = tick(state);
+    }
+    expect(size(state.cannonballs), 'the wall never stopped it').toBe(1);
+    expect(state.cannonballs[0].position.x).toBeLessThan(wallX);
+  });
+
+  it('costs a heart when it catches the player, and is spent doing it', () => {
+    let state = untilFired(withCannon());
+    expect(state.cannonballs).toHaveLength(1);
+    state = untilStruck(state);
+    expect(state.player.hearts.value, 'the hit drains a heart').toBe(
+      BASE_HEARTS - 1,
+    );
+    expect(state.player.timers.invincibility).toBeGreaterThan(0);
+    expect(state.player.timers.death, 'no death, no respawn').toBeNull();
+    expect(state.cannonballs, 'the ball is spent on the hit').toEqual([]);
+  });
+
+  it('ends the run when it takes the last heart', () => {
+    let state = withCannon();
+    state = { ...state, player: { ...state.player, hearts: { value: 1 } } };
+    state = untilStruck(untilFired(state));
+    expect(state.player.hearts.value, 'the last heart is spent').toBe(0);
+    expect(state.status, 'and the run is over').toBe('GAME_OVER');
+    expect(state.player.timers.death).not.toBeNull();
+  });
+
+  it('flies straight through a player still glowing with invincibility', () => {
+    let state = untilStruck(untilFired(withCannon()));
+    const hearts = state.player.hearts.value;
+    state = {
+      ...state,
+      cannonballs: [
+        {
+          position: {
+            x: state.player.position.x,
+            y: state.player.position.y + PLAYER_HEIGHT / 2,
+          },
+          velocity: {
+            x: { current: -CANNONBALL_SPEED, max: CANNONBALL_SPEED },
+          },
+        },
+      ],
+    };
+    state = tick(state);
+    expect(state.player.hearts.value).toBe(hearts);
+    expect(state.cannonballs, 'and is not spent on the pass').toHaveLength(1);
+  });
+
+  it('is swept away once it flies off the end of the level', () => {
+    let state = withCannon();
+    state = {
+      ...state,
+      cannonballs: [
+        {
+          position: { x: 0, y: SURFACE - CANNONBALL_SIZE },
+          velocity: {
+            x: { current: -CANNONBALL_SPEED, max: CANNONBALL_SPEED },
+          },
+        },
+      ],
+    };
+    state = tickN(state, ticksFor(0.2));
+    expect(state.cannonballs).toEqual([]);
+  });
+
+  it('reloads every cannon and clears the air when the player respawns', () => {
+    let state = untilFired(withCannon());
+    expect(state.cannonballs).toHaveLength(1);
+    state = act(state, { type: 'RESPAWN' });
+    expect(state.cannonballs).toEqual([]);
+    expect(state.cannons[0].timers.reload).toBe(CANNON_RELOAD_SECONDS);
+  });
+
+  it('mounts the new levels cannons on LOAD_LEVEL', () => {
+    let state = createInitialState(testLevel(), 0, []);
+    expect(state.cannons).toEqual([]);
+    state = act(state, {
+      type: 'LOAD_LEVEL',
+      level: cannonLevel(),
+      levelIndex: 1,
+    });
+    expect(state.cannons).toHaveLength(1);
   });
 });
 

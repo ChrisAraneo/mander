@@ -11,6 +11,7 @@ import {
   setTransform,
   translate,
 } from '../canvas';
+import { drawCannon, drawCannonballs } from '../cannon';
 import { drawChest } from '../chest';
 import { drawDiamonds } from '../diamond';
 import { drawEnemy } from '../enemies';
@@ -80,6 +81,11 @@ export const renderGame = (
         run((target) =>
           drawTiles(target, state.level, palette, cameraX, cameraY, viewport),
         ),
+        sequence(
+          map(state.cannons, (cannon) =>
+            run((target) => drawCannon(target, cannon)),
+          ),
+        ),
         run((target) => drawDiamonds(target, state)),
         run((target) => drawKey(target, state)),
         run((target) => drawChest(target, state)),
@@ -90,6 +96,7 @@ export const renderGame = (
           ),
         ),
         run((target) => drawPlayer(target, state.player, state.time)),
+        run((target) => drawCannonballs(target, state)),
         restore,
       ),
     )
