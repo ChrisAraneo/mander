@@ -1,4 +1,4 @@
-import { EN, EE, BR, SC, SP, DR, SS, WD, CR, __, CN } from './consts';
+import { EN, EE, BR, SC, SP, DR, SS, WD, CR, __, CN, ST } from './consts';
 import type { Structure } from './structure';
 
 export const NORMAL_01: Structure = [
@@ -1428,7 +1428,7 @@ export const NORMAL_62: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_64: Structure = [
+export const NORMAL_63: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1448,5 +1448,74 @@ export const NORMAL_64: Structure = [
   [__, __, __, __, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, DR, DR, DR, DR, __, __, __, __],
   [SS, __, __, __, __, __, EN, __, EN, __, SP, SP, DR, DR, DR, DR, DR, __, __, EE],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+];
+
+export const NORMAL_64: Structure = [
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, SP, SP, __, __, __, SP, SP, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, DR, DR, DR, DR, DR, DR, DR, __, __, __, __],
+  [__, __, __, __, __, __, __, BR, __, __, DR, DR, DR, DR, DR, DR, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, DR, DR, __, __, __, __, __, __],
+  [__, __, __, __, __, BR, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, BR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [SS, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [DR, DR, DR, DR, DR, DR, DR, __, __, __, __, __, EN, __, __, __, __, __, __, EE],
+  [DR, DR, DR, DR, DR, DR, DR, DR, __, __, __, DR, DR, DR, SP, SP, SP, SP, DR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, SP, SP, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+];
+
+export const NORMAL_65: Structure = [
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, EN, __, __, __, __, __, __, __, __, __, __, __, __, __, EE],
+  [__, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, __, __, __, BR, BR, DR, DR],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, EN, __, __, __, __, DR, DR],
+  [__, BR, BR, BR, BR, BR, __, __, __, BR, BR, BR, BR, BR, BR, BR, BR, BR, DR, DR],
+  [__, BR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR],
+  [__, BR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR],
+  [__, BR, __, __, __, __, EN, __, __, __, __, __, __, __, __, __, __, __, DR, DR],
+  [__, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, __, __, __, BR, BR, BR, BR, DR, DR],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR, DR, DR, DR, DR],
+  [__, __, __, __, __, __, __, __, __, __, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+  [SS, __, __, __, __, __, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+];
+
+export const NORMAL_66: Structure = [
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, ST, ST, ST, ST, ST, ST, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, ST, ST, ST, ST, ST, ST, ST, ST, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, ST, ST, ST, ST, ST, ST, ST, ST, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, ST, ST, ST, ST, ST, ST, ST, ST, ST, __, __, __, __, __],
+  [__, __, __, __, __, __, __, ST, ST, ST, ST, ST, ST, ST, ST, ST, __, __, __, __],
+  [__, __, __, __, __, __, __, __, ST, ST, ST, ST, ST, ST, ST, ST, ST, __, __, __],
+  [__, __, __, SP, __, __, __, __, SC, __, __, ST, ST, ST, ST, ST, ST, __, __, __],
+  [__, __, __, DR, DR, __, __, __, __, __, __, SC, __, __, __, ST, ST, __, __, __],
+  [SS, __, DR, DR, DR, DR, __, __, __, __, __, __, __, __, __, SC, __, __, __, __],
+  [DR, DR, DR, DR, DR, DR, __, __, __, __, __, __, __, __, __, __, __, __, EN, __],
+  [DR, DR, DR, DR, DR, DR, SP, __, __, SP, __, __, __, __, __, __, __, __, __, __],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, __, __, SP, __, __, __, __, __, __],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, __, __, __, __, EE],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, __, DR, DR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
