@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { range } from 'lodash-es';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
-import type { GameState } from '@mander/engine';
+import { type GameState, starCount } from '@mander/engine';
 import { formatClock } from '../game/format';
 
 const props = defineProps<{
@@ -23,6 +23,10 @@ const hearts = computed(() =>
     )
     .value(),
 );
+
+const stars = computed(() => starCount(props.state.inventory));
+
+const shieldSeconds = computed(() => props.state.player.timers.invincibility);
 
 const keyLabel = computed(() =>
   match(props.state.hasKey)
@@ -54,6 +58,18 @@ const score = computed(() => props.state.score.toLocaleString('en-US'));
           >♥</span
         >
       </span>
+      <span
+        v-if="stars > 0"
+        class="chip stars"
+        title="Press V to spend a star on 3s of invincibility"
+        >★ {{ stars }} · V</span
+      >
+      <span
+        v-if="shieldSeconds > 0"
+        class="chip shield"
+        title="Invincible right now"
+        >🛡 {{ shieldSeconds.toFixed(1) }}s</span
+      >
       <span v-if="state.deaths > 0" class="chip deaths"
         >✕ {{ state.deaths }}</span
       >
@@ -132,6 +148,16 @@ const score = computed(() => props.state.score.toLocaleString('en-US'));
 .score {
   color: #ffd166;
   border-color: #8a6d2f;
+}
+
+.stars {
+  color: #ffc93c;
+  border-color: #8a6d2f;
+}
+
+.shield {
+  color: #7be8ff;
+  border-color: #2e5f88;
 }
 
 .deaths {

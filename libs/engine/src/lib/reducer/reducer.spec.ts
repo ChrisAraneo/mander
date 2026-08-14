@@ -21,9 +21,10 @@ import {
 import { createBasePlayerVelocity } from './player/create-base-player-velocity';
 import {
   BASE_HEARTS,
-  INVINCIBLE_SECONDS,
+  HURT_INVINCIBLE_SECONDS,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
+  STAR_INVINCIBLE_SECONDS,
   STOMP_BOUNCE_VELOCITY,
 } from './player/consts';
 import {
@@ -73,7 +74,6 @@ const item = (id: string, effect?: Item['effect']): Item => ({
   name: id,
   description: id,
   rarity: 'COMMON',
-  art: 'GEM',
   effect: effect ?? { kind: 'NONE' },
 });
 
@@ -333,16 +333,26 @@ describe('key and chest', () => {
     expect(again.inventory).toHaveLength(1);
   });
 
-  it('INTERACT confirms the open chest by taking the first card', () => {
+  it('INTERACT leaves the open chest alone so the pick stays deliberate', () => {
     let state = settledAt(20 * TILE_SIZE - 20);
     state = { ...state, hasKey: true };
     state = act(state, { type: 'INTERACT' });
     expect(state.status).toBe('CHEST');
 
+    const again = act(state, { type: 'INTERACT' });
+    expect(again.status).toBe('CHEST');
+    expect(again.isChestOpened).toBe(false);
+    expect(again.inventory).toHaveLength(0);
+  });
+
+  it('takes only the card the player named, whichever it is', () => {
+    let state = settledAt(20 * TILE_SIZE - 20);
+    state = { ...state, hasKey: true };
     state = act(state, { type: 'INTERACT' });
-    expect(state.status).toBe('PLAYING');
-    expect(state.isChestOpened).toBe(true);
-    expect(state.inventory.map((i) => i.id)).toEqual(['CARD-0']);
+
+    const chosen = act(state, { type: 'CHOOSE_ITEM', index: 2 });
+    expect(chosen.status).toBe('PLAYING');
+    expect(chosen.inventory.map((i) => i.id)).toEqual(['CARD-2']);
   });
 
   it('CLOSE leaves the chest unopened so it can be reopened later', () => {
@@ -1150,7 +1160,10 @@ describe('enemies', () => {
           ...state.player.velocity,
           y: { ...state.player.velocity.y, current: 0 },
         },
-        timers: { ...state.player.timers, invincibility: INVINCIBLE_SECONDS },
+        timers: {
+          ...state.player.timers,
+          invincibility: HURT_INVINCIBLE_SECONDS,
+        },
       },
     };
     state = tick(state);
@@ -1740,7 +1753,7 @@ describe('hearts', () => {
       'and the timer keeps ticking',
     ).toBeLessThan(granted);
 
-    state = tickN(placeAt(state, safeX), ticksFor(INVINCIBLE_SECONDS));
+    state = tickN(placeAt(state, safeX), ticksFor(HURT_INVINCIBLE_SECONDS));
     expect(
       state.player.timers.invincibility,
       'invincibility has worn off',
@@ -1774,7 +1787,7 @@ describe('hearts', () => {
       expect(state.player.hearts.value).toBe(heartsLeft);
       expect(state.player.timers.death, 'still alive').toBeNull();
       expect(state.status, 'and still playing').toBe('PLAYING');
-      state = tickN(placeAt(state, safeX), ticksFor(INVINCIBLE_SECONDS));
+      state = tickN(placeAt(state, safeX), ticksFor(HURT_INVINCIBLE_SECONDS));
     }
     expect(state.deaths, 'survived every hit').toBe(deaths);
 
@@ -1786,6 +1799,100 @@ describe('hearts', () => {
     ).not.toBeNull();
     expect(state.status, 'and ends the run').toBe('GAME_OVER');
     expect(state.deaths, 'and counts as a death').toBe(deaths + 1);
+  });
+
+  it('a lost heart only shields the player for two seconds', () => {
+    const hurt = tick(
+      placeAt(createInitialState(spikeLevel(6), 0, []), spikeX),
+    );
+
+    expect(hurt.player.timers.invincibility).toBe(HURT_INVINCIBLE_SECONDS);
+  });
+});
+
+describe('the star', () => {
+  const spikeX = 6 * TILE_SIZE;
+
+  const placeAt = (state: GameState, x: number): GameState => ({
+    ...state,
+    player: {
+      ...state.player,
+      position: { x, y: SURFACE - PLAYER_HEIGHT },
+    },
+  });
+
+  const star = (id = 'NIGHT-STAR'): Item =>
+    item(id, { kind: 'STAR', amount: 1 });
+
+  const carrying = (...stars: Item[]): GameState =>
+    createInitialState(spikeLevel(6), 0, stars);
+
+  const useStar = (state: GameState): GameState =>
+    act(state, { type: 'USE_STAR' });
+
+  it('spends a star for three seconds of invincibility', () => {
+    const state = useStar(carrying(star()));
+
+    expect(state.player.timers.invincibility).toBe(STAR_INVINCIBLE_SECONDS);
+    expect(state.inventory, 'and the star is gone').toEqual([]);
+  });
+
+  it('burns through the pack one star at a time', () => {
+    const state = useStar(carrying(star('FIRST'), star('SECOND')));
+
+    expect(state.inventory.map(({ id }) => id)).toEqual(['SECOND']);
+  });
+
+  it('does nothing at all with an empty pack', () => {
+    const state = carrying();
+
+    expect(simulation(useStar(state))).toEqual(simulation(state));
+  });
+
+  it('leaves the rest of the pack where it is', () => {
+    const trinket = item('KEEPSAKE');
+    const state = useStar(carrying(trinket, star()));
+
+    expect(state.inventory).toEqual([trinket]);
+  });
+
+  it('walks the player through spikes unharmed while it lasts', () => {
+    let state = useStar(carrying(star()));
+    const hearts = state.player.hearts.value;
+
+    state = tickN(placeAt(state, spikeX), ticksFor(1));
+    expect(state.player.hearts.value, 'the spikes cannot bite').toBe(hearts);
+    expect(state.player.timers.death, 'and the player lives on').toBeNull();
+  });
+
+  it('wears off after its three seconds, leaving the player mortal again', () => {
+    let state = useStar(carrying(star()));
+    const hearts = state.player.hearts.value;
+
+    state = tickN(state, ticksFor(STAR_INVINCIBLE_SECONDS));
+    expect(state.player.timers.invincibility, 'the glow fades').toBe(0);
+
+    state = tick(placeAt(state, spikeX));
+    expect(state.player.hearts.value, 'and the spike bites again').toBe(
+      hearts - 1,
+    );
+  });
+
+  it('tops a fading heart-loss shield back up to a full three seconds', () => {
+    const hurt = tick(placeAt(carrying(star()), spikeX));
+    expect(hurt.player.timers.invincibility).toBeLessThan(
+      STAR_INVINCIBLE_SECONDS,
+    );
+
+    expect(useStar(hurt).player.timers.invincibility).toBe(
+      STAR_INVINCIBLE_SECONDS,
+    );
+  });
+
+  it('keeps the star in the pack while the chest is still open', () => {
+    const state: GameState = { ...carrying(star()), status: 'CHEST' };
+
+    expect(useStar(state).inventory).toHaveLength(1);
   });
 });
 
@@ -1870,7 +1977,7 @@ describe('score', () => {
       level: { ...state.level, chestItems: [RED_DIAMOND] },
     };
     state = act(state, { type: 'CHOOSE_ITEM', index: 0 });
-    expect(state.score).toBe(2500);
+    expect(state.score).toBe(1500);
   });
 });
 
@@ -2005,7 +2112,7 @@ describe('items', () => {
   it('a red diamond is worth points, not hearts', () => {
     const state = opened(RED_DIAMOND);
     expect(state.player.hearts.value).toBe(BASE_HEARTS);
-    expect(state.score).toBe(2500);
+    expect(state.score).toBe(1500);
   });
 });
 

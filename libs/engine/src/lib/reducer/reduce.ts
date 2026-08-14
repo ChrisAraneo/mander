@@ -16,6 +16,7 @@ import { moveRightStop } from './move-right-stop/move-right-stop';
 import { respawn } from './respawn/respawn';
 import { restart } from './restart/restart';
 import { tick } from './tick/tick';
+import { useStar } from './use-star/use-star';
 
 export const reduce = (state: GameState, action: Action): GameState =>
   chain(performance.now())
@@ -31,6 +32,7 @@ export const reduce = (state: GameState, action: Action): GameState =>
         .with({ type: 'JUMP_STOP' }, () => jumpStop(state))
         .with({ type: 'INTERACT' }, () => interact(state))
         .with({ type: 'CHOOSE_ITEM' }, ({ index }) => chooseItem(state, index))
+        .with({ type: 'USE_STAR' }, () => useStar(state))
         .with({ type: 'CLOSE' }, () => close(state))
         .with({ type: 'RESPAWN' }, () => respawn(state))
         .with({ type: 'LOAD_LEVEL' }, ({ level, levelIndex }) =>

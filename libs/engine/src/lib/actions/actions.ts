@@ -10,6 +10,7 @@ export type Action =
   | { type: 'JUMP_STOP' }
   | { type: 'INTERACT' }
   | { type: 'CHOOSE_ITEM'; index: number }
+  | { type: 'USE_STAR' }
   | { type: 'CLOSE' }
   | { type: 'LOAD_LEVEL'; level: GameLevel; levelIndex: number }
   | { type: 'RESPAWN' }

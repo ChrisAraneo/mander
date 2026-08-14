@@ -33,6 +33,8 @@ export * from './lib/reducer/reduce';
 export * from './lib/reducer/score/consts';
 export * from './lib/reducer/score/level-score';
 export * from './lib/reducer/choose-item/get-score-amount';
+export * from './lib/reducer/use-star/is-star';
+export * from './lib/reducer/use-star/use-star';
 export * from './lib/reducer/score/total-time';
 export * from './lib/reducer/apply-actions';
 export * from './lib/reducer/pack/action-codes';

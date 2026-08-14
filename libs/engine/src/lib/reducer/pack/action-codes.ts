@@ -14,6 +14,7 @@ export const ACTION_CODES: readonly Action['type'][] = Object.freeze([
   'LOAD_LEVEL',
   'RESPAWN',
   'RESTART',
+  'USE_STAR',
 ]);
 
 export const codeOf = (type: Action['type']): number =>

@@ -1,142 +1,84 @@
-import type { ItemArt } from '@mander/model';
-import { chain } from 'lodash-es';
+import type { Item } from '@mander/model';
+import { clamp, map } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import {
-  arc,
-  beginPath,
-  type CanvasStep,
-  closePath,
-  ellipse,
-  fill,
-  linearGradient,
-  lineTo,
-  paint,
-  restore,
-  save,
-  sequence,
-  styled,
-  styledWith,
-} from '../canvas';
-import { gemStep, RED_GEM } from '../gem';
-import { outline } from '../stroke';
+import { type CanvasStep, paint, sequence } from '../canvas';
+import { gemStep } from '../gem';
+import { starStep } from '../star';
+import { heartStep } from './heart-step';
+import { type ItemArt, itemArt } from './item-art';
 
-const HEART_LIGHT = '#FFC2CE';
-const HEART_BASE = '#FF5470';
-const HEART_DEEP = '#8E1B33';
-const HEART_GLOW = '#FF8FA3';
+interface HeartSpot {
+  x: number;
+  y: number;
+}
 
-const HEART_LOBE = 0.26;
-const HEART_LIFT = 0.3;
-const HEART_TIP = 1.7;
+interface HeartCluster {
+  lobe: number;
+  spots: readonly HeartSpot[];
+}
 
 const GEM_WIDTH = 0.34;
 const GEM_HEIGHT = 0.42;
 const GEM_GLOW = 18;
 
-const SHEEN_ALPHA = 0.55;
+const STAR_RADIUS = 0.42;
+const STAR_GLOW = 20;
 
-const traceHeart = (
-  centerX: number,
-  centerY: number,
-  lobe: number,
-): CanvasStep =>
-  chain(centerY - lobe * HEART_LIFT)
-    .thru((shoulder) =>
-      sequence([
-        beginPath,
-        arc(centerX - lobe, shoulder, lobe, Math.PI, 0),
-        arc(centerX + lobe, shoulder, lobe, Math.PI, 0),
-        lineTo(centerX, shoulder + lobe * HEART_TIP),
-        closePath,
-      ]),
-    )
-    .value();
+const HEART_LOBE = 0.26;
 
-const heartFill = (
-  context: CanvasRenderingContext2D,
-  centerX: number,
-  centerY: number,
-  lobe: number,
-): CanvasGradient =>
-  linearGradient(
-    context,
-    centerX - lobe,
-    centerY - lobe * 1.3,
-    centerX + lobe,
-    centerY + lobe * HEART_TIP,
-    [
-      [0, HEART_LIGHT],
-      [0.4, HEART_BASE],
-      [1, HEART_DEEP],
+const CLUSTERS: Readonly<Record<number, HeartCluster>> = Object.freeze({
+  1: { lobe: 1, spots: [{ x: 0.5, y: 0.46 }] },
+  2: {
+    lobe: 0.66,
+    spots: [
+      { x: 0.34, y: 0.32 },
+      { x: 0.65, y: 0.6 },
     ],
-  );
+  },
+  3: {
+    lobe: 0.58,
+    spots: [
+      { x: 0.5, y: 0.26 },
+      { x: 0.3, y: 0.62 },
+      { x: 0.72, y: 0.6 },
+    ],
+  },
+});
 
-const heartStep = (
-  centerX: number,
-  centerY: number,
-  lobe: number,
-): CanvasStep =>
-  sequence([
-    save,
-    styled({ shadowColor: HEART_GLOW, shadowBlur: 16 }),
-    traceHeart(centerX, centerY, lobe),
-    outline(),
-    styledWith((context) => ({
-      fillStyle: heartFill(context, centerX, centerY, lobe),
-    })),
-    fill,
-    restore,
-    save,
-    styled({ globalAlpha: SHEEN_ALPHA }),
-    beginPath,
-    ellipse(
-      centerX - lobe * 0.85,
-      centerY - lobe * 0.75,
-      lobe * 0.34,
-      lobe * 0.22,
-      -Math.PI / 5,
-      0,
-      Math.PI * 2,
+const clusterFor = (count: number): HeartCluster =>
+  CLUSTERS[clamp(Math.round(count), 1, 3)];
+
+const heartsStep = (count: number, size: number): CanvasStep => {
+  const cluster = clusterFor(count);
+
+  return sequence(
+    map(cluster.spots, (spot) =>
+      heartStep(size * spot.x, size * spot.y, size * HEART_LOBE * cluster.lobe),
     ),
-    styled({ fillStyle: HEART_LIGHT }),
-    fill,
-    restore,
-  ]);
-
-const singleHeartStep = (size: number): CanvasStep =>
-  heartStep(size / 2, size * 0.46, size * HEART_LOBE);
-
-const doubleHeartStep = (size: number): CanvasStep =>
-  chain(size * HEART_LOBE * 0.66)
-    .thru((lobe) =>
-      sequence([
-        heartStep(size * 0.34, size * 0.32, lobe),
-        heartStep(size * 0.65, size * 0.6, lobe),
-      ]),
-    )
-    .value();
-
-const gemArtStep = (size: number): CanvasStep =>
-  gemStep(
-    size / 2,
-    size / 2,
-    size * GEM_WIDTH,
-    size * GEM_HEIGHT,
-    RED_GEM,
-    GEM_GLOW,
   );
+};
+
+const artStep = (art: ItemArt, size: number): CanvasStep =>
+  match(art)
+    .with({ kind: 'HEARTS' }, ({ count }) => heartsStep(count, size))
+    .with({ kind: 'GEM' }, ({ colors }) =>
+      gemStep(
+        size / 2,
+        size / 2,
+        size * GEM_WIDTH,
+        size * GEM_HEIGHT,
+        colors,
+        GEM_GLOW,
+      ),
+    )
+    .with({ kind: 'STAR' }, ({ colors }) =>
+      starStep(size / 2, size * 0.52, size * STAR_RADIUS, colors, STAR_GLOW),
+    )
+    .exhaustive();
 
 export const drawItem = (
   context: CanvasRenderingContext2D,
-  art: ItemArt,
+  item: Item,
   size: number,
-): void =>
-  paint(
-    context,
-    match(art)
-      .with('HEART', () => singleHeartStep(size))
-      .with('DOUBLE_HEART', () => doubleHeartStep(size))
-      .with('GEM', () => gemArtStep(size))
-      .exhaustive(),
-  );
+): void => paint(context, artStep(itemArt(item), size));

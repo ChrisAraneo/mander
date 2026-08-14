@@ -20,4 +20,5 @@ export const PLAYER_DEATH_LAUNCH_VELOCITY = 340;
 export const STOMP_BOUNCE_VELOCITY = 320;
 
 export const BASE_HEARTS = 5;
-export const INVINCIBLE_SECONDS = 3;
+export const HURT_INVINCIBLE_SECONDS = 2;
+export const STAR_INVINCIBLE_SECONDS = 3;

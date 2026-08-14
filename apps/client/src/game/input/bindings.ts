@@ -32,4 +32,8 @@ export const BINDINGS: KeyBinding[] = [
   { code: 'Enter', start: { type: 'INTERACT' } },
   { code: 'Escape', start: { type: 'CLOSE' } },
   { code: 'KeyR', start: { type: 'RESPAWN' } },
+  { code: 'KeyV', start: { type: 'USE_STAR' } },
+  { code: 'Digit1', start: { type: 'CHOOSE_ITEM', index: 0 } },
+  { code: 'Digit2', start: { type: 'CHOOSE_ITEM', index: 1 } },
+  { code: 'Digit3', start: { type: 'CHOOSE_ITEM', index: 2 } },
 ];

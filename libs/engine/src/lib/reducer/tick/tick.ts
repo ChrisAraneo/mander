@@ -29,7 +29,7 @@ import { advanceFireballs } from '../fireball/advance-fireballs';
 import { createFireballs } from '../fireball/create-fireballs';
 import { isBurning } from '../fireball/is-burning';
 import {
-  INVINCIBLE_SECONDS,
+  HURT_INVINCIBLE_SECONDS,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
   STOMP_BOUNCE_VELOCITY,
@@ -193,7 +193,7 @@ const fell = (state: GameState, player: Player): Outcome => ({
 const hurt = (player: Player): Player => ({
   ...player,
   hearts: loseHeart(player.hearts),
-  timers: { ...player.timers, invincibility: INVINCIBLE_SECONDS },
+  timers: { ...player.timers, invincibility: HURT_INVINCIBLE_SECONDS },
 });
 
 const gameOver = (state: GameState, player: Player): Outcome => ({

@@ -1,4 +1,4 @@
-import { EN, EE, BR, SC, SP, DR, SS, WD, CR, __, CN, ST, FB } from './consts';
+import { EN, EE, BR, SC, SP, DR, SS, WD, CR, __, ST } from './consts';
 import type { Structure } from './structure';
 
 export const NORMAL_001: Structure = [

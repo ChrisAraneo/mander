@@ -2,7 +2,6 @@ import { concat } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import type { GameState } from '../../state/types/game-state';
-import { chooseItem } from '../choose-item/choose-item';
 import { levelScore } from '../score/level-score';
 
 const complete = (state: GameState): GameState => ({
@@ -26,5 +25,4 @@ export const interact = (state: GameState): GameState =>
             .otherwise((): GameState => state),
         ),
     )
-    .with('CHEST', (): GameState => chooseItem(state, 0))
     .otherwise((): GameState => state);

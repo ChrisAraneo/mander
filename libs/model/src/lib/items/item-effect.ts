@@ -1,4 +1,5 @@
 export type ItemEffect =
   | { kind: 'NONE' }
   | { kind: 'HEART'; amount: number }
-  | { kind: 'SCORE'; amount: number };
+  | { kind: 'SCORE'; amount: number }
+  | { kind: 'STAR'; amount: number };

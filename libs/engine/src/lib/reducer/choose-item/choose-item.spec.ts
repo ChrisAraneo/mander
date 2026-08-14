@@ -13,7 +13,6 @@ const trinket = (id: string): Item => ({
   name: id,
   description: id,
   rarity: 'COMMON',
-  art: 'GEM',
   effect: { kind: 'NONE' },
 });
 
@@ -58,7 +57,7 @@ describe('chooseItem', () => {
     const chosen = chooseItem(state, 1);
 
     expect(chosen.inventory).toEqual([RED_DIAMOND]);
-    expect(chosen.score).toBe(2500);
+    expect(chosen.score).toBe(1500);
   });
 
   it('should keep what the inventory held when an item is taken', () => {
@@ -81,7 +80,7 @@ describe('chooseItem', () => {
   it('should add to the score already run up when the item scores', () => {
     const state: GameState = { ...openChest([RED_DIAMOND]), score: 100 };
 
-    expect(chooseItem(state, 0).score).toBe(100 + 2500);
+    expect(chooseItem(state, 0).score).toBe(100 + 1500);
   });
 
   it('should add to the hearts the player holds when the item heals', () => {

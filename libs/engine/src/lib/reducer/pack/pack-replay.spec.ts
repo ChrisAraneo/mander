@@ -25,7 +25,6 @@ const item = (id: string): Item => ({
   name: id,
   description: id,
   rarity: 'COMMON',
-  art: 'GEM',
   effect: { kind: 'NONE' },
 });
 
@@ -58,6 +57,7 @@ const script: Action[] = [
   { type: 'MOVE_LEFT_STOP' },
   { type: 'INTERACT' },
   { type: 'CHOOSE_ITEM', index: 1 },
+  { type: 'USE_STAR' },
   { type: 'CLOSE' },
   { type: 'RESPAWN' },
   { type: 'LOAD_LEVEL', level: LEVELS[1], levelIndex: 1 },

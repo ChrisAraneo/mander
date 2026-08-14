@@ -8,7 +8,6 @@ const itemWith = (effect: Item['effect']): Item => ({
   name: 'Test item',
   description: 'Stands in for a real chest item',
   rarity: 'COMMON',
-  art: 'GEM',
   effect,
 });
 
