@@ -54,7 +54,7 @@ const save = (
   match(requested(body))
     .with(null, () =>
       send(res, 400, {
-        message: 'a structure needs a NORMAL_nn or HARD_nn name and a grid',
+        message: 'a structure needs a NORMAL_nnn or HARD_nnn name and a grid',
       }),
     )
     .otherwise(({ name, difficulty, text }) =>

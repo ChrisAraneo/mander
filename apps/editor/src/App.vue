@@ -121,7 +121,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
             v-model="name"
             class="name"
             spellcheck="false"
-            placeholder="NORMAL_01" />
+            placeholder="NORMAL_001" />
           <button
             class="primary"
             type="button"

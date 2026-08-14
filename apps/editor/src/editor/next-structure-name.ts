@@ -17,11 +17,13 @@ const highest = (entries: StructureEntry[], difficulty: Difficulty): number =>
     ),
   ) ?? 0;
 
+const NAME_DIGITS = 3;
+
 export const nextStructureName = (
   entries: StructureEntry[],
   difficulty: Difficulty,
 ): string =>
-  `${PREFIXES[difficulty]}_${padStart(String(highest(entries, difficulty) + 1), 2, '0')}`;
+  `${PREFIXES[difficulty]}_${padStart(String(highest(entries, difficulty) + 1), NAME_DIGITS, '0')}`;
 
 export const difficultyOf = (name: string): Difficulty =>
   name.startsWith(PREFIXES.hard) ? 'hard' : 'normal';

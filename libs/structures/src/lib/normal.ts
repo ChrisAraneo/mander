@@ -1,7 +1,7 @@
 import { EN, EE, BR, SC, SP, DR, SS, WD, CR, __, CN, ST, FB } from './consts';
 import type { Structure } from './structure';
 
-export const NORMAL_01: Structure = [
+export const NORMAL_001: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -24,7 +24,7 @@ export const NORMAL_01: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_02: Structure = [
+export const NORMAL_002: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -47,7 +47,7 @@ export const NORMAL_02: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
 ];
 
-export const NORMAL_03: Structure = [
+export const NORMAL_003: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -70,7 +70,7 @@ export const NORMAL_03: Structure = [
   [DR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
 ];
 
-export const NORMAL_04: Structure = [
+export const NORMAL_004: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -93,7 +93,7 @@ export const NORMAL_04: Structure = [
   [DR, DR, DR, DR, DR, DR, __, __, __, __, __, __, __, __, __, __, DR, DR, DR, DR],
 ];
 
-export const NORMAL_05: Structure = [
+export const NORMAL_005: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -116,7 +116,7 @@ export const NORMAL_05: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_06: Structure = [
+export const NORMAL_006: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, CR, __, __, __, __, CR, CR, CR, CR, CR, __, __, __, __, CR, __, __, __],
@@ -139,7 +139,7 @@ export const NORMAL_06: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_07: Structure = [
+export const NORMAL_007: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, EE],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, WD, __, __, WD, WD, WD],
@@ -162,7 +162,7 @@ export const NORMAL_07: Structure = [
   [WD, __, __, __, WD, __, __, __, WD, __, __, __, WD, __, __, __, WD, __, __, __],
 ];
 
-export const NORMAL_08: Structure = [
+export const NORMAL_008: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, BR, BR, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -185,7 +185,7 @@ export const NORMAL_08: Structure = [
   [DR, DR, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_09: Structure = [
+export const NORMAL_009: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -208,7 +208,7 @@ export const NORMAL_09: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_10: Structure = [
+export const NORMAL_010: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -231,7 +231,7 @@ export const NORMAL_10: Structure = [
   [BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR],
 ];
 
-export const NORMAL_11: Structure = [
+export const NORMAL_011: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -254,7 +254,7 @@ export const NORMAL_11: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_12: Structure = [
+export const NORMAL_012: Structure = [
   [__, __, __, __, __, __, SP, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, CR, CR, CR, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -277,7 +277,7 @@ export const NORMAL_12: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_13: Structure = [
+export const NORMAL_013: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -300,7 +300,7 @@ export const NORMAL_13: Structure = [
   [DR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, DR],
 ];
 
-export const NORMAL_14: Structure = [
+export const NORMAL_014: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -323,7 +323,7 @@ export const NORMAL_14: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_15: Structure = [
+export const NORMAL_015: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, SP, __, __, SP, __, __, SP, __, __, SP, __, __, __],
   [__, __, __, __, __, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, __, __],
@@ -346,7 +346,7 @@ export const NORMAL_15: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_16: Structure = [
+export const NORMAL_016: Structure = [
   [__, __, __, __, __, __, __, __, __, __, DR, DR, __, __, __, __, __, __, __, __],
   [SS, __, __, __, __, __, __, __, __, __, DR, DR, DR, __, __, __, __, __, __, __],
   [DR, DR, __, __, __, __, __, __, __, __, DR, DR, DR, __, __, __, __, __, __, __],
@@ -369,7 +369,7 @@ export const NORMAL_16: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_17: Structure = [
+export const NORMAL_017: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [SS, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, EE],
   [CR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, CR],
@@ -392,7 +392,7 @@ export const NORMAL_17: Structure = [
   [CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR],
 ];
 
-export const NORMAL_18: Structure = [
+export const NORMAL_018: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -415,7 +415,7 @@ export const NORMAL_18: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_19: Structure = [
+export const NORMAL_019: Structure = [
   [SS, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [DR, DR, SP, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [DR, DR, DR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -438,7 +438,7 @@ export const NORMAL_19: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_20: Structure = [
+export const NORMAL_020: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -461,7 +461,7 @@ export const NORMAL_20: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_21: Structure = [
+export const NORMAL_021: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -484,7 +484,7 @@ export const NORMAL_21: Structure = [
   [DR, DR, DR, DR, DR, DR, __, __, __, __, __, __, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_22: Structure = [
+export const NORMAL_022: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -507,7 +507,7 @@ export const NORMAL_22: Structure = [
   [DR, DR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR],
 ];
 
-export const NORMAL_23: Structure = [
+export const NORMAL_023: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -530,7 +530,7 @@ export const NORMAL_23: Structure = [
   [DR, DR, DR, __, __, __, __, BR, __, __, __, __, BR, __, __, __, __, DR, DR, DR],
 ];
 
-export const NORMAL_24: Structure = [
+export const NORMAL_024: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -553,7 +553,7 @@ export const NORMAL_24: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_25: Structure = [
+export const NORMAL_025: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -576,7 +576,7 @@ export const NORMAL_25: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_26: Structure = [
+export const NORMAL_026: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -599,7 +599,7 @@ export const NORMAL_26: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_27: Structure = [
+export const NORMAL_027: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -622,7 +622,7 @@ export const NORMAL_27: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, __, __, __, __, __, __, __, __, __, __],
 ];
 
-export const NORMAL_28: Structure = [
+export const NORMAL_028: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -645,7 +645,7 @@ export const NORMAL_28: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_29: Structure = [
+export const NORMAL_029: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -668,7 +668,7 @@ export const NORMAL_29: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_30: Structure = [
+export const NORMAL_030: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, WD, __, WD, __, __, __, WD, WD, WD, __, __, __, __, __, __],
@@ -691,7 +691,7 @@ export const NORMAL_30: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, __, __, __, __, DR, DR, DR],
 ];
 
-export const NORMAL_31: Structure = [
+export const NORMAL_031: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, BR, __, BR, __, BR, __, __, __, __, __, __, __],
@@ -714,7 +714,7 @@ export const NORMAL_31: Structure = [
   [DR, DR, DR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR],
 ];
 
-export const NORMAL_32: Structure = [
+export const NORMAL_032: Structure = [
   [__, __, __, EN, __, __, __, WD, WD, WD, WD, WD, WD, __, __, __, __, __, __, __],
   [__, __, WD, WD, __, __, WD, WD, SC, SC, SC, SC, WD, WD, __, __, __, __, __, __],
   [__, __, WD, __, __, __, __, __, __, __, __, __, __, __, __, __, __, WD, __, __],
@@ -737,7 +737,7 @@ export const NORMAL_32: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_33: Structure = [
+export const NORMAL_033: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, CR, __, __, CR, __, __, CR, __, __, CR, __, __, CR, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, CR, __, __, __, __],
@@ -760,7 +760,7 @@ export const NORMAL_33: Structure = [
   [CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR],
 ];
 
-export const NORMAL_34: Structure = [
+export const NORMAL_034: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -784,7 +784,7 @@ export const NORMAL_34: Structure = [
 ];
 
 
-export const NORMAL_35: Structure = [
+export const NORMAL_035: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [SS, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -807,7 +807,7 @@ export const NORMAL_35: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_36: Structure = [
+export const NORMAL_036: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -830,7 +830,7 @@ export const NORMAL_36: Structure = [
   [DR, DR, __, __, __, __, __, __, DR, DR, DR, __, __, __, __, __, __, DR, DR, DR],
 ];
 
-export const NORMAL_37: Structure = [
+export const NORMAL_037: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -853,7 +853,7 @@ export const NORMAL_37: Structure = [
   [DR, DR, DR, BR, BR, __, __, __, __, __, __, __, __, __, __, BR, BR, DR, DR, DR],
 ];
 
-export const NORMAL_38: Structure = [
+export const NORMAL_038: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -876,7 +876,7 @@ export const NORMAL_38: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_39: Structure = [
+export const NORMAL_039: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, EE],
   [__, __, __, __, __, __, __, __, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, DR, DR],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, BR, DR, DR],
@@ -899,7 +899,7 @@ export const NORMAL_39: Structure = [
   [DR, DR, __, __, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, BR, __, BR, DR, DR],
 ];
 
-export const NORMAL_40: Structure = [
+export const NORMAL_040: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -922,7 +922,7 @@ export const NORMAL_40: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_41: Structure = [
+export const NORMAL_041: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -945,7 +945,7 @@ export const NORMAL_41: Structure = [
   [DR, DR, DR, DR, __, __, DR, DR, __, __, DR, DR, __, __, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_42: Structure = [
+export const NORMAL_042: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -968,7 +968,7 @@ export const NORMAL_42: Structure = [
   [DR, DR, DR, DR, DR, __, __, __, __, __, __, __, __, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_43: Structure = [
+export const NORMAL_043: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -991,7 +991,7 @@ export const NORMAL_43: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
 ];
 
-export const NORMAL_44: Structure = [
+export const NORMAL_044: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1014,7 +1014,7 @@ export const NORMAL_44: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_45: Structure = [
+export const NORMAL_045: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, WD, __, __, __, WD, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, EE],
@@ -1037,7 +1037,7 @@ export const NORMAL_45: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
 ];
 
-export const NORMAL_46: Structure = [
+export const NORMAL_046: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1060,7 +1060,7 @@ export const NORMAL_46: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
 ];
 
-export const NORMAL_47: Structure = [
+export const NORMAL_047: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1083,7 +1083,7 @@ export const NORMAL_47: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_48: Structure = [
+export const NORMAL_048: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, DR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, DR, DR, __, __, __, __, __, __, DR, DR, DR, DR, DR, DR, __, __, __, __, __],
@@ -1106,7 +1106,7 @@ export const NORMAL_48: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_49: Structure = [
+export const NORMAL_049: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1129,7 +1129,7 @@ export const NORMAL_49: Structure = [
   [DR, DR, DR, DR, DR, __, __, __, __, __, __, __, __, __, __, __, DR, DR, DR, DR],
 ];
 
-export const NORMAL_50: Structure = [
+export const NORMAL_050: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1152,7 +1152,7 @@ export const NORMAL_50: Structure = [
   [DR, DR, DR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR, DR],
 ];
 
-export const NORMAL_51: Structure = [
+export const NORMAL_051: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1175,7 +1175,7 @@ export const NORMAL_51: Structure = [
   [DR, DR, DR, __, __, __, __, DR, DR, DR, DR, DR, DR, __, __, __, __, DR, DR, DR],
 ];
 
-export const NORMAL_52: Structure = [
+export const NORMAL_052: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1198,7 +1198,7 @@ export const NORMAL_52: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_53: Structure = [
+export const NORMAL_053: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1221,7 +1221,7 @@ export const NORMAL_53: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_54: Structure = [
+export const NORMAL_054: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1244,7 +1244,7 @@ export const NORMAL_54: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, __, __, __, __, __, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_55: Structure = [
+export const NORMAL_055: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1267,7 +1267,7 @@ export const NORMAL_55: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_56: Structure = [
+export const NORMAL_056: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1290,7 +1290,7 @@ export const NORMAL_56: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_57: Structure = [
+export const NORMAL_057: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1313,7 +1313,7 @@ export const NORMAL_57: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_58: Structure = [
+export const NORMAL_058: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, SP, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, BR, __, __, __, __, __, __],
@@ -1336,7 +1336,7 @@ export const NORMAL_58: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_59: Structure = [
+export const NORMAL_059: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1359,7 +1359,7 @@ export const NORMAL_59: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_60: Structure = [
+export const NORMAL_060: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1382,7 +1382,7 @@ export const NORMAL_60: Structure = [
   [DR, DR, __, __, DR, __, __, DR, __, __, DR, __, __, __, __, __, DR, __, DR, DR],
 ];
 
-export const NORMAL_61: Structure = [
+export const NORMAL_061: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1405,7 +1405,7 @@ export const NORMAL_61: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_62: Structure = [
+export const NORMAL_062: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1428,7 +1428,7 @@ export const NORMAL_62: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_63: Structure = [
+export const NORMAL_063: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1451,7 +1451,7 @@ export const NORMAL_63: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_64: Structure = [
+export const NORMAL_064: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1474,7 +1474,7 @@ export const NORMAL_64: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_65: Structure = [
+export const NORMAL_065: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1497,7 +1497,7 @@ export const NORMAL_65: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_66: Structure = [
+export const NORMAL_066: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, ST, ST, ST, ST, ST, ST, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, ST, ST, ST, ST, ST, ST, ST, ST, __, __, __, __, __, __, __, __],
@@ -1520,7 +1520,7 @@ export const NORMAL_66: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_67: Structure = [
+export const NORMAL_067: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1543,7 +1543,7 @@ export const NORMAL_67: Structure = [
   [DR, DR, DR, DR, __, __, __, ST, ST, ST, __, __, __, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_68: Structure = [
+export const NORMAL_068: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1566,7 +1566,7 @@ export const NORMAL_68: Structure = [
   [DR, DR, DR, DR, __, __, __, DR, DR, DR, DR, DR, DR, DR, __, __, __, DR, DR, DR],
 ];
 
-export const NORMAL_69: Structure = [
+export const NORMAL_069: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [SS, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1589,7 +1589,7 @@ export const NORMAL_69: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_70: Structure = [
+export const NORMAL_070: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1612,7 +1612,7 @@ export const NORMAL_70: Structure = [
   [DR, DR, DR, __, __, __, __, CR, __, __, __, __, __, __, __, __, __, __, __, __],
 ];
 
-export const NORMAL_71: Structure = [
+export const NORMAL_071: Structure = [
   [__, __, __, __, __, CR, __, __, __, CR, __, __, __, CR, __, __, __, CR, __, __],
   [__, __, __, __, __, CR, __, __, __, CR, __, __, __, CR, __, __, __, CR, __, __],
   [__, __, __, __, __, __, __, __, __, CR, __, __, __, CR, __, __, __, __, __, __],
@@ -1635,7 +1635,7 @@ export const NORMAL_71: Structure = [
   [DR, DR, __, __, __, CR, __, __, __, CR, __, __, __, CR, __, __, __, CR, __, DR],
 ];
 
-export const NORMAL_72: Structure = [
+export const NORMAL_072: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1658,7 +1658,7 @@ export const NORMAL_72: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, __, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_73: Structure = [
+export const NORMAL_073: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1681,7 +1681,7 @@ export const NORMAL_73: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_74: Structure = [
+export const NORMAL_074: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [SS, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [DR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1704,7 +1704,7 @@ export const NORMAL_74: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_75: Structure = [
+export const NORMAL_075: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1727,7 +1727,7 @@ export const NORMAL_75: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, __, __, __, __, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_76: Structure = [
+export const NORMAL_076: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, SP, __, __, __, __, SP, __],
@@ -1750,7 +1750,7 @@ export const NORMAL_76: Structure = [
   [DR, DR, DR, __, __, CR, __, __, __, CR, __, __, __, CR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_77: Structure = [
+export const NORMAL_077: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1773,7 +1773,7 @@ export const NORMAL_77: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_78: Structure = [
+export const NORMAL_078: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1796,7 +1796,7 @@ export const NORMAL_78: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_79: Structure = [
+export const NORMAL_079: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1819,7 +1819,7 @@ export const NORMAL_79: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_80: Structure = [
+export const NORMAL_080: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1842,7 +1842,7 @@ export const NORMAL_80: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
 ];
 
-export const NORMAL_81: Structure = [
+export const NORMAL_081: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, WD, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1865,7 +1865,7 @@ export const NORMAL_81: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
 ];
 
-export const NORMAL_82: Structure = [
+export const NORMAL_082: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, WD, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1888,7 +1888,7 @@ export const NORMAL_82: Structure = [
   [DR, DR, DR, DR, DR, DR, __, __, __, __, __, __, __, __, __, __, __, __, __, DR],
 ];
 
-export const NORMAL_83: Structure = [
+export const NORMAL_083: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1911,7 +1911,7 @@ export const NORMAL_83: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, __, __, __, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_84: Structure = [
+export const NORMAL_084: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1934,7 +1934,7 @@ export const NORMAL_84: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, __, __, __, __, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_85: Structure = [
+export const NORMAL_085: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1957,7 +1957,7 @@ export const NORMAL_85: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, __, __, __, __, __, __, __, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_86: Structure = [
+export const NORMAL_086: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1980,7 +1980,7 @@ export const NORMAL_86: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_87: Structure = [
+export const NORMAL_087: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -2003,7 +2003,7 @@ export const NORMAL_87: Structure = [
   [DR, DR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
 ];
 
-export const NORMAL_88: Structure = [
+export const NORMAL_088: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, EE],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, CR, CR, CR],
@@ -2026,7 +2026,7 @@ export const NORMAL_88: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
 ];
 
-export const NORMAL_89: Structure = [
+export const NORMAL_089: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, CR, CR, CR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -2049,7 +2049,7 @@ export const NORMAL_89: Structure = [
   [DR, DR, __, __, CR, __, __, CR, __, __, CR, __, __, CR, __, __, CR, __, DR, DR],
 ];
 
-export const NORMAL_90: Structure = [
+export const NORMAL_090: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -2072,7 +2072,7 @@ export const NORMAL_90: Structure = [
   [DR, DR, __, __, CR, __, __, CR, __, __, CR, __, __, CR, __, __, CR, __, DR, DR],
 ];
 
-export const NORMAL_91: Structure = [
+export const NORMAL_091: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -2095,7 +2095,7 @@ export const NORMAL_91: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
 ];
 
-export const NORMAL_92: Structure = [
+export const NORMAL_092: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -2118,7 +2118,7 @@ export const NORMAL_92: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
 ];
 
-export const NORMAL_93: Structure = [
+export const NORMAL_093: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -2141,7 +2141,7 @@ export const NORMAL_93: Structure = [
   [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
 
-export const NORMAL_94: Structure = [
+export const NORMAL_094: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -2164,7 +2164,7 @@ export const NORMAL_94: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
 ];
 
-export const NORMAL_95: Structure = [
+export const NORMAL_095: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -2187,7 +2187,7 @@ export const NORMAL_95: Structure = [
   [__, __, __, __, __, __, DR, DR, DR, DR, DR, DR, __, __, __, __, __, __, __, __],
 ];
 
-export const NORMAL_96: Structure = [
+export const NORMAL_096: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -2210,7 +2210,7 @@ export const NORMAL_96: Structure = [
   [DR, DR, DR, __, __, __, __, DR, DR, __, __, __, DR, DR, __, __, __, DR, DR, DR],
 ];
 
-export const NORMAL_97: Structure = [
+export const NORMAL_097: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -2233,7 +2233,7 @@ export const NORMAL_97: Structure = [
   [DR, DR, DR, __, __, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, __, __, DR, DR],
 ];
 
-export const NORMAL_98: Structure = [
+export const NORMAL_098: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, CR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -2256,7 +2256,7 @@ export const NORMAL_98: Structure = [
   [DR, DR, DR, DR, DR, DR, __, __, __, __, __, __, __, __, __, __, __, DR, DR, DR],
 ];
 
-export const NORMAL_99: Structure = [
+export const NORMAL_099: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
   [SS, __, __, __, __, __, __, __, __, __, __, __, __, __, CR, __, __, __, __, __],

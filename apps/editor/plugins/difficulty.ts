@@ -19,4 +19,4 @@ export const difficultyOf = (name: string): Difficulty | null =>
   ) ?? null;
 
 export const isStructureName = (name: string): boolean =>
-  /^(NORMAL|HARD)_\d{2,}$/.test(name);
+  /^(NORMAL|HARD)_\d{3,}$/.test(name);
