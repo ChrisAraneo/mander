@@ -20,6 +20,10 @@ import {
   HARD_19,
   HARD_20,
   HARD_21,
+  HARD_22,
+  HARD_23,
+  HARD_24,
+  HARD_25,
 } from './hard';
 import {
   NORMAL_01,
@@ -147,6 +151,10 @@ export const HARD_STRUCTURES: readonly Structure[] = Object.freeze([
   HARD_19,
   HARD_20,
   HARD_21,
+  HARD_22,
+  HARD_23,
+  HARD_24,
+  HARD_25,
 ]);
 
 export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
