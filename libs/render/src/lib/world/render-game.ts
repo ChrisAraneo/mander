@@ -15,6 +15,7 @@ import { drawCannon, drawCannonballs } from '../cannon';
 import { drawChest } from '../chest';
 import { drawDiamonds } from '../diamond';
 import { drawEnemy } from '../enemies';
+import { drawFireballs } from '../fireball';
 import { type Focus, playerFocus } from '../focus';
 import { drawHillLayer, HILL_LAYERS } from '../hill';
 import { drawKey } from '../key';
@@ -97,6 +98,7 @@ export const renderGame = (
         ),
         run((target) => drawPlayer(target, state.player, state.time)),
         run((target) => drawCannonballs(target, state)),
+        run((target) => drawFireballs(target, state)),
         restore,
       ),
     )

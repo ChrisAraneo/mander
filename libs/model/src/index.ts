@@ -1,6 +1,8 @@
 export * from './lib/cannon/cannon';
 export * from './lib/cannon/cannonball';
 export * from './lib/cannon/find-cannon-tiles';
+export * from './lib/fireball/fireball';
+export * from './lib/fireball/find-fireball-tiles';
 export * from './lib/chest/find-chest-tile';
 export * from './lib/chest/chest-entity-box';
 export * from './lib/diamond/diamond-entity-box';
@@ -35,6 +37,7 @@ export * from './lib/chest/chest';
 export * from './lib/blocks/consts';
 export * from './lib/diamond/diamond';
 export * from './lib/blocks/dirt';
+export * from './lib/blocks/fireball';
 export * from './lib/blocks/is-solid-tile';
 export * from './lib/key/key';
 export * from './lib/portal/portal';

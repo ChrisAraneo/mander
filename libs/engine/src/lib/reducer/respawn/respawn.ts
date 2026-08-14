@@ -3,6 +3,7 @@ import { match } from 'ts-pattern';
 import type { GameState } from '../../state/types/game-state';
 import { createCannons } from '../cannon/create-cannons';
 import { createEnemies } from '../enemy/create-enemies';
+import { createFireballs } from '../fireball/create-fireballs';
 import { createPlayer } from '../player/create-player';
 
 export const respawn = (state: GameState): GameState =>
@@ -13,5 +14,6 @@ export const respawn = (state: GameState): GameState =>
       enemies: createEnemies(state.level),
       cannons: createCannons(state.level),
       cannonballs: [],
+      fireballs: createFireballs(state.level),
     }))
     .otherwise((): GameState => state);

@@ -2,6 +2,7 @@ import {
   type Tile,
   TILE_BRICK,
   TILE_CERAMIC,
+  TILE_FIREBALL,
   TILE_STONE,
   TILE_WOOD,
 } from '@mander/model';
@@ -14,6 +15,11 @@ const BRICK_TINT: MaterialTint = { hue: -20, saturation: 12, lightness: 16 };
 const STONE_TINT: MaterialTint = { hue: 183, saturation: -22, lightness: 19 };
 const WOOD_TINT: MaterialTint = { hue: -4, lightness: 18 };
 const CERAMIC_TINT: MaterialTint = { hue: 265, saturation: 22, lightness: 22 };
+const FIREBALL_TINT: MaterialTint = {
+  hue: -18,
+  saturation: -10,
+  lightness: -26,
+};
 
 export const materialTint = (tile: Tile): MaterialTint =>
   match(tile)
@@ -21,4 +27,5 @@ export const materialTint = (tile: Tile): MaterialTint =>
     .with(TILE_STONE, () => STONE_TINT)
     .with(TILE_WOOD, () => WOOD_TINT)
     .with(TILE_CERAMIC, () => CERAMIC_TINT)
+    .with(TILE_FIREBALL, () => FIREBALL_TINT)
     .otherwise(() => DIRT_TINT);

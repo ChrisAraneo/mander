@@ -3,6 +3,7 @@ import { findDiamondTiles, type Item } from '@mander/model';
 import type { GameLevel } from '../types/game-level';
 import { createCannons } from '../reducer/cannon/create-cannons';
 import { createEnemies } from '../reducer/enemy/create-enemies';
+import { createFireballs } from '../reducer/fireball/create-fireballs';
 import { createPlayer } from '../reducer/player/create-player';
 import { startingHearts } from '../reducer/player/starting-hearts';
 import type { GameState } from './types/game-state';
@@ -21,6 +22,7 @@ export const createInitialState = (
   enemies: createEnemies(level),
   cannons: createCannons(level),
   cannonballs: [],
+  fireballs: createFireballs(level),
   diamonds: findDiamondTiles(level),
   input: { isLeft: false, isRight: false, isJump: false },
   status: 'PLAYING',

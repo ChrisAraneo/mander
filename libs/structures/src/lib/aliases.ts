@@ -1,4 +1,4 @@
-import { __, CN, DR, EN, SP, SC, BR, ST, WD, CR, SS, EE } from './consts';
+import { __, CN, DR, EN, FB, SP, SC, BR, ST, WD, CR, SS, EE } from './consts';
 
 const ALIAS_MAP = new Map<number, string>([
   [__, '__'],
@@ -11,6 +11,7 @@ const ALIAS_MAP = new Map<number, string>([
   [WD, 'WD'],
   [CR, 'CR'],
   [CN, 'CN'],
+  [FB, 'FB'],
   [SS, 'SS'],
   [EE, 'EE'],
 ]);

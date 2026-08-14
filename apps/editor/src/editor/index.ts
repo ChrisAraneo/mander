@@ -4,6 +4,7 @@ export * from './brushes';
 export * from './clone-grid';
 export * from './create-grid';
 export * from './draw-marker';
+export * from './draw-orbit';
 export * from './draw-structure';
 export * from './fit-canvas';
 export * from './format-structure';

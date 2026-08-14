@@ -2,6 +2,7 @@ import {
   type Tile,
   TILE_BRICK,
   TILE_CERAMIC,
+  TILE_FIREBALL,
   TILE_SIZE,
   TILE_STONE,
   TILE_WOOD,
@@ -10,7 +11,18 @@ import { hslCss, parseHsl, shiftHsl } from '@mander/utils';
 import { chain, map, memoize, range, size } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import { type CanvasStep, fillRect, sequence, skip, styled } from '../canvas';
+import {
+  arc,
+  beginPath,
+  type CanvasStep,
+  fill,
+  fillRect,
+  restore,
+  save,
+  sequence,
+  skip,
+  styled,
+} from '../canvas';
 import type { MaterialStyle } from './material-style';
 
 const COURSE_HEIGHT = TILE_SIZE / 4;
@@ -150,6 +162,46 @@ const ceramicStep = (
     fillRect(pixelX + HALF_TILE + 3, pixelY + HALF_TILE + 3, HALF_TILE - 7, 1),
   ]);
 
+const EMBER_GLOW = '#FF7A2F';
+const EMBER_CORE = '#FFD166';
+const EMBER_BLUR = 8;
+const EMBER_RADIUS = 4;
+
+const VEINS: readonly number[][] = [
+  [4, 5, 8, 2],
+  [18, 4, 10, 2],
+  [3, 15, 6, 2],
+  [20, 19, 9, 2],
+  [10, 6, 2, 7],
+  [21, 9, 2, 9],
+];
+
+const fireballStep = (
+  pixelX: number,
+  pixelY: number,
+  style: MaterialStyle,
+): CanvasStep =>
+  sequence([
+    save,
+    styled({ fillStyle: style.joint }),
+    sequence(
+      map(VEINS, ([offsetX, offsetY, width, height]) =>
+        fillRect(pixelX + offsetX, pixelY + offsetY + 1, width, height),
+      ),
+    ),
+    styled({ fillStyle: EMBER_GLOW, shadowColor: EMBER_GLOW, shadowBlur: 4 }),
+    sequence(
+      map(VEINS, ([offsetX, offsetY, width, height]) =>
+        fillRect(pixelX + offsetX, pixelY + offsetY, width, height),
+      ),
+    ),
+    styled({ fillStyle: EMBER_CORE, shadowBlur: EMBER_BLUR }),
+    beginPath,
+    arc(pixelX + HALF_TILE, pixelY + HALF_TILE, EMBER_RADIUS, 0, Math.PI * 2),
+    fill,
+    restore,
+  ]);
+
 export const materialStep = (
   tile: Tile,
   pixelX: number,
@@ -161,4 +213,5 @@ export const materialStep = (
     .with(TILE_STONE, () => stoneStep(pixelX, pixelY, style))
     .with(TILE_WOOD, () => woodStep(pixelX, pixelY, style))
     .with(TILE_CERAMIC, () => ceramicStep(pixelX, pixelY, style))
+    .with(TILE_FIREBALL, () => fireballStep(pixelX, pixelY, style))
     .otherwise(() => skip);

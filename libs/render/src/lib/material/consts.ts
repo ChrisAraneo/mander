@@ -44,4 +44,12 @@ export const CERAMIC_STYLE: MaterialStyle = {
   highlight: HIGHLIGHT,
 };
 
+export const FIREBALL_STYLE: MaterialStyle = {
+  base: '#3A2620',
+  cap: '#4A322A',
+  capHighlight: '#5C3F35',
+  joint: 'RGBA(0, 0, 0, 0.45)',
+  highlight: HIGHLIGHT,
+};
+
 export const CAP_LIGHTNESS_GAIN = 7;

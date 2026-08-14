@@ -88,6 +88,7 @@ import {
   NORMAL_64,
   NORMAL_65,
   NORMAL_66,
+  NORMAL_67,
 } from './normal';
 import type { Structure } from './structure';
 
@@ -182,4 +183,5 @@ export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
   NORMAL_64,
   NORMAL_65,
   NORMAL_66,
+  NORMAL_67,
 ]);

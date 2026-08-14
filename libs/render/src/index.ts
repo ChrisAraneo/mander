@@ -2,6 +2,7 @@ export * from './lib/cannon';
 export * from './lib/chest';
 export * from './lib/diamond';
 export * from './lib/enemies';
+export * from './lib/fireball';
 export * from './lib/focus';
 export * from './lib/gem';
 export * from './lib/hill';

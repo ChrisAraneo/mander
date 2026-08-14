@@ -1,0 +1,17 @@
+import { TILE_SIZE } from '@mander/model';
+
+export const FIREBALL_ORBIT_TILES = 5;
+
+export const FIREBALL_ORBIT_RADIUS = FIREBALL_ORBIT_TILES * TILE_SIZE;
+
+export const FIREBALL_ORBIT_SECONDS = 4.5;
+
+export const FIREBALL_ANGULAR_SPEED = (Math.PI * 2) / FIREBALL_ORBIT_SECONDS;
+
+export const FIREBALL_SIZE = 16;
+
+export const FIREBALL_HITBOX_INSET = 3;
+
+export const FIREBALL_STAGGER_STEPS = 4;
+
+export const FIREBALL_STAGGER_ANGLE = (Math.PI * 2) / FIREBALL_STAGGER_STEPS;

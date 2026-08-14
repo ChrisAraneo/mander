@@ -13,6 +13,7 @@ import { TILE_BRICK } from './brick';
 import { TILE_CANNON } from './cannon';
 import { TILE_CERAMIC } from './ceramic';
 import { TILE_DIRT } from './dirt';
+import { TILE_FIREBALL } from './fireball';
 import { isSolidTile } from './is-solid-tile';
 import { TILE_STONE } from './stone';
 import { TILE_WOOD } from './wood';
@@ -28,6 +29,10 @@ describe('isSolidTile', () => {
 
   it('should return true when the tile is a cannon the player can stand on', () => {
     expect(isSolidTile(TILE_CANNON)).toBe(true);
+  });
+
+  it('should return true when the tile is a fireball block the player can stand on', () => {
+    expect(isSolidTile(TILE_FIREBALL)).toBe(true);
   });
 
   it('should return false when the tile is non-blocking or interactive', () => {
