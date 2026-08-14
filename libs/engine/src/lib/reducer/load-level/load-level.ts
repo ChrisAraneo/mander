@@ -19,6 +19,7 @@ export const loadLevel = (
   cannons: createCannons(level),
   cannonballs: [],
   fireballs: createFireballs(level),
+  bullets: [],
   diamonds: findDiamondTiles(level),
   status: 'PLAYING',
   hasKey: false,

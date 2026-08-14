@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { range } from 'lodash-es';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
-import { type GameState, starCount } from '@mander/engine';
+import { type GameState, isWarded } from '@mander/engine';
 import { formatClock } from '../game/format';
 
 const props = defineProps<{
@@ -24,7 +24,15 @@ const hearts = computed(() =>
     .value(),
 );
 
-const stars = computed(() => starCount(props.state.inventory));
+const stars = computed(() => props.state.stars);
+
+const ammo = computed(() => props.state.ammo);
+
+const hasBoots = computed(() => isWarded(props.state.inventory, 'FLOOR_SPIKE'));
+
+const hasHelmet = computed(() =>
+  isWarded(props.state.inventory, 'CEILING_SPIKE'),
+);
 
 const shieldSeconds = computed(() => props.state.player.timers.invincibility);
 
@@ -61,8 +69,26 @@ const score = computed(() => props.state.score.toLocaleString('en-US'));
       <span
         v-if="stars > 0"
         class="chip stars"
-        title="Press V to spend a star on 3s of invincibility"
-        >★ {{ stars }} · V</span
+        title="Press N to spend a star on 3s of invincibility"
+        >★ {{ stars }} · N</span
+      >
+      <span
+        v-if="ammo > 0"
+        class="chip ammo"
+        title="Press M to fire a bullet at the enemies"
+        >● {{ ammo }} · M</span
+      >
+      <span
+        v-if="hasBoots"
+        class="chip gear"
+        title="Boots of Clouds — floor spikes cannot bite"
+        >☁ Boots</span
+      >
+      <span
+        v-if="hasHelmet"
+        class="chip gear"
+        title="Titanium Helmet — ceiling spikes cannot bite"
+        >⛑ Helmet</span
       >
       <span
         v-if="shieldSeconds > 0"
@@ -153,6 +179,16 @@ const score = computed(() => props.state.score.toLocaleString('en-US'));
 .stars {
   color: #ffc93c;
   border-color: #8a6d2f;
+}
+
+.ammo {
+  color: #7be8ff;
+  border-color: #2e5f88;
+}
+
+.gear {
+  color: #c9a2ff;
+  border-color: #6a4a9e;
 }
 
 .shield {

@@ -11,6 +11,7 @@ import {
   setTransform,
   translate,
 } from '../canvas';
+import { drawBullets } from '../bullet';
 import { drawCannon, drawCannonballs } from '../cannon';
 import { drawChest } from '../chest';
 import { drawDiamonds } from '../diamond';
@@ -99,6 +100,7 @@ export const renderGame = (
         run((target) => drawPlayer(target, state.player, state.time)),
         run((target) => drawCannonballs(target, state)),
         run((target) => drawFireballs(target, state)),
+        run((target) => drawBullets(target, state)),
         restore,
       ),
     )

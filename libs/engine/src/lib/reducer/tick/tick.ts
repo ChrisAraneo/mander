@@ -14,6 +14,8 @@ import type { Point } from '@mander/utils';
 import { filter, includes, map, size, some } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
+import { advanceBullets } from '../bullet/advance-bullets';
+import { resolveVolley } from '../bullet/resolve-volley';
 import { advanceCannonballs } from '../cannon/advance-cannonballs';
 import { advanceCannons } from '../cannon/advance-cannons';
 import { createCannons } from '../cannon/create-cannons';
@@ -39,7 +41,8 @@ import { killPlayer } from '../player/kill-player';
 import { stepPlayer } from '../player/step-player';
 import { stepPlayerDeath } from '../player/step-player-death';
 import { DIAMOND_SCORE } from '../score/consts';
-import { overlapsSpike } from '../spike/overlaps-spike';
+import { overlapsSpikeFacing } from '../spike/overlaps-spike';
+import { bitingSpikes } from '../ward/biting-spikes';
 import type { GameState } from '../../state/types/game-state';
 import { hasFallenIntoPit } from './has-fallen-into-pit';
 import { isNearTile } from './is-near-tile';
@@ -168,12 +171,13 @@ const touchesHazard = (
   hits: Cannonball[],
   isBurned: boolean,
 ): boolean =>
-  overlapsSpike(
+  overlapsSpikeFacing(
     state.level,
     player.position.x,
     player.position.y,
     PLAYER_WIDTH,
     PLAYER_HEIGHT,
+    bitingSpikes(state.inventory),
   ) ||
   some(enemies, (enemy) => isAlive(enemy) && isTouchingEnemy(player, enemy)) ||
   size(hits) > 0 ||
@@ -251,6 +255,9 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
       const fireballs = respawned
         ? createFireballs(state.level)
         : advanceFireballs(state.fireballs, deltaSeconds);
+      const flyingBullets = respawned
+        ? []
+        : advanceBullets(state.level, state.bullets, deltaSeconds);
       const alive = isAlive(moved);
       const { player: bounced, enemies: afterStomps } = match(alive)
         .with(true, () =>
@@ -279,8 +286,11 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
           deaths: state.deaths,
           status: 'PLAYING',
         }));
-      const enemies = map(afterStomps, (enemy) =>
-        includes(gored, enemy) ? killEnemy(enemy) : enemy,
+      const { bullets, enemies } = resolveVolley(
+        flyingBullets,
+        map(afterStomps, (enemy) =>
+          includes(gored, enemy) ? killEnemy(enemy) : enemy,
+        ),
       );
       const cannonballs = filter(
         flying,
@@ -298,6 +308,7 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         cannons,
         cannonballs,
         fireballs,
+        bullets,
         diamonds,
         deaths,
         status,

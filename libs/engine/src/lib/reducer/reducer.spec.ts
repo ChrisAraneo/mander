@@ -1,5 +1,5 @@
 import type { Point } from '@mander/utils';
-import { omit, size } from 'lodash-es';
+import { map, omit, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import type { Action } from '../actions/actions';
@@ -41,12 +41,19 @@ import type { GameState } from '../state/types/game-state';
 import { reduce } from './reduce';
 import { totalTime } from './score/total-time';
 import {
+  BOOTS_OF_CLOUDS,
+  BULLET,
   DOUBLE_HEART,
+  DOUBLE_STAR,
   type EnemyKind,
+  FOUR_BULLETS,
   type Item,
   type Level,
   MAX_JUMP_TILES,
+  PINK_DIAMOND,
   RED_DIAMOND,
+  STAR,
+  THREE_BULLETS,
   type Tile,
   TILE_AIR,
   TILE_CANNON,
@@ -60,6 +67,10 @@ import {
   TILE_SIZE,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
+  TITANIUM_HELMET,
+  TRIPLE_STAR,
+  TWO_BULLETS,
+  VAMPIRE_SLAYER_BULLET_RAIN,
 } from '@mander/model';
 
 const simulation = (state: GameState): Omit<GameState, 'updateTime'> =>
@@ -1651,6 +1662,128 @@ describe('cannons', () => {
   });
 });
 
+describe('the gear that wards off spikes', () => {
+  const spikeCol = 6;
+  const spikeX = spikeCol * TILE_SIZE;
+
+  const ceilingCol = 6;
+  const ceilingRow = 9;
+
+  const standingOnSpikes = (...gear: Item[]): GameState => {
+    const state = createInitialState(spikeLevel(spikeCol), 0, gear);
+    return {
+      ...state,
+      player: {
+        ...state.player,
+        position: { x: spikeX, y: SURFACE - PLAYER_HEIGHT },
+      },
+    };
+  };
+
+  const underCeilingSpikes = (...gear: Item[]): GameState => {
+    const state = createInitialState(
+      ceilingSpikeLevel(ceilingCol, ceilingRow),
+      0,
+      gear,
+    );
+    return {
+      ...state,
+      player: {
+        ...state.player,
+        position: { x: ceilingCol * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT },
+      },
+    };
+  };
+
+  const jumpedIntoTheCeiling = (state: GameState): GameState =>
+    tickN(act(tick(state), { type: 'JUMP_START' }), 20);
+
+  it('walks the player over floor spikes in the Boots of Clouds', () => {
+    const state = tickN(standingOnSpikes(BOOTS_OF_CLOUDS), ticksFor(1));
+
+    expect(state.player.hearts.value, 'not a scratch').toBe(BASE_HEARTS);
+    expect(state.player.timers.death, 'and still on their feet').toBeNull();
+    expect(state.deaths).toBe(0);
+  });
+
+  it('lets the floor spikes bite the player who has no boots', () => {
+    const state = tick(standingOnSpikes());
+
+    expect(state.player.hearts.value).toBe(BASE_HEARTS - 1);
+  });
+
+  it('shrugs ceiling spikes off the Titanium Helmet', () => {
+    const state = jumpedIntoTheCeiling(underCeilingSpikes(TITANIUM_HELMET));
+
+    expect(state.player.hearts.value, 'the prongs glance off').toBe(
+      BASE_HEARTS,
+    );
+    expect(state.deaths).toBe(0);
+  });
+
+  it('lets the ceiling spikes bite the bare head', () => {
+    const state = jumpedIntoTheCeiling(underCeilingSpikes());
+
+    expect(state.player.hearts.value).toBe(BASE_HEARTS - 1);
+  });
+
+  it('does not let the boots do the helmet’s job', () => {
+    const state = jumpedIntoTheCeiling(underCeilingSpikes(BOOTS_OF_CLOUDS));
+
+    expect(state.player.hearts.value).toBe(BASE_HEARTS - 1);
+  });
+
+  it('does not let the helmet do the boots’ job', () => {
+    const state = tick(standingOnSpikes(TITANIUM_HELMET));
+
+    expect(state.player.hearts.value).toBe(BASE_HEARTS - 1);
+  });
+
+  it('keeps the gear on through the next level', () => {
+    const state = act(standingOnSpikes(BOOTS_OF_CLOUDS), {
+      type: 'LOAD_LEVEL',
+      level: spikeLevel(spikeCol),
+      levelIndex: 1,
+    });
+
+    expect(
+      tickN(
+        {
+          ...state,
+          player: {
+            ...state.player,
+            position: { x: spikeX, y: SURFACE - PLAYER_HEIGHT },
+          },
+        },
+        ticksFor(1),
+      ).player.hearts.value,
+      'the boots came along',
+    ).toBe(BASE_HEARTS);
+  });
+
+  it('spares nothing else — an enemy still hurts in full gear', () => {
+    const state = createInitialState(testLevel([{ x: 5, y: 11 }]), 0, [
+      BOOTS_OF_CLOUDS,
+      TITANIUM_HELMET,
+    ]);
+    const settled = tickN(
+      {
+        ...state,
+        player: {
+          ...state.player,
+          position: {
+            x: state.enemies[0].position.x,
+            y: SURFACE - PLAYER_HEIGHT,
+          },
+        },
+      },
+      2,
+    );
+
+    expect(settled.player.hearts.value).toBeLessThan(BASE_HEARTS);
+  });
+});
+
 describe('hearts', () => {
   const emberHeart = (id = 'EMBER-HEART'): Item =>
     item(id, { kind: 'HEART', amount: 1 });
@@ -1821,8 +1954,8 @@ describe('the star', () => {
     },
   });
 
-  const star = (id = 'NIGHT-STAR'): Item =>
-    item(id, { kind: 'STAR', amount: 1 });
+  const star = (id = 'NIGHT-STAR', amount = 1): Item =>
+    item(id, { kind: 'STAR', amount });
 
   const carrying = (...stars: Item[]): GameState =>
     createInitialState(spikeLevel(6), 0, stars);
@@ -1834,13 +1967,18 @@ describe('the star', () => {
     const state = useStar(carrying(star()));
 
     expect(state.player.timers.invincibility).toBe(STAR_INVINCIBLE_SECONDS);
-    expect(state.inventory, 'and the star is gone').toEqual([]);
+    expect(state.stars, 'and the star is spent').toBe(0);
   });
 
   it('burns through the pack one star at a time', () => {
     const state = useStar(carrying(star('FIRST'), star('SECOND')));
 
-    expect(state.inventory.map(({ id }) => id)).toEqual(['SECOND']);
+    expect(state.stars).toBe(1);
+    expect(useStar(state).stars, 'and then the last of them').toBe(0);
+  });
+
+  it('counts what a card is worth, not how many cards there are', () => {
+    expect(carrying(star('TWIN-STAR', 2)).stars).toBe(2);
   });
 
   it('does nothing at all with an empty pack', () => {
@@ -1849,11 +1987,12 @@ describe('the star', () => {
     expect(simulation(useStar(state))).toEqual(simulation(state));
   });
 
-  it('leaves the rest of the pack where it is', () => {
+  it('keeps the cards taken on the record after they are spent', () => {
     const trinket = item('KEEPSAKE');
     const state = useStar(carrying(trinket, star()));
 
-    expect(state.inventory).toEqual([trinket]);
+    expect(state.inventory).toEqual([trinket, star()]);
+    expect(state.stars, 'though the star itself is gone').toBe(0);
   });
 
   it('walks the player through spikes unharmed while it lasts', () => {
@@ -1889,10 +2028,154 @@ describe('the star', () => {
     );
   });
 
-  it('keeps the star in the pack while the chest is still open', () => {
+  it('keeps the star unspent while the chest is still open', () => {
     const state: GameState = { ...carrying(star()), status: 'CHEST' };
 
-    expect(useStar(state).inventory).toHaveLength(1);
+    expect(useStar(state).stars).toBe(1);
+  });
+
+  it('carries the stars left over into the next level', () => {
+    const state = act(useStar(carrying(star('TWIN-STAR', 2))), {
+      type: 'LOAD_LEVEL',
+      level: testLevel(),
+      levelIndex: 1,
+    });
+
+    expect(state.stars).toBe(1);
+  });
+});
+
+describe('bullets', () => {
+  const enemySpawn: Point = { x: 7, y: 11 };
+  const shooterX = 5 * TILE_SIZE;
+
+  const rounds = (amount: number): Item =>
+    item('AMMO-BELT', { kind: 'BULLET', amount });
+
+  const armedAt = (
+    level: GameLevel,
+    x: number,
+    amount: number,
+    kind?: EnemyKind,
+  ): GameState => {
+    const state = createInitialState(level, 0, [rounds(amount)]);
+    state.player.position.x = x;
+    state.player.position.y = SURFACE - PLAYER_HEIGHT;
+    return tick({
+      ...state,
+      enemies: map(state.enemies, (enemy) => ({
+        ...enemy,
+        kind: kind ?? enemy.kind,
+        position: { ...enemy.position, y: SURFACE - ENEMY_HEIGHT },
+      })),
+    });
+  };
+
+  const armed = (amount: number): GameState =>
+    armedAt(testLevel(), shooterX, amount);
+
+  const fire = (state: GameState): GameState => act(state, { type: 'SHOOT' });
+
+  const facing = (state: GameState, isRight: boolean): GameState =>
+    tickN(
+      act(state, {
+        type: isRight ? 'MOVE_RIGHT_START' : 'MOVE_LEFT_START',
+      }),
+      3,
+    );
+
+  it('loads a round for every bullet the pack holds', () => {
+    expect(armed(3).ammo).toBe(3);
+  });
+
+  it('spends a round and puts a bullet in the air', () => {
+    const state = fire(armed(2));
+
+    expect(state.ammo, 'one round lighter').toBe(1);
+    expect(size(state.bullets), 'and one bullet away').toBe(1);
+  });
+
+  it('does nothing at all with an empty gun', () => {
+    const state = armedAt(testLevel(), shooterX, 0);
+
+    expect(simulation(fire(state))).toEqual(simulation(state));
+  });
+
+  it('sends the bullet whichever way the player faces', () => {
+    const rightward = fire(facing(armed(2), true));
+    const leftward = fire(facing(armed(2), false));
+
+    expect(rightward.bullets[0].velocity.x.current).toBeGreaterThan(0);
+    expect(leftward.bullets[0].velocity.x.current).toBeLessThan(0);
+  });
+
+  it('flies on through spikes and walls, then leaves the level behind', () => {
+    let state = fire(facing(armedAt(spikeLevel(3), shooterX, 1), false));
+
+    state = tickN(state, ticksFor(0.2));
+    expect(
+      state.bullets[0].position.x,
+      'the spike does not stop it',
+    ).toBeLessThan(3 * TILE_SIZE);
+
+    state = tickN(state, ticksFor(1));
+    expect(state.bullets, 'and it is gone once past the wall').toEqual([]);
+  });
+
+  it('drops any enemy it hits, and is spent on the kill', () => {
+    const kinds: EnemyKind[] = ['HOPPING', 'HORNED', 'FLYING'];
+
+    for (const kind of kinds) {
+      const level = testLevel([enemySpawn]);
+      let state = fire(armedAt(level, shooterX, 1, kind));
+
+      state = tickN(state, ticksFor(0.3));
+      expect(
+        state.enemies[0].timers.death,
+        `the ${kind} enemy is down`,
+      ).not.toBeNull();
+      expect(state.bullets, `and the ${kind} kill spent the bullet`).toEqual(
+        [],
+      );
+    }
+  });
+
+  it('costs the player nothing to shoot an enemy down', () => {
+    const level = testLevel([enemySpawn]);
+    let state = fire(armedAt(level, shooterX, 1, 'HORNED'));
+
+    state = tickN(state, ticksFor(0.3));
+    expect(state.player.hearts.value, 'no horn ever reached them').toBe(
+      BASE_HEARTS,
+    );
+    expect(state.status).toBe('PLAYING');
+  });
+
+  it('keeps the gun holstered while the chest is open', () => {
+    const state: GameState = { ...armed(1), status: 'CHEST' };
+
+    expect(fire(state).ammo).toBe(1);
+    expect(fire(state).bullets).toEqual([]);
+  });
+
+  it('clears the bullets in the air on RESPAWN but keeps the rounds left', () => {
+    const state = act(fire(armed(2)), { type: 'RESPAWN' });
+
+    expect(state.bullets).toEqual([]);
+    expect(state.ammo, 'the spent round stays spent').toBe(1);
+  });
+
+  it('carries the rounds left over into the next level', () => {
+    const state = act(fire(armed(3)), {
+      type: 'LOAD_LEVEL',
+      level: testLevel(),
+      levelIndex: 1,
+    });
+
+    expect(state.ammo).toBe(2);
+    expect(state.bullets, 'though the shot in flight is left behind').toEqual(
+      [],
+    );
   });
 });
 
@@ -2113,6 +2396,62 @@ describe('items', () => {
     const state = opened(RED_DIAMOND);
     expect(state.player.hearts.value).toBe(BASE_HEARTS);
     expect(state.score).toBe(1500);
+  });
+
+  it('a star is one turn of invincibility, a double two, a triple three', () => {
+    expect(opened(STAR).stars).toBe(1);
+    expect(opened(DOUBLE_STAR).stars).toBe(2);
+    expect(opened(TRIPLE_STAR).stars).toBe(3);
+  });
+
+  it('a pink diamond is worth 2750 points', () => {
+    const state = opened(PINK_DIAMOND);
+
+    expect(state.score).toBe(2750);
+    expect(state.player.hearts.value, 'and no hearts').toBe(BASE_HEARTS);
+  });
+
+  it('the gear is kept rather than spent', () => {
+    expect(opened(BOOTS_OF_CLOUDS).inventory).toEqual([BOOTS_OF_CLOUDS]);
+    expect(opened(TITANIUM_HELMET).inventory).toEqual([TITANIUM_HELMET]);
+  });
+
+  it('stacks a double star on top of the stars already carried', () => {
+    const state = opened(STAR);
+
+    expect(
+      act(
+        {
+          ...state,
+          status: 'CHEST',
+          level: { ...state.level, chestItems: [DOUBLE_STAR] },
+        },
+        { type: 'CHOOSE_ITEM', index: 0 },
+      ).stars,
+    ).toBe(3);
+  });
+
+  it('the bullet cards each load what their name promises', () => {
+    expect(opened(BULLET).ammo).toBe(1);
+    expect(opened(TWO_BULLETS).ammo).toBe(2);
+    expect(opened(THREE_BULLETS).ammo).toBe(3);
+    expect(opened(FOUR_BULLETS).ammo).toBe(4);
+    expect(opened(VAMPIRE_SLAYER_BULLET_RAIN).ammo).toBe(9999);
+  });
+
+  it('stacks a second bullet card on top of the rounds already carried', () => {
+    const state = opened(TWO_BULLETS);
+
+    expect(
+      act(
+        {
+          ...state,
+          status: 'CHEST',
+          level: { ...state.level, chestItems: [THREE_BULLETS] },
+        },
+        { type: 'CHOOSE_ITEM', index: 0 },
+      ).ammo,
+    ).toBe(5);
   });
 });
 

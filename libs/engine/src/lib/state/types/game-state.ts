@@ -1,4 +1,5 @@
 import type {
+  Bullet,
   Cannon,
   Cannonball,
   Enemy,
@@ -20,6 +21,9 @@ export interface GameState {
   cannons: Cannon[];
   cannonballs: Cannonball[];
   fireballs: Fireball[];
+  bullets: Bullet[];
+  ammo: number;
+  stars: number;
   diamonds: Point[];
   input: InputState;
   status: GameStatus;

@@ -1,3 +1,4 @@
+import { times } from 'lodash-es';
 import {
   HARD_001,
   HARD_002,
@@ -24,6 +25,12 @@ import {
   HARD_023,
   HARD_024,
   HARD_025,
+  HARD_026,
+  HARD_027,
+  HARD_028,
+  HARD_029,
+  HARD_030,
+  HARD_031,
 } from './hard';
 import {
   NORMAL_001,
@@ -126,6 +133,20 @@ import {
   NORMAL_098,
   NORMAL_099,
   NORMAL_100,
+  NORMAL_101,
+  NORMAL_102,
+  NORMAL_103,
+  NORMAL_104,
+  NORMAL_105,
+  NORMAL_106,
+  NORMAL_107,
+  NORMAL_108,
+  NORMAL_109,
+  NORMAL_110,
+  NORMAL_111,
+  NORMAL_112,
+  NORMAL_113,
+  NORMAL_114,
 } from './normal';
 import type { Structure } from './structure';
 
@@ -155,6 +176,12 @@ export const HARD_STRUCTURES: readonly Structure[] = Object.freeze([
   HARD_023,
   HARD_024,
   HARD_025,
+  HARD_026,
+  HARD_027,
+  HARD_028,
+  HARD_029,
+  HARD_030,
+  HARD_031,
 ]);
 
 export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
@@ -258,4 +285,18 @@ export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
   NORMAL_098,
   NORMAL_099,
   NORMAL_100,
+  NORMAL_101,
+  NORMAL_102,
+  NORMAL_103,
+  NORMAL_104,
+  NORMAL_105,
+  NORMAL_106,
+  NORMAL_107,
+  NORMAL_108,
+  NORMAL_109,
+  NORMAL_110,
+  NORMAL_111,
+  NORMAL_112,
+  NORMAL_113,
+  NORMAL_114,
 ]);

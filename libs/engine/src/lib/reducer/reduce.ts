@@ -15,6 +15,7 @@ import { moveRightStart } from './move-right-start/move-right-start';
 import { moveRightStop } from './move-right-stop/move-right-stop';
 import { respawn } from './respawn/respawn';
 import { restart } from './restart/restart';
+import { shoot } from './shoot/shoot';
 import { tick } from './tick/tick';
 import { useStar } from './use-star/use-star';
 
@@ -33,6 +34,7 @@ export const reduce = (state: GameState, action: Action): GameState =>
         .with({ type: 'INTERACT' }, () => interact(state))
         .with({ type: 'CHOOSE_ITEM' }, ({ index }) => chooseItem(state, index))
         .with({ type: 'USE_STAR' }, () => useStar(state))
+        .with({ type: 'SHOOT' }, () => shoot(state))
         .with({ type: 'CLOSE' }, () => close(state))
         .with({ type: 'RESPAWN' }, () => respawn(state))
         .with({ type: 'LOAD_LEVEL' }, ({ level, levelIndex }) =>

@@ -35,6 +35,13 @@ export const BLUE_GEM: GemColors = {
   glow: '#7FB4FF',
 };
 
+export const PINK_GEM: GemColors = {
+  light: '#FFE6F4',
+  base: '#F062B0',
+  deep: '#8C1B5A',
+  glow: '#FF9AD5',
+};
+
 export const PURPLE_GEM: GemColors = {
   light: '#F2E4FF',
   base: '#A45BE8',

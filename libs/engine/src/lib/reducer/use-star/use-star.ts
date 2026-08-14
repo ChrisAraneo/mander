@@ -1,14 +1,9 @@
-import type { Item, Player } from '@mander/model';
-import { filter, findIndex } from 'lodash-es';
+import type { Player } from '@mander/model';
 import { match, P } from 'ts-pattern';
 
 import type { GameState } from '../../state/types/game-state';
 import { isAlive } from '../player/is-alive';
 import { STAR_INVINCIBLE_SECONDS } from '../player/consts';
-import { isStar } from './is-star';
-
-const withoutIndex = (inventory: Item[], index: number): Item[] =>
-  filter(inventory, (_, at) => at !== index);
 
 const shielded = (player: Player): Player => ({
   ...player,
@@ -21,9 +16,9 @@ const shielded = (player: Player): Player => ({
   },
 });
 
-const burnStar = (state: GameState, index: number): GameState => ({
+const burnStar = (state: GameState): GameState => ({
   ...state,
-  inventory: withoutIndex(state.inventory, index),
+  stars: state.stars - 1,
   player: shielded(state.player),
 });
 
@@ -31,10 +26,10 @@ export const useStar = (state: GameState): GameState =>
   match({
     status: state.status,
     alive: isAlive(state.player),
-    index: findIndex(state.inventory, isStar),
+    stars: state.stars,
   })
     .with(
-      { status: 'PLAYING', alive: true, index: P.number.gte(0) },
-      ({ index }): GameState => burnStar(state, index),
+      { status: 'PLAYING', alive: true, stars: P.number.gte(1) },
+      (): GameState => burnStar(state),
     )
     .otherwise((): GameState => state);

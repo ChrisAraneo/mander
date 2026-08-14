@@ -3,7 +3,9 @@ import { match } from 'ts-pattern';
 
 import type { GameState } from '../../state/types/game-state';
 import { createBasePlayerVelocity } from '../player/create-base-player-velocity';
+import { getBulletsAmount } from './get-bullets-amount';
 import { getScoreAmount } from './get-score-amount';
+import { getStarsAmount } from './get-stars-amount';
 import { getHeartsAmount } from './get-hearts-amount';
 
 export const chooseItem = (state: GameState, index: number): GameState =>
@@ -20,6 +22,10 @@ export const chooseItem = (state: GameState, index: number): GameState =>
               inventory: concat(state.inventory, state.level.chestItems[index]),
               score:
                 state.score + getScoreAmount(state.level.chestItems[index]),
+              ammo:
+                state.ammo + getBulletsAmount(state.level.chestItems[index]),
+              stars:
+                state.stars + getStarsAmount(state.level.chestItems[index]),
               player: {
                 ...state.player,
                 hearts: {

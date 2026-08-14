@@ -11,6 +11,7 @@ export type Action =
   | { type: 'INTERACT' }
   | { type: 'CHOOSE_ITEM'; index: number }
   | { type: 'USE_STAR' }
+  | { type: 'SHOOT' }
   | { type: 'CLOSE' }
   | { type: 'LOAD_LEVEL'; level: GameLevel; levelIndex: number }
   | { type: 'RESPAWN' }

@@ -15,5 +15,6 @@ export const respawn = (state: GameState): GameState =>
       cannons: createCannons(state.level),
       cannonballs: [],
       fireballs: createFireballs(state.level),
+      bullets: [],
     }))
     .otherwise((): GameState => state);

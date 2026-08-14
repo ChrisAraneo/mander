@@ -1,18 +1,42 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+import { match } from 'ts-pattern';
 import type { Item } from '@mander/model';
 import ItemArt from './ItemArt.vue';
 
-defineProps<{ items: Item[] }>();
+const props = defineProps<{ items: Item[] }>();
 defineEmits<{ choose: [index: number]; close: [] }>();
+
+const heading = computed(() =>
+  match(props.items.length === 1)
+    .with(true, () => 'Something epic is lying inside…')
+    .otherwise(() => 'The chest creaks open…'),
+);
+
+const prompt = computed(() =>
+  match(props.items.length === 1)
+    .with(
+      true,
+      () => 'One card, nothing beside it — click it or press 1. Esc leaves it.',
+    )
+    .otherwise(
+      () =>
+        `Take one of the ${props.items.length} — click it or press its number. Esc leaves them.`,
+    ),
+);
+
+const leaveLabel = computed(() =>
+  match(props.items.length === 1)
+    .with(true, () => 'Leave it for now (Esc)')
+    .otherwise(() => 'Leave them for now (Esc)'),
+);
 </script>
 
 <template>
   <div class="overlay">
     <div class="panel chest-panel">
-      <h2>The chest creaks open…</h2>
-      <p>
-        Take one of the three — click it or press its number. Esc leaves them.
-      </p>
+      <h2>{{ heading }}</h2>
+      <p>{{ prompt }}</p>
 
       <div class="cards">
         <button
@@ -30,7 +54,7 @@ defineEmits<{ choose: [index: number]; close: [] }>();
       </div>
 
       <button class="ghost" @click="$emit('close')">
-        Leave them for now (Esc)
+        {{ leaveLabel }}
       </button>
     </div>
   </div>
