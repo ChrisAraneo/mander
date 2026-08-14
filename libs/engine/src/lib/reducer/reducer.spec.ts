@@ -1500,13 +1500,13 @@ describe('cannons', () => {
     expect(fired).toBe(3);
   });
 
-  it('holds its fire while the player keeps more than thirty blocks away', () => {
+  it('holds its fire while the player keeps more than twenty blocks away', () => {
     let state = atRange(CANNON_RANGE_TILES + 2);
     state = tickN(state, ticksFor(CANNON_RELOAD_SECONDS * 2));
     expect(state.cannonballs, 'nothing to fear from that far off').toEqual([]);
   });
 
-  it('shoots the moment the player closes to thirty blocks', () => {
+  it('shoots the moment the player closes to twenty blocks', () => {
     let state = atRange(CANNON_RANGE_TILES + 2);
     state = tickN(state, ticksFor(CANNON_RELOAD_SECONDS * 2));
     state = {
