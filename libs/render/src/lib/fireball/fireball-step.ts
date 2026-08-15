@@ -1,4 +1,8 @@
-import { FIREBALL_SIZE, fireballPosition } from '@mander/engine';
+import {
+  FIREBALL_SIZE,
+  fireballHeading,
+  fireballPosition,
+} from '@mander/engine';
 import type { Fireball } from '@mander/model';
 
 import {
@@ -19,8 +23,6 @@ import {
 import { outline } from '../stroke';
 
 const RADIUS = FIREBALL_SIZE / 2;
-
-const QUARTER_TURN = Math.PI / 2;
 
 const TAIL_LENGTH = 22;
 const TAIL_HEIGHT = 4.5;
@@ -70,7 +72,7 @@ export const fireballStep = (fireball: Fireball, time: number): CanvasStep => {
   return sequence([
     save,
     translate(centre.x, centre.y),
-    rotate(fireball.angle + QUARTER_TURN),
+    rotate(fireballHeading(fireball)),
     styled({ shadowColor: GLOW_COLOR, shadowBlur: GLOW_BLUR }),
     tailStep,
     flameStep(flickerOf(fireball, time)),

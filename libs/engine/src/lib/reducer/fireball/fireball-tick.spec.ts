@@ -47,6 +47,7 @@ const tick = (state: GameState): GameState =>
   reduce(state, { type: 'TICK', deltaSeconds: DELTA_SECONDS });
 
 const onTopOfPlayer = (state: GameState): Fireball => ({
+  spin: 'CLOCKWISE',
   origin: {
     x: state.player.position.x + PLAYER_WIDTH / 2 - FIREBALL_ORBIT_RADIUS,
     y: state.player.position.y + PLAYER_HEIGHT / 2,

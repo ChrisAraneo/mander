@@ -21,6 +21,7 @@ export * from './lib/reducer/cannon/types/barrage';
 export * from './lib/reducer/fireball/consts';
 export * from './lib/reducer/fireball/advance-fireballs';
 export * from './lib/reducer/fireball/create-fireballs';
+export * from './lib/reducer/fireball/fireball-heading';
 export * from './lib/reducer/fireball/fireball-position';
 export * from './lib/reducer/fireball/is-burning';
 export * from './lib/reducer/fireball/is-touching-fireball';

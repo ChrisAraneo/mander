@@ -78,9 +78,9 @@ export const CHEST_ITEM_POOL: readonly Item[] = Object.freeze(
 
 export const RARITY_CHANCE: Readonly<Record<ItemRarity, number>> =
   Object.freeze({
-    COMMON: 0.8,
+    COMMON: 0.79,
     RARE: 0.19,
-    EPIC: 0.01,
+    EPIC: 0.02,
   });
 
 export const chestTypeOf = (item: Item): ChestItemType | undefined =>

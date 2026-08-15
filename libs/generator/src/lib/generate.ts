@@ -19,6 +19,8 @@ import { computeWorldName } from './seed/compute-world-name';
 import { addStones } from './structures/add-stones';
 import { clearCannons } from './structures/clear-cannons';
 import { clearFireballs } from './structures/clear-fireballs';
+import { isMirrored } from './structures/is-mirrored';
+import { mirrorTiles } from './structures/mirror-tiles';
 
 const FIRST_HARD_LEVEL = 7;
 
@@ -93,12 +95,13 @@ export const generate = (date: Date): RenderedWorld => {
     const withChest = addChest(withKey);
     const withDiamonds = addDiamonds(withChest);
     const withStones = addStones(withDiamonds);
+    const withMirror = isMirrored(seed) ? mirrorTiles(withStones) : withStones;
 
     const level: GameLevel = {
       seed,
-      width: withStones[0].length,
-      height: withStones.length,
-      tiles: withStones,
+      width: withMirror[0].length,
+      height: withMirror.length,
+      tiles: withMirror,
       chestItems,
       hornedEnemyChance: hornedEnemyChanceFor(levelNumber),
     };

@@ -110,8 +110,8 @@ describe('generateChestItems', () => {
     expect(leading['RARE']).toBeLessThan(leading['COMMON']);
   });
 
-  it('promises four commons in five, a rare in five and an epic in a hundred', () => {
-    expect(RARITY_CHANCE).toEqual({ COMMON: 0.8, RARE: 0.19, EPIC: 0.01 });
+  it('promises four commons in five, a rare in five and an epic in fifty', () => {
+    expect(RARITY_CHANCE).toEqual({ COMMON: 0.79, RARE: 0.19, EPIC: 0.02 });
     expect(sum(values(RARITY_CHANCE)), 'and nothing else').toBeCloseTo(1);
   });
 

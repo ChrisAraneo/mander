@@ -3,6 +3,7 @@ export * from './lib/cannon/cannon';
 export * from './lib/cannon/cannonball';
 export * from './lib/cannon/find-cannon-tiles';
 export * from './lib/fireball/fireball';
+export * from './lib/fireball/fireball-spin';
 export * from './lib/fireball/find-fireball-tiles';
 export * from './lib/chest/find-chest-tile';
 export * from './lib/chest/chest-entity-box';

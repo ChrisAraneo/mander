@@ -1,5 +1,10 @@
 import { createEnemies, HORNED_ENEMY_CHANCE } from '@mander/engine';
-import { findCannonTiles } from '@mander/model';
+import {
+  findCannonTiles,
+  findTile,
+  TILE_PORTAL,
+  TILE_SPAWN,
+} from '@mander/model';
 import {
   every,
   filter,
@@ -15,6 +20,7 @@ import { describe, expect, it } from 'vitest';
 
 import { generate } from './generate';
 import { FIRST_CANNON_LEVEL } from './structures/clear-cannons';
+import { isMirrored } from './structures/is-mirrored';
 
 const LEVELS_A_DAY = 8;
 
@@ -121,6 +127,42 @@ describe('generate', () => {
     });
 
     expect(early).toEqual([]);
+  });
+
+  it('turns some levels around and leaves the rest alone', () => {
+    const turned = filter(
+      flatMap(days, (date) => generate(date).levels),
+      (level) => isMirrored(level.seed),
+    );
+    const built = flatMap(days, (date) => generate(date).levels);
+
+    expect(size(turned), 'some run right to left').toBeGreaterThan(0);
+    expect(size(turned), 'but not all of them').toBeLessThan(size(built));
+  });
+
+  it('sends the player in from the right on a mirrored level', () => {
+    const levels = flatMap(days, (date) => generate(date).levels);
+    const wrongWay = filter(levels, (level) => {
+      const spawn = findTile(level, TILE_SPAWN);
+      const portal = findTile(level, TILE_PORTAL);
+
+      if (spawn === null || portal === null) return false;
+
+      return isMirrored(level.seed) ? spawn.x <= portal.x : spawn.x >= portal.x;
+    });
+
+    expect(wrongWay).toEqual([]);
+  });
+
+  it('leaves a mirrored level as wide and as tall as it was built', () => {
+    const ragged = filter(
+      flatMap(days, (date) => generate(date).levels),
+      (level) =>
+        size(level.tiles) !== level.height ||
+        some(level.tiles, (row) => size(row) !== level.width),
+    );
+
+    expect(ragged).toEqual([]);
   });
 
   it('deals the same day the same way twice', () => {

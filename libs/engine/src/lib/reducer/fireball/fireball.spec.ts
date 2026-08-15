@@ -1,5 +1,6 @@
 import {
   type Fireball,
+  type FireballSpin,
   type Level,
   type Player,
   type Tile,
@@ -8,7 +9,7 @@ import {
   TILE_FIREBALL,
   TILE_SIZE,
 } from '@mander/model';
-import { map, reduce, times } from 'lodash-es';
+import { forEach, map, reduce, times, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { createBasePlayerVelocity } from '../player/create-base-player-velocity';
@@ -20,6 +21,7 @@ import {
   FIREBALL_ORBIT_TILES,
 } from './consts';
 import { createFireballs } from './create-fireballs';
+import { fireballHeading } from './fireball-heading';
 import { fireballPosition } from './fireball-position';
 import { isBurning } from './is-burning';
 import { stepFireball } from './step-fireball';
@@ -59,6 +61,20 @@ const spun = (fireball: Fireball, seconds: number): Fireball =>
     fireball,
   );
 
+const ONE_BLOCK = level([[TILE_FIREBALL], [TILE_DIRT]]);
+
+const ROW_OF_BLOCKS = level([
+  times(12, () => TILE_FIREBALL),
+  times(12, () => TILE_DIRT),
+]);
+
+const SPINS: FireballSpin[] = ['CLOCKWISE', 'ANTICLOCKWISE'];
+
+const turning = (spin: FireballSpin): Fireball => ({
+  ...createFireballs(ONE_BLOCK)[0],
+  spin,
+});
+
 describe('createFireballs', () => {
   it('should hang one fireball on every fireball block', () => {
     expect(
@@ -92,6 +108,25 @@ describe('createFireballs', () => {
 
     expect(fireballs[0].angle).not.toBe(fireballs[1].angle);
   });
+
+  it('should send some fireballs round one way and some the other', () => {
+    expect(uniq(map(createFireballs(ROW_OF_BLOCKS), 'spin')).sort()).toEqual([
+      'ANTICLOCKWISE',
+      'CLOCKWISE',
+    ]);
+  });
+
+  it('should roll the same spins again for the same seed, so a respawn matches', () => {
+    expect(map(createFireballs(ROW_OF_BLOCKS), 'spin')).toEqual(
+      map(createFireballs(ROW_OF_BLOCKS), 'spin'),
+    );
+  });
+
+  it('should roll different spins for a different seed', () => {
+    expect(
+      map(createFireballs({ ...ROW_OF_BLOCKS, seed: 'OTHER' }), 'spin'),
+    ).not.toEqual(map(createFireballs(ROW_OF_BLOCKS), 'spin'));
+  });
 });
 
 describe('stepFireball', () => {
@@ -108,12 +143,15 @@ describe('stepFireball', () => {
   });
 
   it('should come back around to where it started after one orbit', () => {
-    const [fireball] = createFireballs(level([[TILE_FIREBALL], [TILE_DIRT]]));
-    const start = fireballPosition(fireball);
-    const round = fireballPosition(spun(fireball, FIREBALL_ORBIT_SECONDS));
+    forEach(SPINS, (spin) => {
+      const start = fireballPosition(turning(spin));
+      const round = fireballPosition(
+        spun(turning(spin), FIREBALL_ORBIT_SECONDS),
+      );
 
-    expect(round.x).toBeCloseTo(start.x, 1);
-    expect(round.y).toBeCloseTo(start.y, 1);
+      expect(round.x, spin).toBeCloseTo(start.x, 1);
+      expect(round.y, spin).toBeCloseTo(start.y, 1);
+    });
   });
 
   it('should fly the same circle whether the ring is walled in or wide open', () => {
@@ -133,6 +171,82 @@ describe('stepFireball', () => {
     expect(map(advanceFireballs(walled, 1), fireballPosition)).toEqual(
       map(advanceFireballs(open, 1), fireballPosition),
     );
+  });
+});
+
+describe('stepFireball spin', () => {
+  const START = turning('CLOCKWISE').origin;
+
+  it('should carry the clockwise fireball downward off its three o clock start', () => {
+    expect(fireballPosition(spun(turning('CLOCKWISE'), 0.2)).y).toBeGreaterThan(
+      START.y,
+    );
+  });
+
+  it('should carry the anticlockwise fireball upward off the same start', () => {
+    expect(
+      fireballPosition(spun(turning('ANTICLOCKWISE'), 0.2)).y,
+    ).toBeLessThan(START.y);
+  });
+
+  it('should mirror the one spin against the other', () => {
+    const clockwise = fireballPosition(spun(turning('CLOCKWISE'), 0.7));
+    const anticlockwise = fireballPosition(spun(turning('ANTICLOCKWISE'), 0.7));
+
+    expect(anticlockwise.x).toBeCloseTo(clockwise.x, 6);
+    expect(anticlockwise.y - START.y).toBeCloseTo(START.y - clockwise.y, 6);
+  });
+
+  it('should hold the anticlockwise fireball five blocks out as well', () => {
+    times(40, (step) =>
+      expect(
+        radiusOf(spun(turning('ANTICLOCKWISE'), step / 10)),
+        `after ${step / 10}s`,
+      ).toBeCloseTo(FIREBALL_ORBIT_RADIUS),
+    );
+  });
+
+  it('should keep the anticlockwise angle inside a single turn', () => {
+    times(20, (step) => {
+      const { angle } = spun(turning('ANTICLOCKWISE'), step / 4);
+
+      expect(angle, `after ${step / 4}s`).toBeGreaterThanOrEqual(0);
+      expect(angle, `after ${step / 4}s`).toBeLessThan(Math.PI * 2);
+    });
+  });
+});
+
+describe('fireballHeading', () => {
+  const QUARTER_TURN = Math.PI / 2;
+
+  it('should point the clockwise fireball a quarter turn ahead', () => {
+    const fireball = turning('CLOCKWISE');
+
+    expect(fireballHeading(fireball)).toBeCloseTo(
+      fireball.angle + QUARTER_TURN,
+    );
+  });
+
+  it('should point the anticlockwise fireball a quarter turn the other way', () => {
+    const fireball = turning('ANTICLOCKWISE');
+
+    expect(fireballHeading(fireball)).toBeCloseTo(
+      fireball.angle - QUARTER_TURN,
+    );
+  });
+
+  it('should point each spin along the way it is really travelling', () => {
+    forEach(SPINS, (spin) => {
+      const fireball = spun(turning(spin), 0.4);
+      const from = fireballPosition(fireball);
+      const to = fireballPosition(stepFireball(fireball, 0.001));
+      const travel = Math.atan2(to.y - from.y, to.x - from.x);
+
+      expect(Math.cos(fireballHeading(fireball) - travel), spin).toBeCloseTo(
+        1,
+        4,
+      );
+    });
   });
 });
 
