@@ -1,6 +1,6 @@
 import { match } from 'ts-pattern';
 
-import type { Landing } from './landing';
+import type { Landing } from './types/landing';
 
 export const resolveLanding = (
   isBlocked: boolean,

@@ -1,20 +1,9 @@
 import { every, map, range } from 'lodash-es';
 import { chain, type Triangle } from '@mander/utils';
 
-interface Vec {
-  x: number;
-  y: number;
-}
-
-interface Axis {
-  nx: number;
-  ny: number;
-}
-
-interface Span {
-  min: number;
-  max: number;
-}
+import type { Axis } from './types/axis';
+import type { Span } from './types/span';
+import type { Vec } from './types/vec';
 
 const AABB_AXES: Axis[] = [
   { nx: 1, ny: 0 },

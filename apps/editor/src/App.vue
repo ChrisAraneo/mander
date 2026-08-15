@@ -1,25 +1,54 @@
 <script setup lang="ts">
 import { STRUCTURE_WIDTH, STRUCTURE_HEIGHT } from '@mander/structures';
-import { find } from 'lodash-es';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { filter, find } from 'lodash-es';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import BrushPicker from './components/BrushPicker.vue';
 import IssuePanel from './components/IssuePanel.vue';
 import OutputPanel from './components/OutputPanel.vue';
 import StructureGrid from './components/StructureGrid.vue';
-import { BRUSHES, PRESETS } from './editor';
-import { useEditor } from './editor';
+import type { Difficulty } from './editor';
+import { BRUSHES, difficultyOf, nextStructureName } from './editor';
+import { useEditor, useLibrary } from './editor';
 
 const editor = useEditor();
-const presetLabel = ref('');
+const library = useLibrary();
 
-function loadPreset(label: string): void {
-  const preset = find(PRESETS, { label });
-  if (preset === undefined) return;
-  editor.replace(preset.grid);
+const loaded = ref('');
+const pool = ref<Difficulty>('normal');
+const name = ref('');
+
+const normalEntries = computed(() =>
+  filter(library.entries.value, { difficulty: 'normal' }),
+);
+const hardEntries = computed(() =>
+  filter(library.entries.value, { difficulty: 'hard' }),
+);
+
+const target = computed(() => `${difficultyOf(name.value)}.ts`);
+
+const canSave = computed(
+  () => library.isReady.value && editor.isValid.value && name.value.length > 0,
+);
+
+function suggestName(): void {
+  name.value = nextStructureName(library.entries.value, pool.value);
+}
+
+function loadStructure(structure: string): void {
+  const entry = find(library.entries.value, { name: structure });
+  if (entry === undefined) return;
+  editor.replace(entry.grid);
+  pool.value = entry.difficulty;
+  name.value = entry.name;
+}
+
+function save(): void {
+  void library.save(name.value, editor.grid.value);
 }
 
 function onKeydown(event: KeyboardEvent): void {
+  if (document.activeElement?.tagName === 'INPUT') return;
   const brush = find(BRUSHES, { shortcut: event.key });
   if (brush !== undefined) {
     editor.brush.value = brush.value;
@@ -31,7 +60,11 @@ function onKeydown(event: KeyboardEvent): void {
   }
 }
 
-onMounted(() => window.addEventListener('keydown', onKeydown));
+onMounted(async () => {
+  window.addEventListener('keydown', onKeydown);
+  await library.load();
+  suggestName();
+});
 onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 </script>
 
@@ -57,15 +90,51 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 
         <div class="group">
           <h2>Start from</h2>
-          <select v-model="presetLabel" @change="loadPreset(presetLabel)">
+          <select v-model="loaded" @change="loadStructure(loaded)">
             <option value="">Blank grid</option>
-            <option
-              v-for="preset in PRESETS"
-              :key="preset.label"
-              :value="preset.label">
-              {{ preset.label }}
-            </option>
+            <optgroup label="Normal">
+              <option
+                v-for="entry in normalEntries"
+                :key="entry.name"
+                :value="entry.name">
+                {{ entry.name }}
+              </option>
+            </optgroup>
+            <optgroup label="Hard">
+              <option
+                v-for="entry in hardEntries"
+                :key="entry.name"
+                :value="entry.name">
+                {{ entry.name }}
+              </option>
+            </optgroup>
           </select>
+        </div>
+
+        <div class="group">
+          <h2>Save to library</h2>
+          <select v-model="pool" @change="suggestName()">
+            <option value="normal">Normal</option>
+            <option value="hard">Hard</option>
+          </select>
+          <input
+            v-model="name"
+            class="name"
+            spellcheck="false"
+            placeholder="NORMAL_001" />
+          <button
+            class="primary"
+            type="button"
+            :disabled="!canSave"
+            @click="save()">
+            Write to {{ target }}
+          </button>
+          <p v-if="library.status.value" class="status">
+            {{ library.status.value }}
+          </p>
+          <p v-else-if="!editor.isValid.value" class="status">
+            Settle the issues before writing to the library.
+          </p>
         </div>
 
         <div class="group actions">
@@ -161,7 +230,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
   cursor: not-allowed;
 }
 
-select {
+select,
+.name {
   width: 100%;
   font: inherit;
   padding: 8px 10px;
@@ -170,10 +240,34 @@ select {
   background: #141a28;
   color: #e8eef6;
   outline: none;
+  box-sizing: border-box;
 }
 
-select:focus {
+select:focus,
+.name:focus {
   border-color: #f4762c;
+}
+
+.group select + .name,
+.group .name + button,
+.group select + button {
+  margin-top: 8px;
+}
+
+.group .primary {
+  width: 100%;
+}
+
+.group .primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.status {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #9fb0c3;
 }
 
 .canvas {

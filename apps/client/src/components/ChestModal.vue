@@ -1,15 +1,42 @@
 <script setup lang="ts">
-import type { Item } from '@mander/engine';
+import { computed } from 'vue';
+import { match } from 'ts-pattern';
+import type { Item } from '@mander/model';
+import ItemArt from './ItemArt.vue';
 
-defineProps<{ items: Item[] }>();
+const props = defineProps<{ items: Item[] }>();
 defineEmits<{ choose: [index: number]; close: [] }>();
+
+const heading = computed(() =>
+  match(props.items.length === 1)
+    .with(true, () => 'Something epic is lying inside…')
+    .otherwise(() => 'The chest creaks open…'),
+);
+
+const prompt = computed(() =>
+  match(props.items.length === 1)
+    .with(
+      true,
+      () => 'One card, nothing beside it — click it or press 1. Esc leaves it.',
+    )
+    .otherwise(
+      () =>
+        `Take one of the ${props.items.length} — click it or press its number. Esc leaves them.`,
+    ),
+);
+
+const leaveLabel = computed(() =>
+  match(props.items.length === 1)
+    .with(true, () => 'Leave it for now (Esc)')
+    .otherwise(() => 'Leave them for now (Esc)'),
+);
 </script>
 
 <template>
   <div class="overlay">
     <div class="panel chest-panel">
-      <h2>The chest creaks open…</h2>
-      <p>Press Enter to take it, or Esc to leave it behind.</p>
+      <h2>{{ heading }}</h2>
+      <p>{{ prompt }}</p>
 
       <div class="cards">
         <button
@@ -18,6 +45,8 @@ defineEmits<{ choose: [index: number]; close: [] }>();
           class="card"
           :class="item.rarity.toLowerCase()"
           @click="$emit('choose', index)">
+          <span class="slot">{{ index + 1 }}</span>
+          <ItemArt :item="item" />
           <span class="rarity">{{ item.rarity }}</span>
           <span class="name">{{ item.name }}</span>
           <span class="description">{{ item.description }}</span>
@@ -25,7 +54,7 @@ defineEmits<{ choose: [index: number]; close: [] }>();
       </div>
 
       <button class="ghost" @click="$emit('close')">
-        Leave it for now (Esc)
+        {{ leaveLabel }}
       </button>
     </div>
   </div>
@@ -46,7 +75,7 @@ defineEmits<{ choose: [index: number]; close: [] }>();
 
 .card {
   width: 150px;
-  min-height: 170px;
+  min-height: 230px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -92,6 +121,19 @@ defineEmits<{ choose: [index: number]; close: [] }>();
 .card.epic:focus-visible {
   border-color: #c9a2ff;
   box-shadow: 0 8px 24px rgba(201, 162, 255, 0.3);
+}
+
+.slot {
+  align-self: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid #33445a;
+  background: #0b0f17;
+  color: #9fb0c3;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 19px;
 }
 
 .rarity {

@@ -3,15 +3,9 @@ import { floor } from 'lodash-es';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 
-import type { AxisMove } from './axis-move';
 import { EPSILON, SUBSTEP } from './consts';
-
-interface Sweep {
-  origin: number;
-  delta: number;
-  size: number;
-  collides: (position: number) => boolean;
-}
+import type { AxisMove } from './types/axis-move';
+import type { Sweep } from './types/sweep';
 
 const blockedPosition = (
   nextPosition: number,

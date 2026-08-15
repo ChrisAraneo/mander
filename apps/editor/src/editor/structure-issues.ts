@@ -28,16 +28,6 @@ const countTile = (grid: number[][], tile: number): number =>
 const isKnown = (cell: number): boolean =>
   includes(KNOWN_TILES, cell) || isSolidTile(cell);
 
-const enemiesHaveFooting = (grid: number[][]): boolean =>
-  every(grid, (cells, row) =>
-    every(
-      cells,
-      (cell, column) =>
-        cell !== TILE_ENEMY ||
-        (row + 1 < size(grid) && isSolidTile(grid[row + 1][column])),
-    ),
-  );
-
 const spikesAreAnchored = (grid: number[][]): boolean =>
   every(grid, (cells, row) =>
     every(cells, (cell, column) => {
@@ -73,10 +63,6 @@ const RULES: Rule[] = [
   {
     message: 'mark where the player leaves with exactly one end (99)',
     isValid: (grid) => countTile(grid, STRUCTURE_END) === 1,
-  },
-  {
-    message: 'every enemy needs a block directly beneath it to stand on',
-    isValid: enemiesHaveFooting,
   },
   {
     message: 'a spike needs a block below it, a ceiling spike one above',

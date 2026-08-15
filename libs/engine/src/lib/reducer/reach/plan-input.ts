@@ -1,5 +1,5 @@
-import type { InputState } from '../../state/input-state';
-import type { MovePlan } from './move-plan';
+import type { InputState } from '../../state/types/input-state';
+import type { MovePlan } from './types/move-plan';
 
 export const planInput = (plan: MovePlan, frame: number): InputState => ({
   isLeft: plan.direction < 0,

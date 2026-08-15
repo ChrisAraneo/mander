@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@mander/engine": "*",
+    "@mander/model": "*",
     "@mander/render": "*",
     "@mander/structures": "*",
     "@mander/utils": "*"

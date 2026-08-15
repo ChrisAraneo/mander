@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { range } from 'lodash-es';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
-import type { GameState } from '@mander/engine';
+import { type GameState, isWarded, startingFireballs } from '@mander/engine';
 import { formatClock } from '../game/format';
 
 const props = defineProps<{
@@ -23,6 +23,20 @@ const hearts = computed(() =>
     )
     .value(),
 );
+
+const stars = computed(() => props.state.stars);
+
+const ammo = computed(() => props.state.ammo);
+
+const hasBoots = computed(() => isWarded(props.state.inventory, 'FLOOR_SPIKE'));
+
+const hasHelmet = computed(() =>
+  isWarded(props.state.inventory, 'CEILING_SPIKE'),
+);
+
+const moons = computed(() => startingFireballs(props.state.inventory));
+
+const shieldSeconds = computed(() => props.state.player.timers.invincibility);
 
 const keyLabel = computed(() =>
   match(props.state.hasKey)
@@ -54,12 +68,51 @@ const score = computed(() => props.state.score.toLocaleString('en-US'));
           >♥</span
         >
       </span>
+      <span
+        v-if="stars > 0"
+        class="chip stars"
+        title="Press Space, Z or . to spend a star on 3s of invincibility"
+        >★ {{ stars }} · Space</span
+      >
+      <span
+        v-if="ammo > 0"
+        class="chip ammo"
+        title="Press X or / to fire a bullet at the enemies"
+        >● {{ ammo }} · X</span
+      >
+      <span
+        v-if="hasBoots"
+        class="chip gear"
+        title="Boots of Clouds — floor spikes cannot bite"
+        >☁ Boots</span
+      >
+      <span
+        v-if="hasHelmet"
+        class="chip gear"
+        title="Titanium Helmet — ceiling spikes cannot bite"
+        >⛑ Helmet</span
+      >
+      <span
+        v-if="moons > 0"
+        class="chip gear"
+        title="Moon Magnet — moons circle you and burn the enemies they sweep through"
+        >🌙 {{ moons }} Moons</span
+      >
+      <span
+        v-if="shieldSeconds > 0"
+        class="chip shield"
+        title="Invincible right now"
+        >🛡 {{ shieldSeconds.toFixed(1) }}s</span
+      >
       <span v-if="state.deaths > 0" class="chip deaths"
         >✕ {{ state.deaths }}</span
       >
       <span class="chip key" :class="{ found: state.hasKey }">
         {{ keyLabel }}
       </span>
+      <span class="" title="Update Time"
+        >⏱ {{ (1000.0 / state.updateTime).toFixed(2) }} ms</span
+      >
     </div>
 
     <div class="group">
@@ -129,6 +182,26 @@ const score = computed(() => props.state.score.toLocaleString('en-US'));
 .score {
   color: #ffd166;
   border-color: #8a6d2f;
+}
+
+.stars {
+  color: #ffc93c;
+  border-color: #8a6d2f;
+}
+
+.ammo {
+  color: #7be8ff;
+  border-color: #2e5f88;
+}
+
+.gear {
+  color: #c9a2ff;
+  border-color: #6a4a9e;
+}
+
+.shield {
+  color: #7be8ff;
+  border-color: #2e5f88;
 }
 
 .deaths {

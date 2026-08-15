@@ -1,0 +1,20 @@
+import { fillRect, linearGradient, paint, styledWith } from '../canvas';
+import type { Palette } from '../palette';
+import type { Viewport } from '../viewport';
+
+export const drawSky = (
+  context: CanvasRenderingContext2D,
+  palette: Palette,
+  viewport: Viewport,
+): void =>
+  paint(
+    context,
+    styledWith((target) => ({
+      fillStyle: linearGradient(target, 0, 0, 0, viewport.height, [
+        [0, palette.sky[0]],
+        [0.6, palette.sky[1]],
+        [1, palette.sky[2]],
+      ]),
+    })),
+    fillRect(0, 0, viewport.width, viewport.height),
+  );

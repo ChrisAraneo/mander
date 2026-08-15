@@ -9,7 +9,7 @@ import { createRandom } from '@mander/utils';
 import { map } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import type { GameLevel } from '../../game-level';
+import type { GameLevel } from '../../types/game-level';
 import {
   ENEMY_HEIGHT,
   ENEMY_JUMP_VELOCITY,
@@ -33,7 +33,7 @@ const moveSpeedFor = (kind: EnemyKind): number =>
 const groundKindFor = (isHorned: boolean): EnemyKind =>
   match(isHorned)
     .with(true, (): EnemyKind => 'HORNED')
-    .otherwise((): EnemyKind => 'STANDARD');
+    .otherwise((): EnemyKind => 'HOPPING');
 
 const kindFor = (isAirborne: boolean, isHorned: boolean): EnemyKind =>
   match(isAirborne)

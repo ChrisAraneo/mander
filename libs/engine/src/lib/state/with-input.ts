@@ -1,5 +1,5 @@
-import type { GameState } from './game-state';
-import type { InputState } from './input-state';
+import type { GameState } from './types/game-state';
+import type { InputState } from './types/input-state';
 
 export const withInput = (
   state: GameState,

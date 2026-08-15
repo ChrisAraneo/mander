@@ -4,6 +4,7 @@ import type { Structure } from '@mander/structures';
 import { floor, size, slice } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { addChest } from './structures/add-chest';
+import { addDiamonds } from './structures/add-diamonds';
 import { computeLevelSeeds } from './seed/compute-level-seeds';
 import { addPadding } from './structures/add-padding';
 import { addPlayerSpawn } from './structures/add-player-spawn';
@@ -15,6 +16,11 @@ import { pickStructures } from './structures/pick-structures';
 import { addKey } from './structures/add-key';
 import { generateChestItems } from './items/generate-chest-items';
 import { computeWorldName } from './seed/compute-world-name';
+import { addStones } from './structures/add-stones';
+import { clearCannons } from './structures/clear-cannons';
+import { clearFireballs } from './structures/clear-fireballs';
+import { isMirrored } from './structures/is-mirrored';
+import { mirrorTiles } from './structures/mirror-tiles';
 
 const FIRST_HARD_LEVEL = 7;
 
@@ -77,19 +83,25 @@ export const generate = (date: Date): RenderedWorld => {
       difficulty === 'hard'
         ? sliceForLevel(hardStructures, hardLevels, index - NORMAL_LEVELS)
         : sliceForLevel(normalStructures, NORMAL_LEVELS, index);
-    const tiles = joinStructures(structures);
+    const tiles = clearFireballs(
+      clearCannons(joinStructures(structures), levelNumber),
+      levelNumber,
+    );
     const withPlayer = addPlayerSpawn(tiles);
     const withPortal = addPortal(withPlayer);
     const withPadding = addPadding(withPortal);
     const withSpikes = addSpikes(withPadding, levelNumber);
     const withKey = addKey(withSpikes);
     const withChest = addChest(withKey);
+    const withDiamonds = addDiamonds(withChest);
+    const withStones = addStones(withDiamonds);
+    const withMirror = isMirrored(seed) ? mirrorTiles(withStones) : withStones;
 
     const level: GameLevel = {
       seed,
-      width: withChest[0].length,
-      height: withChest.length,
-      tiles: withChest,
+      width: withMirror[0].length,
+      height: withMirror.length,
+      tiles: withMirror,
       chestItems,
       hornedEnemyChance: hornedEnemyChanceFor(levelNumber),
     };

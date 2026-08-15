@@ -1,7 +1,7 @@
 import type { Enemy, Level, Player } from '@mander/model';
 import { match, P } from 'ts-pattern';
 
-import { overlapsSpike } from '../collision/overlaps-spike';
+import { overlapsSpike } from '../spike/overlaps-spike';
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from './consts';
 import { killEnemy } from './kill-enemy';
 import { stepDyingEnemy } from './step-dying-enemy';

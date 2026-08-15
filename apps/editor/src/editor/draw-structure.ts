@@ -1,10 +1,17 @@
-import { createEnemies } from '@mander/engine';
+import { createCannons, createEnemies, createFireballs } from '@mander/engine';
 import { TILE_SIZE } from '@mander/model';
-import { drawEnemy, drawTiles, type Palette } from '@mander/render';
+import {
+  drawCannon,
+  drawEnemy,
+  drawFireball,
+  drawTiles,
+  type Palette,
+} from '@mander/render';
 import { STRUCTURE_END, STRUCTURE_START } from '@mander/structures';
 import { forEach } from 'lodash-es';
 
 import { drawMarker } from './draw-marker';
+import { drawOrbit } from './draw-orbit';
 import { structureTileMap } from './structure-tile-map';
 
 const NO_PALETTE: Palette = {
@@ -25,7 +32,12 @@ export const drawStructure = (
 
   context.clearRect(0, 0, width, height);
   drawTiles(context, level, NO_PALETTE, 0, 0, { width, height, scale: 1 });
+  forEach(createCannons(level), (cannon) => drawCannon(context, cannon));
   forEach(createEnemies(level), (enemy) => drawEnemy(context, enemy, 0));
+  forEach(createFireballs(level), (fireball) => {
+    drawOrbit(context, fireball);
+    drawFireball(context, fireball, 0);
+  });
   forEach(grid, (cells, row) =>
     forEach(cells, (cell, column) => {
       if (cell === STRUCTURE_START || cell === STRUCTURE_END)

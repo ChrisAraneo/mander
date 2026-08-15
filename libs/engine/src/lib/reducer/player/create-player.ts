@@ -1,27 +1,20 @@
 import type { Level, Player } from '@mander/model';
 
 import { spawnPosition } from './spawn-position';
-
-type PlayerAttributes = Pick<Player, 'hearts' | 'velocity'>;
+import type { PlayerAttributes } from './types/player-attributes';
+import { createBasePlayerVelocity } from './create-base-player-velocity';
 
 export const createPlayer = (
   level: Level,
-  { hearts, velocity }: PlayerAttributes,
-): Player => {
-  const spawn = spawnPosition(level);
-
-  return {
-    position: { x: spawn.x, y: spawn.y },
-    velocity: {
-      x: { current: 0, max: velocity.x.max },
-      y: { current: 0, max: velocity.y.max },
-    },
-    hearts: { value: hearts.value },
-    timers: { death: null, invincibility: 0 },
-    statuses: {
-      isFacingRight: true,
-      isGrounded: false,
-      isJumpQueued: false,
-    },
-  };
-};
+  { hearts }: PlayerAttributes,
+): Player => ({
+  position: spawnPosition(level),
+  velocity: createBasePlayerVelocity(),
+  hearts: { value: hearts.value },
+  timers: { death: null, invincibility: 0 },
+  statuses: {
+    isFacingRight: true,
+    isGrounded: false,
+    isJumpQueued: false,
+  },
+});

@@ -6,7 +6,7 @@ import type { Level } from '@mander/model';
 import { cellIndex } from './cell-index';
 import { entryPlayer } from './entry-player';
 import { expandReach } from './expand-reach';
-import type { ReachMap } from './reach-map';
+import type { ReachMap } from './types/reach-map';
 
 const toReachMap = (tiles: Level, cells: ReadonlySet<number>): ReachMap =>
   map(range(tiles.height), (row) =>

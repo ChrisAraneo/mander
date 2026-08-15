@@ -2,9 +2,9 @@ import {
   type Action,
   createInitialState,
   type GameState,
-  type Level,
   reduce,
 } from '@mander/engine';
+import type { Level } from '@mander/model';
 import { generate } from '@mander/generator';
 import { midLevelFocus, renderGame, syncViewport } from '@mander/render';
 import { clamp } from 'lodash-es';

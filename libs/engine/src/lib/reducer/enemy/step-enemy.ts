@@ -13,10 +13,11 @@ import { match } from 'ts-pattern';
 import { moveHorizontal } from '../collision/move-horizontal';
 import { moveVertical } from '../collision/move-vertical';
 import { resolveLanding } from '../collision/resolve-landing';
+import { spikeAhead } from '../spike/spike-ahead';
 import { ENEMY_DEATH_SECONDS, ENEMY_HEIGHT, ENEMY_WIDTH } from './consts';
 import { ledgeAhead } from './ledge-ahead';
 import { playerOverhead } from './player-overhead';
-import { spikeAhead } from './spike-ahead';
+import type { EnemyMotion } from './types/enemy-motion';
 import { wallAhead } from './wall-ahead';
 
 const opposite = (facing: 1 | -1): 1 | -1 =>
@@ -63,15 +64,6 @@ const turnOnBlock = (isBlocked: boolean, facing: 1 | -1): 1 | -1 =>
   match(isBlocked)
     .with(true, () => opposite(facing))
     .otherwise(() => facing);
-
-interface EnemyMotion {
-  deltaSeconds: number;
-  x: number;
-  y: number;
-  vy: number;
-  facing: 1 | -1;
-  isGrounded: boolean;
-}
 
 const lostToThePit = (enemy: Enemy): Enemy => ({
   ...enemy,

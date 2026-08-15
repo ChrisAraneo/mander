@@ -8,16 +8,8 @@ import { nodeKey } from './node-key';
 import { MOVE_PLANS } from './move-plans';
 import { simulatePlan } from './simulate-plan';
 import { stateCells } from './state-cells';
-
-interface Walk {
-  tiles: Level;
-}
-
-interface Scan {
-  visited: Set<number>;
-  cells: Set<number>;
-  frontier: Player[];
-}
+import type { Scan } from './types/scan';
+import type { Walk } from './types/walk';
 
 const flightStates = (walk: Walk, frontier: Player[]): Player[] =>
   flatMap(frontier, (player) =>
