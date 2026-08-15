@@ -33,6 +33,7 @@ export type ItemArt =
   | { kind: 'GEM'; colors: GemColors }
   | { kind: 'STARS'; count: number; colors: StarColors }
   | { kind: 'BULLETS'; count: number }
+  | { kind: 'FIREBALLS'; count: number }
   | { kind: 'BOOTS' }
   | { kind: 'HELMET' };
 
@@ -47,6 +48,8 @@ const starsArt = (count: number): ItemArt => ({
 });
 
 const bulletsArt = (count: number): ItemArt => ({ kind: 'BULLETS', count });
+
+const fireballsArt = (count: number): ItemArt => ({ kind: 'FIREBALLS', count });
 
 const wardArt = (hazard: HazardKind): ItemArt =>
   match(hazard)
@@ -75,6 +78,7 @@ const artFromEffect = (item: Item): ItemArt =>
     .with({ kind: 'HEART' }, ({ amount }) => heartsArt(amount))
     .with({ kind: 'STAR' }, ({ amount }) => starsArt(amount))
     .with({ kind: 'BULLET' }, ({ amount }) => bulletsArt(amount))
+    .with({ kind: 'FIREBALL' }, ({ amount }) => fireballsArt(amount))
     .with({ kind: 'WARD' }, ({ hazard }) => wardArt(hazard))
     .otherwise(() => gemArt(RED_GEM));
 

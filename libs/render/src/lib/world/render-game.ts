@@ -1,6 +1,7 @@
 import type { GameState } from '@mander/engine';
 import { TILE_SIZE } from '@mander/model';
-import { chain, clamp, map } from 'lodash-es';
+import { chain } from '@mander/utils';
+import { clamp, map } from 'lodash-es';
 
 import {
   paint,
@@ -16,7 +17,7 @@ import { drawCannon, drawCannonballs } from '../cannon';
 import { drawChest } from '../chest';
 import { drawDiamonds } from '../diamond';
 import { drawEnemy } from '../enemies';
-import { drawFireballs } from '../fireball';
+import { drawFireballs, drawPlayerFireballs } from '../fireball';
 import { type Focus, playerFocus } from '../focus';
 import { drawHillLayer, HILL_LAYERS } from '../hill';
 import { drawKey } from '../key';
@@ -100,6 +101,7 @@ export const renderGame = (
         run((target) => drawPlayer(target, state.player, state.time)),
         run((target) => drawCannonballs(target, state)),
         run((target) => drawFireballs(target, state)),
+        run((target) => drawPlayerFireballs(target, state)),
         run((target) => drawBullets(target, state)),
         restore,
       ),

@@ -1,9 +1,10 @@
 import type { Item } from '@mander/model';
-import { clamp, map } from 'lodash-es';
+import { clamp, map, times } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import { bulletBodyStep, ICE_BULLET } from '../bullet';
 import { type CanvasStep, paint, sequence } from '../canvas';
+import { flameStep, WHITE_FIREBALL } from '../fireball';
 import { bootStep, helmetStep } from '../gear';
 import { gemStep } from '../gem';
 import { type StarColors, starStep } from '../star';
@@ -59,6 +60,11 @@ const HEART_LOBE = 0.26;
 
 const BULLET_GLOW = 14;
 const BULLET_RAIN_FROM = 5;
+
+const ORBIT_RADIUS = 0.27;
+const FIREBALL_RADIUS = 0.15;
+const FIREBALL_TAIL = 0.34;
+const FIRST_ORBIT = -Math.PI / 2;
 
 const CLUSTERS: Readonly<Record<number, HeartCluster>> = Object.freeze({
   1: { lobe: 1, spots: [{ x: 0.5, y: 0.46 }] },
@@ -176,6 +182,28 @@ const starsStep = (
   );
 };
 
+const fireballsStep = (count: number, size: number): CanvasStep => {
+  const orbiting = Math.max(1, Math.round(count));
+  const centre = size / 2;
+
+  return sequence(
+    times(orbiting, (index) => {
+      const angle = FIRST_ORBIT + (index * Math.PI * 2) / orbiting;
+
+      return flameStep(
+        {
+          x: centre + Math.cos(angle) * size * ORBIT_RADIUS,
+          y: centre + Math.sin(angle) * size * ORBIT_RADIUS,
+        },
+        angle + Math.PI / 2,
+        size * FIREBALL_RADIUS,
+        WHITE_FIREBALL,
+        size * FIREBALL_TAIL,
+      );
+    }),
+  );
+};
+
 const artStep = (art: ItemArt, size: number): CanvasStep =>
   match(art)
     .with({ kind: 'HEARTS' }, ({ count }) => heartsStep(count, size))
@@ -193,6 +221,7 @@ const artStep = (art: ItemArt, size: number): CanvasStep =>
       starsStep(count, size, colors),
     )
     .with({ kind: 'BULLETS' }, ({ count }) => bulletsStep(count, size))
+    .with({ kind: 'FIREBALLS' }, ({ count }) => fireballsStep(count, size))
     .with({ kind: 'BOOTS' }, () => bootStep(0, 0, size))
     .with({ kind: 'HELMET' }, () => helmetStep(0, 0, size))
     .exhaustive();

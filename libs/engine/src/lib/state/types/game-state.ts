@@ -21,6 +21,7 @@ export interface GameState {
   cannons: Cannon[];
   cannonballs: Cannonball[];
   fireballs: Fireball[];
+  playerFireballs: Fireball[];
   bullets: Bullet[];
   ammo: number;
   stars: number;

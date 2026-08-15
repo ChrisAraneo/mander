@@ -6,4 +6,5 @@ export type ItemEffect =
   | { kind: 'SCORE'; amount: number }
   | { kind: 'STAR'; amount: number }
   | { kind: 'BULLET'; amount: number }
+  | { kind: 'FIREBALL'; amount: number }
   | { kind: 'WARD'; hazard: HazardKind };

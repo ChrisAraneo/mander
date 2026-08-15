@@ -28,7 +28,10 @@ import { isStompingEnemy } from '../enemy/is-stomping-enemy';
 import { isTouchingEnemy } from '../enemy/is-touching-enemy';
 import { killEnemy } from '../enemy/kill-enemy';
 import { advanceFireballs } from '../fireball/advance-fireballs';
+import { advancePlayerFireballs } from '../fireball/advance-player-fireballs';
+import { burnEnemies } from '../fireball/burn-enemies';
 import { createFireballs } from '../fireball/create-fireballs';
+import { createPlayerFireballs } from '../fireball/create-player-fireballs';
 import { isBurning } from '../fireball/is-burning';
 import {
   HURT_INVINCIBLE_SECONDS,
@@ -255,6 +258,9 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
       const fireballs = respawned
         ? createFireballs(state.level)
         : advanceFireballs(state.fireballs, deltaSeconds);
+      const playerFireballs = respawned
+        ? createPlayerFireballs(state.inventory, moved)
+        : advancePlayerFireballs(state.playerFireballs, moved, deltaSeconds);
       const flyingBullets = respawned
         ? []
         : advanceBullets(state.level, state.bullets, deltaSeconds);
@@ -286,12 +292,15 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
           deaths: state.deaths,
           status: 'PLAYING',
         }));
-      const { bullets, enemies } = resolveVolley(
+      const { bullets, enemies: shot } = resolveVolley(
         flyingBullets,
         map(afterStomps, (enemy) =>
           includes(gored, enemy) ? killEnemy(enemy) : enemy,
         ),
       );
+      const enemies = match(alive)
+        .with(true, () => burnEnemies(playerFireballs, shot))
+        .otherwise(() => shot);
       const cannonballs = filter(
         flying,
         (cannonball) => !includes(hits, cannonball),
@@ -308,6 +317,7 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         cannons,
         cannonballs,
         fireballs,
+        playerFireballs,
         bullets,
         diamonds,
         deaths,

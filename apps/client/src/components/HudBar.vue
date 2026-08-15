@@ -3,7 +3,7 @@ import { computed } from 'vue';
 import { range } from 'lodash-es';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
-import { type GameState, isWarded } from '@mander/engine';
+import { type GameState, isWarded, startingFireballs } from '@mander/engine';
 import { formatClock } from '../game/format';
 
 const props = defineProps<{
@@ -33,6 +33,8 @@ const hasBoots = computed(() => isWarded(props.state.inventory, 'FLOOR_SPIKE'));
 const hasHelmet = computed(() =>
   isWarded(props.state.inventory, 'CEILING_SPIKE'),
 );
+
+const moons = computed(() => startingFireballs(props.state.inventory));
 
 const shieldSeconds = computed(() => props.state.player.timers.invincibility);
 
@@ -69,14 +71,14 @@ const score = computed(() => props.state.score.toLocaleString('en-US'));
       <span
         v-if="stars > 0"
         class="chip stars"
-        title="Press N to spend a star on 3s of invincibility"
-        >★ {{ stars }} · N</span
+        title="Press Space, Z or . to spend a star on 3s of invincibility"
+        >★ {{ stars }} · Space</span
       >
       <span
         v-if="ammo > 0"
         class="chip ammo"
-        title="Press M to fire a bullet at the enemies"
-        >● {{ ammo }} · M</span
+        title="Press X or / to fire a bullet at the enemies"
+        >● {{ ammo }} · X</span
       >
       <span
         v-if="hasBoots"
@@ -89,6 +91,12 @@ const score = computed(() => props.state.score.toLocaleString('en-US'));
         class="chip gear"
         title="Titanium Helmet — ceiling spikes cannot bite"
         >⛑ Helmet</span
+      >
+      <span
+        v-if="moons > 0"
+        class="chip gear"
+        title="Moon Magnet — moons circle you and burn the enemies they sweep through"
+        >🌙 {{ moons }} Moons</span
       >
       <span
         v-if="shieldSeconds > 0"

@@ -1,7 +1,9 @@
-import { chain, concat } from 'lodash-es';
+import { chain } from '@mander/utils';
+import { concat } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import type { GameState } from '../../state/types/game-state';
+import { createPlayerFireballs } from '../fireball/create-player-fireballs';
 import { createBasePlayerVelocity } from '../player/create-base-player-velocity';
 import { getBulletsAmount } from './get-bullets-amount';
 import { getScoreAmount } from './get-score-amount';
@@ -13,13 +15,17 @@ export const chooseItem = (state: GameState, index: number): GameState =>
     .with('CHEST', (): GameState =>
       match(index >= 0 && index < state.level.chestItems.length)
         .with(true, (): GameState =>
-          chain(createBasePlayerVelocity())
-            .thru((basePlayerVelocity): GameState => ({
+          chain({
+            inventory: concat(state.inventory, state.level.chestItems[index]),
+            basePlayerVelocity: createBasePlayerVelocity(),
+          })
+            .thru(({ inventory, basePlayerVelocity }): GameState => ({
               ...state,
               status: 'PLAYING',
               isChestOpened: true,
               isNearChest: false,
-              inventory: concat(state.inventory, state.level.chestItems[index]),
+              inventory,
+              playerFireballs: createPlayerFireballs(inventory, state.player),
               score:
                 state.score + getScoreAmount(state.level.chestItems[index]),
               ammo:

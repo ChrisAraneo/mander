@@ -69,6 +69,7 @@ export * from './lib/items/rare/pink-diamond';
 export * from './lib/items/epic/vampire-slayer-bullet-rain';
 export * from './lib/items/epic/boots-of-clouds';
 export * from './lib/items/epic/titanium-helmet';
+export * from './lib/items/epic/moon-magnet';
 export * from './lib/world/world';
 export * from './lib/enemies/enemy-kind';
 export * from './lib/enemies/enemy-spawn';

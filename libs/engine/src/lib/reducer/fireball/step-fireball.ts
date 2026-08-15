@@ -11,10 +11,10 @@ const wrapped = (angle: number): number =>
 export const stepFireball = (
   fireball: Fireball,
   deltaSeconds: number,
+  angularSpeed = FIREBALL_ANGULAR_SPEED,
 ): Fireball => ({
   ...fireball,
   angle: wrapped(
-    fireball.angle +
-      spinDirection(fireball.spin) * FIREBALL_ANGULAR_SPEED * deltaSeconds,
+    fireball.angle + spinDirection(fireball.spin) * angularSpeed * deltaSeconds,
   ),
 });

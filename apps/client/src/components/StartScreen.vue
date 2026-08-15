@@ -96,7 +96,8 @@ function resetSave(): void {
       </div>
 
       <p class="controls">
-        A / D move · Space jump · E interact · Esc close · R respawn
+        A / D move · W jump · E interact · Space star · X shoot · Esc close · R
+        respawn
       </p>
     </div>
   </div>

@@ -134,8 +134,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
         </p>
 
         <p class="controls">
-          A / D or ◀ ▶ move · W / Space jump · E interact · N star · M shoot ·
-          Enter confirm · Esc close · R respawn
+          A / D or ◀ ▶ move · W / ▲ jump · E interact · Space / Z / . star · X /
+          / shoot · Enter confirm · Esc close · R respawn
         </p>
       </div>
     </div>

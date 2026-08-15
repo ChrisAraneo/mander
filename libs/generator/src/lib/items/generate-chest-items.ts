@@ -9,6 +9,7 @@ import {
   HEART,
   type Item,
   type ItemRarity,
+  MOON_MAGNET,
   PINK_DIAMOND,
   PURPLE_DIAMOND,
   RED_DIAMOND,
@@ -69,7 +70,7 @@ const POOL_BY_TYPE: Readonly<Record<ChestItemType, Item[]>> = Object.freeze({
   ],
   HEART: [HEART, DOUBLE_HEART, TRIPLE_HEART],
   STAR: [STAR, DOUBLE_STAR, TRIPLE_STAR],
-  GEAR: [BOOTS_OF_CLOUDS, TITANIUM_HELMET],
+  GEAR: [BOOTS_OF_CLOUDS, TITANIUM_HELMET, MOON_MAGNET],
 });
 
 export const CHEST_ITEM_POOL: readonly Item[] = Object.freeze(

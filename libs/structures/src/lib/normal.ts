@@ -2692,3 +2692,26 @@ export const NORMAL_117: Structure = [
   [DR, DR, DR, DR, DR, __, __, DR, DR, DR, DR, DR, __, __, __, __, DR, DR, DR, DR],
   [DR, DR, DR, DR, __, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR, DR],
 ];
+
+export const NORMAL_118: Structure = [
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, BR, __, EN, __, BR, __, __, __, BR, __, EN, __, BR, __, __, EN, __, __],
+  [__, __, BR, BR, BR, BR, BR, __, __, __, BR, BR, BR, BR, BR, __, __, __, __, __],
+  [__, __, __, SC, SC, SC, __, __, __, __, __, SC, SC, SC, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, EE],
+  [SS, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR, DR, DR],
+  [DR, DR, __, __, __, __, __, DR, DR, DR, __, __, __, __, __, DR, DR, DR, DR, DR],
+  [DR, DR, __, __, __, __, __, DR, DR, DR, __, __, __, __, __, DR, DR, DR, DR, DR],
+  [DR, DR, DR, __, __, __, DR, DR, BR, DR, DR, __, __, __, DR, DR, BR, DR, DR, DR],
+  [DR, DR, DR, __, __, __, DR, BR, CN, BR, DR, __, __, __, DR, BR, CN, BR, DR, DR],
+  [DR, DR, DR, __, __, __, DR, BR, BR, BR, DR, __, __, __, DR, BR, BR, BR, DR, DR],
+  [DR, DR, DR, DR, __, DR, DR, BR, DR, BR, DR, DR, __, DR, DR, BR, DR, BR, DR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
+];

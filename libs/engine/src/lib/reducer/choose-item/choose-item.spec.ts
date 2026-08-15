@@ -1,4 +1,13 @@
-import { DOUBLE_HEART, type Item, RED_DIAMOND, TILE_DIRT } from '@mander/model';
+import {
+  BOOTS_OF_CLOUDS,
+  DOUBLE_HEART,
+  type Item,
+  MOON_MAGNET,
+  RED_DIAMOND,
+  STAR,
+  TILE_DIRT,
+  TWO_BULLETS,
+} from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
 import { createInitialState } from '../../state/create-initial-state';
@@ -95,6 +104,47 @@ describe('chooseItem', () => {
 
     expect(chosen.score).toBe(100);
     expect(chosen.player.hearts.value).toBe(BASE_HEARTS);
+  });
+
+  it('should set fireballs circling the player when the magnet is taken', () => {
+    const chosen = chooseItem(openChest([MOON_MAGNET]), 0);
+
+    expect(chosen.playerFireballs).toHaveLength(2);
+  });
+
+  it('should leave the player unescorted when the item is anything else', () => {
+    expect(chooseItem(openChest([RED_DIAMOND]), 0).playerFireballs).toEqual([]);
+  });
+
+  it('should keep a card of one kind from wiping out what another kind gave', () => {
+    const state = chooseItem(
+      openChest([STAR], [TWO_BULLETS, DOUBLE_HEART, MOON_MAGNET]),
+      0,
+    );
+
+    expect(state.stars, 'the star it just took').toBe(1);
+    expect(state.ammo, 'and the rounds it was already carrying').toBe(2);
+    expect(state.player.hearts.value).toBe(BASE_HEARTS + 2);
+    expect(
+      state.playerFireballs,
+      'and the fireballs still circling',
+    ).toHaveLength(2);
+  });
+
+  it('should stack every kind the player picks up, one chest after another', () => {
+    const bullets = chooseItem(openChest([TWO_BULLETS]), 0);
+    const stars = chooseItem(
+      { ...bullets, status: 'CHEST', level: chestLevel([STAR]) },
+      0,
+    );
+    const gear = chooseItem(
+      { ...stars, status: 'CHEST', level: chestLevel([BOOTS_OF_CLOUDS]) },
+      0,
+    );
+
+    expect(gear.ammo, 'the rounds survive the star').toBe(2);
+    expect(gear.stars, 'the star survives the gear').toBe(1);
+    expect(gear.inventory).toEqual([TWO_BULLETS, STAR, BOOTS_OF_CLOUDS]);
   });
 
   it('should restore base capabilities when an item is taken', () => {

@@ -3,6 +3,7 @@ import {
   BULLET,
   FOUR_BULLETS,
   type Item,
+  MOON_MAGNET,
   THREE_BULLETS,
   TITANIUM_HELMET,
   TWO_BULLETS,
@@ -147,12 +148,13 @@ describe('generateChestItems', () => {
     }
   });
 
-  it('keeps the epics to the bullet rain and the two pieces of gear', () => {
+  it('keeps the epics to the bullet rain and the three pieces of gear', () => {
     expect(
       map(filter(CHEST_ITEM_POOL, { rarity: 'EPIC' }), 'id').sort(),
     ).toEqual(
       [
         BOOTS_OF_CLOUDS.id,
+        MOON_MAGNET.id,
         TITANIUM_HELMET.id,
         VAMPIRE_SLAYER_BULLET_RAIN.id,
       ].sort(),
