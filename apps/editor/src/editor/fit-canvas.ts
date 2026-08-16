@@ -1,4 +1,5 @@
 import { chain, withEffect } from '@mander/utils';
+import { assign, round } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 const { nullish } = P;
@@ -11,15 +12,15 @@ export const fitCanvas = (
   chain(window.devicePixelRatio || 1)
     .thru((ratio) =>
       withEffect(ratio, () =>
-        Object.assign(canvas, {
-          width: Math.round(width * ratio),
-          height: Math.round(height * ratio),
+        assign(canvas, {
+          width: round(width * ratio),
+          height: round(height * ratio),
         }),
       ),
     )
     .thru((ratio) =>
       withEffect(ratio, () =>
-        Object.assign(canvas.style, {
+        assign(canvas.style, {
           width: `${width}px`,
           height: `${height}px`,
         }),

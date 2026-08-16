@@ -1,7 +1,7 @@
 import { type GameLevel, HORNED_ENEMY_CHANCE } from '@mander/engine';
 import type { RenderedWorld } from '@mander/render';
 import type { Structure } from '@mander/structures';
-import { floor, size, slice } from 'lodash-es';
+import { floor, map, size, slice } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { addChest } from './structures/add-chest';
 import { addDiamonds } from './structures/add-diamonds';
@@ -62,7 +62,7 @@ export const generate = (date: Date): RenderedWorld => {
   const worldName = computeWorldName(date);
   const seeds = computeLevelSeeds(date);
   const palette = generatePalette(worldName);
-  const hardLevels = seeds.length - NORMAL_LEVELS;
+  const hardLevels = size(seeds) - NORMAL_LEVELS;
   const normalStructures = pickStructures(
     worldName,
     NORMAL_LEVELS * STRUCTURES_PER_LEVEL,
@@ -74,7 +74,7 @@ export const generate = (date: Date): RenderedWorld => {
     'hard',
   );
 
-  const levels: GameLevel[] = seeds.map((seed, index) => {
+  const levels: GameLevel[] = map(seeds, (seed, index) => {
     const levelNumber = index + 1;
     const difficulty = levelNumber >= FIRST_HARD_LEVEL ? 'hard' : 'normal';
     const chestItems = generateChestItems(seed);
@@ -99,8 +99,8 @@ export const generate = (date: Date): RenderedWorld => {
 
     const level: GameLevel = {
       seed,
-      width: withMirror[0].length,
-      height: withMirror.length,
+      width: size(withMirror[0]),
+      height: size(withMirror),
       tiles: withMirror,
       chestItems,
       hornedEnemyChance: hornedEnemyChanceFor(levelNumber),

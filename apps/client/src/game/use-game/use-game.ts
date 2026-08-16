@@ -13,7 +13,7 @@ import {
 import { generate } from '@mander/generator';
 import { renderGame, syncViewport } from '@mander/render';
 import { chain, withEffect } from '@mander/utils';
-import { noop, size } from 'lodash-es';
+import { assign, noop, size } from 'lodash-es';
 import {
   map,
   merge,
@@ -70,7 +70,7 @@ const syncDebugGlobals = (
     .with(
       true,
       () =>
-        void Object.assign(window, {
+        void assign(window, {
           manderState: next,
           manderDispatch: dispatch,
         }),
@@ -167,11 +167,9 @@ const startOnMount = (
             recordPlayedWorld({ name: world.name, day }),
           ),
         )
+        .thru((current) => assign(current, { keyboard: createKeyboard() }))
         .thru((current) =>
-          Object.assign(current, { keyboard: createKeyboard() }),
-        )
-        .thru((current) =>
-          Object.assign(current, {
+          assign(current, {
             subscription: merge(
               tickStream(),
               current.keyboard.actions$,

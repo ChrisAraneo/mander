@@ -11,7 +11,7 @@ import {
   PORTAL_ENTITY_BOX,
 } from '@mander/model';
 import type { Point } from '@mander/utils';
-import { filter, includes, map, size, some } from 'lodash-es';
+import { filter, includes, isNull, map, size, some } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import { advanceBullets } from '../bullet/advance-bullets';
@@ -257,7 +257,7 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
     .with('PLAYING', (): GameState => {
       const moved = advancePlayer(state, deltaSeconds);
       const respawned =
-        state.player.timers.death !== null && moved.timers.death === null;
+        !isNull(state.player.timers.death) && isNull(moved.timers.death);
       const steppedEnemies = respawned
         ? createEnemies(state.level)
         : advanceEnemies(state, moved, deltaSeconds);

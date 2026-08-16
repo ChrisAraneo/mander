@@ -1,5 +1,5 @@
 import type { Item } from '@mander/model';
-import { clamp, map, times } from 'lodash-es';
+import { clamp, map, round, times } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import { bulletBodyStep, ICE_BULLET } from '../bullet';
@@ -128,13 +128,13 @@ const BULLET_CLUSTERS: Readonly<Record<number, BulletCluster>> = Object.freeze({
 });
 
 const clusterFor = (count: number): HeartCluster =>
-  CLUSTERS[clamp(Math.round(count), 1, 3)];
+  CLUSTERS[clamp(round(count), 1, 3)];
 
 const bulletClusterFor = (count: number): BulletCluster =>
-  BULLET_CLUSTERS[clamp(Math.round(count), 1, BULLET_RAIN_FROM)];
+  BULLET_CLUSTERS[clamp(round(count), 1, BULLET_RAIN_FROM)];
 
 const starClusterFor = (count: number): StarCluster =>
-  STAR_CLUSTERS[clamp(Math.round(count), 1, 3)];
+  STAR_CLUSTERS[clamp(round(count), 1, 3)];
 
 const heartsStep = (count: number, size: number): CanvasStep => {
   const cluster = clusterFor(count);
@@ -183,7 +183,7 @@ const starsStep = (
 };
 
 const fireballsStep = (count: number, size: number): CanvasStep => {
-  const orbiting = Math.max(1, Math.round(count));
+  const orbiting = Math.max(1, round(count));
   const centre = size / 2;
 
   return sequence(

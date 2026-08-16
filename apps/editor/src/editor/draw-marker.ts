@@ -1,6 +1,7 @@
 import { TILE_SIZE } from '@mander/model';
 import { STRUCTURE_END } from '@mander/structures';
 import { chain, withEffect } from '@mander/utils';
+import { assign } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 const START_COLOUR = '#7ea653';
@@ -33,7 +34,7 @@ export const drawMarker = (
     .thru((marker) => withEffect(marker, () => context.save()))
     .thru((marker) =>
       withEffect(marker, () =>
-        Object.assign(context, {
+        assign(context, {
           globalAlpha: 0.22,
           fillStyle: marker.colour,
         }),
@@ -46,7 +47,7 @@ export const drawMarker = (
     )
     .thru((marker) =>
       withEffect(marker, () =>
-        Object.assign(context, {
+        assign(context, {
           globalAlpha: 1,
           strokeStyle: marker.colour,
           lineWidth: 2,
@@ -65,7 +66,7 @@ export const drawMarker = (
     )
     .thru((marker) =>
       withEffect(marker, () =>
-        Object.assign(context, {
+        assign(context, {
           fillStyle: marker.colour,
           font: `bold ${TILE_SIZE / 2}px 'Cascadia Mono', Consolas, monospace`,
           textAlign: 'center',

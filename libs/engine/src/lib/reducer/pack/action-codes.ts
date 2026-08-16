@@ -1,3 +1,5 @@
+import { indexOf } from 'lodash-es';
+
 import type { Action } from '../../actions/actions';
 
 export const ACTION_CODES: readonly Action['type'][] = Object.freeze([
@@ -19,4 +21,4 @@ export const ACTION_CODES: readonly Action['type'][] = Object.freeze([
 ]);
 
 export const codeOf = (type: Action['type']): number =>
-  ACTION_CODES.indexOf(type);
+  indexOf(ACTION_CODES, type);

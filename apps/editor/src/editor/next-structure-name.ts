@@ -1,4 +1,4 @@
-import { filter, map, max, padStart, startsWith } from 'lodash-es';
+import { filter, map, max, nth, padStart, split, startsWith } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import type { Difficulty, StructureEntry } from './structure-entry';
@@ -8,7 +8,8 @@ const PREFIXES: Record<Difficulty, string> = {
   hard: 'HARD',
 };
 
-const numberIn = (name: string): number => Number(name.split('_')[1] ?? 0);
+const numberIn = (name: string): number =>
+  Number(nth(split(name, '_'), 1) ?? 0);
 
 const highest = (entries: StructureEntry[], difficulty: Difficulty): number =>
   max(

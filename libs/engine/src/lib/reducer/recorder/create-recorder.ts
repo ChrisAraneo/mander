@@ -1,5 +1,5 @@
 import { chain } from '@mander/utils';
-import { noop, size } from 'lodash-es';
+import { assign, noop, size } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import type { Action } from '../../actions/actions';
@@ -19,7 +19,7 @@ const emptyState = (): RecorderState => ({
 });
 
 const mutate = (state: RecorderState, patch: Partial<RecorderState>): void =>
-  void Object.assign(state, patch);
+  void assign(state, patch);
 
 /**
  * The first recorded action fixes the clock every later entry is measured

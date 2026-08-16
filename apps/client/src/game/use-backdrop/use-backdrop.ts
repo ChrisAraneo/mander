@@ -8,7 +8,7 @@ import type { Level } from '@mander/model';
 import { generate } from '@mander/generator';
 import { midLevelFocus, renderGame, syncViewport } from '@mander/render';
 import { chain, withEffect } from '@mander/utils';
-import { clamp, noop } from 'lodash-es';
+import { assign, clamp, noop } from 'lodash-es';
 import { scan, type Subscription } from 'rxjs';
 import { match, P } from 'ts-pattern';
 import { onMounted, onUnmounted, type Ref } from 'vue';
@@ -46,7 +46,7 @@ const startOnMount = (
     .with(
       nonNullable,
       () =>
-        void Object.assign(cell, {
+        void assign(cell, {
           subscription: tickStream()
             .pipe(scan(advance(idle), idle))
             .subscribe(render),

@@ -1,4 +1,4 @@
-import { every, map, range } from 'lodash-es';
+import { defaultTo, every, map, max, min, range } from 'lodash-es';
 import { chain, type Triangle } from '@mander/utils';
 
 import type { Axis } from './types/axis';
@@ -13,7 +13,10 @@ const AABB_AXES: Axis[] = [
 const project = (axis: Axis, points: readonly Vec[]): Span =>
   chain(points)
     .map((point) => point.x * axis.nx + point.y * axis.ny)
-    .thru((values) => ({ min: Math.min(...values), max: Math.max(...values) }))
+    .thru((values) => ({
+      min: defaultTo(min(values), Infinity),
+      max: defaultTo(max(values), -Infinity),
+    }))
     .value();
 
 const separated = (a: Span, b: Span): boolean =>

@@ -1,3 +1,5 @@
+import { map } from 'lodash-es';
+
 import { __, CN, DR, EN, FB, SP, SC, BR, ST, WD, CR, SS, EE } from './consts';
 
 const ALIAS_MAP = new Map<number, string>([
@@ -17,7 +19,7 @@ const ALIAS_MAP = new Map<number, string>([
 ]);
 
 const CELL_MAP = new Map<string, number>(
-  [...ALIAS_MAP].map(([cell, alias]) => [alias, cell]),
+  map([...ALIAS_MAP], ([cell, alias]): [string, number] => [alias, cell]),
 );
 
 export const getAlias = (cell: number): string =>

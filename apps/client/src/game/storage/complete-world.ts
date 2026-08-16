@@ -1,4 +1,4 @@
-import { concat, find, reject } from 'lodash-es';
+import { concat, find, isUndefined, reject } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import { loadSave } from './load-save';
@@ -15,7 +15,7 @@ const best = (
     .with(
       when(
         (earlier): earlier is CompletedWorld =>
-          earlier !== undefined && earlier.score >= run.score,
+          !isUndefined(earlier) && earlier.score >= run.score,
       ),
       (earlier) => earlier,
     )

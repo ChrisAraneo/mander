@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 import { chain, withEffect } from '@mander/utils';
+import { assign } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import type { Plugin } from 'vite';
 
@@ -25,7 +26,7 @@ interface SaveRequest {
 }
 
 const send = (res: ServerResponse, status: number, body: unknown): void =>
-  void chain(Object.assign(res, { statusCode: status }))
+  void chain(assign(res, { statusCode: status }))
     .thru((ready) =>
       withEffect(ready, () =>
         ready.setHeader('content-type', 'application/json'),

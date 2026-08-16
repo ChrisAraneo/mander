@@ -9,7 +9,7 @@ import {
   replayProgress,
 } from '@mander/engine';
 import { chain, withEffect } from '@mander/utils';
-import { indexOf, noop, size } from 'lodash-es';
+import { assign, indexOf, noop, size } from 'lodash-es';
 import { animationFrames, map, type Observable, pairwise } from 'rxjs';
 import type { Subscription } from 'rxjs';
 import { match, P } from 'ts-pattern';
@@ -64,7 +64,7 @@ const createCell = (): ReplayCell => ({
 const publisher =
   (cell: ReplayCell, refs: ReplayRefs, source: ReplaySource) =>
   (next: ReplayPlayback): void =>
-    chain(Object.assign(cell, { playback: next }))
+    chain(assign(cell, { playback: next }))
       .thru((current) =>
         setRef(refs.progress, replayProgress(current.recording, next)),
       )
@@ -110,7 +110,7 @@ const player =
   ) =>
   (): void =>
     chain(withEffect(cell, (current) => current.subscription?.unsubscribe()))
-      .thru((current) => Object.assign(current, { recording: source.replay() }))
+      .thru((current) => assign(current, { recording: source.replay() }))
       .thru((current) =>
         setRef(refs.durationSeconds, replayDuration(current.recording) / 1000),
       )
@@ -119,7 +119,7 @@ const player =
       .thru(() => setRef(refs.isActive, true))
       .thru(() => publish(createPlayback(source.initialState())))
       .thru(() =>
-        Object.assign(cell, {
+        assign(cell, {
           subscription: frameDeltas().subscribe(onFrame),
         }),
       )
@@ -130,7 +130,7 @@ const stopper =
   (cell: ReplayCell, refs: ReplayRefs, source: ReplaySource) => (): void =>
     chain(withEffect(cell, (current) => current.subscription?.unsubscribe()))
       .thru((current) =>
-        Object.assign(current, { subscription: null, playback: null }),
+        assign(current, { subscription: null, playback: null }),
       )
       .thru(() => setRef(refs.isActive, false))
       .thru(() => source.onStop())

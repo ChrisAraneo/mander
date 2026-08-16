@@ -1,3 +1,4 @@
+import { replace, trimEnd } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 export interface Upsert {
@@ -12,7 +13,7 @@ const declarationOf = (name: string, text: string): string =>
   `export const ${name}: Structure = ${text};`;
 
 const appended = (source: string, declaration: string): string =>
-  `${source.replace(/\s+$/, '')}\n\n${declaration}\n`;
+  `${trimEnd(source)}\n\n${declaration}\n`;
 
 export const upsertStructure = (
   source: string,
@@ -21,7 +22,7 @@ export const upsertStructure = (
 ): Upsert =>
   match(blockOf(name).test(source))
     .with(true, (): Upsert => ({
-      source: source.replace(blockOf(name), () => declarationOf(name, text)),
+      source: replace(source, blockOf(name), () => declarationOf(name, text)),
       created: false,
     }))
     .otherwise((): Upsert => ({

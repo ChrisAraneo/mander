@@ -1,6 +1,7 @@
+import { includes, replace } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 export const withEndings = (source: string, original: string): string =>
-  match(original.includes('\r\n'))
-    .with(true, () => source.replace(/\r?\n/g, '\r\n'))
-    .otherwise(() => source.replace(/\r\n/g, '\n'));
+  match(includes(original, '\r\n'))
+    .with(true, () => replace(source, /\r?\n/g, '\r\n'))
+    .otherwise(() => replace(source, /\r\n/g, '\n'));

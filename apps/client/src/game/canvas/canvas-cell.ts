@@ -1,4 +1,4 @@
-import { noop } from 'lodash-es';
+import { assign, noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import type { Ref } from 'vue';
 
@@ -19,7 +19,7 @@ export const openCanvas = (
   cell: CanvasCell,
   canvas: Ref<HTMLCanvasElement | null>,
 ): CanvasRenderingContext2D | null =>
-  Object.assign(cell, {
+  assign(cell, {
     context: canvas.value?.getContext('2d') ?? null,
   }).context;
 

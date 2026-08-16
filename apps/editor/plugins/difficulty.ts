@@ -1,3 +1,5 @@
+import { find, startsWith } from 'lodash-es';
+
 export type Difficulty = 'normal' | 'hard';
 
 export const DIFFICULTIES: readonly Difficulty[] = Object.freeze([
@@ -14,8 +16,8 @@ export const prefixOf = (difficulty: Difficulty): string =>
   PREFIXES[difficulty];
 
 export const difficultyOf = (name: string): Difficulty | null =>
-  DIFFICULTIES.find((difficulty) =>
-    name.startsWith(`${prefixOf(difficulty)}_`),
+  find(DIFFICULTIES, (difficulty) =>
+    startsWith(name, `${prefixOf(difficulty)}_`),
   ) ?? null;
 
 export const isStructureName = (name: string): boolean =>

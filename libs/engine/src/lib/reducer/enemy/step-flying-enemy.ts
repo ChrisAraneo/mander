@@ -1,4 +1,5 @@
 import { type Enemy, type Level, MAX_TICK_SECONDS } from '@mander/model';
+import { clamp } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import { moveVertical } from '../collision/move-vertical';
@@ -26,7 +27,7 @@ export const stepFlyingEnemy = (
   const upperBound = enemy.spawn.y - FLYING_ENEMY_RANGE;
   const lowerBound = enemy.spawn.y + FLYING_ENEMY_RANGE;
   const rawNextY = enemy.position.y + facing * speed * deltaSeconds;
-  const clampedNextY = Math.min(Math.max(rawNextY, upperBound), lowerBound);
+  const clampedNextY = clamp(rawNextY, upperBound, lowerBound);
 
   const vertical = moveVertical(
     level,

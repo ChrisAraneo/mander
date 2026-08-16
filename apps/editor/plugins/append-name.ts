@@ -1,13 +1,23 @@
-import { compact, includes, map, split, trim } from 'lodash-es';
+import {
+  compact,
+  endsWith,
+  includes,
+  isEmpty,
+  map,
+  replace,
+  split,
+  trim,
+  trimEnd,
+} from 'lodash-es';
 import { match } from 'ts-pattern';
 
 const withoutComments = (list: string): string =>
-  list.replace(/\/\/[^\n]*/g, '');
+  replace(list, /\/\/[^\n]*/g, '');
 
 const closed = (list: string): string =>
-  match(list.replace(/\s+$/, ''))
+  match(trimEnd(list))
     .when(
-      (body) => body === '' || body.endsWith(','),
+      (body) => isEmpty(body) || endsWith(body, ','),
       (body) => body,
     )
     .otherwise((body) => `${body},`);
@@ -19,6 +29,6 @@ export const hasName = (list: string, name: string): boolean =>
   includes(listNames(list), name);
 
 export const appendName = (list: string, name: string): string =>
-  match(list.includes('\n'))
+  match(includes(list, '\n'))
     .with(true, () => `${closed(list)}\n  ${name},\n`)
     .otherwise(() => `${closed(list)} ${name} `);

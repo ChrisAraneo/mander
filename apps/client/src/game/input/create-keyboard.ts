@@ -1,10 +1,11 @@
 import type { Action } from '@mander/engine';
-import { noop } from 'lodash-es';
+import { map, noop } from 'lodash-es';
 import { fromEvent, merge, type Subscription } from 'rxjs';
 import { Subject } from 'rxjs';
 import { match, P } from 'ts-pattern';
 
 import { BINDINGS } from './bindings';
+import type { KeyBinding } from './key-binding';
 import type { Keyboard } from './keyboard';
 
 const { nullish } = P;
@@ -12,7 +13,7 @@ const { nullish } = P;
 export const createKeyboard = (): Keyboard => {
   const actions = new Subject<Action>();
   const bindingByCode = new Map(
-    BINDINGS.map((binding) => [binding.code, binding]),
+    map(BINDINGS, (binding): [string, KeyBinding] => [binding.code, binding]),
   );
 
   const keydown$ = fromEvent<KeyboardEvent>(window, 'keydown');
