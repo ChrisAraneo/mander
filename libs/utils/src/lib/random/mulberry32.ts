@@ -1,4 +1,4 @@
-import { chain } from '../functions/chain';
+import { chain } from '../functions/chain.ts';
 
 const STEP = 0x6d_2b_79_f5;
 

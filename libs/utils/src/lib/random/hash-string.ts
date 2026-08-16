@@ -1,4 +1,4 @@
-import { xmur3 } from './xmur3';
+import { xmur3 } from './xmur3.ts';
 
 export const hashString = (input: string): string => {
   const hash = xmur3(input);

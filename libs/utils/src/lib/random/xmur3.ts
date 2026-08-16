@@ -1,6 +1,6 @@
 import { reduce, size } from 'lodash-es';
 
-import { chain } from '../functions/chain';
+import { chain } from '../functions/chain.ts';
 
 const SEED = 1_779_033_703;
 

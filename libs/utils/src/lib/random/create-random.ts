@@ -1,7 +1,7 @@
 import { floor } from 'lodash-es';
 
-import { mulberry32 } from './mulberry32';
-import { xmur3 } from './xmur3';
+import { mulberry32 } from './mulberry32.ts';
+import { xmur3 } from './xmur3.ts';
 
 export const createRandom = (seed: string) => {
   const next = mulberry32(xmur3(seed)());

@@ -1,7 +1,7 @@
 import { match } from 'ts-pattern';
 import { constant } from 'lodash-es';
 
-import type { Hsl } from './hsl';
+import type { Hsl } from './hsl.ts';
 
 const HSL_PATTERN =
   /^hsl\(\s*(?<hue>-?[\d.]+)\s*,\s*(?<saturation>[\d.]+)%\s*,\s*(?<lightness>[\d.]+)%\s*\)$/iu;
