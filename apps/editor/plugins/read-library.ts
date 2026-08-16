@@ -2,9 +2,9 @@ import { readFile } from 'node:fs/promises';
 
 import { flatten, map } from 'lodash-es';
 
-import { DIFFICULTIES, type Difficulty } from './difficulty';
-import { readStructures } from './read-structures';
-import type { StructurePaths } from './structure-paths';
+import { DIFFICULTIES, type Difficulty } from './difficulty.ts';
+import { readStructures } from './read-structures.ts';
+import type { StructurePaths } from './structure-paths.ts';
 
 export interface LibraryEntry {
   name: string;

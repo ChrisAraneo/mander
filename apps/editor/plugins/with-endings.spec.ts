@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { withEndings } from './with-endings';
+import { withEndings } from './with-endings.ts';
 
 describe('withEndings', () => {
   it('should follow a file that ends its lines the windows way', () => {

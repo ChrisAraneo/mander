@@ -1,7 +1,7 @@
 import { match } from 'ts-pattern';
 
-import { appendName, hasName } from './append-name';
-import { type Difficulty, prefixOf } from './difficulty';
+import { appendName, hasName } from './append-name.ts';
+import { type Difficulty, prefixOf } from './difficulty.ts';
 
 const importOf = (difficulty: Difficulty): RegExp =>
   new RegExp(`import \\{([\\s\\S]*?)\\} from '\\./${difficulty}';`);

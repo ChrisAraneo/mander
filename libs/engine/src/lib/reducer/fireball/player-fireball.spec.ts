@@ -41,7 +41,7 @@ const player = (x = 0, y = 0): Player => ({
   position: { x, y },
   velocity: createBasePlayerVelocity(),
   hearts: { value: 3 },
-  timers: { death: null, invincibility: 0 },
+  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
   statuses: {
     isFacingRight: true,
     isGrounded: false,

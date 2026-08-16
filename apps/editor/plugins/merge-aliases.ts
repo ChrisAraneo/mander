@@ -1,7 +1,7 @@
 import { difference, isEmpty, map, reduce, uniq } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import { appendName, listNames } from './append-name';
+import { appendName, listNames } from './append-name.ts';
 
 const IMPORT = /import \{([^}]*)\} from '\.\/consts';/;
 

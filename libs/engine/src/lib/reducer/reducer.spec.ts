@@ -21,6 +21,7 @@ import {
 import { createBasePlayerVelocity } from './player/create-base-player-velocity';
 import {
   BASE_HEARTS,
+  HURT_FLASH_SECONDS,
   HURT_INVINCIBLE_SECONDS,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
@@ -1941,6 +1942,31 @@ describe('hearts', () => {
 
     expect(hurt.player.timers.invincibility).toBe(HURT_INVINCIBLE_SECONDS);
   });
+
+  it('a lost heart reddens the player for a split second', () => {
+    let state = tick(placeAt(createInitialState(spikeLevel(6), 0, []), spikeX));
+
+    expect(state.player.timers.hurt).toBe(HURT_FLASH_SECONDS);
+    expect(
+      HURT_FLASH_SECONDS,
+      'far shorter than the shield it rides along with',
+    ).toBeLessThan(HURT_INVINCIBLE_SECONDS);
+
+    state = tickN(placeAt(state, safeX), ticksFor(HURT_FLASH_SECONDS));
+    expect(state.player.timers.hurt, 'the red drains away').toBe(0);
+    expect(
+      state.player.timers.invincibility,
+      'while the shield is still up',
+    ).toBeGreaterThan(0);
+  });
+
+  it('leaves the player his own colour when a hit glances off the i-frames', () => {
+    let state = tick(placeAt(createInitialState(spikeLevel(6), 0, []), spikeX));
+    state = tickN(placeAt(state, safeX), ticksFor(HURT_FLASH_SECONDS));
+
+    state = tick(placeAt(state, spikeX));
+    expect(state.player.timers.hurt, 'no heart lost, no flash').toBe(0);
+  });
 });
 
 describe('the star', () => {
@@ -2015,6 +2041,26 @@ describe('the star', () => {
     expect(state.player.hearts.value, 'and the spike bites again').toBe(
       hearts - 1,
     );
+  });
+
+  it('lights the player up for as long as the star shield holds', () => {
+    const state = useStar(carrying(star()));
+
+    expect(state.player.timers.star).toBe(STAR_INVINCIBLE_SECONDS);
+    expect(
+      tickN(state, ticksFor(STAR_INVINCIBLE_SECONDS)).player.timers.star,
+      'and puts the glow out when it lapses',
+    ).toBe(0);
+  });
+
+  it('leaves the player dark when a heart is merely lost', () => {
+    const hurt = tick(placeAt(carrying(star()), spikeX));
+
+    expect(
+      hurt.player.timers.invincibility,
+      'the heart-loss shield is up',
+    ).toBeGreaterThan(0);
+    expect(hurt.player.timers.star, 'but nothing is glowing').toBe(0);
   });
 
   it('tops a fading heart-loss shield back up to a full three seconds', () => {

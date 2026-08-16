@@ -69,7 +69,7 @@ const STANDING: Player = {
   position: { x: 4 * TILE_SIZE, y: 2 * TILE_SIZE },
   velocity: { x: { current: 0, max: 0 }, y: { current: 0, max: 0 } },
   hearts: { value: 3 },
-  timers: { death: null, invincibility: 0 },
+  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
   statuses: {
     isFacingRight: true,
     isGrounded: true,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isStructureText } from './is-structure-text';
+import { isStructureText } from './is-structure-text.ts';
 
 describe('isStructureText', () => {
   it('should accept the grid the editor writes', () => {

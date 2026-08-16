@@ -1,11 +1,11 @@
 import { readFile, writeFile } from 'node:fs/promises';
 
-import type { Difficulty } from './difficulty';
-import { mergeAliases } from './merge-aliases';
-import { registerStructure } from './register-structure';
-import type { StructurePaths } from './structure-paths';
-import { upsertStructure } from './upsert-structure';
-import { withEndings } from './with-endings';
+import type { Difficulty } from './difficulty.ts';
+import { mergeAliases } from './merge-aliases.ts';
+import { registerStructure } from './register-structure.ts';
+import type { StructurePaths } from './structure-paths.ts';
+import { upsertStructure } from './upsert-structure.ts';
+import { withEndings } from './with-endings.ts';
 
 export interface SavedStructure {
   name: string;

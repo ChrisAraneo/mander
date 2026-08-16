@@ -11,5 +11,5 @@ export const standingPlayer = (x: number, y: number): Player => ({
     isGrounded: true,
     isJumpQueued: false,
   },
-  timers: { death: null, invincibility: 0 },
+  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
 });

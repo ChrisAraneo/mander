@@ -3,11 +3,15 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { match, P } from 'ts-pattern';
 import type { Plugin } from 'vite';
 
-import { type Difficulty, difficultyOf, isStructureName } from './difficulty';
-import { isStructureText } from './is-structure-text';
-import { readLibrary } from './read-library';
-import { saveStructure } from './save-structure';
-import { structurePaths, type StructurePaths } from './structure-paths';
+import {
+  type Difficulty,
+  difficultyOf,
+  isStructureName,
+} from './difficulty.ts';
+import { isStructureText } from './is-structure-text.ts';
+import { readLibrary } from './read-library.ts';
+import { saveStructure } from './save-structure.ts';
+import { structurePaths, type StructurePaths } from './structure-paths.ts';
 
 export const STRUCTURE_ENDPOINT = '/api/structures';
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { mergeAliases } from './merge-aliases';
+import { mergeAliases } from './merge-aliases.ts';
 
 const source = `import { DR, __ } from './consts';
 import type { Structure } from './structure';

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { readStructures } from './read-structures';
-import { upsertStructure } from './upsert-structure';
+import { readStructures } from './read-structures.ts';
+import { upsertStructure } from './upsert-structure.ts';
 
 const TEXT = `[
   [__, DR],

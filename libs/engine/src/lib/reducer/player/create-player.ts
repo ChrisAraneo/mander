@@ -11,7 +11,7 @@ export const createPlayer = (
   position: spawnPosition(level),
   velocity: createBasePlayerVelocity(),
   hearts: { value: hearts.value },
-  timers: { death: null, invincibility: 0 },
+  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
   statuses: {
     isFacingRight: true,
     isGrounded: false,

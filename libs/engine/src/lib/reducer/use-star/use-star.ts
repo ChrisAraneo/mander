@@ -13,6 +13,7 @@ const shielded = (player: Player): Player => ({
       player.timers.invincibility,
       STAR_INVINCIBLE_SECONDS,
     ),
+    star: Math.max(player.timers.star, STAR_INVINCIBLE_SECONDS),
   },
 });
 

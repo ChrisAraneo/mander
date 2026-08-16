@@ -1,7 +1,7 @@
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'vite';
 
-import { structureLibrary } from './plugins/structure-library';
+import { structureLibrary } from './plugins/structure-library.ts';
 
 const LIBRARY_FILES = [
   '**/libs/structures/src/lib/normal.ts',

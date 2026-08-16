@@ -24,7 +24,7 @@ import { match, P } from 'ts-pattern';
 import { onMounted, onUnmounted, type Ref, shallowRef } from 'vue';
 
 import { createKeyboard, type Keyboard } from '../input';
-import { completeWorld, saveScore } from '../storage';
+import { completeWorld, recordPlayedWorld, saveScore } from '../storage';
 import { tickStream } from '../tick';
 import { useReplay } from '../use-replay';
 import type { GameController } from './game-controller';
@@ -122,6 +122,7 @@ export const useGame = (
     match({ element, context })
       .with({ element: P.nonNullable, context: P.nonNullable }, () => {
         saveScore(initial.score);
+        recordPlayedWorld({ name, day });
         keyboard = createKeyboard();
 
         subscription = merge(tickStream(), keyboard.actions$, actions$)

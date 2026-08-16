@@ -1,6 +1,6 @@
 import { resolve } from 'node:path';
 
-import type { Difficulty } from './difficulty';
+import type { Difficulty } from './difficulty.ts';
 
 const LIBRARY_DIR = '../../libs/structures/src/lib';
 

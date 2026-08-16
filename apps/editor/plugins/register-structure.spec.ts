@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { registerStructure } from './register-structure';
+import { registerStructure } from './register-structure.ts';
 
 const library = `import { HARD_001 } from './hard';
 import {

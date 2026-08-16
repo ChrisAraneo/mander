@@ -34,6 +34,7 @@ import { createFireballs } from '../fireball/create-fireballs';
 import { createPlayerFireballs } from '../fireball/create-player-fireballs';
 import { isBurning } from '../fireball/is-burning';
 import {
+  HURT_FLASH_SECONDS,
   HURT_INVINCIBLE_SECONDS,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
@@ -55,11 +56,13 @@ import type { Outcome } from './types/outcome';
 const INTERACT_RANGE = 12;
 const PICKUP_RANGE = 4;
 
-const coolInvincibility = (player: Player, deltaSeconds: number): Player => ({
+const coolTimers = (player: Player, deltaSeconds: number): Player => ({
   ...player,
   timers: {
     ...player.timers,
     invincibility: Math.max(0, player.timers.invincibility - deltaSeconds),
+    star: Math.max(0, player.timers.star - deltaSeconds),
+    hurt: Math.max(0, player.timers.hurt - deltaSeconds),
   },
 });
 
@@ -69,7 +72,7 @@ const advancePlayer = (state: GameState, deltaSeconds: number): Player =>
       stepPlayerDeath(state.level, state.player, death, deltaSeconds),
     )
     .otherwise(() =>
-      coolInvincibility(
+      coolTimers(
         stepPlayer(state.level, state.player, state.input, deltaSeconds),
         deltaSeconds,
       ),
@@ -200,7 +203,11 @@ const fell = (state: GameState, player: Player): Outcome => ({
 const hurt = (player: Player): Player => ({
   ...player,
   hearts: loseHeart(player.hearts),
-  timers: { ...player.timers, invincibility: HURT_INVINCIBLE_SECONDS },
+  timers: {
+    ...player.timers,
+    invincibility: HURT_INVINCIBLE_SECONDS,
+    hurt: HURT_FLASH_SECONDS,
+  },
 });
 
 const gameOver = (state: GameState, player: Player): Outcome => ({

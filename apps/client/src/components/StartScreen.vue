@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { orderBy } from 'lodash-es';
-import { match } from 'ts-pattern';
+import { match, P } from 'ts-pattern';
 import { computeWorldName } from '@mander/generator';
 import { formatClock } from '../game/format';
-import { clearSave, type CompletedWorld, loadSave } from '../game/storage';
+import {
+  type CompletedWorld,
+  loadSave,
+  type PlayableWorld,
+  playableWorlds,
+} from '../game/storage';
 import { useBackdrop } from '../game/use-backdrop';
 import { dailyDate } from '../game/use-game';
 
@@ -26,9 +30,7 @@ const finishedToday = computed(() =>
   save.value.completedWorlds.find((world) => world.name === worldName),
 );
 
-const finishedWorlds = computed(() =>
-  orderBy(save.value.completedWorlds, ['day', 'name'], ['desc', 'asc']),
-);
+const playedWorlds = computed(() => playableWorlds(save.value));
 
 const pluralSuffix = (count: number): string =>
   match(count)
@@ -42,9 +44,23 @@ const formatDay = (day: string): string =>
     .with('', () => 'day unknown')
     .otherwise((known) => known);
 
-function resetSave(): void {
-  clearSave();
-  save.value = loadSave();
+const scoreOf = (world: PlayableWorld): string =>
+  match(world.completed)
+    .with(P.nonNullable, (run) => formatScore(run.score))
+    .otherwise(() => '');
+
+const clockOf = (world: PlayableWorld): string =>
+  match(world.completed)
+    .with(P.nonNullable, (run) => formatClock(run.seconds))
+    .otherwise(() => '');
+
+const hasReplay = (world: PlayableWorld): boolean =>
+  world.completed?.replay != null;
+
+function watchWorld(world: PlayableWorld): void {
+  match(world.completed)
+    .with(P.nonNullable, (run) => emit('watch', run))
+    .otherwise(() => undefined);
 }
 </script>
 
@@ -67,30 +83,48 @@ function resetSave(): void {
         </button>
       </div>
 
-      <div v-if="finishedWorlds.length" class="save-info">
+      <div v-if="playedWorlds.length" class="save-info">
         <header class="save-head">
           <p>
-            {{ finishedWorlds.length }} world{{
-              pluralSuffix(finishedWorlds.length)
+            {{ playedWorlds.length }} world{{
+              pluralSuffix(playedWorlds.length)
             }}
-            finished
+            played
           </p>
-          <button class="ghost" @click="resetSave">Reset save</button>
         </header>
 
         <ul class="world-list">
-          <li v-for="world in finishedWorlds" :key="world.name" class="row">
-            <span class="row-name" :title="world.name">{{ world.name }}</span>
-            <span class="row-day">{{ formatDay(world.day) }}</span>
-            <span class="row-score">★ {{ formatScore(world.score) }}</span>
-            <span class="row-time">⏱ {{ formatClock(world.seconds) }}</span>
-            <button
-              v-if="world.replay"
-              class="ghost row-watch"
-              @click="emit('watch', world)">
-              ▶ Replay
-            </button>
-            <span v-else class="row-watch none">no replay</span>
+          <li v-for="world in playedWorlds" :key="world.name" class="row">
+            <span class="row-name" :title="world.name"
+              >World {{ world.name }}</span
+            >
+
+            <div class="row-meta">
+              <span class="row-day">{{ formatDay(world.day) }}</span>
+              <template v-if="world.completed !== null">
+                <span class="row-score">★ {{ scoreOf(world) }}</span>
+                <span class="row-time">⏱ {{ clockOf(world) }}</span>
+              </template>
+              <span v-else class="row-open">unfinished</span>
+              <span v-if="world.runs > 1" class="row-runs"
+                >×{{ world.runs }}</span
+              >
+            </div>
+
+            <div class="row-actions">
+              <button
+                v-if="world.day"
+                class="ghost"
+                @click="emit('start', world.day)">
+                ▶ Play
+              </button>
+              <button
+                v-if="hasReplay(world)"
+                class="ghost"
+                @click="watchWorld(world)">
+                ⟲ Replay
+              </button>
+            </div>
           </li>
         </ul>
       </div>
@@ -217,7 +251,7 @@ h1 {
 
 .row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 4px 10px;
   padding: 8px 10px;
@@ -235,6 +269,13 @@ h1 {
   overflow-wrap: anywhere;
 }
 
+.row-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
 .row-day {
   font-family: 'Cascadia Mono', Consolas, monospace;
   font-size: 12px;
@@ -250,14 +291,24 @@ h1 {
   color: #9fb0c3;
 }
 
-.row-watch {
-  justify-self: end;
-  padding: 4px 10px;
+.row-open {
+  color: #4a5567;
   font-size: 12px;
 }
 
-.row-watch.none {
-  color: #4a5567;
+.row-runs {
+  font-size: 12px;
+  color: #64758a;
+}
+
+.row-actions {
+  justify-self: end;
+  display: flex;
+  gap: 6px;
+}
+
+.row-actions .ghost {
+  padding: 4px 10px;
   font-size: 12px;
 }
 

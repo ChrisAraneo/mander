@@ -5,7 +5,7 @@ import { match, P } from 'ts-pattern';
 
 import { STORAGE_KEY } from './consts';
 import { emptySave } from './empty-save';
-import type { CompletedWorld, SaveData } from './save-data';
+import type { CompletedWorld, PlayedWorld, SaveData } from './save-data';
 
 const { nullish } = P;
 
@@ -64,6 +64,19 @@ const completedWorlds = (value: unknown): CompletedWorld[] =>
       replay: replayOrNull(world.replay),
     }));
 
+const isPlayedWorld = (value: unknown): value is Partial<PlayedWorld> =>
+  isObjectLike(value) && isString((value as PlayedWorld).name);
+
+const playedWorlds = (value: unknown): PlayedWorld[] =>
+  arrayOrEmpty<unknown>(value)
+    .filter(isPlayedWorld)
+    .map((world): PlayedWorld => ({
+      name: stringOrEmpty(world.name),
+      day: stringOrEmpty(world.day),
+      playedAt: stringOrEmpty(world.playedAt),
+      runs: numberOrZero(world.runs),
+    }));
+
 const fromRaw = (raw: string | null): SaveData =>
   match(raw)
     .with(nullish, () => emptySave())
@@ -72,6 +85,7 @@ const fromRaw = (raw: string | null): SaveData =>
         .with(P.when(isSaveShape), (shaped): SaveData => ({
           score: numberOrZero(shaped.score),
           completedWorlds: completedWorlds(shaped.completedWorlds),
+          playedWorlds: playedWorlds(shaped.playedWorlds),
         }))
         .otherwise(() => emptySave()),
     );
