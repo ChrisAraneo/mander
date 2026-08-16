@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { STRUCTURE_WIDTH, STRUCTURE_HEIGHT } from '@mander/structures';
-import { filter, find } from 'lodash-es';
+import { chain, withEffect } from '@mander/utils';
+import { filter, find, noop, size } from 'lodash-es';
+import { match, P } from 'ts-pattern';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import BrushPicker from './components/BrushPicker.vue';
@@ -8,8 +10,12 @@ import IssuePanel from './components/IssuePanel.vue';
 import OutputPanel from './components/OutputPanel.vue';
 import StructureGrid from './components/StructureGrid.vue';
 import type { Difficulty } from './editor';
-import { BRUSHES, difficultyOf, nextStructureName } from './editor';
+import { BRUSHES, difficultyOf, nextStructureName, setRef } from './editor';
 import { useEditor, useLibrary } from './editor';
+
+const { nullish } = P;
+
+const UNDO_KEY = 'z';
 
 const editor = useEditor();
 const library = useLibrary();
@@ -28,43 +34,53 @@ const hardEntries = computed(() =>
 const target = computed(() => `${difficultyOf(name.value)}.ts`);
 
 const canSave = computed(
-  () => library.isReady.value && editor.isValid.value && name.value.length > 0,
+  () => library.isReady.value && editor.isValid.value && size(name.value) > 0,
 );
 
-function suggestName(): void {
-  name.value = nextStructureName(library.entries.value, pool.value);
-}
+const suggestName = (): void =>
+  void setRef(name, nextStructureName(library.entries.value, pool.value));
 
-function loadStructure(structure: string): void {
-  const entry = find(library.entries.value, { name: structure });
-  if (entry === undefined) return;
-  editor.replace(entry.grid);
-  pool.value = entry.difficulty;
-  name.value = entry.name;
-}
+const loadStructure = (structure: string): void =>
+  void match(find(library.entries.value, { name: structure }))
+    .with(nullish, noop)
+    .otherwise((entry) =>
+      chain(entry)
+        .thru((found) => withEffect(found, () => editor.replace(found.grid)))
+        .thru((found) =>
+          withEffect(found, () => setRef(pool, found.difficulty)),
+        )
+        .thru((found) => setRef(name, found.name))
+        .value(),
+    );
 
-function save(): void {
-  void library.save(name.value, editor.grid.value);
-}
+const save = (): void => void library.save(name.value, editor.grid.value);
 
-function onKeydown(event: KeyboardEvent): void {
-  if (document.activeElement?.tagName === 'INPUT') return;
-  const brush = find(BRUSHES, { shortcut: event.key });
-  if (brush !== undefined) {
-    editor.brush.value = brush.value;
-    return;
-  }
-  if (event.key === 'z' && (event.ctrlKey || event.metaKey)) {
-    event.preventDefault();
-    editor.undo();
-  }
-}
+const undoShortcut = (event: KeyboardEvent): void =>
+  match(event.key === UNDO_KEY && (event.ctrlKey || event.metaKey))
+    .with(true, () =>
+      chain(event)
+        .thru((pressed) => withEffect(pressed, () => pressed.preventDefault()))
+        .thru(() => editor.undo())
+        .value(),
+    )
+    .otherwise(noop);
 
-onMounted(async () => {
-  window.addEventListener('keydown', onKeydown);
-  await library.load();
-  suggestName();
-});
+const onKeydown = (event: KeyboardEvent): void =>
+  match(document.activeElement?.tagName)
+    .with('INPUT', noop)
+    .otherwise(() =>
+      match(find(BRUSHES, { shortcut: event.key }))
+        .with(nullish, () => undoShortcut(event))
+        .otherwise((brush) => void setRef(editor.brush, brush.value)),
+    );
+
+onMounted(() =>
+  chain(window.addEventListener('keydown', onKeydown))
+    .thru(() => library.load())
+    .thru((loading) => loading.then(suggestName))
+    .value(),
+);
+
 onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
 </script>
 

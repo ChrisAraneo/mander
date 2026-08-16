@@ -1,26 +1,37 @@
 <script setup lang="ts">
 import { TILE_SIZE } from '@mander/model';
+import { chain } from '@mander/utils';
+import { noop } from 'lodash-es';
+import { match, P } from 'ts-pattern';
 import { onMounted, ref, watch } from 'vue';
 
-import { drawStructure, fitCanvas } from '../editor';
+import { drawStructure, fitCanvas, setRef } from '../editor';
+
+const { nullish } = P;
 
 const props = defineProps<{ value: number }>();
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 const context = ref<CanvasRenderingContext2D | null>(null);
 
-function repaint(): void {
-  const target = context.value;
-  if (target === null) return;
-  drawStructure(target, [[props.value]]);
-}
+const repaint = (): void =>
+  match(context.value)
+    .with(nullish, noop)
+    .otherwise((target) => drawStructure(target, [[props.value]]));
 
-onMounted(() => {
-  const element = canvas.value;
-  if (element !== null)
-    context.value = fitCanvas(element, TILE_SIZE, TILE_SIZE);
-  repaint();
-});
+onMounted(() =>
+  chain(canvas.value)
+    .thru((element) =>
+      match(element)
+        .with(nullish, noop)
+        .otherwise(
+          (target) =>
+            void setRef(context, fitCanvas(target, TILE_SIZE, TILE_SIZE)),
+        ),
+    )
+    .thru(() => repaint())
+    .value(),
+);
 
 watch(() => props.value, repaint);
 </script>

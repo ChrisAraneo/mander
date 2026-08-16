@@ -1,3 +1,4 @@
+import { chain } from '@mander/utils';
 import type { GameState } from '@mander/engine';
 import {
   findPortalTile,
@@ -6,7 +7,7 @@ import {
   toEntityRectangle,
 } from '@mander/model';
 import type { Rectangle } from '@mander/utils';
-import { chain, map, noop, range } from 'lodash-es';
+import { constant, map, range } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import {
@@ -138,7 +139,7 @@ const portalStep = (portal: Rectangle, state: GameState): CanvasStep =>
 
 const portalRectangle = (level: Level): Rectangle | undefined =>
   match(findPortalTile(level))
-    .with(nullish, () => undefined)
+    .with(nullish, constant(undefined))
     .otherwise((tile) => toEntityRectangle(tile, PORTAL_ENTITY_BOX));
 
 export const drawPortal = (
@@ -148,7 +149,7 @@ export const drawPortal = (
   chain(portalRectangle(state.level))
     .thru((portal) =>
       match(portal)
-        .with(nullish, noop)
+        .with(nullish, constant(undefined))
         .otherwise((box) => paint(context, portalStep(box, state))),
     )
     .value();

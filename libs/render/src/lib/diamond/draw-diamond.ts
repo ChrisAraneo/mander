@@ -1,7 +1,8 @@
+import { chain } from '@mander/utils';
 import type { GameState } from '@mander/engine';
 import { DIAMOND_ENTITY_BOX, toEntityRectangle } from '@mander/model';
 import type { Point } from '@mander/utils';
-import { chain, map } from 'lodash-es';
+import { map } from 'lodash-es';
 
 import { type CanvasStep, paint } from '../canvas';
 import { CYAN_GEM, gemStep } from '../gem';

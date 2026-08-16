@@ -8,6 +8,8 @@ import type { PackedEntry, PackedReplay } from './types/packed-replay';
 import type { RecordedAction } from '../recorder/types/recorded-action';
 import type { Replay } from '../recorder/types/replay';
 
+const { nonNullable, nullish } = P;
+
 const levelAt = (levels: GameLevel[], index: number): GameLevel | undefined =>
   levels[index];
 
@@ -20,7 +22,7 @@ const unpackAction = (entry: PackedEntry, levels: GameLevel[]): Action | null =>
     }))
     .with('LOAD_LEVEL', (): Action | null =>
       match(levelAt(levels, entry[2]))
-        .with(P.nonNullable, (level): Action => ({
+        .with(nonNullable, (level): Action => ({
           type: 'LOAD_LEVEL',
           level,
           levelIndex: entry[2],
@@ -29,10 +31,10 @@ const unpackAction = (entry: PackedEntry, levels: GameLevel[]): Action | null =>
     )
     .with('RESTART', (): Action | null =>
       match(levelAt(levels, 0))
-        .with(P.nonNullable, (level): Action => ({ type: 'RESTART', level }))
+        .with(nonNullable, (level): Action => ({ type: 'RESTART', level }))
         .otherwise(() => null),
     )
-    .with(P.nullish, () => null)
+    .with(nullish, () => null)
     .otherwise((type): Action => ({ type }) as Action);
 
 const unpackEntry = (
@@ -40,7 +42,7 @@ const unpackEntry = (
   levels: GameLevel[],
 ): RecordedAction | null =>
   match(unpackAction(entry, levels))
-    .with(P.nonNullable, (action): RecordedAction => ({
+    .with(nonNullable, (action): RecordedAction => ({
       atMs: entry[0],
       action,
     }))

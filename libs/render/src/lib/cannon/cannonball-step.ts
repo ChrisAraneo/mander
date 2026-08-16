@@ -1,6 +1,6 @@
+import { chain } from '@mander/utils';
 import { CANNONBALL_SIZE } from '@mander/engine';
 import type { Cannonball } from '@mander/model';
-import { chain } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import {

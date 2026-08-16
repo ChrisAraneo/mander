@@ -1,6 +1,7 @@
+import { chain } from '@mander/utils';
 import { SOLID_TILES, type Tile, TILE_DIRT, TILE_WOOD } from '@mander/model';
 import { type Hsl, hslCss, parseHsl, shiftHsl } from '@mander/utils';
-import { assign, chain, map } from 'lodash-es';
+import { assign, map } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import type { Palette } from '../palette';

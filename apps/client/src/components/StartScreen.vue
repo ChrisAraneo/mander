@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { computeWorldName } from '@mander/generator';
 import { formatClock } from '../game/format';
@@ -11,6 +12,8 @@ import {
 } from '../game/storage';
 import { useBackdrop } from '../game/use-backdrop';
 import { dailyDate } from '../game/use-game';
+
+const { nonNullable } = P;
 
 const emit = defineEmits<{
   start: [day: string];
@@ -46,12 +49,12 @@ const formatDay = (day: string): string =>
 
 const scoreOf = (world: PlayableWorld): string =>
   match(world.completed)
-    .with(P.nonNullable, (run) => formatScore(run.score))
+    .with(nonNullable, (run) => formatScore(run.score))
     .otherwise(() => '');
 
 const clockOf = (world: PlayableWorld): string =>
   match(world.completed)
-    .with(P.nonNullable, (run) => formatClock(run.seconds))
+    .with(nonNullable, (run) => formatClock(run.seconds))
     .otherwise(() => '');
 
 const hasReplay = (world: PlayableWorld): boolean =>
@@ -59,8 +62,8 @@ const hasReplay = (world: PlayableWorld): boolean =>
 
 function watchWorld(world: PlayableWorld): void {
   match(world.completed)
-    .with(P.nonNullable, (run) => emit('watch', run))
-    .otherwise(() => undefined);
+    .with(nonNullable, (run) => emit('watch', run))
+    .otherwise(noop);
 }
 </script>
 

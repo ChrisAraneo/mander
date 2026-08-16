@@ -1,4 +1,5 @@
-import { chain, padStart, range } from 'lodash-es';
+import { chain } from '@mander/utils';
+import { padStart, range } from 'lodash-es';
 import { hashString } from '@mander/utils';
 
 const pad2 = (value: number): string => padStart(String(value), 2, '0');

@@ -53,6 +53,8 @@ import { isNearTile } from './is-near-tile';
 import type { Bounced } from './types/bounced';
 import type { Outcome } from './types/outcome';
 
+const { number } = P;
+
 const INTERACT_RANGE = 12;
 const PICKUP_RANGE = 4;
 
@@ -68,7 +70,7 @@ const coolTimers = (player: Player, deltaSeconds: number): Player => ({
 
 const advancePlayer = (state: GameState, deltaSeconds: number): Player =>
   match(state.player.timers.death)
-    .with(P.number, (death) =>
+    .with(number, (death) =>
       stepPlayerDeath(state.level, state.player, death, deltaSeconds),
     )
     .otherwise(() =>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { PackedReplay } from '@mander/engine';
+import { noop } from 'lodash-es';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { match } from 'ts-pattern';
 import { useArchive } from '../game/use-archive';
@@ -28,7 +29,7 @@ const onKeyDown = (event: KeyboardEvent): void =>
   match({ repeat: event.repeat, code: event.code })
     .with({ repeat: false, code: 'Space' }, () => replay.togglePause())
     .with({ repeat: false, code: 'Escape' }, () => emit('exit'))
-    .otherwise(() => undefined);
+    .otherwise(noop);
 
 onMounted(() => window.addEventListener('keydown', onKeyDown));
 onUnmounted(() => window.removeEventListener('keydown', onKeyDown));

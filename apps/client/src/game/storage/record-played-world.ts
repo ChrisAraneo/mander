@@ -6,6 +6,8 @@ import { loadSave } from './load-save';
 import { persist } from './persist';
 import type { PlayedWorld } from './save-data';
 
+const { nullish } = P;
+
 export interface PlayedRun {
   name: string;
   day: string;
@@ -13,7 +15,7 @@ export interface PlayedRun {
 
 const runsAfter = (previous: PlayedWorld | undefined): number =>
   match(previous)
-    .with(P.nullish, () => 1)
+    .with(nullish, () => 1)
     .otherwise((earlier) => earlier.runs + 1);
 
 export const recordPlayedWorld = (

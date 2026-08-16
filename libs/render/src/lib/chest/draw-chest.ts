@@ -1,3 +1,4 @@
+import { chain } from '@mander/utils';
 import type { GameState } from '@mander/engine';
 import {
   CHEST_ENTITY_BOX,
@@ -6,7 +7,7 @@ import {
   toEntityRectangle,
 } from '@mander/model';
 import type { Rectangle } from '@mander/utils';
-import { chain, noop } from 'lodash-es';
+import { constant } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import {
@@ -85,7 +86,7 @@ const chestStep = (chest: Rectangle, state: GameState): CanvasStep =>
 
 const chestRectangle = (level: Level): Rectangle | undefined =>
   match(findChestTile(level))
-    .with(nullish, () => undefined)
+    .with(nullish, constant(undefined))
     .otherwise((tile) => toEntityRectangle(tile, CHEST_ENTITY_BOX));
 
 export const drawChest = (
@@ -95,7 +96,7 @@ export const drawChest = (
   chain(chestRectangle(state.level))
     .thru((chest) =>
       match(chest)
-        .with(nullish, noop)
+        .with(nullish, constant(undefined))
         .otherwise((box) => paint(context, chestStep(box, state))),
     )
     .value();

@@ -1,5 +1,4 @@
-import { chain } from 'lodash-es';
-
+import { chain } from '@mander/utils';
 import type { ColorStop } from './color-stop';
 import { withStops } from './with-stops';
 

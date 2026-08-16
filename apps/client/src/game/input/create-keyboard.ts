@@ -1,4 +1,5 @@
 import type { Action } from '@mander/engine';
+import { noop } from 'lodash-es';
 import { fromEvent, merge, type Subscription } from 'rxjs';
 import { Subject } from 'rxjs';
 import { match, P } from 'ts-pattern';
@@ -20,18 +21,18 @@ export const createKeyboard = (): Keyboard => {
   const subscription: Subscription = merge(keydown$, keyup$).subscribe(
     (event) =>
       match(bindingByCode.get(event.code))
-        .with(nullish, () => undefined)
+        .with(nullish, noop)
         .otherwise((binding) => {
           event.preventDefault();
           return match(event.type)
             .with('keydown', () =>
               match(event.repeat)
-                .with(true, () => undefined)
+                .with(true, noop)
                 .otherwise(() => actions.next(binding.start)),
             )
             .otherwise(() =>
               match(binding.stop)
-                .with(nullish, () => undefined)
+                .with(nullish, noop)
                 .otherwise((stop) => actions.next(stop)),
             );
         }),

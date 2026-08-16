@@ -1,4 +1,5 @@
-import { assign, chain, round } from 'lodash-es';
+import { chain } from '@mander/utils';
+import { assign, round } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import { VIEW_HEIGHT, VIEW_WIDTH } from './consts';

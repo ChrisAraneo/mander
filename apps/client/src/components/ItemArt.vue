@@ -1,7 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
 import type { Item } from '@mander/model';
 import { drawItem } from '@mander/render';
+import { chain, withEffect } from '@mander/utils';
+import { noop } from 'lodash-es';
+import { match, P } from 'ts-pattern';
+import { onMounted, ref, watch } from 'vue';
+
+const { nullish } = P;
 
 const props = withDefaults(defineProps<{ item: Item; size?: number }>(), {
   size: 64,
@@ -9,21 +14,41 @@ const props = withDefaults(defineProps<{ item: Item; size?: number }>(), {
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 
-const paint = (): void => {
-  const element = canvas.value;
-  if (element === null) return;
+const paintInto = (
+  element: HTMLCanvasElement,
+  item: Item,
+  size: number,
+): void =>
+  chain(window.devicePixelRatio || 1)
+    .thru((ratio) =>
+      withEffect(ratio, () =>
+        Object.assign(element, { width: size * ratio, height: size * ratio }),
+      ),
+    )
+    .thru((ratio) => ({ ratio, context: element.getContext('2d') }))
+    .thru(({ ratio, context }) =>
+      match(context)
+        .with(nullish, noop)
+        .otherwise((target) =>
+          chain(target)
+            .thru((ready) =>
+              withEffect(ready, () =>
+                ready.setTransform(ratio, 0, 0, ratio, 0, 0),
+              ),
+            )
+            .thru((ready) =>
+              withEffect(ready, () => ready.clearRect(0, 0, size, size)),
+            )
+            .thru((ready) => drawItem(ready, item, size))
+            .value(),
+        ),
+    )
+    .value();
 
-  const pixelRatio = window.devicePixelRatio || 1;
-  element.width = props.size * pixelRatio;
-  element.height = props.size * pixelRatio;
-
-  const context = element.getContext('2d');
-  if (context === null) return;
-
-  context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-  context.clearRect(0, 0, props.size, props.size);
-  drawItem(context, props.item, props.size);
-};
+const paint = (): void =>
+  match(canvas.value)
+    .with(nullish, noop)
+    .otherwise((element) => paintInto(element, props.item, props.size));
 
 onMounted(paint);
 watch(() => [props.item, props.size], paint);

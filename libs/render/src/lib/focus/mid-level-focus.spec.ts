@@ -1,3 +1,4 @@
+import { chain } from '@mander/utils';
 import {
   type Level,
   type Tile,
@@ -5,7 +6,7 @@ import {
   TILE_DIRT,
   TILE_SIZE,
 } from '@mander/model';
-import { chain, map, size, split } from 'lodash-es';
+import { map, size, split } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 

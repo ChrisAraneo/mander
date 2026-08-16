@@ -1,15 +1,10 @@
 import { isSolidTile, type Tile, TILE_AIR, TILE_PORTAL } from '@mander/model';
-import {
-  concat,
-  every,
-  filter,
-  find,
-  findIndex,
-  forEach,
-  map,
-  range,
-  size,
-} from 'lodash-es';
+import { chain } from '@mander/utils';
+import { concat, every, filter, findIndex, map, range, size } from 'lodash-es';
+import { match, P } from 'ts-pattern';
+import { patchTiles, type TilePatch } from './patch-tiles';
+
+const { nullish } = P;
 
 const PORTAL_HEIGHT = 2;
 
@@ -30,28 +25,28 @@ const surfaceRow = (tiles: Tile[][], column: number): number =>
 const stackRows = (surface: number): number[] =>
   map(range(1, PORTAL_HEIGHT + 1), (offset) => surface - offset);
 
-const isFree = (tiles: Tile[][], column: number): boolean => {
-  const surface = surfaceRow(tiles, column);
+const isFree = (tiles: Tile[][], column: number): boolean =>
+  chain(surfaceRow(tiles, column))
+    .thru(
+      (surface) =>
+        surface >= PORTAL_HEIGHT &&
+        every(stackRows(surface), (row) => tiles[row][column] === TILE_AIR),
+    )
+    .value();
 
-  return (
-    surface >= PORTAL_HEIGHT &&
-    every(stackRows(surface), (row) => tiles[row][column] === TILE_AIR)
-  );
-};
-
-export const addPortal = (tiles: Tile[][]): Tile[][] => {
-  const marked = map(tiles, (row) => [...row]);
-  const column = find(columnOrder(size(marked[0])), (candidate) =>
-    isFree(marked, candidate),
-  );
-
-  if (column === undefined) {
-    return marked;
-  }
-
-  forEach(stackRows(surfaceRow(marked, column)), (row) => {
-    marked[row][column] = TILE_PORTAL;
-  });
-
-  return marked;
-};
+export const addPortal = (tiles: Tile[][]): Tile[][] =>
+  chain(columnOrder(size(tiles[0])))
+    .find((candidate) => isFree(tiles, candidate))
+    .thru((column) =>
+      match(column)
+        .with(nullish, (): TilePatch[] => [])
+        .otherwise((found): TilePatch[] =>
+          map(stackRows(surfaceRow(tiles, found)), (row) => ({
+            row,
+            column: found,
+            tile: TILE_PORTAL,
+          })),
+        ),
+    )
+    .thru((patches) => patchTiles(tiles, patches))
+    .value();

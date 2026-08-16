@@ -1,3 +1,4 @@
+import { chain } from '@mander/utils';
 import {
   type Tile,
   TILE_BRICK,
@@ -8,7 +9,7 @@ import {
   TILE_WOOD,
 } from '@mander/model';
 import { hslCss, parseHsl, shiftHsl } from '@mander/utils';
-import { chain, map, memoize, range, size } from 'lodash-es';
+import { map, memoize, range, size } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import {

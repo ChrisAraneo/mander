@@ -1,20 +1,23 @@
 import { isSolidTile, type Tile, TILE_AIR, TILE_DIAMOND } from '@mander/model';
 import { STRUCTURE_WIDTH } from '@mander/structures';
-import { createRandom } from '@mander/utils';
+import { chain, createRandom } from '@mander/utils';
 import {
   ceil,
   every,
   filter,
-  find,
   findIndex,
   floor,
-  forEach,
   join,
   map,
   range,
+  reduce,
   size,
   sortBy,
 } from 'lodash-es';
+import { match, P } from 'ts-pattern';
+import { patchTiles, type TilePatch } from './patch-tiles';
+
+const { nullish } = P;
 
 const DIAMONDS_PER_STRUCTURE = 5;
 
@@ -28,6 +31,11 @@ const CLEARANCE = REST_HEIGHT + AIR_ABOVE;
 
 const MIN_GAP = 2;
 
+interface Sowing {
+  taken: number[];
+  patches: TilePatch[];
+}
+
 const seedOf = (tiles: Tile[][]): string =>
   join(
     map(tiles, (row) => join(row, ',')),
@@ -37,17 +45,17 @@ const seedOf = (tiles: Tile[][]): string =>
 const surfaceRow = (tiles: Tile[][], column: number): number =>
   findIndex(tiles, (row) => isSolidTile(row[column]));
 
-const isFree = (tiles: Tile[][], column: number): boolean => {
-  const surface = surfaceRow(tiles, column);
-
-  return (
-    surface >= CLEARANCE &&
-    every(
-      range(1, CLEARANCE + 1),
-      (offset) => tiles[surface - offset][column] === TILE_AIR,
+const isFree = (tiles: Tile[][], column: number): boolean =>
+  chain(surfaceRow(tiles, column))
+    .thru(
+      (surface) =>
+        surface >= CLEARANCE &&
+        every(
+          range(1, CLEARANCE + 1),
+          (offset) => tiles[surface - offset][column] === TILE_AIR,
+        ),
     )
-  );
-};
+    .value();
 
 const isApart = (taken: number[], column: number): boolean =>
   every(taken, (other) => Math.abs(other - column) >= MIN_GAP);
@@ -70,23 +78,42 @@ const slots = (width: number): number[][] =>
     ),
   );
 
-export const addDiamonds = (tiles: Tile[][]): Tile[][] => {
-  const strewn = map(tiles, (row) => [...row]);
-  const width = size(strewn[0] ?? []);
-  const random = createRandom(seedOf(tiles));
-  const taken: number[] = [];
+const sowSlot = (
+  tiles: Tile[][],
+  random: ReturnType<typeof createRandom>,
+  sown: Sowing,
+  columns: number[],
+): Sowing =>
+  chain(sortBy(columns, () => random.next()))
+    .find(
+      (candidate) => isFree(tiles, candidate) && isApart(sown.taken, candidate),
+    )
+    .thru((column) =>
+      match(column)
+        .with(nullish, () => sown)
+        .otherwise((found): Sowing => ({
+          taken: [...sown.taken, found],
+          patches: [
+            ...sown.patches,
+            {
+              row: surfaceRow(tiles, found) - REST_HEIGHT,
+              column: found,
+              tile: TILE_DIAMOND,
+            },
+          ],
+        })),
+    )
+    .value();
 
-  forEach(slots(width), (columns) => {
-    const column = find(
-      sortBy(columns, () => random.next()),
-      (candidate) => isFree(strewn, candidate) && isApart(taken, candidate),
-    );
-
-    if (column === undefined) return;
-
-    strewn[surfaceRow(strewn, column) - REST_HEIGHT][column] = TILE_DIAMOND;
-    taken.push(column);
-  });
-
-  return strewn;
-};
+export const addDiamonds = (tiles: Tile[][]): Tile[][] =>
+  chain(createRandom(seedOf(tiles)))
+    .thru((random) =>
+      reduce(
+        slots(size(tiles[0] ?? [])),
+        (sown: Sowing, columns): Sowing =>
+          sowSlot(tiles, random, sown, columns),
+        { taken: [], patches: [] },
+      ),
+    )
+    .thru(({ patches }) => patchTiles(tiles, patches))
+    .value();

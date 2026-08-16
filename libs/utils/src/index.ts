@@ -4,6 +4,7 @@ export * from './lib/color/parse-hsl';
 export * from './lib/color/shift-hsl';
 export * from './lib/color/wrap-hue';
 export * from './lib/functions/chain';
+export * from './lib/functions/with-effect';
 export * from './lib/geometry/point';
 export * from './lib/geometry/rectangle';
 export * from './lib/geometry/triangle';

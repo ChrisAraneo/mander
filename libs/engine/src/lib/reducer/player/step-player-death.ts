@@ -10,7 +10,7 @@ import { match } from 'ts-pattern';
 import { PLAYER_DEATH_SECONDS } from './consts';
 import { createPlayer } from './create-player';
 import { min } from 'lodash-es';
-import { chain } from '../../../../../utils/src/lib/functions/chain';
+import { chain } from '@mander/utils';
 
 export const stepPlayerDeath = (
   level: Level,

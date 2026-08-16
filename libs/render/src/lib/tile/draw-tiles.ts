@@ -1,3 +1,4 @@
+import { chain } from '@mander/utils';
 import {
   isSolidTile,
   isSpikeTile,
@@ -5,7 +6,7 @@ import {
   TILE_CANNON,
   TILE_SIZE,
 } from '@mander/model';
-import { ceil, chain, flatMap, floor, map, range } from 'lodash-es';
+import { ceil, flatMap, floor, map, range } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import {

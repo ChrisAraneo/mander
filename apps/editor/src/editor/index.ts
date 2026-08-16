@@ -16,3 +16,4 @@ export * from './structure-issues';
 export * from './structure-tile-map';
 export * from './use-editor';
 export * from './use-library';
+export * from './set-ref';

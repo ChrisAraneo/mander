@@ -5,13 +5,15 @@ import { loadSave } from './load-save';
 import { persist } from './persist';
 import type { CompletedWorld } from './save-data';
 
+const { when } = P;
+
 const best = (
   run: CompletedWorld,
   previous: CompletedWorld | undefined,
 ): CompletedWorld =>
   match(previous)
     .with(
-      P.when(
+      when(
         (earlier): earlier is CompletedWorld =>
           earlier !== undefined && earlier.score >= run.score,
       ),

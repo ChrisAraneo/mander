@@ -5,6 +5,8 @@ import type { GameState } from '../../state/types/game-state';
 import { isAlive } from '../player/is-alive';
 import { STAR_INVINCIBLE_SECONDS } from '../player/consts';
 
+const { number } = P;
+
 const shielded = (player: Player): Player => ({
   ...player,
   timers: {
@@ -30,7 +32,7 @@ export const useStar = (state: GameState): GameState =>
     stars: state.stars,
   })
     .with(
-      { status: 'PLAYING', alive: true, stars: P.number.gte(1) },
+      { status: 'PLAYING', alive: true, stars: number.gte(1) },
       (): GameState => burnStar(state),
     )
     .otherwise((): GameState => state);

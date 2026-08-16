@@ -1,5 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
+import { chain, withEffect } from '@mander/utils';
 import { match, P } from 'ts-pattern';
 import type { Plugin } from 'vite';
 
@@ -13,6 +14,8 @@ import { readLibrary } from './read-library.ts';
 import { saveStructure } from './save-structure.ts';
 import { structurePaths, type StructurePaths } from './structure-paths.ts';
 
+const { string } = P;
+
 export const STRUCTURE_ENDPOINT = '/api/structures';
 
 interface SaveRequest {
@@ -21,25 +24,39 @@ interface SaveRequest {
   text: string;
 }
 
-const send = (res: ServerResponse, status: number, body: unknown): void => {
-  res.statusCode = status;
-  res.setHeader('content-type', 'application/json');
-  res.end(JSON.stringify(body));
-};
+const send = (res: ServerResponse, status: number, body: unknown): void =>
+  void chain(Object.assign(res, { statusCode: status }))
+    .thru((ready) =>
+      withEffect(ready, () =>
+        ready.setHeader('content-type', 'application/json'),
+      ),
+    )
+    .thru((ready) => ready.end(JSON.stringify(body)))
+    .value();
 
+/** Collects the request stream into one string; the chunks are the state. */
 const readBody = (req: IncomingMessage): Promise<string> =>
-  new Promise((resolve, reject) => {
-    let body = '';
-    req.on('data', (chunk: Buffer) => {
-      body += chunk.toString('utf8');
-    });
-    req.on('end', () => resolve(body));
-    req.on('error', reject);
-  });
+  new Promise((resolve, reject) =>
+    chain({ chunks: [] as Buffer[] })
+      .thru((cell) =>
+        withEffect(cell, () =>
+          req.on('data', (chunk: Buffer) => cell.chunks.push(chunk)),
+        ),
+      )
+      .thru((cell) =>
+        withEffect(cell, () =>
+          req.on('end', () =>
+            resolve(Buffer.concat(cell.chunks).toString('utf8')),
+          ),
+        ),
+      )
+      .thru(() => req.on('error', reject))
+      .value(),
+  );
 
 const requested = (body: string): SaveRequest | null =>
   match(JSON.parse(body) as unknown)
-    .with({ name: P.string, text: P.string }, ({ name, text }) =>
+    .with({ name: string, text: string }, ({ name, text }) =>
       match(difficultyOf(name))
         .with(null, (): SaveRequest | null => null)
         .otherwise((difficulty): SaveRequest | null =>

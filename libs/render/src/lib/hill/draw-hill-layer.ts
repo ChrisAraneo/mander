@@ -1,5 +1,6 @@
+import { chain } from '@mander/utils';
 import type { Point } from '@mander/utils';
-import { chain, floor, map, times } from 'lodash-es';
+import { floor, map, times } from 'lodash-es';
 
 import {
   beginPath,

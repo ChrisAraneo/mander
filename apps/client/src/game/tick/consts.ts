@@ -1,1 +1,1 @@
-export const TIME_SCALE = 1.00;
+export const TIME_SCALE = 1.0;

@@ -7,7 +7,7 @@ import { STORAGE_KEY } from './consts';
 import { emptySave } from './empty-save';
 import type { CompletedWorld, PlayedWorld, SaveData } from './save-data';
 
-const { nullish } = P;
+const { nullish, when } = P;
 
 const isSaveShape = (value: unknown): value is Partial<SaveData> =>
   isObjectLike(value);
@@ -15,7 +15,7 @@ const isSaveShape = (value: unknown): value is Partial<SaveData> =>
 const arrayOrEmpty = <Value>(value: unknown): Value[] =>
   match(value)
     .with(
-      P.when((candidate): candidate is Value[] => isArray(candidate)),
+      when((candidate): candidate is Value[] => isArray(candidate)),
       (array) => array,
     )
     .otherwise((): Value[] => []);
@@ -23,7 +23,7 @@ const arrayOrEmpty = <Value>(value: unknown): Value[] =>
 const numberOrZero = (value: unknown): number =>
   match(value)
     .with(
-      P.when((candidate): candidate is number => isFinite(candidate)),
+      when((candidate): candidate is number => isFinite(candidate)),
       (number) => number,
     )
     .otherwise(() => 0);
@@ -31,7 +31,7 @@ const numberOrZero = (value: unknown): number =>
 const stringOrEmpty = (value: unknown): string =>
   match(value)
     .with(
-      P.when((candidate): candidate is string => isString(candidate)),
+      when((candidate): candidate is string => isString(candidate)),
       (text) => text,
     )
     .otherwise(() => '');
@@ -47,7 +47,7 @@ const isPackedReplay = (value: unknown): value is PackedReplay =>
 
 const replayOrNull = (value: unknown): PackedReplay | null =>
   match(value)
-    .with(P.when(isPackedReplay), (replay) => replay)
+    .with(when(isPackedReplay), (replay) => replay)
     .otherwise(() => null);
 
 const isCompletedWorld = (value: unknown): value is Partial<CompletedWorld> =>
@@ -82,7 +82,7 @@ const fromRaw = (raw: string | null): SaveData =>
     .with(nullish, () => emptySave())
     .otherwise((rawValue) =>
       match(JSON.parse(rawValue) as unknown)
-        .with(P.when(isSaveShape), (shaped): SaveData => ({
+        .with(when(isSaveShape), (shaped): SaveData => ({
           score: numberOrZero(shaped.score),
           completedWorlds: completedWorlds(shaped.completedWorlds),
           playedWorlds: playedWorlds(shaped.playedWorlds),

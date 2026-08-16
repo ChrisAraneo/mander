@@ -1,4 +1,5 @@
-import { filter, map, max, padStart } from 'lodash-es';
+import { filter, map, max, padStart, startsWith } from 'lodash-es';
+import { match } from 'ts-pattern';
 
 import type { Difficulty, StructureEntry } from './structure-entry';
 
@@ -26,4 +27,6 @@ export const nextStructureName = (
   `${PREFIXES[difficulty]}_${padStart(String(highest(entries, difficulty) + 1), NAME_DIGITS, '0')}`;
 
 export const difficultyOf = (name: string): Difficulty =>
-  name.startsWith(PREFIXES.hard) ? 'hard' : 'normal';
+  match(startsWith(name, PREFIXES.hard))
+    .with(true, (): Difficulty => 'hard')
+    .otherwise((): Difficulty => 'normal');

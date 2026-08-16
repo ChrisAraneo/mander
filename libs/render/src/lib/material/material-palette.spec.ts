@@ -1,3 +1,4 @@
+import { chain } from '@mander/utils';
 import {
   SOLID_TILES,
   TILE_BRICK,
@@ -7,7 +8,7 @@ import {
   TILE_WOOD,
 } from '@mander/model';
 import { parseHsl, shiftHsl } from '@mander/utils';
-import { assign, chain, forEach, get } from 'lodash-es';
+import { assign, forEach, get } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 

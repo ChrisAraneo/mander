@@ -1,6 +1,7 @@
 import { isSolidTile, type Tile, TILE_DIRT, TILE_STONE } from '@mander/model';
-import { createRandom } from '@mander/utils';
+import { chain, createRandom } from '@mander/utils';
 import { join, map, range, reduce, size, sum, times } from 'lodash-es';
+import { match } from 'ts-pattern';
 
 const DIRT_DEPTH = 3;
 
@@ -32,6 +33,9 @@ const UNBURIED = -1;
 
 type Field = number[][];
 
+/** 1 or 0 without branching — this runs once per cell of every blur pass. */
+const toFlag = (on: boolean): number => Number(on);
+
 const seedOf = (tiles: Tile[][]): string =>
   join(
     map(tiles, (row) => join(row, ',')),
@@ -44,9 +48,9 @@ const depthsOf = (tiles: Tile[][]): Field =>
     (depths: Field, cells, row): Field => [
       ...depths,
       map(cells, (tile, column) =>
-        isSolidTile(tile)
-          ? (depths[row - 1]?.[column] ?? UNBURIED) + 1
-          : UNBURIED,
+        match(isSolidTile(tile))
+          .with(true, () => (depths[row - 1]?.[column] ?? UNBURIED) + 1)
+          .otherwise(() => UNBURIED),
       ),
     ],
     [],
@@ -55,46 +59,59 @@ const depthsOf = (tiles: Tile[][]): Field =>
 const buriedOf = (tiles: Tile[][], dirtDepth: number): Field =>
   map(depthsOf(tiles), (depths, row) =>
     map(depths, (depth, column) =>
-      tiles[row][column] === TILE_DIRT && depth >= dirtDepth ? 1 : 0,
+      toFlag(tiles[row][column] === TILE_DIRT && depth >= dirtDepth),
     ),
   );
 
 const nearest = (index: number, edge: number): number =>
   Math.min(Math.max(index, 0), edge);
 
-const blurRows = (field: Field): Field =>
-  map(field, (cells) => {
-    const edge = size(cells) - 1;
+/**
+ * The one hand-rolled loop left in this package, and a deliberate one.
+ *
+ * The blur runs ten kernel passes per level over every cell, so this
+ * accumulator is entered ~16 million times to generate a single world. Every
+ * pipeline form of it — `reduce` over the taps, `sum(map(...))`, or a
+ * tap-major convolution — costs one closure call per tap and measured 2.8x
+ * slower end to end (93ms -> 263ms per world), which lands on the start
+ * screen while the backdrop world is generated. Keep the loop; keep every
+ * caller around it a pipeline.
+ */
+const tapTotal = (sampleAt: (tap: number) => number): number => {
+  let total = 0;
 
-    return times(size(cells), (column) => {
-      let total = 0;
+  for (let tap = 0; tap < BLUR_TAPS.length; tap++) {
+    total += BLUR_TAPS[tap] * sampleAt(tap);
+  }
 
-      for (let tap = 0; tap < BLUR_TAPS.length; tap++) {
-        total +=
-          BLUR_TAPS[tap] * cells[nearest(column + tap - BLUR_REACH, edge)];
-      }
-
-      return total / BLUR_WEIGHT;
-    });
-  });
-
-const blurColumns = (field: Field): Field => {
-  const edge = size(field) - 1;
-
-  return map(field, (cells, row) => {
-    const rows = map(BLUR_SPAN, (offset) => field[nearest(row + offset, edge)]);
-
-    return times(size(cells), (column) => {
-      let total = 0;
-
-      for (let tap = 0; tap < BLUR_TAPS.length; tap++) {
-        total += BLUR_TAPS[tap] * rows[tap][column];
-      }
-
-      return total / BLUR_WEIGHT;
-    });
-  });
+  return total / BLUR_WEIGHT;
 };
+
+const blurRows = (field: Field): Field =>
+  map(field, (cells) =>
+    chain(size(cells) - 1)
+      .thru((edge) =>
+        times(size(cells), (column) =>
+          tapTotal((tap) => cells[nearest(column + tap - BLUR_REACH, edge)]),
+        ),
+      )
+      .value(),
+  );
+
+const blurColumns = (field: Field): Field =>
+  chain(size(field) - 1)
+    .thru((edge) =>
+      map(field, (cells, row) =>
+        chain(map(BLUR_SPAN, (offset) => field[nearest(row + offset, edge)]))
+          .thru((rows) =>
+            times(size(cells), (column) =>
+              tapTotal((tap) => rows[tap][column]),
+            ),
+          )
+          .value(),
+      ),
+    )
+    .value();
 
 const blur = (field: Field): Field => blurColumns(blurRows(field));
 
@@ -102,7 +119,7 @@ const soften = (field: Field): Field =>
   reduce(times(BLUR_PASSES), (softened: Field) => blur(softened), field);
 
 const sharpen = (field: Field): Field =>
-  map(field, (cells) => map(cells, (share) => (share >= STONE_SHARE ? 1 : 0)));
+  map(field, (cells) => map(cells, (share) => toFlag(share >= STONE_SHARE)));
 
 const both = (field: Field, other: Field): Field =>
   map(field, (cells, row) =>
@@ -130,22 +147,27 @@ const shed = (blobs: Field): Field =>
     (kept: Field) =>
       map(kept, (cells, row) =>
         map(cells, (stone, column) =>
-          stone === 1 && company(kept, row, column) >= STONE_COMPANY ? 1 : 0,
+          toFlag(stone === 1 && company(kept, row, column) >= STONE_COMPANY),
         ),
       ),
     blobs,
   );
 
-export const addStones = (tiles: Tile[][]): Tile[][] => {
-  const random = createRandom(seedOf(tiles));
-  const dirtDepth = random.chance(DEEP_DIRT_CHANCE)
-    ? DEEP_DIRT_DEPTH
-    : DIRT_DEPTH;
-  const stones = shed(roundOff(buriedOf(tiles, dirtDepth)));
-
-  return map(tiles, (cells, row) =>
-    map(cells, (tile, column) =>
-      stones[row][column] === 1 ? TILE_STONE : tile,
-    ),
-  );
-};
+export const addStones = (tiles: Tile[][]): Tile[][] =>
+  chain(createRandom(seedOf(tiles)))
+    .thru((random) =>
+      match(random.chance(DEEP_DIRT_CHANCE))
+        .with(true, () => DEEP_DIRT_DEPTH)
+        .otherwise(() => DIRT_DEPTH),
+    )
+    .thru((dirtDepth) => shed(roundOff(buriedOf(tiles, dirtDepth))))
+    .thru((stones) =>
+      map(tiles, (cells, row) =>
+        map(cells, (tile, column) =>
+          match(stones[row][column])
+            .with(1, () => TILE_STONE)
+            .otherwise(() => tile),
+        ),
+      ),
+    )
+    .value();

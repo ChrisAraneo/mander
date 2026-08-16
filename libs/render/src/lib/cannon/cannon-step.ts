@@ -1,5 +1,6 @@
+import { chain } from '@mander/utils';
 import { type Cannon, TILE_SIZE } from '@mander/model';
-import { chain, clamp, map } from 'lodash-es';
+import { clamp, map } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import {

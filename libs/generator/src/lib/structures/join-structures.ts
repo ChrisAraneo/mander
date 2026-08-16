@@ -6,9 +6,10 @@ import {
   STRUCTURE_START,
   type Structure,
 } from '@mander/structures';
+import { chain } from '@mander/utils';
 import {
   find,
-  forEach,
+  flatMap,
   indexOf,
   last,
   map,
@@ -18,6 +19,10 @@ import {
   reduce,
   times,
 } from 'lodash-es';
+import { match, P } from 'ts-pattern';
+import { patchTiles, type TilePatch } from './patch-tiles';
+
+const { nullish } = P;
 
 interface Cell {
   row: number;
@@ -51,38 +56,44 @@ const startOf = (structure: Structure): Cell =>
 const endOf = (structure: Structure): Cell =>
   findMarker(structure, STRUCTURE_END) ?? DEFAULT_END;
 
+/** Each structure hangs off the previous one's exit, entrance to exit. */
 const place = (structures: Structure[]): Placement[] =>
   reduce(
     structures,
-    (placed: Placement[], structure): Placement[] => {
-      const previous = last(placed);
-      if (previous === undefined) return [{ structure, row: 0, column: 0 }];
-
-      const exit = endOf(previous.structure);
-      const entry = startOf(structure);
-
-      return [
-        ...placed,
-        {
-          structure,
-          row: previous.row + exit.row - entry.row,
-          column: previous.column + exit.column + 1 - entry.column,
-        },
-      ];
-    },
+    (placed: Placement[], structure): Placement[] =>
+      match(last(placed))
+        .with(nullish, () => [{ structure, row: 0, column: 0 }])
+        .otherwise((previous) =>
+          chain({
+            exit: endOf(previous.structure),
+            entry: startOf(structure),
+          })
+            .thru(({ exit, entry }) => [
+              ...placed,
+              {
+                structure,
+                row: previous.row + exit.row - entry.row,
+                column: previous.column + exit.column + 1 - entry.column,
+              },
+            ])
+            .value(),
+        ),
     [],
   );
 
-const normalise = (placements: Placement[]): Placement[] => {
-  const topRow = min(map(placements, (placement) => placement.row)) ?? 0;
-  const leftColumn = min(map(placements, (placement) => placement.column)) ?? 0;
-
-  return map(placements, (placement) => ({
-    ...placement,
-    row: placement.row - topRow,
-    column: placement.column - leftColumn,
-  }));
-};
+const normalise = (placements: Placement[]): Placement[] =>
+  chain({
+    topRow: min(map(placements, (placement) => placement.row)) ?? 0,
+    leftColumn: min(map(placements, (placement) => placement.column)) ?? 0,
+  })
+    .thru(({ topRow, leftColumn }) =>
+      map(placements, (placement) => ({
+        ...placement,
+        row: placement.row - topRow,
+        column: placement.column - leftColumn,
+      })),
+    )
+    .value();
 
 const heightOf = (placements: Placement[]): number =>
   max(map(placements, (placement) => placement.row + STRUCTURE_HEIGHT)) ?? 0;
@@ -93,37 +104,62 @@ const widthOf = (placements: Placement[]): number =>
 const isDrawn = (cell: number): boolean =>
   cell !== TILE_AIR && cell !== STRUCTURE_START && cell !== STRUCTURE_END;
 
-const paint = (tiles: number[][], placement: Placement): void => {
-  forEach(placement.structure, (cells, row) =>
-    forEach(cells, (cell, column) => {
-      if (!isDrawn(cell)) return;
-      tiles[placement.row + row][placement.column + column] = cell;
-    }),
-  );
-};
+/** The structure's own cells, in world coordinates. */
+const painted = (placement: Placement): TilePatch[] =>
+  chain(placement.structure)
+    .flatMap((cells, row) =>
+      map(cells, (cell, column) => ({
+        tile: cell,
+        row: placement.row + row,
+        column: placement.column + column,
+      })),
+    )
+    .filter(({ tile }) => isDrawn(tile))
+    .value();
 
-const underpin = (
-  tiles: number[][],
+/**
+ * Extends the structure's floor down to the bottom of the joined level, so a
+ * structure sitting high up does not leave a hole under it.
+ */
+const underpinned = (
+  tiles: Tile[][],
   placement: Placement,
   height: number,
-): void => {
-  forEach(placement.structure[STRUCTURE_HEIGHT - 1], (cell, column) => {
-    if (!isSolidTile(cell)) return;
-    forEach(range(placement.row + STRUCTURE_HEIGHT, height), (row) => {
-      if (tiles[row][placement.column + column] !== TILE_AIR) return;
-      tiles[row][placement.column + column] = cell;
-    });
-  });
-};
+): TilePatch[] =>
+  chain(placement.structure[STRUCTURE_HEIGHT - 1])
+    .map((tile, column) => ({ tile, column }))
+    .filter(({ tile }) => isSolidTile(tile))
+    .flatMap(({ tile, column }) =>
+      map(range(placement.row + STRUCTURE_HEIGHT, height), (row) => ({
+        tile,
+        row,
+        column: placement.column + column,
+      })),
+    )
+    .filter(({ row, column }) => tiles[row][column] === TILE_AIR)
+    .value();
 
-export const joinStructures = (structures: Structure[]): Tile[][] => {
-  const placements = normalise(place(structures));
-  const height = heightOf(placements);
-  const width = widthOf(placements);
-  const tiles = times(height, () => times(width, (): number => TILE_AIR));
-
-  forEach(placements, (placement) => paint(tiles, placement));
-  forEach(placements, (placement) => underpin(tiles, placement, height));
-
-  return tiles;
-};
+export const joinStructures = (structures: Structure[]): Tile[][] =>
+  chain(normalise(place(structures)))
+    .thru((placements) => ({
+      placements,
+      height: heightOf(placements),
+      width: widthOf(placements),
+    }))
+    .thru(({ placements, height, width }) => ({
+      placements,
+      height,
+      tiles: patchTiles(
+        times(height, () => times(width, (): Tile => TILE_AIR)),
+        flatMap(placements, painted),
+      ),
+    }))
+    .thru(({ placements, height, tiles }) =>
+      reduce(
+        placements,
+        (grid: Tile[][], placement) =>
+          patchTiles(grid, underpinned(grid, placement, height)),
+        tiles,
+      ),
+    )
+    .value();

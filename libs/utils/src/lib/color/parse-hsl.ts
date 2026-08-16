@@ -1,4 +1,5 @@
 import { match } from 'ts-pattern';
+import { constant } from 'lodash-es';
 
 import type { Hsl } from './hsl';
 
@@ -7,7 +8,7 @@ const HSL_PATTERN =
 
 export const parseHsl = (color: string): Hsl | undefined =>
   match(HSL_PATTERN.exec(color)?.groups)
-    .with(undefined, () => undefined)
+    .with(undefined, constant(undefined))
     .otherwise((groups) => ({
       hue: Number(groups.hue),
       saturation: Number(groups.saturation),

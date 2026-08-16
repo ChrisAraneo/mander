@@ -4,6 +4,8 @@ import { match, P } from 'ts-pattern';
 
 import { isIntersecting } from './is-intersecting';
 
+const { nullish } = P;
+
 export const isNearTile = (
   player: Player,
   tile: Point | null,
@@ -11,7 +13,7 @@ export const isNearTile = (
   padding: number,
 ): boolean =>
   match(tile)
-    .with(P.nullish, () => false)
+    .with(nullish, () => false)
     .otherwise((at) =>
       isIntersecting(player, toEntityRectangle(at, box), padding),
     );

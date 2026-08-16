@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
-import { last } from 'lodash-es';
+import { last, noop } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { type GameState, levelScore, totalTime } from '@mander/engine';
 import { formatClock } from '../game/format';
@@ -87,7 +87,7 @@ watch(
           modalReady.value = isModalStatus(state.value.status);
         }),
       )
-      .otherwise(() => undefined);
+      .otherwise(noop);
   },
 );
 
@@ -99,13 +99,13 @@ const onModalKey = (event: KeyboardEvent): void =>
   })
     .with({ active: true, repeat: false, code: 'Enter' }, () => confirm())
     .with({ active: true, repeat: false, code: 'Escape' }, () => emit('exit'))
-    .otherwise(() => undefined);
+    .otherwise(noop);
 
 const onReplayKey = (event: KeyboardEvent): void =>
   match({ repeat: event.repeat, code: event.code })
     .with({ repeat: false, code: 'Space' }, () => replay.togglePause())
     .with({ repeat: false, code: 'Escape' }, () => replay.stop())
-    .otherwise(() => undefined);
+    .otherwise(noop);
 
 const onKeyDown = (event: KeyboardEvent): void =>
   match(isReplayActive.value)

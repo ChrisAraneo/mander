@@ -1,23 +1,39 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { chain } from '@mander/utils';
+import { noop } from 'lodash-es';
+import { match } from 'ts-pattern';
+import { computed, ref } from 'vue';
+
+import { setRef } from '../editor';
+
+const COPIED_MS = 1400;
 
 const props = defineProps<{ text: string }>();
 
 const copied = ref(false);
 const failed = ref(false);
 
-async function copy(): Promise<void> {
-  failed.value = false;
-  try {
-    await navigator.clipboard.writeText(props.text);
-    copied.value = true;
-    window.setTimeout(() => {
-      copied.value = false;
-    }, 1400);
-  } catch {
-    failed.value = true;
-  }
-}
+const label = computed(() =>
+  match(copied.value)
+    .with(true, () => 'Copied')
+    .otherwise(() => 'Copy'),
+);
+
+const copy = (): Promise<void> =>
+  chain(setRef(failed, false))
+    .thru(() =>
+      navigator.clipboard.writeText(props.text).then(
+        () =>
+          chain(setRef(copied, true))
+            .thru(() =>
+              window.setTimeout(() => setRef(copied, false), COPIED_MS),
+            )
+            .value(),
+        () => setRef(failed, true),
+      ),
+    )
+    .thru((settled) => settled.then(noop))
+    .value();
 </script>
 
 <template>
@@ -25,7 +41,7 @@ async function copy(): Promise<void> {
     <header>
       <h2>Structure source</h2>
       <button class="ghost" type="button" @click="copy">
-        {{ copied ? 'Copied' : 'Copy' }}
+        {{ label }}
       </button>
     </header>
     <p v-if="failed" class="failed">

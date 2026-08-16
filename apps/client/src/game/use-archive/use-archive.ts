@@ -5,50 +5,65 @@ import {
 } from '@mander/engine';
 import { generate } from '@mander/generator';
 import { renderGame, syncViewport } from '@mander/render';
+import { chain, withEffect } from '@mander/utils';
+import { noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { onMounted, onUnmounted, type Ref } from 'vue';
 
+import {
+  type CanvasCell,
+  createCanvasCell,
+  openCanvas,
+  withCanvas,
+} from '../canvas';
 import { useReplay } from '../use-replay';
 import type { ReplayController } from '../use-replay';
 import type { ArchiveSource } from './archive-source';
 
+const { nonNullable } = P;
+
 export const useArchive = (
   source: ArchiveSource,
   canvas: Ref<HTMLCanvasElement | null>,
-): ReplayController => {
-  const world = generate(new Date(source.day));
-  const { levels, palette } = world;
-  const recording = unpackReplay(source.replay, levels);
+): ReplayController =>
+  chain(generate(new Date(source.day)))
+    .thru((world) => ({
+      world,
+      cell: createCanvasCell(),
+      recording: unpackReplay(source.replay, world.levels),
+    }))
+    .thru((setup) => ({
+      ...setup,
+      renderState: (next: GameState): void =>
+        withCanvas(setup.cell, canvas, (context, element) =>
+          renderGame(context, next, setup.world.palette, syncViewport(element)),
+        ),
+    }))
+    .thru((setup) => ({
+      ...setup,
+      replay: useReplay({
+        replay: () => setup.recording,
+        initialState: () => createInitialState(setup.world.levels[0], 0, []),
+        render: setup.renderState,
+        onStop: noop,
+      }),
+    }))
+    .thru((setup) =>
+      withEffect(setup, () =>
+        onMounted(() => playOnMount(setup.cell, canvas, setup.replay)),
+      ),
+    )
+    .thru((setup) =>
+      withEffect(setup, () => onUnmounted(() => setup.replay.stop())),
+    )
+    .thru(({ replay }) => replay)
+    .value();
 
-  let context: CanvasRenderingContext2D | null = null;
-
-  const renderState = (next: GameState): void =>
-    match({ element: canvas.value, context })
-      .with(
-        { element: P.nonNullable, context: P.nonNullable },
-        ({ element, context }) =>
-          renderGame(context, next, palette, syncViewport(element)),
-      )
-      .otherwise(() => undefined);
-
-  const replay = useReplay({
-    replay: () => recording,
-    initialState: () => createInitialState(levels[0], 0, []),
-    render: renderState,
-    onStop: () => undefined,
-  });
-
-  onMounted(() => {
-    const element = canvas.value;
-    context = element?.getContext('2d') ?? null;
-    match({ element, context })
-      .with({ element: P.nonNullable, context: P.nonNullable }, () =>
-        replay.play(),
-      )
-      .otherwise(() => undefined);
-  });
-
-  onUnmounted(() => replay.stop());
-
-  return replay;
-};
+const playOnMount = (
+  cell: CanvasCell,
+  canvas: Ref<HTMLCanvasElement | null>,
+  replay: ReplayController,
+): void =>
+  match(openCanvas(cell, canvas))
+    .with(nonNullable, () => replay.play())
+    .otherwise(noop);

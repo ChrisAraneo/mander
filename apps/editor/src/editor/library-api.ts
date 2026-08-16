@@ -1,4 +1,5 @@
-import { map } from 'lodash-es';
+import { constant, map } from 'lodash-es';
+import { match } from 'ts-pattern';
 
 import { parseStructure } from './parse-structure';
 import type { Difficulty, StructureEntry } from './structure-entry';
@@ -17,42 +18,48 @@ export interface SavedStructure {
   created: boolean;
 }
 
-const failure = async (response: Response): Promise<never> => {
-  const body = (await response.json().catch(() => null)) as {
-    message?: string;
-  } | null;
+/**
+ * Turns a non-OK response into a rejection carrying the server's own message
+ * where it sent one, so callers can fold it with `then(onOk, onErr)`.
+ */
+const failure = (response: Response): Promise<never> =>
+  response
+    .json()
+    .then(
+      (body) => (body as { message?: string } | null)?.message,
+      constant(undefined),
+    )
+    .then((message) =>
+      Promise.reject(
+        new Error(message ?? `the editor server answered ${response.status}`),
+      ),
+    );
 
-  throw new Error(
-    body?.message ?? `the editor server answered ${response.status}`,
+const toEntry = (entry: LibraryResponse): StructureEntry => ({
+  name: entry.name,
+  difficulty: entry.difficulty,
+  grid: parseStructure(entry.text),
+});
+
+export const fetchLibrary = (): Promise<StructureEntry[]> =>
+  fetch(ENDPOINT).then((response) =>
+    match(response.ok)
+      .with(false, () => failure(response))
+      .otherwise(() =>
+        response.json().then((body) => map(body as LibraryResponse[], toEntry)),
+      ),
   );
-};
 
-export const fetchLibrary = async (): Promise<StructureEntry[]> => {
-  const response = await fetch(ENDPOINT);
-
-  if (!response.ok) return failure(response);
-
-  return map(
-    (await response.json()) as LibraryResponse[],
-    (entry): StructureEntry => ({
-      name: entry.name,
-      difficulty: entry.difficulty,
-      grid: parseStructure(entry.text),
-    }),
-  );
-};
-
-export const postStructure = async (
+export const postStructure = (
   name: string,
   text: string,
-): Promise<SavedStructure> => {
-  const response = await fetch(ENDPOINT, {
+): Promise<SavedStructure> =>
+  fetch(ENDPOINT, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ name, text }),
-  });
-
-  if (!response.ok) return failure(response);
-
-  return (await response.json()) as SavedStructure;
-};
+  }).then((response) =>
+    match(response.ok)
+      .with(false, () => failure(response))
+      .otherwise(() => response.json() as Promise<SavedStructure>),
+  );

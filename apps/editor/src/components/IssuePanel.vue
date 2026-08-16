@@ -1,12 +1,22 @@
 <script setup lang="ts">
-defineProps<{ issues: string[]; isValid: boolean }>();
+import { size } from 'lodash-es';
+import { match } from 'ts-pattern';
+import { computed } from 'vue';
+
+const props = defineProps<{ issues: string[]; isValid: boolean }>();
+
+const headline = computed(() =>
+  match(props.isValid)
+    .with(true, () => 'Valid structure')
+    .otherwise(() => `${size(props.issues)} issue(s)`),
+);
 </script>
 
 <template>
   <section class="issues" :class="{ ok: isValid }">
     <h2>
       <span class="dot" />
-      {{ isValid ? 'Valid structure' : `${issues.length} issue(s)` }}
+      {{ headline }}
     </h2>
     <p v-if="isValid" class="hint">
       The generator will accept this. Copy it into

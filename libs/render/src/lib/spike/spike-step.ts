@@ -1,3 +1,4 @@
+import { chain } from '@mander/utils';
 import {
   computeSpikeTriangles,
   type Level,
@@ -5,7 +6,7 @@ import {
   spikeShape,
 } from '@mander/model';
 import type { Triangle } from '@mander/utils';
-import { chain, map } from 'lodash-es';
+import { map } from 'lodash-es';
 
 import {
   beginPath,

@@ -12,6 +12,7 @@ import {
   STRUCTURE_HEIGHT,
 } from '@mander/structures';
 import { every, filter, flatten, includes, map, size } from 'lodash-es';
+import { match } from 'ts-pattern';
 
 const KNOWN_TILES = [
   TILE_AIR,
@@ -30,13 +31,18 @@ const isKnown = (cell: number): boolean =>
 
 const spikesAreAnchored = (grid: number[][]): boolean =>
   every(grid, (cells, row) =>
-    every(cells, (cell, column) => {
-      if (cell === TILE_SPIKE)
-        return row + 1 < size(grid) && isSolidTile(grid[row + 1][column]);
-      if (cell === TILE_SPIKE_CEILING)
-        return row - 1 >= 0 && isSolidTile(grid[row - 1][column]);
-      return true;
-    }),
+    every(cells, (cell, column) =>
+      match(cell)
+        .with(
+          TILE_SPIKE,
+          () => row + 1 < size(grid) && isSolidTile(grid[row + 1][column]),
+        )
+        .with(
+          TILE_SPIKE_CEILING,
+          () => row - 1 >= 0 && isSolidTile(grid[row - 1][column]),
+        )
+        .otherwise(() => true),
+    ),
   );
 
 interface Rule {

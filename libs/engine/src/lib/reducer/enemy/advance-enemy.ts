@@ -8,6 +8,8 @@ import { stepDyingEnemy } from './step-dying-enemy';
 import { stepEnemy } from './step-enemy';
 import { stepFlyingEnemy } from './step-flying-enemy';
 
+const { number } = P;
+
 const moveAlive = (
   level: Level,
   enemy: Enemy,
@@ -45,7 +47,7 @@ export const advanceEnemy = (
   deltaSeconds: number,
 ): Enemy =>
   match(enemy.timers.death)
-    .with(P.number, (death): Enemy => {
+    .with(number, (death): Enemy => {
       const fallen = stepDyingEnemy(level, enemy, deltaSeconds);
       return {
         ...fallen,
