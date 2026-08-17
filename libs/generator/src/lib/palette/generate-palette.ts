@@ -2,32 +2,35 @@ import type { Palette } from '@mander/render';
 import { createRandom, type Hsl, hslCss, wrapHue } from '@mander/utils';
 import { match } from 'ts-pattern';
 
-const HUE_MAX = 359;
+import { CAP_HUES, GROUND_HUES, SKY_HUES } from './cel-hues';
 
-const SKY_SATURATION_MIN = 18;
-const SKY_SATURATION_MAX = 46;
-const SKY_TOP_LIGHTNESS_MIN = 10;
-const SKY_TOP_LIGHTNESS_MAX = 17;
-const SKY_MIDDLE_LIGHTNESS_GAIN = 10;
-const SKY_HORIZON_LIGHTNESS_GAIN = 16;
-const SKY_HORIZON_HUE_DRIFT = 16;
+/**
+ * Everything here is deliberately low-saturation and dark: the picture is
+ * lit by the screen stage afterwards, and a cel painted in full-strength
+ * colour comes out of the tape looking like a cartoon rather than a print.
+ */
+const SKY_SATURATION_MIN = 10;
+const SKY_SATURATION_MAX = 26;
+const SKY_TOP_LIGHTNESS_MIN = 8;
+const SKY_TOP_LIGHTNESS_MAX = 14;
+const SKY_MIDDLE_LIGHTNESS_GAIN = 8;
+const SKY_HORIZON_LIGHTNESS_GAIN = 14;
+const SKY_HORIZON_HUE_DRIFT = 12;
 
-const HILL_SATURATION_DROP = 4;
+const HILL_SATURATION_DROP = 3;
 const FAR_HILL_LIGHTNESS_GAIN = 6;
 const NEAR_HILL_LIGHTNESS_GAIN = 2;
 
-const GROUND_SATURATION_MIN = 16;
-const GROUND_SATURATION_MAX = 44;
-const GROUND_LIGHTNESS_MIN = 22;
-const GROUND_LIGHTNESS_MAX = 32;
+const GROUND_SATURATION_MIN = 8;
+const GROUND_SATURATION_MAX = 22;
+const GROUND_LIGHTNESS_MIN = 18;
+const GROUND_LIGHTNESS_MAX = 26;
 
-const CAP_HUE_OFFSET_MIN = 45;
-const CAP_HUE_OFFSET_MAX = 150;
-const CAP_SATURATION_MIN = 30;
-const CAP_SATURATION_MAX = 52;
-const CAP_LIGHTNESS_MIN = 44;
-const CAP_LIGHTNESS_MAX = 56;
-const CAP_HIGHLIGHT_SATURATION_GAIN = 5;
+const CAP_SATURATION_MIN = 14;
+const CAP_SATURATION_MAX = 30;
+const CAP_LIGHTNESS_MIN = 36;
+const CAP_LIGHTNESS_MAX = 48;
+const CAP_HIGHLIGHT_SATURATION_GAIN = 4;
 const CAP_HIGHLIGHT_LIGHTNESS_GAIN = 6;
 
 const ENTITY_HUE = 24;
@@ -62,7 +65,7 @@ const awayFromEntityHue = (hue: number): number =>
     .otherwise(() => wrapHue(ENTITY_HUE - ENTITY_HUE_GUARD));
 
 const rollSky = (random: ReturnType<typeof createRandom>): Sky => {
-  const hue = random.int(0, HUE_MAX);
+  const hue = random.pick(SKY_HUES);
 
   return {
     hue,
@@ -75,15 +78,13 @@ const rollSky = (random: ReturnType<typeof createRandom>): Sky => {
 };
 
 const rollGround = (random: ReturnType<typeof createRandom>): Ground => {
-  const hue = random.int(0, HUE_MAX);
+  const hue = random.pick(GROUND_HUES);
 
   return {
     hue,
     saturation: random.int(GROUND_SATURATION_MIN, GROUND_SATURATION_MAX),
     lightness: random.int(GROUND_LIGHTNESS_MIN, GROUND_LIGHTNESS_MAX),
-    capHue: awayFromEntityHue(
-      wrapHue(hue + random.int(CAP_HUE_OFFSET_MIN, CAP_HUE_OFFSET_MAX)),
-    ),
+    capHue: awayFromEntityHue(wrapHue(random.pick(CAP_HUES))),
     capSaturation: random.int(CAP_SATURATION_MIN, CAP_SATURATION_MAX),
     capLightness: random.int(CAP_LIGHTNESS_MIN, CAP_LIGHTNESS_MAX),
   };

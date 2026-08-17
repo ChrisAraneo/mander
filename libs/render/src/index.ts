@@ -14,6 +14,7 @@ export * from './lib/material';
 export * from './lib/palette';
 export * from './lib/player';
 export * from './lib/portal';
+export * from './lib/screen';
 export * from './lib/sky';
 export * from './lib/spike';
 export * from './lib/star';

@@ -13,7 +13,13 @@ import { scan, type Subscription } from 'rxjs';
 import { match, P } from 'ts-pattern';
 import { onMounted, onUnmounted, type Ref } from 'vue';
 
-import { type CanvasCell, openCanvas, withCanvas } from '../canvas';
+import {
+  type CanvasCell,
+  closeCanvas,
+  createCanvasCell,
+  openCanvas,
+  withCanvas,
+} from '../canvas';
 import { tickStream } from '../tick';
 import { BACKDROP_LEVEL } from './consts';
 
@@ -66,7 +72,7 @@ export const useBackdrop = (
     }))
     .thru((world) => ({
       ...world,
-      cell: { context: null, subscription: null } as BackdropCell,
+      cell: { ...createCanvasCell(), subscription: null } as BackdropCell,
       idle: createInitialState(world.level, world.levelIndex, []),
       focus: midLevelFocus(world.level),
     }))
@@ -92,7 +98,14 @@ export const useBackdrop = (
     )
     .thru((setup) =>
       withEffect(setup, () =>
-        onUnmounted(() => setup.cell.subscription?.unsubscribe()),
+        onUnmounted(() =>
+          chain(setup.cell)
+            .thru((cell) =>
+              withEffect(cell, () => cell.subscription?.unsubscribe()),
+            )
+            .thru((cell) => closeCanvas(cell))
+            .value(),
+        ),
       ),
     )
     .thru(noop)

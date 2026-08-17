@@ -47,10 +47,10 @@ describe('materialPalette', () => {
 
   it('steps the other materials away from that ground colour', () => {
     const styles = materialPalette(BROWN);
-    expect(styles(TILE_BRICK).base).toBe('HSL(10, 37%, 43%)');
+    expect(styles(TILE_BRICK).base).toBe('HSL(10, 27%, 43%)');
     expect(styles(TILE_STONE).base).toBe('HSL(213, 3%, 46%)');
-    expect(styles(TILE_WOOD).base).toBe('HSL(26, 25%, 45%)');
-    expect(styles(TILE_CERAMIC).base).toBe('HSL(295, 47%, 49%)');
+    expect(styles(TILE_WOOD).base).toBe('HSL(26, 21%, 43%)');
+    expect(styles(TILE_CERAMIC).base).toBe('HSL(295, 17%, 51%)');
   });
 
   it('gives ceramic a hue of its own rather than a paler stone', () => {
@@ -65,7 +65,10 @@ describe('materialPalette', () => {
     expect(hueGap(get(ceramic, 'hue', 0), get(dirt, 'hue', 0))).toBeGreaterThan(
       60,
     );
-    expect(get(ceramic, 'saturation', 0)).toBeGreaterThan(30);
+    expect(
+      get(ceramic, 'saturation', 0),
+      'ceramic keeps its colour where stone loses its own',
+    ).toBeGreaterThan(get(stone, 'saturation', 0) + 10);
     expect(get(ceramic, 'lightness', 0)).toBeLessThan(65);
   });
 

@@ -34,6 +34,7 @@ import {
 
 import {
   type CanvasCell,
+  closeCanvas,
   createCanvasCell,
   openCanvas,
   setRef,
@@ -261,7 +262,8 @@ export const useGame = (
             .thru((cell) =>
               withEffect(cell, () => cell.subscription?.unsubscribe()),
             )
-            .thru((cell) => cell.keyboard?.dispose())
+            .thru((cell) => withEffect(cell, () => cell.keyboard?.dispose()))
+            .thru((cell) => closeCanvas(cell))
             .value(),
         ),
       ),
