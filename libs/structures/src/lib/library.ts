@@ -200,6 +200,12 @@ import {
   NORMAL_153,
   NORMAL_154,
   NORMAL_155,
+  NORMAL_156,
+  NORMAL_157,
+  NORMAL_158,
+  NORMAL_159,
+  NORMAL_160,
+  NORMAL_161,
 } from './normal';
 import type { Structure } from './structure';
 
@@ -406,4 +412,10 @@ export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
   NORMAL_153,
   NORMAL_154,
   NORMAL_155,
+  NORMAL_156,
+  NORMAL_157,
+  NORMAL_158,
+  NORMAL_159,
+  NORMAL_160,
+  NORMAL_161,
 ]);
