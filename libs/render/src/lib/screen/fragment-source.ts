@@ -8,14 +8,9 @@ import {
   CHROMA_BLEED,
   CHROMA_LAG,
   CHROMA_SPLIT,
-  CORNER_SHARP_AMOUNT,
-  CORNER_SHARP_FALLOFF,
-  EDGE_BLUR_CUTOFF,
-  EDGE_BLUR_RADIUS,
-  EDGE_BLUR_START,
-  EDGE_BLUR_STRETCH,
-  EDGE_BLUR_WANDER,
-  EDGE_BLUR_WANDER_PITCH,
+  EDGE_BAND_START,
+  EDGE_BAND_WANDER,
+  EDGE_BAND_WANDER_PITCH,
   EDGE_GLOW_AMOUNT,
   EDGE_GLOW_RADIUS,
   EDGE_SHADOW_DEPTH,
@@ -53,8 +48,11 @@ const glslVec3 = (value: readonly [number, number, number]): string =>
 
 /**
  * One pass over the drawn frame. Reads as the signal path it imitates: the
- * cel is painted and inked, the lens softens its edges, the tape bleeds its
- * colour, the tube scans and blooms it.
+ * cel is painted and inked, the tape bleeds its colour, the tube scans and
+ * blooms it and darkens toward its border.
+ *
+ * The picture itself is never softened — every pixel the game drew comes
+ * through at full sharpness.
  *
  * Every term is a function of the fragment's position only — there is no time
  * uniform — so a still game is a still picture.
@@ -96,20 +94,13 @@ const float SCREENTONE_DEPTH = ${glslFloat(SCREENTONE_DEPTH)};
 const float SCREENTONE_PITCH = ${glslFloat(SCREENTONE_PITCH)};
 const float SCREENTONE_DRIFT = ${glslFloat(SCREENTONE_DRIFT)};
 
-const float EDGE_BLUR_START = ${glslFloat(EDGE_BLUR_START)};
-const float EDGE_BLUR_RADIUS = ${glslFloat(EDGE_BLUR_RADIUS)};
-const float EDGE_BLUR_CUTOFF = ${glslFloat(EDGE_BLUR_CUTOFF)};
-const float CORNER_SHARP_AMOUNT = ${glslFloat(CORNER_SHARP_AMOUNT)};
-const float CORNER_SHARP_FALLOFF = ${glslFloat(CORNER_SHARP_FALLOFF)};
-const float EDGE_BLUR_STRETCH = ${glslFloat(EDGE_BLUR_STRETCH)};
-const float EDGE_BLUR_WANDER = ${glslFloat(EDGE_BLUR_WANDER)};
-const float EDGE_BLUR_WANDER_PITCH = ${glslFloat(EDGE_BLUR_WANDER_PITCH)};
+const float EDGE_BAND_START = ${glslFloat(EDGE_BAND_START)};
+const float EDGE_BAND_WANDER = ${glslFloat(EDGE_BAND_WANDER)};
+const float EDGE_BAND_WANDER_PITCH = ${glslFloat(EDGE_BAND_WANDER_PITCH)};
 const float EDGE_SHADOW_START = ${glslFloat(EDGE_SHADOW_START)};
 const float EDGE_SHADOW_DEPTH = ${glslFloat(EDGE_SHADOW_DEPTH)};
 const float EDGE_GLOW_AMOUNT = ${glslFloat(EDGE_GLOW_AMOUNT)};
 const float EDGE_GLOW_RADIUS = ${glslFloat(EDGE_GLOW_RADIUS)};
-/** Ring spacing of the blur kernel, in units of sigma. */
-const float RING_STEP = 0.75;
 
 const float SCANLINE_DEPTH = ${glslFloat(SCANLINE_DEPTH)};
 const float SCANLINE_PITCH = ${glslFloat(SCANLINE_PITCH)};
@@ -169,106 +160,26 @@ vec3 scene(vec2 uv) {
 }
 
 /**
- * 0 through the middle of the picture, 1 at any of its four edges.
+ * 0 through the middle of the picture, 1 at any of its four edges — the band
+ * the darkening rides on.
  *
  * The wander shifts the whole ramp in or out, so the band's inner boundary is
  * a slow wave rather than a ruled line. It is added to the distance rather
  * than to the result so the boundary moves without the band changing depth.
  */
 float edgeAmount(vec2 centred, float wander) {
-  return smoothstep(EDGE_BLUR_START, 1.0, max(centred.x, centred.y) + wander);
-}
-
-/**
- * How much of the edge blur to take back out: 0 along both centre lines and
- * at the middle of every edge, rising to 1 in the corners themselves.
- *
- * It multiplies the two axis distances rather than taking a radius, because a
- * radius cannot tell a corner from the middle of an edge until the last third
- * of its range — the middle of an edge is already 0.71 of the way out. The
- * product is 0 there and 1 only where both axes are extreme, which is exactly
- * the region the two edge bands overlap in.
- */
-float cornerClear(vec2 centred) {
-  return CORNER_SHARP_AMOUNT
-    * pow(clamp(centred.x * centred.y, 0.0, 1.0), CORNER_SHARP_FALLOFF);
+  return smoothstep(EDGE_BAND_START, 1.0, max(centred.x, centred.y) + wander);
 }
 
 /**
  * The shade around the border, on its own ramp so it can sit tighter to the
- * edge than the softening does. It takes the distance to the nearest border,
+ * edge than the dark glow does. It takes the distance to the nearest border,
  * not a radius, so the frame it draws is even the whole way around instead of
  * pooling in the corners the way the vignette does.
  */
 float edgeShade(vec2 centred) {
   return 1.0 - EDGE_SHADOW_DEPTH
     * smoothstep(EDGE_SHADOW_START, 1.0, max(centred.x, centred.y));
-}
-
-/**
- * Share of a Gaussian's volume lying between two radii, both in units of
- * sigma. This is the integral of exp(-r^2 / 2) r dr over the annulus, which
- * is what each ring of taps has to carry for the rings to add up to a
- * Gaussian rather than to a flat disc.
- */
-float ringWeight(float inner, float outer) {
-  return exp(-0.5 * inner * inner) - exp(-0.5 * outer * outer);
-}
-
-/**
- * Three rings of taps weighted onto a Gaussian: the spread is the sigma, each
- * ring sits one RING_STEP further out and carries its own share of the
- * Gaussian's volume. Weighting the rings equally instead would be a flat disc
- * blur, which smears detail into a doughnut rather than softening it.
- *
- * The outermost ring reaches 2.6 sigma, which is 97% of the Gaussian's volume
- * — the tail beyond it is below the grain.
- *
- * The kernel is stretched along axis, so the picture is pulled toward the
- * border rather than spread evenly around each point, and the whole tap
- * pattern is turned by a per-pixel random angle. Without that turn the taps
- * land on the same eight bearings for every fragment, and the kernel prints
- * its own eight-armed rosette around bright detail; with it the error becomes
- * noise, which is what the rest of the stage is made of anyway.
- */
-vec3 gaussianBlur(vec2 uv, vec2 pixel, float spread, vec2 axis) {
-  float sigma = max(spread, 0.0001);
-  // A quarter turn covers the kernel's whole rotational symmetry — eight taps
-  // at PI/4 apart repeat beyond that, so a wider range would buy nothing.
-  float dither = hash(gl_FragCoord.xy) * (PI / 4.0);
-  // The centre tap stands only for the small disc out to half a ring spacing,
-  // which is about 7% of the kernel. Giving it weight 1 like the rings would
-  // leave a sharp core inside a soft halo — a ghost, not a blur.
-  float middle = ringWeight(0.0, RING_STEP * 0.5);
-  vec3 sum = scene(uv) * middle;
-  float total = middle;
-
-  for (int ring = 1; ring <= 3; ring++) {
-    float centre = float(ring) * RING_STEP;
-    float weight = ringWeight(centre - RING_STEP * 0.5, centre + RING_STEP * 0.5);
-    // Each ring is turned against the last so the taps do not line up into
-    // spokes at the wider spreads.
-    float twist = float(ring) * 0.35 + dither;
-
-    // Eight taps rather than six: at the full edge sigma the outer ring is
-    // wide enough that six of them sample a virtual pixel apart, and the gaps
-    // between them come back as a faint rosette around bright detail.
-    for (int tap = 0; tap < 8; tap++) {
-      float angle = float(tap) * (PI / 4.0) + twist;
-      vec2 offset = vec2(cos(angle), sin(angle)) * centre * sigma;
-
-      // Lengthen the part of the offset lying along the axis and leave the
-      // part across it alone, which stretches the kernel rather than turning
-      // or growing it.
-      offset += axis * dot(offset, axis) * EDGE_BLUR_STRETCH;
-
-      sum += scene(uv + offset * pixel) * (weight / 8.0);
-    }
-
-    total += weight;
-  }
-
-  return sum / total;
 }
 
 /** Luma stays sharp, chroma smears to the right — the tape's signature. */
@@ -332,8 +243,8 @@ vec3 glow(vec2 uv, vec2 pixel) {
  * picture rather than a flat grade, it pools where the border is bright and
  * all but vanishes where it is already dark — a glow, not a gradient.
  *
- * The amount comes from the blur band, so the darkness carries the same
- * wandering boundary as the softening and the two read as one effect.
+ * The amount comes from the border band, so the darkness carries that band's
+ * wandering boundary rather than closing on the frame as a clean rectangle.
  */
 vec3 darkGlow(vec2 uv, vec2 pixel, float amount) {
   vec3 sum = vec3(0.0);
@@ -444,38 +355,26 @@ void main() {
   vec2 virtualPixel = uv / pixel;
   vec2 centred = abs(uv * 2.0 - 1.0);
 
-  float wander = (mottle(virtualPixel / EDGE_BLUR_WANDER_PITCH) - 0.5)
-    * EDGE_BLUR_WANDER;
-  // The border band, which the darkening rides the whole way around, and the
-  // lens softness, which is the same band with the corners taken back out.
+  float wander = (mottle(virtualPixel / EDGE_BAND_WANDER_PITCH) - 0.5)
+    * EDGE_BAND_WANDER;
+  // The border band the darkening rides, the whole way around.
   float band = edgeAmount(centred, wander);
-  float softness = band * (1.0 - cornerClear(centred));
-  float spread = EDGE_BLUR_RADIUS * softness;
-  // The line out of the centre of the frame, which is the one the border is
-  // nearest along. Guarded because it is undefined at the exact centre, where
-  // there is no blur to stretch anyway.
-  vec2 axis = (uv * 2.0 - 1.0) / max(length(uv * 2.0 - 1.0), 0.0001);
 
   vec2 jitterSeed = uv * vec2(24.0, 12.0);
   vec2 jitter = (vec2(valueNoise(jitterSeed), valueNoise(jitterSeed + 31.7)) - 0.5)
     * INK_JITTER;
 
   vec3 picture = tapeColor(uv, pixel);
-
-  // Most of the picture is sharp, and the branch is coherent across it, so
-  // the ring taps are only paid for around the border.
-  if (softness > EDGE_BLUR_CUTOFF) {
-    picture = mix(picture, gaussianBlur(uv, pixel, spread, axis), softness);
-  }
-
   vec3 color = cel(picture) + bloom(uv, pixel) + glow(uv, pixel);
   float ink = smoothstep(
     INK_THRESHOLD,
     INK_THRESHOLD + INK_SOFTNESS,
     inkEdge(uv + jitter * pixel, pixel)) * INK_STRENGTH;
 
-  // The line goes with the picture: where the lens is soft there is no ink.
-  color = mix(color, INK_COLOR, ink * (1.0 - softness));
+  // The line runs at full strength the whole way to the border: nothing
+  // softens the picture any more, so there is nothing for the ink to go soft
+  // against either.
+  color = mix(color, INK_COLOR, ink);
   color = screentone(stock(color, uv, virtualPixel), virtualPixel);
   color += grain(virtualPixel) * mix(1.5, 0.4, luma(color));
 
