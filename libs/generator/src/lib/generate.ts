@@ -9,7 +9,7 @@ import { computeLevelSeeds } from './seed/compute-level-seeds';
 import { addPadding } from './structures/add-padding';
 import { addPlayerSpawn } from './structures/add-player-spawn';
 import { addPortal } from './structures/add-portal';
-import { addSpikes } from './structures/add-spikes';
+import { clearSpikes } from './structures/clear-spikes';
 import { generatePalette } from './palette/generate-palette';
 import { joinStructures } from './structures/join-structures';
 import { pickStructures } from './structures/pick-structures';
@@ -90,7 +90,7 @@ export const generate = (date: Date): RenderedWorld => {
     const withPlayer = addPlayerSpawn(tiles);
     const withPortal = addPortal(withPlayer);
     const withPadding = addPadding(withPortal);
-    const withSpikes = addSpikes(withPadding, levelNumber);
+    const withSpikes = clearSpikes(withPadding, levelNumber);
     const withKey = addKey(withSpikes);
     const withChest = addChest(withKey);
     const withDiamonds = addDiamonds(withChest);
