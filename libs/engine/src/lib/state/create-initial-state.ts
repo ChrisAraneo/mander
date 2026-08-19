@@ -5,6 +5,7 @@ import type { GameLevel } from '../types/game-level';
 import { startingAmmo } from '../reducer/bullet/starting-ammo';
 import { createCannons } from '../reducer/cannon/create-cannons';
 import { createEnemies } from '../reducer/enemy/create-enemies';
+import { createFallingSpikes } from '../reducer/falling-spike/create-falling-spikes';
 import { createFireballs } from '../reducer/fireball/create-fireballs';
 import { createPlayerFireballs } from '../reducer/fireball/create-player-fireballs';
 import { createPlayer } from '../reducer/player/create-player';
@@ -26,6 +27,7 @@ export const createInitialState = (
       enemies: createEnemies(level),
       cannons: createCannons(level),
       cannonballs: [],
+      fallingSpikes: createFallingSpikes(level),
       fireballs: createFireballs(level),
       playerFireballs: createPlayerFireballs(inventory, player),
       bullets: [],

@@ -25,6 +25,7 @@ import type { Palette } from '../palette';
 import { drawPlayer } from '../player';
 import { drawPortal } from '../portal';
 import { drawSky } from '../sky';
+import { drawFallingSpike } from '../spike';
 import { drawTiles } from '../tile';
 import { snapToDevicePixel, type Viewport } from '../viewport';
 
@@ -96,6 +97,11 @@ export const renderGame = (
         sequence(
           map(state.enemies, (enemy) =>
             run((target) => drawEnemy(target, enemy, state.time)),
+          ),
+        ),
+        sequence(
+          map(state.fallingSpikes, (spike) =>
+            run((target) => drawFallingSpike(target, spike)),
           ),
         ),
         run((target) => drawPlayer(target, state.player, state.time)),

@@ -1,8 +1,14 @@
-import { createCannons, createEnemies, createFireballs } from '@mander/engine';
+import {
+  createCannons,
+  createEnemies,
+  createFallingSpikes,
+  createFireballs,
+} from '@mander/engine';
 import { TILE_SIZE } from '@mander/model';
 import {
   drawCannon,
   drawEnemy,
+  drawFallingSpike,
   drawFireball,
   drawTiles,
   type Palette,
@@ -74,6 +80,13 @@ export const drawStructure = (
       withEffect(scene, () =>
         forEach(createEnemies(scene.level), (enemy) =>
           drawEnemy(context, enemy, 0),
+        ),
+      ),
+    )
+    .thru((scene) =>
+      withEffect(scene, () =>
+        forEach(createFallingSpikes(scene.level), (spike) =>
+          drawFallingSpike(context, spike),
         ),
       ),
     )

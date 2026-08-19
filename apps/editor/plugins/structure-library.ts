@@ -35,7 +35,6 @@ const send = (res: ServerResponse, status: number, body: unknown): void =>
     .thru((ready) => ready.end(JSON.stringify(body)))
     .value();
 
-/** Collects the request stream into one string; the chunks are the state. */
 const readBody = (req: IncomingMessage): Promise<string> =>
   new Promise((resolve, reject) =>
     chain({ chunks: [] as Buffer[] })

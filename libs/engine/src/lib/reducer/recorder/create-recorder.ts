@@ -21,10 +21,6 @@ const emptyState = (): RecorderState => ({
 const mutate = (state: RecorderState, patch: Partial<RecorderState>): void =>
   void assign(state, patch);
 
-/**
- * The first recorded action fixes the clock every later entry is measured
- * against, so it also carries the start timestamp.
- */
 const append = (
   state: RecorderState,
   action: Action,

@@ -56,7 +56,6 @@ const startOf = (structure: Structure): Cell =>
 const endOf = (structure: Structure): Cell =>
   findMarker(structure, STRUCTURE_END) ?? DEFAULT_END;
 
-/** Each structure hangs off the previous one's exit, entrance to exit. */
 const place = (structures: Structure[]): Placement[] =>
   reduce(
     structures,
@@ -104,7 +103,6 @@ const widthOf = (placements: Placement[]): number =>
 const isDrawn = (cell: number): boolean =>
   cell !== TILE_AIR && cell !== STRUCTURE_START && cell !== STRUCTURE_END;
 
-/** The structure's own cells, in world coordinates. */
 const painted = (placement: Placement): TilePatch[] =>
   chain(placement.structure)
     .flatMap((cells, row) =>
@@ -117,10 +115,6 @@ const painted = (placement: Placement): TilePatch[] =>
     .filter(({ tile }) => isDrawn(tile))
     .value();
 
-/**
- * Extends the structure's floor down to the bottom of the joined level, so a
- * structure sitting high up does not leave a hole under it.
- */
 const underpinned = (
   tiles: Tile[][],
   placement: Placement,

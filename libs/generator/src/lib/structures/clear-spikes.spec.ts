@@ -16,7 +16,6 @@ const TEETH = 300;
 
 const FIRST_UNTOUCHED_LEVEL = 5;
 
-/** A long floor with a tooth standing on every tile of it. */
 const toothyFloor = (): Tile[][] => [
   times(TEETH, (): Tile => TILE_SPIKE),
   times(TEETH, (): Tile => TILE_DIRT),

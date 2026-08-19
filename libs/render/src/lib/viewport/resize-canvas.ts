@@ -16,10 +16,6 @@ const heightChange = (canvas: HTMLCanvasElement, height: number): CanvasSize =>
     .with(true, (): CanvasSize => ({ height }))
     .otherwise((): CanvasSize => ({}));
 
-/**
- * Resizes only when the size actually changed — writing `width` or `height`
- * wipes the canvas, so an unconditional assign would clear every frame.
- */
 export const resizeCanvas = (
   canvas: HTMLCanvasElement,
   size: DeviceSize,

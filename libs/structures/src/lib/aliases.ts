@@ -1,6 +1,21 @@
 import { map } from 'lodash-es';
 
-import { __, CN, DR, EN, FB, SP, SC, BR, ST, WD, CR, SS, EE } from './consts';
+import {
+  __,
+  CN,
+  DR,
+  EN,
+  FB,
+  SP,
+  SC,
+  SF,
+  BR,
+  ST,
+  WD,
+  CR,
+  SS,
+  EE,
+} from './consts';
 
 const ALIAS_MAP = new Map<number, string>([
   [__, '__'],
@@ -8,6 +23,7 @@ const ALIAS_MAP = new Map<number, string>([
   [EN, 'EN'],
   [SP, 'SP'],
   [SC, 'SC'],
+  [SF, 'SF'],
   [BR, 'BR'],
   [ST, 'ST'],
   [WD, 'WD'],

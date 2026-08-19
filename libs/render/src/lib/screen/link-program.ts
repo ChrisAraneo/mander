@@ -28,7 +28,6 @@ const discard = (
     .thru((): WebGLProgram | null => null)
     .value();
 
-/** The shaders live only inside the linked program, so they go straight after. */
 const link = (
   gl: WebGL2RenderingContext,
   program: WebGLProgram,
@@ -63,7 +62,6 @@ const withShaders = (
     .with(nullish, () => null)
     .otherwise((program) => link(gl, program, shaders));
 
-/** Half a pair is no use to anyone; drop whichever side did compile. */
 const dropShaders = (
   gl: WebGL2RenderingContext,
   shaders: MaybeShaders,

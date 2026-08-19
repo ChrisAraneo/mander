@@ -18,10 +18,6 @@ export interface SavedStructure {
   created: boolean;
 }
 
-/**
- * Turns a non-OK response into a rejection carrying the server's own message
- * where it sent one, so callers can fold it with `then(onOk, onErr)`.
- */
 const failure = (response: Response): Promise<never> =>
   response
     .json()

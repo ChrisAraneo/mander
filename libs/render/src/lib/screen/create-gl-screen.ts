@@ -22,11 +22,6 @@ interface Uniforms {
   scale: WebGLUniformLocation | null;
 }
 
-/**
- * The GL objects and the last measured scale. WebGL is a state machine, so
- * this one mutable cell is where that state is kept; every function around it
- * stays a pipeline.
- */
 interface ScreenCell {
   scale: number;
 }
@@ -67,7 +62,6 @@ const createTexture = (gl: WebGL2RenderingContext): WebGLTexture | null =>
     )
     .value();
 
-/** Buffer and display share a backing-store size; the scale rides along. */
 const fitTo = (
   display: HTMLCanvasElement,
   buffer: HTMLCanvasElement,
@@ -163,10 +157,6 @@ const assemble = (
     }))
     .value();
 
-/**
- * The screen that actually applies the effect: the drawn frame becomes a
- * texture and the fragment shader re-photographs it.
- */
 export const createGlScreen = (
   display: HTMLCanvasElement,
   buffer: CanvasRenderingContext2D,

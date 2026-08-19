@@ -26,7 +26,6 @@ const withoutMarker = (grid: number[][], marker: number): number[][] =>
     ),
   );
 
-/** A start or an end may only exist once, so placing one clears the old. */
 const applyPaint = (
   grid: Ref<number[][]>,
   row: number,

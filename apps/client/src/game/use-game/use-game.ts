@@ -54,7 +54,6 @@ interface Run {
   replay: () => PackedReplay;
 }
 
-/** Everything the composable owns for the lifetime of the mounted canvas. */
 interface GameCell extends CanvasCell {
   keyboard: Keyboard | null;
   subscription: Subscription | null;
@@ -103,7 +102,6 @@ const persistProgress = (
     )
     .otherwise(noop);
 
-/** A RESTART starts a fresh recording; everything else is appended to it. */
 const capture = (
   recorder: Recorder,
   action: Action,

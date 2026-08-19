@@ -4,11 +4,6 @@ import { match } from 'ts-pattern';
 
 import { CAP_HUES, GROUND_HUES, SKY_HUES } from './cel-hues';
 
-/**
- * Everything here is deliberately low-saturation and dark: the picture is
- * lit by the screen stage afterwards, and a cel painted in full-strength
- * colour comes out of the tape looking like a cartoon rather than a print.
- */
 const SKY_SATURATION_MIN = 10;
 const SKY_SATURATION_MAX = 26;
 const SKY_TOP_LIGHTNESS_MIN = 8;

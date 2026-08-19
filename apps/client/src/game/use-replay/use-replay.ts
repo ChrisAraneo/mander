@@ -22,7 +22,6 @@ import type { ReplaySource } from './replay-source';
 
 const { nonNullable } = P;
 
-/** The playhead: everything that changes as a replay runs. */
 interface ReplayCell {
   recording: Replay;
   playback: ReplayPlayback | null;

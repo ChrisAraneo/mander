@@ -33,7 +33,6 @@ const UNBURIED = -1;
 
 type Field = number[][];
 
-/** 1 or 0 without branching — this runs once per cell of every blur pass. */
 const toFlag = (on: boolean): number => Number(on);
 
 const seedOf = (tiles: Tile[][]): string =>
@@ -66,17 +65,6 @@ const buriedOf = (tiles: Tile[][], dirtDepth: number): Field =>
 const nearest = (index: number, edge: number): number =>
   Math.min(Math.max(index, 0), edge);
 
-/**
- * The one hand-rolled loop left in this package, and a deliberate one.
- *
- * The blur runs ten kernel passes per level over every cell, so this
- * accumulator is entered ~16 million times to generate a single world. Every
- * pipeline form of it — `reduce` over the taps, `sum(map(...))`, or a
- * tap-major convolution — costs one closure call per tap and measured 2.8x
- * slower end to end (93ms -> 263ms per world), which lands on the start
- * screen while the backdrop world is generated. Keep the loop; keep every
- * caller around it a pipeline.
- */
 const tapTotal = (sampleAt: (tap: number) => number): number => {
   let total = 0;
 

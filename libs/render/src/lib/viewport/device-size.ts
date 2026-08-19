@@ -5,7 +5,6 @@ export interface DeviceSize {
   height: number;
 }
 
-/** The backing store a canvas needs to cover its CSS box on this display. */
 export const deviceSize = (canvas: HTMLCanvasElement): DeviceSize => ({
   width: round(
     Math.max(1, canvas.clientWidth) * (window.devicePixelRatio || 1),

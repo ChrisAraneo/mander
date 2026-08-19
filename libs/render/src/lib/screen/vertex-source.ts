@@ -1,7 +1,3 @@
-/**
- * A full-screen triangle built straight out of the vertex id, so the screen
- * stage needs no buffers or attributes at all.
- */
 export const VERTEX_SOURCE = `#version 300 es
 
 void main() {

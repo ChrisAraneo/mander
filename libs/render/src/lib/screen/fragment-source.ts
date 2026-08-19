@@ -40,30 +40,16 @@ import {
   VIGNETTE,
 } from './consts';
 
-/** GLSL has no integer literals for floats, so every constant needs a point. */
 const glslFloat = (value: number): string => value.toFixed(4);
 
 const glslVec3 = (value: readonly [number, number, number]): string =>
   `vec3(${value.map(glslFloat).join(', ')})`;
 
-/**
- * One pass over the drawn frame. Reads as the signal path it imitates: the
- * cel is painted and inked, the tape bleeds its colour, the tube scans and
- * blooms it and darkens toward its border.
- *
- * The picture itself is never softened — every pixel the game drew comes
- * through at full sharpness.
- *
- * Every term is a function of the fragment's position only — there is no time
- * uniform — so a still game is a still picture.
- */
 export const FRAGMENT_SOURCE = `#version 300 es
 precision highp float;
 
 uniform sampler2D uScene;
-/** Display size in device pixels. */
 uniform vec2 uResolution;
-/** Device pixels per virtual (960x480) pixel. */
 uniform float uScale;
 
 out vec4 fragColor;
@@ -113,11 +99,6 @@ const float GLOW_RADIUS = ${glslFloat(GLOW_RADIUS)};
 const float VIGNETTE = ${glslFloat(VIGNETTE)};
 const float EXPOSURE = ${glslFloat(EXPOSURE)};
 
-/**
- * An integer hash rather than the usual fract(sin(dot(...))) trick. The sin
- * version repeats along diagonals and bands visibly on some drivers, which is
- * exactly the regularity grain is there to break up.
- */
 float hash(vec2 seed) {
   uvec2 cell = uvec2(ivec2(floor(seed)) + 65536);
   uint value = cell.x * 73856093u ^ cell.y * 19349663u;
@@ -140,11 +121,6 @@ float valueNoise(vec2 point) {
     blend.y);
 }
 
-/**
- * Two octaves of noise at an irrational frequency ratio, the second turned off
- * axis, so neither octave's cell grid lines up with the other or with the
- * pixel grid. A single octave of value noise reads as a lattice; this does not.
- */
 float mottle(vec2 point) {
   mat2 turn = mat2(0.8776, 0.4794, -0.4794, 0.8776);
 
@@ -159,30 +135,15 @@ vec3 scene(vec2 uv) {
   return texture(uScene, clamp(uv, vec2(0.0), vec2(1.0))).rgb;
 }
 
-/**
- * 0 through the middle of the picture, 1 at any of its four edges — the band
- * the darkening rides on.
- *
- * The wander shifts the whole ramp in or out, so the band's inner boundary is
- * a slow wave rather than a ruled line. It is added to the distance rather
- * than to the result so the boundary moves without the band changing depth.
- */
 float edgeAmount(vec2 centred, float wander) {
   return smoothstep(EDGE_BAND_START, 1.0, max(centred.x, centred.y) + wander);
 }
 
-/**
- * The shade around the border, on its own ramp so it can sit tighter to the
- * edge than the dark glow does. It takes the distance to the nearest border,
- * not a radius, so the frame it draws is even the whole way around instead of
- * pooling in the corners the way the vignette does.
- */
 float edgeShade(vec2 centred) {
   return 1.0 - EDGE_SHADOW_DEPTH
     * smoothstep(EDGE_SHADOW_START, 1.0, max(centred.x, centred.y));
 }
 
-/** Luma stays sharp, chroma smears to the right — the tape's signature. */
 vec3 tapeColor(vec2 uv, vec2 pixel) {
   vec3 split = vec3(
     scene(uv - vec2(CHROMA_SPLIT * pixel.x, 0.0)).r,
@@ -200,7 +161,6 @@ vec3 tapeColor(vec2 uv, vec2 pixel) {
     + mix(split - vec3(luma(split)), smeared - vec3(luma(smeared)), CHROMA_LAG);
 }
 
-/** Sobel over the drawn frame — the ink line a cel would have been drawn with. */
 float inkEdge(vec2 uv, vec2 pixel) {
   float topLeft = luma(scene(uv + vec2(-pixel.x, pixel.y)));
   float top = luma(scene(uv + vec2(0.0, pixel.y)));
@@ -216,19 +176,11 @@ float inkEdge(vec2 uv, vec2 pixel) {
     (topLeft + 2.0 * top + topRight) - (bottomLeft + 2.0 * bottom + bottomRight)));
 }
 
-/**
- * Veiling glare: the glass itself glowing, so a broad average of the picture
- * is laid back over it. Wider than the bloom, far weaker, and not thresholded
- * — this lifts the whole frame instead of haloing the bright parts, which is
- * what a lit tube in a dark room actually does.
- */
 vec3 glow(vec2 uv, vec2 pixel) {
   vec3 sum = vec3(0.0);
 
   for (int tap = 0; tap < 8; tap++) {
     float angle = float(tap) * (PI / 4.0) + 0.4;
-    // Alternating radii: a single ring would end the halo abruptly at its own
-    // radius, which reads as a faint outline rather than a glow.
     float radius = GLOW_RADIUS * (tap % 2 == 0 ? 1.0 : 0.55);
 
     sum += scene(uv + vec2(cos(angle), sin(angle)) * radius * pixel);
@@ -237,21 +189,10 @@ vec3 glow(vec2 uv, vec2 pixel) {
   return sum * (GLOW_AMOUNT / 8.0);
 }
 
-/**
- * The same glare run backwards: around the border the glass drinks light
- * instead of giving it off. Because the shade is a broad average of the
- * picture rather than a flat grade, it pools where the border is bright and
- * all but vanishes where it is already dark — a glow, not a gradient.
- *
- * The amount comes from the border band, so the darkness carries that band's
- * wandering boundary rather than closing on the frame as a clean rectangle.
- */
 vec3 darkGlow(vec2 uv, vec2 pixel, float amount) {
   vec3 sum = vec3(0.0);
 
   for (int tap = 0; tap < 8; tap++) {
-    // Turned off the glare's own bearings so the two ring patterns do not
-    // reinforce each other into a single lumpy halo.
     float angle = float(tap) * (PI / 4.0) + 1.2;
     float radius = EDGE_GLOW_RADIUS * (tap % 2 == 0 ? 1.0 : 0.55);
 
@@ -261,7 +202,6 @@ vec3 darkGlow(vec2 uv, vec2 pixel, float amount) {
   return sum * (EDGE_GLOW_AMOUNT * amount / 8.0);
 }
 
-/** Cheap halo around the bright parts, the way a phosphor tube blooms. */
 vec3 bloom(vec2 uv, vec2 pixel) {
   vec3 glow = vec3(0.0);
 
@@ -275,7 +215,6 @@ vec3 bloom(vec2 uv, vec2 pixel) {
   return glow * (BLOOM_AMOUNT / 6.0);
 }
 
-/** Flattens the picture into painted bands and pushes it toward cel stock. */
 vec3 cel(vec3 color) {
   float level = luma(color);
   float banded = floor(level * CEL_BANDS + 0.5) / CEL_BANDS;
@@ -285,23 +224,12 @@ vec3 cel(vec3 color) {
     * mix(SHADOW_TINT, HIGHLIGHT_TINT, clamp(luma(flattened) * 1.2, 0.0, 1.0));
 }
 
-/**
- * Scanlines on whole device-pixel rows. A fractional pitch would beat against
- * the scrolling scene and read as lines drifting up the screen, so the pitch
- * is rounded and the phase comes from the pixel row rather than from anything
- * that moves.
- */
 float scanlines(float row) {
   float pitch = max(2.0, floor(uScale * SCANLINE_PITCH + 0.5));
 
   return 1.0 - SCANLINE_DEPTH * pow(sin(row * PI / pitch), 2.0);
 }
 
-/**
- * The cel the frame sits on: a coarse blotch across the whole picture and a
- * fine fibre in it. The fibre is centred on zero so it textures the surface
- * without lifting or dropping the grade.
- */
 vec3 stock(vec3 color, vec2 uv, vec2 virtualPixel) {
   float blotch = mottle(uv * vec2(60.0, 40.0));
   float fibre = mottle(virtualPixel / PAPER_FIBRE_PITCH) - 0.5;
@@ -309,24 +237,12 @@ vec3 stock(vec3 color, vec2 uv, vec2 virtualPixel) {
   return color * (1.0 - PAPER_GRAIN * blotch) * (1.0 + PAPER_FIBRE * fibre);
 }
 
-/**
- * Emulsion grain in two octaves: a speckle on every device pixel, and softer
- * clumps a few virtual pixels wide drifting through it. Both are centred on
- * zero, and both are fixed to the screen.
- */
 float grain(vec2 virtualPixel) {
   return (hash(gl_FragCoord.xy) - 0.5) * TAPE_GRAIN
     + (mottle(virtualPixel / TAPE_CLUMP_PITCH) - 0.5) * TAPE_CLUMP;
 }
 
-/**
- * The print dot the cels were photographed through, turned 45 degrees and
- * snapped to whole device pixels so it cannot crawl. It works the mid-tones
- * only — the dot vanishes into flat black and flat white, as a real one does.
- */
 vec3 screentone(vec3 color, vec2 virtualPixel) {
-  // Wandered off the grid by a slow noise, so the lattice never resolves into
-  // a machine pattern the eye can lock onto.
   vec2 drift = (vec2(
     mottle(virtualPixel / 40.0),
     mottle(virtualPixel / 40.0 + 17.3)) - 0.5) * SCREENTONE_DRIFT * uScale;
@@ -340,7 +256,6 @@ vec3 screentone(vec3 color, vec2 virtualPixel) {
     * (1.0 + SCREENTONE_DEPTH * clamp(4.0 * level * (1.0 - level), 0.0, 1.0) * dots);
 }
 
-/** The aperture mask of the tube, one triad per three device pixels. */
 vec3 shadowMask(float column) {
   vec3 mask = vec3(1.0 - MASK_DEPTH);
 
@@ -357,7 +272,6 @@ void main() {
 
   float wander = (mottle(virtualPixel / EDGE_BAND_WANDER_PITCH) - 0.5)
     * EDGE_BAND_WANDER;
-  // The border band the darkening rides, the whole way around.
   float band = edgeAmount(centred, wander);
 
   vec2 jitterSeed = uv * vec2(24.0, 12.0);
@@ -371,9 +285,6 @@ void main() {
     INK_THRESHOLD + INK_SOFTNESS,
     inkEdge(uv + jitter * pixel, pixel)) * INK_STRENGTH;
 
-  // The line runs at full strength the whole way to the border: nothing
-  // softens the picture any more, so there is nothing for the ink to go soft
-  // against either.
   color = mix(color, INK_COLOR, ink);
   color = screentone(stock(color, uv, virtualPixel), virtualPixel);
   color += grain(virtualPixel) * mix(1.5, 0.4, luma(color));

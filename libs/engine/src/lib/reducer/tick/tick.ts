@@ -3,6 +3,7 @@ import {
   CHEST_ENTITY_BOX,
   DIAMOND_ENTITY_BOX,
   type Enemy,
+  type FallingSpike,
   findChestTile,
   findKeyTile,
   findPortalTile,
@@ -27,6 +28,9 @@ import { hasFaded } from '../enemy/has-faded';
 import { isStompingEnemy } from '../enemy/is-stomping-enemy';
 import { isTouchingEnemy } from '../enemy/is-touching-enemy';
 import { killEnemy } from '../enemy/kill-enemy';
+import { advanceFallingSpikes } from '../falling-spike/advance-falling-spikes';
+import { createFallingSpikes } from '../falling-spike/create-falling-spikes';
+import { isTouchingFallingSpike } from '../falling-spike/is-touching-falling-spike';
 import { advanceFireballs } from '../fireball/advance-fireballs';
 import { advancePlayerFireballs } from '../fireball/advance-player-fireballs';
 import { burnEnemies } from '../fireball/burn-enemies';
@@ -172,10 +176,19 @@ const hornedVictims = (player: Player, enemies: Enemy[]): Enemy[] =>
     )
     .otherwise((): Enemy[] => []);
 
+const touchesFallingSpike = (
+  state: GameState,
+  player: Player,
+  fallingSpikes: FallingSpike[],
+): boolean =>
+  includes(bitingSpikes(state.inventory), 'CEILING') &&
+  some(fallingSpikes, (spike) => isTouchingFallingSpike(player, spike));
+
 const touchesHazard = (
   state: GameState,
   player: Player,
   enemies: Enemy[],
+  fallingSpikes: FallingSpike[],
   hits: Cannonball[],
   isBurned: boolean,
 ): boolean =>
@@ -187,6 +200,7 @@ const touchesHazard = (
     PLAYER_HEIGHT,
     bitingSpikes(state.inventory),
   ) ||
+  touchesFallingSpike(state, player, fallingSpikes) ||
   some(enemies, (enemy) => isAlive(enemy) && isTouchingEnemy(player, enemy)) ||
   size(hits) > 0 ||
   isBurned;
@@ -228,6 +242,7 @@ const resolveHarm = (
   state: GameState,
   player: Player,
   enemies: Enemy[],
+  fallingSpikes: FallingSpike[],
   hits: Cannonball[],
   isBurned: boolean,
 ): Outcome =>
@@ -235,7 +250,7 @@ const resolveHarm = (
     fellIntoPit: hasFallenIntoPit(state.level, player),
     struck:
       player.timers.invincibility <= 0 &&
-      touchesHazard(state, player, enemies, hits, isBurned),
+      touchesHazard(state, player, enemies, fallingSpikes, hits, isBurned),
     survives: player.hearts.value > 1,
   })
     .with({ fellIntoPit: true, survives: true }, () => fell(state, player))
@@ -264,6 +279,14 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
       const { cannons, cannonballs: flying } = respawned
         ? reloadBarrage(state.level)
         : advanceBarrage(state, moved, deltaSeconds);
+      const fallingSpikes = respawned
+        ? createFallingSpikes(state.level)
+        : advanceFallingSpikes(
+            state.level,
+            state.fallingSpikes,
+            moved,
+            deltaSeconds,
+          );
       const fireballs = respawned
         ? createFireballs(state.level)
         : advanceFireballs(state.fireballs, deltaSeconds);
@@ -294,7 +317,14 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
       const isBurned = alive && isBurning(bounced, fireballs);
       const { player, deaths, status } = match(alive)
         .with(true, () =>
-          resolveHarm(state, bounced, afterStomps, hits, isBurned),
+          resolveHarm(
+            state,
+            bounced,
+            afterStomps,
+            fallingSpikes,
+            hits,
+            isBurned,
+          ),
         )
         .otherwise((): Outcome => ({
           player: bounced,
@@ -325,6 +355,7 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         enemies,
         cannons,
         cannonballs,
+        fallingSpikes,
         fireballs,
         playerFireballs,
         bullets,

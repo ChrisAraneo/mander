@@ -1,3 +1,4 @@
+import { times } from 'lodash-es';
 import {
   HARD_001,
   HARD_002,
@@ -206,6 +207,7 @@ import {
   NORMAL_159,
   NORMAL_160,
   NORMAL_161,
+  NORMAL_162,
 } from './normal';
 import type { Structure } from './structure';
 
@@ -418,4 +420,5 @@ export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
   NORMAL_159,
   NORMAL_160,
   NORMAL_161,
+  NORMAL_162,
 ]);

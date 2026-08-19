@@ -4,6 +4,7 @@ import {
   TILE_ENEMY,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
+  TILE_SPIKE_FALLING,
 } from '@mander/model';
 import {
   STRUCTURE_START,
@@ -19,6 +20,7 @@ const KNOWN_TILES = [
   TILE_ENEMY,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
+  TILE_SPIKE_FALLING,
   STRUCTURE_START,
   STRUCTURE_END,
 ];
@@ -39,6 +41,7 @@ const spikesAreAnchored = (grid: number[][]): boolean =>
         )
         .with(
           TILE_SPIKE_CEILING,
+          TILE_SPIKE_FALLING,
           () => row - 1 >= 0 && isSolidTile(grid[row - 1][column]),
         )
         .otherwise(() => true),
@@ -71,7 +74,8 @@ const RULES: Rule[] = [
     isValid: (grid) => countTile(grid, STRUCTURE_END) === 1,
   },
   {
-    message: 'a spike needs a block below it, a ceiling spike one above',
+    message:
+      'a spike needs a block below it, a ceiling or falling spike one above',
     isValid: spikesAreAnchored,
   },
 ];

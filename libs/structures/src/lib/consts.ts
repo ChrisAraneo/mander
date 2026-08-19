@@ -6,6 +6,7 @@ import {
   TILE_FIREBALL,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
+  TILE_SPIKE_FALLING,
   TILE_BRICK,
   TILE_WOOD,
   TILE_CERAMIC,
@@ -21,6 +22,7 @@ export const DR = TILE_DIRT;
 export const EN = TILE_ENEMY;
 export const SP = TILE_SPIKE;
 export const SC = TILE_SPIKE_CEILING;
+export const SF = TILE_SPIKE_FALLING;
 export const BR = TILE_BRICK;
 export const ST = TILE_STONE;
 export const WD = TILE_WOOD;

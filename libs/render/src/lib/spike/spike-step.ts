@@ -27,7 +27,10 @@ const SPIKE_STOPS: readonly ColorStop[] = [
   [1, '#DFE3EE'],
 ];
 
-const prongStep = ([left, apex, right]: Triangle): CanvasStep =>
+export const prongStep = (
+  [left, apex, right]: Triangle,
+  stops: readonly ColorStop[] = SPIKE_STOPS,
+): CanvasStep =>
   sequence([
     beginPath,
     moveTo(left.x, left.y),
@@ -36,14 +39,7 @@ const prongStep = ([left, apex, right]: Triangle): CanvasStep =>
     closePath,
     outline(),
     styledWith((context) => ({
-      fillStyle: linearGradient(
-        context,
-        left.x,
-        left.y,
-        left.x,
-        apex.y,
-        SPIKE_STOPS,
-      ),
+      fillStyle: linearGradient(context, left.x, left.y, left.x, apex.y, stops),
     })),
     fill,
   ]);
@@ -61,6 +57,6 @@ export const spikeStep = (
       spikeShape(level, tileX, tileY),
     ),
   )
-    .thru((triangles) => map(triangles, prongStep))
+    .thru((triangles) => map(triangles, (triangle) => prongStep(triangle)))
     .thru(sequence)
     .value();

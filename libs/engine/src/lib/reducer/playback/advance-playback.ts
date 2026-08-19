@@ -7,7 +7,6 @@ import { applyActions } from '../apply-actions';
 import type { Replay } from '../recorder/types/replay';
 import type { ReplayPlayback } from './types/replay-playback';
 
-/** Index of the first entry still in the future, scanning on from `index`. */
 const dueIndex = (
   entries: RecordedAction[],
   index: number,

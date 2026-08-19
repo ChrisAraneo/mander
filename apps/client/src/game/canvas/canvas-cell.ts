@@ -6,12 +6,6 @@ import type { Ref } from 'vue';
 
 const { nonNullable } = P;
 
-/**
- * The screen a composable resolves on mount and holds for its lifetime, plus
- * the 2D context it draws into — which belongs to the screen's offscreen
- * buffer, not to the element on the page. Two mutable fields, so the
- * composables around them stay pipelines.
- */
 export interface CanvasCell {
   context: CanvasRenderingContext2D | null;
   screen: Screen | null;
@@ -22,7 +16,6 @@ export const createCanvasCell = (): CanvasCell => ({
   screen: null,
 });
 
-/** Binds the screen to the now-mounted element and stores it. */
 export const openCanvas = (
   cell: CanvasCell,
   canvas: Ref<HTMLCanvasElement | null>,
@@ -37,10 +30,6 @@ export const openCanvas = (
     .thru((current) => current.context)
     .value();
 
-/**
- * Runs `draw` on the offscreen buffer once element, context and screen are all
- * there, then puts the finished frame through the screen.
- */
 export const withCanvas = (
   cell: CanvasCell,
   canvas: Ref<HTMLCanvasElement | null>,
@@ -58,7 +47,6 @@ export const withCanvas = (
     )
     .otherwise(noop);
 
-/** Hands the GPU resources back when the composable goes away. */
 export const closeCanvas = (cell: CanvasCell): void =>
   void chain(cell.screen)
     .thru((screen) => withEffect(screen, () => screen?.dispose()))

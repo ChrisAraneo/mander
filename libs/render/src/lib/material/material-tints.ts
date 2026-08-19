@@ -10,11 +10,6 @@ import { match } from 'ts-pattern';
 
 import type { MaterialTint } from './material-tint';
 
-/**
- * Materials are told apart by value and hue, never by turning the colour up:
- * one saturated material in a cel palette pulls the whole frame out of key,
- * and a rotated hue can land anywhere on the wheel.
- */
 const DIRT_TINT: MaterialTint = {};
 const BRICK_TINT: MaterialTint = { hue: -20, saturation: 2, lightness: 16 };
 const STONE_TINT: MaterialTint = { hue: 183, saturation: -22, lightness: 19 };

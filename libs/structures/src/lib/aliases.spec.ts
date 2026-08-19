@@ -3,9 +3,24 @@ import { every } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { getAlias, parseAlias } from './aliases';
-import { __, BR, CN, CR, DR, EE, EN, FB, SC, SP, SS, ST, WD } from './consts';
+import {
+  __,
+  BR,
+  CN,
+  CR,
+  DR,
+  EE,
+  EN,
+  FB,
+  SC,
+  SF,
+  SP,
+  SS,
+  ST,
+  WD,
+} from './consts';
 
-const CELLS = [__, DR, EN, SP, SC, BR, ST, WD, CR, CN, FB, SS, EE];
+const CELLS = [__, DR, EN, SP, SC, SF, BR, ST, WD, CR, CN, FB, SS, EE];
 
 describe('getAlias', () => {
   it('should name every cell the library writes', () => {

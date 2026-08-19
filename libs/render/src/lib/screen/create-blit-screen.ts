@@ -7,10 +7,6 @@ import type { Screen } from './screen';
 
 const { nullish } = P;
 
-/**
- * What a machine without WebGL2 gets: the frame straight through, no effect.
- * The game stays playable, it just does not go through the tape.
- */
 const blit = (
   display: CanvasRenderingContext2D,
   buffer: CanvasRenderingContext2D,

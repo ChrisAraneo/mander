@@ -11,12 +11,6 @@ export interface TilePatch {
   tile: Tile;
 }
 
-/**
- * Returns a fully fresh grid — every row is a new array — with each patch
- * applied. Later patches for the same cell win, matching the order a
- * sequential write would have had. Rows without patches are copied straight
- * across so a patch set only pays for the rows it touches.
- */
 export const patchTiles = (tiles: Tile[][], patches: TilePatch[]): Tile[][] =>
   chain(patches)
     .groupBy('row')

@@ -9,10 +9,6 @@ const mixChar = (hashState: number, character: string): number =>
     .thru((mixed) => (mixed << 13) | (mixed >>> 19))
     .value();
 
-/**
- * Same deal as mulberry32 — one cell, and the rest stays a pipeline. Native
- * `Object.assign` stays for the same reason it does there.
- */
 export const xmur3 = (input: string): (() => number) =>
   chain({ hash: reduce(input, mixChar, SEED ^ size(input)) })
     .thru(

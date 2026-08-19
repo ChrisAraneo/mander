@@ -12,9 +12,9 @@ const prongCount = (shape: SpikeShape): number =>
     .with('SINGLE', () => 1)
     .otherwise(() => SPIKE_PRONGS);
 
-export const computeSpikeTriangles = (
-  tileX: number,
-  tileY: number,
+export const computeSpikeTrianglesAt = (
+  pixelX: number,
+  pixelY: number,
   orientation: SpikeOrientation,
   shape: SpikeShape,
 ): Triangle[] => {
@@ -22,14 +22,14 @@ export const computeSpikeTriangles = (
   const span = (prongs - 1) * PRONG_PITCH + PRONG_WIDTH;
   const geometry = match(orientation)
     .with('CEILING', () => ({
-      left: tileX * TILE_SIZE + (TILE_SIZE - span) / 2,
-      base: tileY * TILE_SIZE,
-      apex: tileY * TILE_SIZE + PRONG_HEIGHT,
+      left: pixelX + (TILE_SIZE - span) / 2,
+      base: pixelY,
+      apex: pixelY + PRONG_HEIGHT,
     }))
     .otherwise(() => ({
-      left: tileX * TILE_SIZE + (TILE_SIZE - span) / 2,
-      base: tileY * TILE_SIZE + TILE_SIZE,
-      apex: tileY * TILE_SIZE + TILE_SIZE - PRONG_HEIGHT,
+      left: pixelX + (TILE_SIZE - span) / 2,
+      base: pixelY + TILE_SIZE,
+      apex: pixelY + TILE_SIZE - PRONG_HEIGHT,
     }));
 
   return times(prongs, (prongIndex): Triangle => {
@@ -41,3 +41,16 @@ export const computeSpikeTriangles = (
     ];
   });
 };
+
+export const computeSpikeTriangles = (
+  tileX: number,
+  tileY: number,
+  orientation: SpikeOrientation,
+  shape: SpikeShape,
+): Triangle[] =>
+  computeSpikeTrianglesAt(
+    tileX * TILE_SIZE,
+    tileY * TILE_SIZE,
+    orientation,
+    shape,
+  );

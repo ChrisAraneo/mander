@@ -8,6 +8,7 @@ import {
   TILE_FIREBALL,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
+  TILE_SPIKE_FALLING,
   TILE_STONE,
   TILE_WOOD,
 } from '@mander/model';
@@ -28,6 +29,12 @@ export const BRUSHES: Brush[] = [
     value: TILE_SPIKE_CEILING,
     label: 'Ceiling spike',
     shortcut: '4',
+    group: 'Hazards',
+  },
+  {
+    value: TILE_SPIKE_FALLING,
+    label: 'Falling spike',
+    shortcut: 'r',
     group: 'Hazards',
   },
   { value: TILE_CANNON, label: 'Cannon', shortcut: '9', group: 'Hazards' },
