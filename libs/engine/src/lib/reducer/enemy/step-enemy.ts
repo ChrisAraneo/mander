@@ -14,6 +14,7 @@ import { moveHorizontal } from '../collision/move-horizontal';
 import { moveVertical } from '../collision/move-vertical';
 import { resolveLanding } from '../collision/resolve-landing';
 import { spikeAhead } from '../spike/spike-ahead';
+import { beartrapAhead } from './beartrap-ahead';
 import { ENEMY_DEATH_SECONDS, ENEMY_HEIGHT, ENEMY_WIDTH } from './consts';
 import { ledgeAhead } from './ledge-ahead';
 import { playerOverhead } from './player-overhead';
@@ -55,7 +56,8 @@ const enemyTurn = (
     hasObstacle:
       wallAhead(level, x, y, facing) ||
       ledgeAhead(level, x, y, facing) ||
-      spikeAhead(level, x, y, facing),
+      spikeAhead(level, x, y, facing) ||
+      beartrapAhead(level, x, y, facing),
   })
     .with({ isGrounded: true, hasObstacle: true }, () => opposite(facing))
     .otherwise(() => facing);

@@ -11,7 +11,7 @@ import {
   TILE_SIZE,
   TILE_SPAWN,
 } from '@mander/model';
-import { size, times } from 'lodash-es';
+import { find, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { createInitialState } from '../../state/create-initial-state';
@@ -28,6 +28,7 @@ import {
   ENEMY_WIDTH,
   HORNED_ENEMY_CHANCE,
 } from './consts';
+import { beartrapAhead } from './beartrap-ahead';
 import { createEnemies } from './create-enemies';
 import { crushEnemies } from './crush-enemies';
 import { playerNearTrap } from './player-near-trap';
@@ -172,11 +173,46 @@ describe('playerNearTrap', () => {
     });
   });
 
+  it('notices the player sailing overhead within two blocks', () => {
+    const leaping = eyeToEye(TILE_SIZE);
+    leaping.position.y -= TILE_SIZE * 3;
+
+    expect(playerNearTrap(trapIn(room()), leaping)).toBe(true);
+  });
+
   it('ignores a player who is already dead', () => {
     const fallen = eyeToEye(0);
     fallen.timers.death = 0;
 
     expect(playerNearTrap(trapIn(room()), fallen)).toBe(false);
+  });
+});
+
+describe('beartrapAhead', () => {
+  const UP_TO_TRAP_FROM_LEFT = TRAP_COLUMN * TILE_SIZE - ENEMY_WIDTH;
+  const UP_TO_TRAP_FROM_RIGHT = (TRAP_COLUMN + 1) * TILE_SIZE;
+
+  it('sees the trap the enemy walking right is about to step into', () => {
+    expect(beartrapAhead(room(), UP_TO_TRAP_FROM_LEFT, TRAP_Y, 1)).toBe(true);
+  });
+
+  it('sees the trap the enemy walking left is about to step into', () => {
+    expect(beartrapAhead(room(), UP_TO_TRAP_FROM_RIGHT, TRAP_Y, -1)).toBe(true);
+  });
+
+  it('sees nothing behind the enemy walking away from the trap', () => {
+    expect(beartrapAhead(room(), UP_TO_TRAP_FROM_LEFT, TRAP_Y, -1)).toBe(false);
+  });
+
+  it('sees nothing on open floor across the room', () => {
+    expect(beartrapAhead(room(), 0, TRAP_Y, 1)).toBe(false);
+  });
+
+  it('sees nothing in a room without the tile', () => {
+    const bare = room();
+    bare.tiles[TRAP_ROW][TRAP_COLUMN] = TILE_AIR;
+
+    expect(beartrapAhead(bare, UP_TO_TRAP_FROM_LEFT, TRAP_Y, 1)).toBe(false);
   });
 });
 
@@ -196,7 +232,7 @@ describe('stepBeartrap', () => {
     expect(trap.statuses.isGrounded).toBe(false);
   });
 
-  it('jumps five blocks high', () => {
+  it('jumps six blocks high', () => {
     const { peak } = watchedFor(120, standing(0));
 
     expect(TRAP_Y - peak).toBeGreaterThan(
@@ -326,11 +362,26 @@ describe('a level being played', () => {
     expect(jumped.enemies[0].timers.death).toBeNull();
   });
 
-  it('kills the enemy that wanders into it', () => {
+  it('turns the walking enemy back before it steps into the trap', () => {
     const level = withSpawn(WIDTH - 2, FLOOR_ROW - 1);
     level.tiles[TRAP_ROW][TRAP_COLUMN - 3] = TILE_ENEMY;
 
-    const cleared = played(level, 200);
+    const patrolled = played(level, 300);
+    const walker = find(
+      patrolled.enemies,
+      (enemy) => enemy.kind !== 'BEARTRAP',
+    );
+
+    expect(walker, 'the enemy is still on its feet').toBeDefined();
+    expect(walker?.timers.death).toBeNull();
+    expect(walker!.position.x + ENEMY_WIDTH).toBeLessThanOrEqual(TRAP_X);
+  });
+
+  it('kills the flying enemy its leap carries it into', () => {
+    const level = withSpawn(TRAP_COLUMN + 1, FLOOR_ROW - 1);
+    level.tiles[TRAP_ROW - 3][TRAP_COLUMN] = TILE_ENEMY;
+
+    const cleared = played(level, 120);
 
     expect(size(cleared.enemies)).toBe(1);
     expect(cleared.enemies[0].kind).toBe('BEARTRAP');
@@ -340,6 +391,35 @@ describe('a level being played', () => {
     const safe = played(withSpawn(TRAP_COLUMN + 8, FLOOR_ROW - 1), 90);
 
     expect(safe.player.hearts.value).toBe(3);
+  });
+
+  it('springs at the player who tries to jump clean over it', () => {
+    const level = withSpawn(1, FLOOR_ROW - 1);
+    let state = reduce(createInitialState(level, 0, []), {
+      type: 'MOVE_RIGHT_START',
+    });
+    let hasSettled = false;
+    let sprang = false;
+    let leftTheGround = false;
+
+    for (let frame = 0; frame < 240; frame++) {
+      const gap = TRAP_CENTRE_X - (state.player.position.x + PLAYER_WIDTH / 2);
+
+      if (gap <= TILE_SIZE * 3 && state.player.statuses.isGrounded)
+        state = reduce(state, { type: 'JUMP_START' });
+
+      state = reduce(state, { type: 'TICK', deltaSeconds: DELTA_SECONDS });
+
+      const trap = state.enemies[0];
+      if (trap.statuses.isGrounded) hasSettled = true;
+      else if (hasSettled) sprang = true;
+
+      leftTheGround = leftTheGround || !state.player.statuses.isGrounded;
+    }
+
+    expect(leftTheGround, 'the player really jumped').toBe(true);
+    expect(sprang, 'the trap went off').toBe(true);
+    expect(state.player.hearts.value, 'and caught them').toBe(2);
   });
 
   it('is laid again when the player respawns, as the enemies are', () => {

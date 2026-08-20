@@ -81,4 +81,5 @@ export * from './lib/enemies/hopping-enemy';
 export * from './lib/enemies/horned-enemy';
 export * from './lib/enemies/flying-enemy';
 export * from './lib/enemies/beartrap-spawn';
+export * from './lib/enemies/is-beartrap';
 export * from './lib/enemies/beartrap-enemy';
