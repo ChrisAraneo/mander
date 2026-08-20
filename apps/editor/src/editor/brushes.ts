@@ -1,5 +1,6 @@
 import {
   TILE_AIR,
+  TILE_BEARTRAP,
   TILE_BRICK,
   TILE_CANNON,
   TILE_CERAMIC,
@@ -37,6 +38,7 @@ export const BRUSHES: Brush[] = [
     shortcut: 'r',
     group: 'Hazards',
   },
+  { value: TILE_BEARTRAP, label: 'Beartrap', shortcut: 'b', group: 'Hazards' },
   { value: TILE_CANNON, label: 'Cannon', shortcut: '9', group: 'Hazards' },
   { value: TILE_FIREBALL, label: 'Fireball', shortcut: 'f', group: 'Hazards' },
   { value: STRUCTURE_START, label: 'Start', shortcut: 's', group: 'Markers' },

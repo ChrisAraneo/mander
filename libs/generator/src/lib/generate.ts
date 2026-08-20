@@ -95,7 +95,9 @@ export const generate = (date: Date): RenderedWorld => {
     const withChest = addChest(withKey);
     const withDiamonds = addDiamonds(withChest);
     const withStones = addStones(withDiamonds);
-    const withMirror = isMirrored(seed) ? mirrorTiles(withStones) : withStones;
+    const withMirror = isMirrored(levelNumber)
+      ? mirrorTiles(withStones)
+      : withStones;
 
     const level: GameLevel = {
       seed,

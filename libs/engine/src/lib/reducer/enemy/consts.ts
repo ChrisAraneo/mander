@@ -1,4 +1,4 @@
-import { TILE_SIZE } from '@mander/model';
+import { GRAVITY, TILE_SIZE } from '@mander/model';
 
 export const ENEMY_WIDTH = 22;
 export const ENEMY_HEIGHT = 22;
@@ -18,3 +18,11 @@ export const HORNED_ENEMY_CHANCE = 0.5;
 
 export const FLYING_ENEMY_MOVE_SPEED = ENEMY_MOVE_SPEED * 0.75;
 export const FLYING_ENEMY_RANGE = TILE_SIZE;
+
+export const BEARTRAP_TRIGGER_TILES = 2;
+export const BEARTRAP_TRIGGER_RANGE = BEARTRAP_TRIGGER_TILES * TILE_SIZE;
+
+export const BEARTRAP_JUMP_TILES = 5;
+export const BEARTRAP_JUMP_VELOCITY = Math.sqrt(
+  2 * GRAVITY * BEARTRAP_JUMP_TILES * TILE_SIZE,
+);

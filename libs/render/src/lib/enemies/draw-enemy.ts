@@ -188,6 +188,134 @@ const browsStep = (palette: EnemyPalette): CanvasStep =>
     stroke,
   ]);
 
+const BEARTRAP_STEEL = '#8E9AA6';
+const BEARTRAP_SHADOW = '#5A6673';
+const BEARTRAP_TOOTH = '#E8EEF4';
+const BEARTRAP_SPRING = '#B4603A';
+
+const PLATE_HEIGHT = 6;
+
+const JAW_HINGE_X = HALF_WIDTH - 5;
+const JAW_HINGE_Y = HALF_HEIGHT - 5;
+const JAW_LENGTH = 15;
+const JAW_THICKNESS = 3.5;
+const JAW_OPEN_TILT = 0.65;
+const JAW_SHUT_TILT = 0.12;
+
+const TOOTH_LENGTH = 3.5;
+const TOOTH_HALF_HEIGHT = 1.6;
+const TOOTH_Y_POSITIONS = [-4.5, -8.5, -12.5];
+
+const SPRING_SIDES = [-1, 1];
+
+const toothStep = (toothY: number): CanvasStep =>
+  sequence([
+    moveTo(JAW_THICKNESS / 2, toothY - TOOTH_HALF_HEIGHT),
+    lineTo(JAW_THICKNESS / 2 + TOOTH_LENGTH, toothY),
+    lineTo(JAW_THICKNESS / 2, toothY + TOOTH_HALF_HEIGHT),
+    closePath,
+  ]);
+
+const teethStep: CanvasStep = sequence([
+  beginPath,
+  sequence(map(TOOTH_Y_POSITIONS, toothStep)),
+  outline(),
+  styled({ fillStyle: BEARTRAP_TOOTH }),
+  fill,
+]);
+
+const jawStep = (tilt: number): CanvasStep =>
+  sequence([
+    save,
+    translate(-JAW_HINGE_X, JAW_HINGE_Y),
+    rotate(tilt),
+    beginPath,
+    roundRect(-JAW_THICKNESS / 2, -JAW_LENGTH, JAW_THICKNESS, JAW_LENGTH, 1.6),
+    outline(),
+    styled({ fillStyle: BEARTRAP_STEEL }),
+    fill,
+    teethStep,
+    restore,
+  ]);
+
+const jawsStep = (tilt: number): CanvasStep =>
+  sequence([jawStep(tilt), save, scale(-1, 1), jawStep(tilt), restore]);
+
+const plateStep: CanvasStep = sequence([
+  beginPath,
+  roundRect(
+    -HALF_WIDTH + 1,
+    HALF_HEIGHT - PLATE_HEIGHT,
+    ENEMY_WIDTH - 2,
+    PLATE_HEIGHT,
+    2,
+  ),
+  outline(),
+  styled({ fillStyle: BEARTRAP_SHADOW }),
+  fill,
+  styled({ fillStyle: BEARTRAP_STEEL }),
+  beginPath,
+  roundRect(
+    -HALF_WIDTH + 3,
+    HALF_HEIGHT - PLATE_HEIGHT + 1.5,
+    ENEMY_WIDTH - 6,
+    2,
+    1,
+  ),
+  fill,
+]);
+
+const panStep: CanvasStep = sequence([
+  beginPath,
+  roundRect(-5, HALF_HEIGHT - PLATE_HEIGHT - 3, 10, 3, 1),
+  outline(),
+  styled({ fillStyle: BEARTRAP_TOOTH }),
+  fill,
+]);
+
+const springStep = (side: number): CanvasStep =>
+  sequence([
+    beginPath,
+    arc(side * JAW_HINGE_X, JAW_HINGE_Y, 2.6, 0, Math.PI * 2),
+    outline(),
+    styled({ fillStyle: BEARTRAP_SPRING }),
+    fill,
+  ]);
+
+const springsStep: CanvasStep = sequence(map(SPRING_SIDES, springStep));
+
+const jawTilt = (isSnapped: boolean): number =>
+  match(isSnapped)
+    .with(true, () => JAW_SHUT_TILT)
+    .otherwise(() => -JAW_OPEN_TILT);
+
+const beartrapStep = (isSnapped: boolean): CanvasStep =>
+  sequence([plateStep, panStep, jawsStep(jawTilt(isSnapped)), springsStep]);
+
+const creatureStep = (
+  enemy: Enemy,
+  palette: EnemyPalette,
+  isDying: boolean,
+  time: number,
+): CanvasStep =>
+  sequence([
+    when(enemy.kind === 'FLYING', wingsStep(time)),
+    bodyStep(palette),
+    when(enemy.kind === 'HORNED', hornsStep(palette)),
+    eyesStep(isDying),
+    browsStep(palette),
+  ]);
+
+const figureStep = (
+  enemy: Enemy,
+  palette: EnemyPalette,
+  isDying: boolean,
+  time: number,
+): CanvasStep =>
+  match(enemy.kind)
+    .with('BEARTRAP', () => beartrapStep(!enemy.statuses.isGrounded || isDying))
+    .otherwise(() => creatureStep(enemy, palette, isDying, time));
+
 const deathProgress = (death: Enemy['timers']['death']): number =>
   match(death)
     .with(number, (seconds) => clamp(seconds / ENEMY_DEATH_SECONDS, 0, 1))
@@ -209,7 +337,11 @@ export const drawEnemy = (
         facing: match(enemy.statuses.isFacingRight)
           .with(true, () => 1)
           .otherwise(() => -1),
-        wobble: match(enemy.statuses.isGrounded && !stage.isDying)
+        wobble: match(
+          enemy.statuses.isGrounded &&
+            !stage.isDying &&
+            enemy.kind !== 'BEARTRAP',
+        )
           .with(true, () => Math.sin(time * 9 + enemy.spawn.x * 0.2) * 1.2)
           .otherwise(() => 0),
       }),
@@ -224,11 +356,7 @@ export const drawEnemy = (
         ),
         styled({ globalAlpha: 1 - progress * progress }),
         scale(facing * (1 + progress * 0.35), squash),
-        when(enemy.kind === 'FLYING', wingsStep(time)),
-        bodyStep(palette),
-        when(enemy.kind === 'HORNED', hornsStep(palette)),
-        eyesStep(isDying),
-        browsStep(palette),
+        figureStep(enemy, palette, isDying, time),
         restore,
       ),
     )

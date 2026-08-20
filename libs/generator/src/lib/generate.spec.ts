@@ -5,10 +5,12 @@ import {
   TILE_PORTAL,
   TILE_SPAWN,
 } from '@mander/model';
+import type { Point } from '@mander/utils';
 import {
   every,
   filter,
   flatMap,
+  includes,
   join,
   map,
   size,
@@ -20,13 +22,19 @@ import { describe, expect, it } from 'vitest';
 
 import { generate } from './generate';
 import { FIRST_CANNON_LEVEL } from './structures/clear-cannons';
-import { isMirrored } from './structures/is-mirrored';
+import { MIRRORED_LEVELS } from './structures/is-mirrored';
 
 const LEVELS_A_DAY = 8;
 
 const dayOf = (day: number): Date => new Date(Date.UTC(2026, 0, 1 + day));
 
 const days = times(10, dayOf);
+
+interface Run {
+  levelNumber: number;
+  spawn: Point | null;
+  portal: Point | null;
+}
 
 const fingerprint = (tiles: number[][]): string =>
   join(
@@ -129,29 +137,50 @@ describe('generate', () => {
     expect(early).toEqual([]);
   });
 
-  it('turns some levels around and leaves the rest alone', () => {
-    const turned = filter(
-      flatMap(days, (date) => generate(date).levels),
-      (level) => isMirrored(level.seed),
+  const runs = (): Run[] =>
+    flatMap(days, (date) =>
+      map(generate(date).levels, (level, index): Run => ({
+        levelNumber: index + 1,
+        spawn: findTile(level, TILE_SPAWN),
+        portal: findTile(level, TILE_PORTAL),
+      })),
     );
-    const built = flatMap(days, (date) => generate(date).levels);
 
-    expect(size(turned), 'some run right to left').toBeGreaterThan(0);
-    expect(size(turned), 'but not all of them').toBeLessThan(size(built));
+  const isTurned = (run: Run): boolean =>
+    run.spawn !== null && run.portal !== null && run.spawn.x > run.portal.x;
+
+  it('lays down a way in and a way out on every level it builds', () => {
+    const lost = filter(
+      runs(),
+      (run) => run.spawn === null || run.portal === null,
+    );
+
+    expect(size(runs()), 'a full run of days').toBe(size(days) * LEVELS_A_DAY);
+    expect(lost).toEqual([]);
   });
 
-  it('sends the player in from the right on a mirrored level', () => {
-    const levels = flatMap(days, (date) => generate(date).levels);
-    const wrongWay = filter(levels, (level) => {
-      const spawn = findTile(level, TILE_SPAWN);
-      const portal = findTile(level, TILE_PORTAL);
-
-      if (spawn === null || portal === null) return false;
-
-      return isMirrored(level.seed) ? spawn.x <= portal.x : spawn.x >= portal.x;
-    });
+  it('sends the player in from the right on the third and the sixth level', () => {
+    const wrongWay = filter(
+      runs(),
+      (run) => includes(MIRRORED_LEVELS, run.levelNumber) && !isTurned(run),
+    );
 
     expect(wrongWay).toEqual([]);
+  });
+
+  it('sends the player in from the left on every other level', () => {
+    const wrongWay = filter(
+      runs(),
+      (run) => !includes(MIRRORED_LEVELS, run.levelNumber) && isTurned(run),
+    );
+
+    expect(wrongWay).toEqual([]);
+  });
+
+  it('turns two levels of every day around, whatever the day', () => {
+    expect(size(filter(runs(), isTurned))).toBe(
+      size(days) * size(MIRRORED_LEVELS),
+    );
   });
 
   it('leaves a mirrored level as wide and as tall as it was built', () => {

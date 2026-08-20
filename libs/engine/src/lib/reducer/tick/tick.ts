@@ -3,6 +3,7 @@ import {
   CHEST_ENTITY_BOX,
   DIAMOND_ENTITY_BOX,
   type Enemy,
+  type EnemyKind,
   type FallingSpike,
   findChestTile,
   findKeyTile,
@@ -24,6 +25,7 @@ import { strikingCannonballs } from '../cannon/striking-cannonballs';
 import type { Barrage } from '../cannon/types/barrage';
 import { advanceEnemy } from '../enemy/advance-enemy';
 import { createEnemies } from '../enemy/create-enemies';
+import { crushEnemies } from '../enemy/crush-enemies';
 import { hasFaded } from '../enemy/has-faded';
 import { isStompingEnemy } from '../enemy/is-stomping-enemy';
 import { isTouchingEnemy } from '../enemy/is-touching-enemy';
@@ -117,6 +119,11 @@ const reloadBarrage = (level: GameState['level']): Barrage => ({
   cannonballs: [],
 });
 
+const STOMP_PROOF_KINDS: readonly EnemyKind[] = Object.freeze([
+  'HORNED',
+  'BEARTRAP',
+]);
+
 const stompVictims = (
   previousPlayer: Player,
   player: Player,
@@ -126,7 +133,7 @@ const stompVictims = (
   filter(
     enemies,
     (enemy) =>
-      enemy.kind !== 'HORNED' &&
+      !includes(STOMP_PROOF_KINDS, enemy.kind) &&
       isAlive(enemy) &&
       isStompingEnemy(previousPlayer, player, enemy, deltaSeconds),
   );
@@ -337,9 +344,11 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
           includes(gored, enemy) ? killEnemy(enemy) : enemy,
         ),
       );
-      const enemies = match(alive)
-        .with(true, () => burnEnemies(playerFireballs, shot))
-        .otherwise(() => shot);
+      const enemies = crushEnemies(
+        match(alive)
+          .with(true, () => burnEnemies(playerFireballs, shot))
+          .otherwise(() => shot),
+      );
       const cannonballs = filter(
         flying,
         (cannonball) => !includes(hits, cannonball),

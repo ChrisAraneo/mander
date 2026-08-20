@@ -6,8 +6,8 @@ import { type CanvasStep, type ColorStop, sequence } from '../canvas';
 import { prongStep } from './spike-step';
 
 const FALLING_SPIKE_STOPS: readonly ColorStop[] = [
-  [0, '#7E1B22'],
-  [1, '#F0555E'],
+  [0, '#797D8E'],
+  [1, '#C2C5CF'],
 ];
 
 export const fallingSpikeStep = (spike: FallingSpike): CanvasStep =>

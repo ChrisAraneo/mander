@@ -6,6 +6,7 @@ import { getAlias, parseAlias } from './aliases';
 import {
   __,
   BR,
+  BT,
   CN,
   CR,
   DR,
@@ -20,7 +21,7 @@ import {
   WD,
 } from './consts';
 
-const CELLS = [__, DR, EN, SP, SC, SF, BR, ST, WD, CR, CN, FB, SS, EE];
+const CELLS = [__, DR, EN, BT, SP, SC, SF, BR, ST, WD, CR, CN, FB, SS, EE];
 
 describe('getAlias', () => {
   it('should name every cell the library writes', () => {

@@ -4,6 +4,7 @@ import { match, P } from 'ts-pattern';
 import { overlapsSpike } from '../spike/overlaps-spike';
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from './consts';
 import { killEnemy } from './kill-enemy';
+import { stepBeartrap } from './step-beartrap';
 import { stepDyingEnemy } from './step-dying-enemy';
 import { stepEnemy } from './step-enemy';
 import { stepFlyingEnemy } from './step-flying-enemy';
@@ -18,6 +19,7 @@ const moveAlive = (
 ): Enemy =>
   match(enemy.kind)
     .with('FLYING', () => stepFlyingEnemy(level, enemy, deltaSeconds))
+    .with('BEARTRAP', () => stepBeartrap(level, enemy, player, deltaSeconds))
     .otherwise(() => stepEnemy(level, enemy, player, deltaSeconds));
 
 const patrol = (

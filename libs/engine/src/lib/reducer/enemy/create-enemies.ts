@@ -1,16 +1,18 @@
 import {
   type Enemy,
   type EnemyKind,
+  findBeartrapTiles,
   findEnemyTiles,
   isSolid,
   TILE_SIZE,
 } from '@mander/model';
-import { createRandom } from '@mander/utils';
+import { createRandom, type Point } from '@mander/utils';
 import { map } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import type { GameLevel } from '../../types/game-level';
 import {
+  BEARTRAP_JUMP_VELOCITY,
   ENEMY_HEIGHT,
   ENEMY_JUMP_VELOCITY,
   ENEMY_MOVE_SPEED,
@@ -40,12 +42,36 @@ const kindFor = (isAirborne: boolean, isHorned: boolean): EnemyKind =>
     .with(true, (): EnemyKind => 'FLYING')
     .otherwise(() => groundKindFor(isHorned));
 
-export const createEnemies = (level: GameLevel): Enemy[] => {
+const spawnX = (spawn: Point): number =>
+  spawn.x * TILE_SIZE + (TILE_SIZE - ENEMY_WIDTH) / 2;
+
+const spawnY = (spawn: Point): number =>
+  (spawn.y + 1) * TILE_SIZE - ENEMY_HEIGHT;
+
+const createBeartraps = (level: GameLevel): Enemy[] =>
+  map(findBeartrapTiles(level), (spawn): Enemy => {
+    const x = spawnX(spawn);
+    const y = spawnY(spawn);
+
+    return {
+      kind: 'BEARTRAP',
+      position: { x, y },
+      velocity: {
+        x: { current: 0, max: 0 },
+        y: { current: 0, max: BEARTRAP_JUMP_VELOCITY },
+      },
+      timers: { death: null },
+      spawn: { x, y },
+      statuses: { isFacingRight: true, isGrounded: false },
+    };
+  });
+
+const createPatrols = (level: GameLevel): Enemy[] => {
   const random = createRandom(`${level.seed}#enemies`);
 
-  return map(findEnemyTiles(level), (spawn) => {
-    const x = spawn.x * TILE_SIZE + (TILE_SIZE - ENEMY_WIDTH) / 2;
-    const y = (spawn.y + 1) * TILE_SIZE - ENEMY_HEIGHT;
+  return map(findEnemyTiles(level), (spawn): Enemy => {
+    const x = spawnX(spawn);
+    const y = spawnY(spawn);
     const kind = kindFor(
       !isSolid(level, spawn.x, spawn.y + 1),
       random.chance(level.hornedEnemyChance),
@@ -64,3 +90,8 @@ export const createEnemies = (level: GameLevel): Enemy[] => {
     };
   });
 };
+
+export const createEnemies = (level: GameLevel): Enemy[] => [
+  ...createPatrols(level),
+  ...createBeartraps(level),
+];

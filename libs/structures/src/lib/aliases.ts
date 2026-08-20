@@ -2,6 +2,7 @@ import { map } from 'lodash-es';
 
 import {
   __,
+  BT,
   CN,
   DR,
   EN,
@@ -21,6 +22,7 @@ const ALIAS_MAP = new Map<number, string>([
   [__, '__'],
   [DR, 'DR'],
   [EN, 'EN'],
+  [BT, 'BT'],
   [SP, 'SP'],
   [SC, 'SC'],
   [SF, 'SF'],

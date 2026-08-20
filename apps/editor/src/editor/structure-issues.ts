@@ -1,6 +1,7 @@
 import {
   isSolidTile,
   TILE_AIR,
+  TILE_BEARTRAP,
   TILE_ENEMY,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
@@ -17,6 +18,7 @@ import { match } from 'ts-pattern';
 
 const KNOWN_TILES = [
   TILE_AIR,
+  TILE_BEARTRAP,
   TILE_ENEMY,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
@@ -31,12 +33,13 @@ const countTile = (grid: number[][], tile: number): number =>
 const isKnown = (cell: number): boolean =>
   includes(KNOWN_TILES, cell) || isSolidTile(cell);
 
-const spikesAreAnchored = (grid: number[][]): boolean =>
+const hazardsAreAnchored = (grid: number[][]): boolean =>
   every(grid, (cells, row) =>
     every(cells, (cell, column) =>
       match(cell)
         .with(
           TILE_SPIKE,
+          TILE_BEARTRAP,
           () => row + 1 < size(grid) && isSolidTile(grid[row + 1][column]),
         )
         .with(
@@ -75,8 +78,8 @@ const RULES: Rule[] = [
   },
   {
     message:
-      'a spike needs a block below it, a ceiling or falling spike one above',
-    isValid: spikesAreAnchored,
+      'a spike or beartrap needs a block below it, a ceiling or falling spike one above',
+    isValid: hazardsAreAnchored,
   },
 ];
 

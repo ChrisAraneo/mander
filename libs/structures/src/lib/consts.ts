@@ -1,5 +1,6 @@
 import {
   TILE_AIR,
+  TILE_BEARTRAP,
   TILE_CANNON,
   TILE_DIRT,
   TILE_ENEMY,
@@ -20,6 +21,7 @@ export const STRUCTURE_HEIGHT = 20;
 export const __ = TILE_AIR;
 export const DR = TILE_DIRT;
 export const EN = TILE_ENEMY;
+export const BT = TILE_BEARTRAP;
 export const SP = TILE_SPIKE;
 export const SC = TILE_SPIKE_CEILING;
 export const SF = TILE_SPIKE_FALLING;
