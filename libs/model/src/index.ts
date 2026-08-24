@@ -17,7 +17,7 @@ export * from './lib/key/find-key-tile';
 export * from './lib/player/player';
 export * from './lib/portal/portal-entity-box';
 export * from './lib/portal/find-portal-tile';
-export * from './lib/spike/find-spawn-tile';
+export * from './lib/player/find-spawn-tile';
 export * from './lib/spike/falling-spike';
 export * from './lib/spike/falling-spike-triangles';
 export * from './lib/spike/find-falling-spike-tiles';

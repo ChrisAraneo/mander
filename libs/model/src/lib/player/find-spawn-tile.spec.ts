@@ -5,7 +5,7 @@ import { TILE_DIRT } from '../blocks/dirt';
 import type { Level } from '../level/level';
 import { TILE_SPAWN } from '../player/spawn';
 import type { Tile } from '../tile/tile';
-import { findSpawnTile } from './find-spawn-tile';
+import { findSpawnTile } from '../player/find-spawn-tile';
 
 const level = (tiles: Tile[][]): Level => ({
   seed: 'SEED',
