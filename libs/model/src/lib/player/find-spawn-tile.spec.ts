@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest';
 import { TILE_AIR } from '../air/air';
 import { TILE_DIRT } from '../blocks/dirt';
 import type { Level } from '../level/level';
-import { TILE_SPAWN } from '../player/spawn';
+import { TILE_SPAWN } from './spawn';
 import type { Tile } from '../tile/tile';
-import { findSpawnTile } from '../player/find-spawn-tile';
+import { findSpawnTile } from './find-spawn-tile';
 
 const level = (tiles: Tile[][]): Level => ({
   seed: 'SEED',
