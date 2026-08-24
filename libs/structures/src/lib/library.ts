@@ -237,6 +237,13 @@ import {
   NORMAL_190,
   NORMAL_192,
   NORMAL_193,
+  NORMAL_194,
+  NORMAL_195,
+  NORMAL_196,
+  NORMAL_197,
+  NORMAL_198,
+  NORMAL_199,
+  NORMAL_200,
 } from './normal';
 import type { Structure } from './structure';
 
@@ -480,4 +487,11 @@ export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
   NORMAL_190,
   NORMAL_192,
   NORMAL_193,
+  NORMAL_194,
+  NORMAL_195,
+  NORMAL_196,
+  NORMAL_197,
+  NORMAL_198,
+  NORMAL_199,
+  NORMAL_200,
 ]);
