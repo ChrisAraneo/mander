@@ -29,7 +29,7 @@ import {
   STOMP_BOUNCE_VELOCITY,
 } from './player/consts';
 import {
-  DIAMOND_SCORE,
+  GEM_SCORE,
   LEVEL_SCORE_BASE,
   LEVEL_SCORE_MIN,
   LEVEL_SCORE_PER_SECOND,
@@ -51,15 +51,15 @@ import {
   type Item,
   type Level,
   MAX_JUMP_TILES,
-  PINK_DIAMOND,
-  RED_DIAMOND,
+  PINK_GEM,
+  RED_GEM,
   STAR,
   THREE_BULLETS,
   type Tile,
   TILE_AIR,
   TILE_CANNON,
   TILE_CHEST,
-  TILE_DIAMOND,
+  TILE_GEM,
   TILE_DIRT,
   TILE_ENEMY,
   TILE_KEY,
@@ -2296,29 +2296,28 @@ describe('score', () => {
     expect(totalTime(state.levelTimes)).toBe(40);
   });
 
-  it('pays out a red diamond on the spot', () => {
+  it('pays out a red gem on the spot', () => {
     let state: GameState = {
       ...createInitialState(testLevel(), 0, []),
       status: 'CHEST',
     };
     state = {
       ...state,
-      level: { ...state.level, chestItems: [RED_DIAMOND] },
+      level: { ...state.level, chestItems: [RED_GEM] },
     };
     state = act(state, { type: 'CHOOSE_ITEM', index: 0 });
     expect(state.score).toBe(1500);
   });
 });
 
-describe('diamonds', () => {
-  const DIAMOND_ROW = SURFACE / TILE_SIZE - 2;
+describe('gems', () => {
+  const GEM_ROW = SURFACE / TILE_SIZE - 2;
   const LEFT_COLUMN = 5;
   const RIGHT_COLUMN = 8;
 
   const strewnWith = (columns: number[]): GameLevel => {
     const level = testLevel();
-    for (const column of columns)
-      level.tiles[DIAMOND_ROW][column] = TILE_DIAMOND;
+    for (const column of columns) level.tiles[GEM_ROW][column] = TILE_GEM;
     return level;
   };
 
@@ -2330,16 +2329,16 @@ describe('diamonds', () => {
     return state;
   };
 
-  it('sets out every diamond the level was strewn with', () => {
+  it('sets out every gem the level was strewn with', () => {
     const state = createInitialState(
       strewnWith([LEFT_COLUMN, RIGHT_COLUMN]),
       0,
       [],
     );
 
-    expect(state.diamonds).toEqual([
-      { x: LEFT_COLUMN, y: DIAMOND_ROW },
-      { x: RIGHT_COLUMN, y: DIAMOND_ROW },
+    expect(state.gems).toEqual([
+      { x: LEFT_COLUMN, y: GEM_ROW },
+      { x: RIGHT_COLUMN, y: GEM_ROW },
     ]);
   });
 
@@ -2348,9 +2347,9 @@ describe('diamonds', () => {
       standingAt(strewnWith([LEFT_COLUMN, RIGHT_COLUMN]), LEFT_COLUMN),
     );
 
-    expect(state.score).toBe(DIAMOND_SCORE);
-    expect(state.diamonds, 'and takes it off the ground').toEqual([
-      { x: RIGHT_COLUMN, y: DIAMOND_ROW },
+    expect(state.score).toBe(GEM_SCORE);
+    expect(state.gems, 'and takes it off the ground').toEqual([
+      { x: RIGHT_COLUMN, y: GEM_ROW },
     ]);
   });
 
@@ -2360,7 +2359,7 @@ describe('diamonds', () => {
       120,
     );
 
-    expect(state.score).toBe(DIAMOND_SCORE);
+    expect(state.score).toBe(GEM_SCORE);
   });
 
   it('collects them one after another as the player runs the level', () => {
@@ -2369,8 +2368,8 @@ describe('diamonds', () => {
     });
     state = tickN(state, 240);
 
-    expect(state.score).toBe(DIAMOND_SCORE * 2);
-    expect(state.diamonds).toEqual([]);
+    expect(state.score).toBe(GEM_SCORE * 2);
+    expect(state.gems).toEqual([]);
   });
 
   it('leaves the ones the player never came near', () => {
@@ -2380,7 +2379,7 @@ describe('diamonds', () => {
     );
 
     expect(state.score).toBe(0);
-    expect(state.diamonds).toHaveLength(2);
+    expect(state.gems).toHaveLength(2);
   });
 
   it('keeps the ones already pocketed after a death', () => {
@@ -2389,8 +2388,8 @@ describe('diamonds', () => {
     );
     state = act(state, { type: 'RESPAWN' });
 
-    expect(state.diamonds).toHaveLength(1);
-    expect(state.score).toBe(DIAMOND_SCORE);
+    expect(state.gems).toHaveLength(1);
+    expect(state.score).toBe(GEM_SCORE);
   });
 
   it('strews the next level afresh, keeping what the last one paid', () => {
@@ -2403,8 +2402,8 @@ describe('diamonds', () => {
       levelIndex: 1,
     });
 
-    expect(state.diamonds).toEqual([{ x: LEFT_COLUMN, y: DIAMOND_ROW }]);
-    expect(state.score).toBe(DIAMOND_SCORE);
+    expect(state.gems).toEqual([{ x: LEFT_COLUMN, y: GEM_ROW }]);
+    expect(state.score).toBe(GEM_SCORE);
   });
 
   it('lets no dead player pocket one', () => {
@@ -2416,7 +2415,7 @@ describe('diamonds', () => {
     };
     state = tick(state);
 
-    expect(state.diamonds).toHaveLength(1);
+    expect(state.gems).toHaveLength(1);
     expect(state.score).toBe(0);
   });
 });
@@ -2438,8 +2437,8 @@ describe('items', () => {
     expect(opened(DOUBLE_HEART).player.hearts.value).toBe(BASE_HEARTS + 2);
   });
 
-  it('a red diamond is worth points, not hearts', () => {
-    const state = opened(RED_DIAMOND);
+  it('a red gem is worth points, not hearts', () => {
+    const state = opened(RED_GEM);
     expect(state.player.hearts.value).toBe(BASE_HEARTS);
     expect(state.score).toBe(1500);
   });
@@ -2450,8 +2449,8 @@ describe('items', () => {
     expect(opened(TRIPLE_STAR).stars).toBe(3);
   });
 
-  it('a pink diamond is worth 2750 points', () => {
-    const state = opened(PINK_DIAMOND);
+  it('a pink gem is worth 2750 points', () => {
+    const state = opened(PINK_GEM);
 
     expect(state.score).toBe(2750);
     expect(state.player.hearts.value, 'and no hearts').toBe(BASE_HEARTS);

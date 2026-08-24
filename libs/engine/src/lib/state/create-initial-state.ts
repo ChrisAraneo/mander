@@ -1,4 +1,4 @@
-import { findDiamondTiles, type Item } from '@mander/model';
+import { findGemTiles, type Item } from '@mander/model';
 import { chain } from '@mander/utils';
 
 import type { GameLevel } from '../types/game-level';
@@ -33,7 +33,7 @@ export const createInitialState = (
       bullets: [],
       ammo: startingAmmo(inventory),
       stars: startingStars(inventory),
-      diamonds: findDiamondTiles(level),
+      gems: findGemTiles(level),
       input: { isLeft: false, isRight: false, isJump: false },
       status: 'PLAYING',
       hasKey: false,

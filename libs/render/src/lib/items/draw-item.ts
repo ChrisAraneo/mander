@@ -6,7 +6,7 @@ import { bulletBodyStep, ICE_BULLET } from '../bullet';
 import { type CanvasStep, paint, sequence } from '../canvas';
 import { flameStep, WHITE_FIREBALL } from '../fireball';
 import { bootStep, helmetStep } from '../gear';
-import { gemStep } from '../gem';
+import { gemShapeStep } from '../gem-shape';
 import { type StarColors, starStep } from '../star';
 import { heartStep } from './heart-step';
 import { type ItemArt, itemArt } from './item-art';
@@ -208,7 +208,7 @@ const artStep = (art: ItemArt, size: number): CanvasStep =>
   match(art)
     .with({ kind: 'HEARTS' }, ({ count }) => heartsStep(count, size))
     .with({ kind: 'GEM' }, ({ colors }) =>
-      gemStep(
+      gemShapeStep(
         size / 2,
         size / 2,
         size * GEM_WIDTH,

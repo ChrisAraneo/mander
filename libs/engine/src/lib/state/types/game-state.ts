@@ -27,7 +27,7 @@ export interface GameState {
   bullets: Bullet[];
   ammo: number;
   stars: number;
-  diamonds: Point[];
+  gems: Point[];
   input: InputState;
   status: GameStatus;
   hasKey: boolean;

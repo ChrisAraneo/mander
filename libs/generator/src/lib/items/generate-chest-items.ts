@@ -1,18 +1,18 @@
 import {
-  BLUE_DIAMOND,
+  BLUE_GEM,
   BOOTS_OF_CLOUDS,
   BULLET,
   DOUBLE_HEART,
   DOUBLE_STAR,
   FOUR_BULLETS,
-  GREEN_DIAMOND,
+  GREEN_GEM,
   HEART,
   type Item,
   type ItemRarity,
   MOON_MAGNET,
-  PINK_DIAMOND,
-  PURPLE_DIAMOND,
-  RED_DIAMOND,
+  PINK_GEM,
+  PURPLE_GEM,
+  RED_GEM,
   STAR,
   THREE_BULLETS,
   TITANIUM_HELMET,
@@ -20,7 +20,7 @@ import {
   TRIPLE_STAR,
   TWO_BULLETS,
   VAMPIRE_SLAYER_BULLET_RAIN,
-  YELLOW_DIAMOND,
+  YELLOW_GEM,
 } from '@mander/model';
 import { createRandom } from '@mander/utils';
 import {
@@ -53,14 +53,7 @@ export const CHEST_ITEM_TYPES: readonly ChestItemType[] = Object.freeze([
 ]);
 
 const POOL_BY_TYPE: Readonly<Record<ChestItemType, Item[]>> = Object.freeze({
-  GEM: [
-    RED_DIAMOND,
-    GREEN_DIAMOND,
-    YELLOW_DIAMOND,
-    BLUE_DIAMOND,
-    PURPLE_DIAMOND,
-    PINK_DIAMOND,
-  ],
+  GEM: [RED_GEM, GREEN_GEM, YELLOW_GEM, BLUE_GEM, PURPLE_GEM, PINK_GEM],
   BULLET: [
     BULLET,
     TWO_BULLETS,

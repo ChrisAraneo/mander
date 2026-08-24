@@ -1,7 +1,7 @@
 import {
   type Cannonball,
   CHEST_ENTITY_BOX,
-  DIAMOND_ENTITY_BOX,
+  GEM_ENTITY_BOX,
   type Enemy,
   type EnemyKind,
   type FallingSpike,
@@ -50,7 +50,7 @@ import { isAlive } from '../player/is-alive';
 import { killPlayer } from '../player/kill-player';
 import { stepPlayer } from '../player/step-player';
 import { stepPlayerDeath } from '../player/step-player-death';
-import { DIAMOND_SCORE } from '../score/consts';
+import { GEM_SCORE } from '../score/consts';
 import { overlapsSpikeFacing } from '../spike/overlaps-spike';
 import { bitingSpikes } from '../ward/biting-spikes';
 import type { GameState } from '../../state/types/game-state';
@@ -239,11 +239,8 @@ const gameOver = (state: GameState, player: Player): Outcome => ({
   status: 'GAME_OVER',
 });
 
-const leftBehind = (player: Player, diamonds: Point[]): Point[] =>
-  filter(
-    diamonds,
-    (diamond) => !isNearTile(player, diamond, DIAMOND_ENTITY_BOX, PICKUP_RANGE),
-  );
+const leftBehind = (player: Player, gems: Point[]): Point[] =>
+  filter(gems, (gem) => !isNearTile(player, gem, GEM_ENTITY_BOX, PICKUP_RANGE));
 
 const resolveHarm = (
   state: GameState,
@@ -354,9 +351,9 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         (cannonball) => !includes(hits, cannonball),
       );
       const canReach = isAlive(player);
-      const diamonds = match(canReach)
-        .with(true, () => leftBehind(player, state.diamonds))
-        .otherwise((): Point[] => state.diamonds);
+      const gems = match(canReach)
+        .with(true, () => leftBehind(player, state.gems))
+        .otherwise((): Point[] => state.gems);
 
       return {
         ...state,
@@ -368,12 +365,11 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         fireballs,
         playerFireballs,
         bullets,
-        diamonds,
+        gems,
         deaths,
         status,
         time: state.time + deltaSeconds,
-        score:
-          state.score + (size(state.diamonds) - size(diamonds)) * DIAMOND_SCORE,
+        score: state.score + (size(state.gems) - size(gems)) * GEM_SCORE,
         hasKey:
           state.hasKey ||
           (canReach &&

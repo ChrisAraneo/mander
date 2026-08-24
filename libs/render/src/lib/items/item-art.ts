@@ -1,31 +1,31 @@
 import {
-  BLUE_DIAMOND,
+  BLUE_GEM,
   BOOTS_OF_CLOUDS,
   DOUBLE_HEART,
   DOUBLE_STAR,
-  GREEN_DIAMOND,
+  GREEN_GEM,
   type HazardKind,
   HEART,
   type Item,
-  PINK_DIAMOND,
-  PURPLE_DIAMOND,
-  RED_DIAMOND,
+  PINK_GEM,
+  PURPLE_GEM,
+  RED_GEM,
   STAR,
   TITANIUM_HELMET,
   TRIPLE_HEART,
-  YELLOW_DIAMOND,
+  YELLOW_GEM,
 } from '@mander/model';
 import { match } from 'ts-pattern';
 
 import {
-  BLUE_GEM,
+  BLUE_GEM_COLORS,
   type GemColors,
-  GREEN_GEM,
-  PINK_GEM,
-  PURPLE_GEM,
-  RED_GEM,
-  YELLOW_GEM,
-} from '../gem';
+  GREEN_GEM_COLORS,
+  PINK_GEM_COLORS,
+  PURPLE_GEM_COLORS,
+  RED_GEM_COLORS,
+  YELLOW_GEM_COLORS,
+} from '../gem-shape';
 import { GOLD_STAR, type StarColors } from '../star';
 
 export type ItemArt =
@@ -63,12 +63,12 @@ const ART_BY_ITEM_ID: Readonly<Partial<Record<string, ItemArt>>> =
     [TRIPLE_HEART.id]: heartsArt(3),
     [STAR.id]: starsArt(1),
     [DOUBLE_STAR.id]: starsArt(2),
-    [RED_DIAMOND.id]: gemArt(RED_GEM),
-    [GREEN_DIAMOND.id]: gemArt(GREEN_GEM),
-    [YELLOW_DIAMOND.id]: gemArt(YELLOW_GEM),
-    [BLUE_DIAMOND.id]: gemArt(BLUE_GEM),
-    [PURPLE_DIAMOND.id]: gemArt(PURPLE_GEM),
-    [PINK_DIAMOND.id]: gemArt(PINK_GEM),
+    [RED_GEM.id]: gemArt(RED_GEM_COLORS),
+    [GREEN_GEM.id]: gemArt(GREEN_GEM_COLORS),
+    [YELLOW_GEM.id]: gemArt(YELLOW_GEM_COLORS),
+    [BLUE_GEM.id]: gemArt(BLUE_GEM_COLORS),
+    [PURPLE_GEM.id]: gemArt(PURPLE_GEM_COLORS),
+    [PINK_GEM.id]: gemArt(PINK_GEM_COLORS),
     [BOOTS_OF_CLOUDS.id]: { kind: 'BOOTS' },
     [TITANIUM_HELMET.id]: { kind: 'HELMET' },
   });
@@ -80,7 +80,7 @@ const artFromEffect = (item: Item): ItemArt =>
     .with({ kind: 'BULLET' }, ({ amount }) => bulletsArt(amount))
     .with({ kind: 'FIREBALL' }, ({ amount }) => fireballsArt(amount))
     .with({ kind: 'WARD' }, ({ hazard }) => wardArt(hazard))
-    .otherwise(() => gemArt(RED_GEM));
+    .otherwise(() => gemArt(RED_GEM_COLORS));
 
 export const itemArt = (item: Item): ItemArt =>
   ART_BY_ITEM_ID[item.id] ?? artFromEffect(item);

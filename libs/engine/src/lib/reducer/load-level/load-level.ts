@@ -1,4 +1,4 @@
-import { findDiamondTiles } from '@mander/model';
+import { findGemTiles } from '@mander/model';
 import { chain } from '@mander/utils';
 
 import type { GameState } from '../../state/types/game-state';
@@ -27,7 +27,7 @@ export const loadLevel = (
       fireballs: createFireballs(level),
       playerFireballs: createPlayerFireballs(state.inventory, player),
       bullets: [],
-      diamonds: findDiamondTiles(level),
+      gems: findGemTiles(level),
       status: 'PLAYING',
       hasKey: false,
       isChestOpened: false,

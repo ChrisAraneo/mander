@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { TILE_AIR } from '../air/air';
 import { TILE_CHEST } from '../chest/chest';
-import { TILE_DIAMOND } from '../diamond/diamond';
+import { TILE_GEM } from '../gem/gem';
 import { TILE_ENEMY } from '../enemies/enemy-spawn';
 import { TILE_KEY } from '../key/key';
 import { TILE_SPAWN } from '../player/spawn';
@@ -47,7 +47,7 @@ describe('isSolidTile', () => {
           TILE_PORTAL,
           TILE_ENEMY,
           TILE_SPAWN,
-          TILE_DIAMOND,
+          TILE_GEM,
         ],
         isSolidTile,
       ),

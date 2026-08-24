@@ -20,7 +20,7 @@ import { createInitialState } from '../../state/create-initial-state';
 import type { GameState } from '../../state/types/game-state';
 import { HORNED_ENEMY_CHANCE } from '../enemy/consts';
 import { createBasePlayerVelocity } from '../player/create-base-player-velocity';
-import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../player/consts';
+import { BASE_HEARTS, PLAYER_HEIGHT, PLAYER_WIDTH } from '../player/consts';
 import { reduce } from '../reduce';
 import { advanceFallingSpikes } from './advance-falling-spikes';
 import { FALLING_SPIKE_TRIGGER_TILES } from './consts';
@@ -249,12 +249,12 @@ describe('a level being played', () => {
   it('costs a heart to the player it lands on, and shatters on the floor', () => {
     const struck = played([], 60);
 
-    expect(struck.player.hearts.value).toBe(2);
+    expect(struck.player.hearts.value).toBe(BASE_HEARTS - 1);
     expect(struck.fallingSpikes).toEqual([]);
   });
 
   it('glances off the helmet that turns the ceiling spikes it left', () => {
-    expect(played([TITANIUM_HELMET], 60).player.hearts.value).toBe(3);
+    expect(played([TITANIUM_HELMET], 60).player.hearts.value).toBe(BASE_HEARTS);
   });
 
   it('hangs again when the player respawns, as the enemies do', () => {

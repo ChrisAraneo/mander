@@ -2,7 +2,7 @@ import {
   isSolidTile,
   type Tile,
   TILE_AIR,
-  TILE_DIAMOND,
+  TILE_GEM,
   TILE_DIRT,
   TILE_SPIKE,
 } from '@mander/model';
@@ -23,9 +23,9 @@ import {
 import { describe, expect, it } from 'vitest';
 
 import { generate } from '../generate';
-import { addDiamonds } from './add-diamonds';
+import { addGems } from './add-gems';
 
-const DIAMONDS_PER_STRUCTURE = 5;
+const GEMS_PER_STRUCTURE = 5;
 
 const REST_HEIGHT = 2;
 
@@ -49,12 +49,12 @@ const flatGround = (): Tile[][] => {
   return tiles;
 };
 
-const diamondsIn = (tiles: Tile[][]): Cell[] =>
+const gemsIn = (tiles: Tile[][]): Cell[] =>
   flatten(
     map(tiles, (cells, row) =>
       filter(
         map(cells, (tile, column) => ({ tile, row, column })),
-        ({ tile }) => tile === TILE_DIAMOND,
+        ({ tile }) => tile === TILE_GEM,
       ),
     ),
   );
@@ -65,34 +65,34 @@ const fingerprint = (tiles: Tile[][]): string =>
     '|',
   );
 
-describe('addDiamonds', () => {
-  it('strews five diamonds over every structure the level is built from', () => {
-    const strewn = addDiamonds(flatGround());
+describe('addGems', () => {
+  it('strews five gems over every structure the level is built from', () => {
+    const strewn = addGems(flatGround());
 
-    expect(size(diamondsIn(strewn))).toBe(
-      (WIDTH / STRUCTURE_WIDTH) * DIAMONDS_PER_STRUCTURE,
+    expect(size(gemsIn(strewn))).toBe(
+      (WIDTH / STRUCTURE_WIDTH) * GEMS_PER_STRUCTURE,
     );
   });
 
   it('shares them out evenly, structure by structure', () => {
-    const strewn = addDiamonds(flatGround());
-    const perStructure = countBy(diamondsIn(strewn), ({ column }) =>
+    const strewn = addGems(flatGround());
+    const perStructure = countBy(gemsIn(strewn), ({ column }) =>
       Math.floor(column / STRUCTURE_WIDTH),
     );
 
     expect(values(perStructure)).toEqual(
-      times(WIDTH / STRUCTURE_WIDTH, () => DIAMONDS_PER_STRUCTURE),
+      times(WIDTH / STRUCTURE_WIDTH, () => GEMS_PER_STRUCTURE),
     );
   });
 
   it('rests each one two blocks over the ground it sits above', () => {
-    const strewn = addDiamonds(flatGround());
-    const diamonds = diamondsIn(strewn);
+    const strewn = addGems(flatGround());
+    const gems = gemsIn(strewn);
 
-    expect(size(diamonds)).toBeGreaterThan(0);
+    expect(size(gems)).toBeGreaterThan(0);
     expect(
       every(
-        diamonds,
+        gems,
         ({ row, column }) =>
           isSolidTile(strewn[row + REST_HEIGHT][column]) &&
           strewn[row + 1][column] === TILE_AIR,
@@ -101,18 +101,18 @@ describe('addDiamonds', () => {
   });
 
   it('leaves a block of air over every one of them', () => {
-    const strewn = addDiamonds(flatGround());
+    const strewn = addGems(flatGround());
 
     expect(
       every(
-        diamondsIn(strewn),
+        gemsIn(strewn),
         ({ row, column }) => strewn[row - 1][column] === TILE_AIR,
       ),
     ).toBe(true);
   });
 
   it('never sets two of them shoulder to shoulder', () => {
-    const columns = map(diamondsIn(addDiamonds(flatGround())), 'column');
+    const columns = map(gemsIn(addGems(flatGround())), 'column');
 
     expect(
       filter(columns, (column) =>
@@ -128,10 +128,10 @@ describe('addDiamonds', () => {
       tiles[GROUND_ROW - 1][column] = TILE_SPIKE;
     });
 
-    const strewn = addDiamonds(tiles);
+    const strewn = addGems(tiles);
 
     expect(
-      filter(diamondsIn(strewn), ({ column }) => column >= 4 && column <= 7),
+      filter(gemsIn(strewn), ({ column }) => column >= 4 && column <= 7),
     ).toEqual([]);
   });
 
@@ -139,25 +139,25 @@ describe('addDiamonds', () => {
     const tiles = blank();
     tiles[1] = times(WIDTH, () => TILE_DIRT);
 
-    expect(diamondsIn(addDiamonds(tiles))).toEqual([]);
+    expect(gemsIn(addGems(tiles))).toEqual([]);
   });
 
   it('leaves the ground it was given untouched', () => {
     const tiles = flatGround();
     const before = fingerprint(tiles);
 
-    addDiamonds(tiles);
+    addGems(tiles);
 
     expect(fingerprint(tiles)).toBe(before);
   });
 
   it('strews the same ground the same way twice', () => {
-    expect(fingerprint(addDiamonds(flatGround()))).toBe(
-      fingerprint(addDiamonds(flatGround())),
+    expect(fingerprint(addGems(flatGround()))).toBe(
+      fingerprint(addGems(flatGround())),
     );
   });
 
-  it('hands every level of a dealt day its diamonds', () => {
+  it('hands every level of a dealt day its gems', () => {
     const bare = filter(
       flatten(
         map(
@@ -165,11 +165,11 @@ describe('addDiamonds', () => {
           (date) =>
             map(generate(date).levels, (level, index) => ({
               index,
-              diamonds: size(diamondsIn(level.tiles)),
+              gems: size(gemsIn(level.tiles)),
             })),
         ),
       ),
-      ({ diamonds }) => diamonds === 0,
+      ({ gems }) => gems === 0,
     );
 
     expect(bare).toEqual([]);

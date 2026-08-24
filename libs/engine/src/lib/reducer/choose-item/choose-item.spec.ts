@@ -3,7 +3,7 @@ import {
   DOUBLE_HEART,
   type Item,
   MOON_MAGNET,
-  RED_DIAMOND,
+  RED_GEM,
   STAR,
   TILE_DIRT,
   TWO_BULLETS,
@@ -62,19 +62,19 @@ describe('chooseItem', () => {
   });
 
   it('should take the item at the given index when several are offered', () => {
-    const state = openChest([trinket('FIRST'), RED_DIAMOND, trinket('LAST')]);
+    const state = openChest([trinket('FIRST'), RED_GEM, trinket('LAST')]);
     const chosen = chooseItem(state, 1);
 
-    expect(chosen.inventory).toEqual([RED_DIAMOND]);
+    expect(chosen.inventory).toEqual([RED_GEM]);
     expect(chosen.score).toBe(1500);
   });
 
   it('should keep what the inventory held when an item is taken', () => {
     const held = trinket('HELD');
 
-    expect(chooseItem(openChest([RED_DIAMOND], [held]), 0).inventory).toEqual([
+    expect(chooseItem(openChest([RED_GEM], [held]), 0).inventory).toEqual([
       held,
-      RED_DIAMOND,
+      RED_GEM,
     ]);
   });
 
@@ -87,7 +87,7 @@ describe('chooseItem', () => {
   });
 
   it('should add to the score already run up when the item scores', () => {
-    const state: GameState = { ...openChest([RED_DIAMOND]), score: 100 };
+    const state: GameState = { ...openChest([RED_GEM]), score: 100 };
 
     expect(chooseItem(state, 0).score).toBe(100 + 1500);
   });
@@ -113,7 +113,7 @@ describe('chooseItem', () => {
   });
 
   it('should leave the player unescorted when the item is anything else', () => {
-    expect(chooseItem(openChest([RED_DIAMOND]), 0).playerFireballs).toEqual([]);
+    expect(chooseItem(openChest([RED_GEM]), 0).playerFireballs).toEqual([]);
   });
 
   it('should keep a card of one kind from wiping out what another kind gave', () => {
@@ -168,7 +168,7 @@ describe('chooseItem', () => {
   });
 
   it('should leave the given state untouched when an item is taken', () => {
-    const state = openChest([RED_DIAMOND, DOUBLE_HEART]);
+    const state = openChest([RED_GEM, DOUBLE_HEART]);
 
     chooseItem(state, 0);
 
@@ -180,13 +180,13 @@ describe('chooseItem', () => {
   });
 
   it('should leave the state alone when the index runs past the end', () => {
-    const state = openChest([RED_DIAMOND]);
+    const state = openChest([RED_GEM]);
 
     expect(chooseItem(state, 1)).toBe(state);
   });
 
   it('should leave the state alone when the index falls below zero', () => {
-    const state = openChest([RED_DIAMOND]);
+    const state = openChest([RED_GEM]);
 
     expect(chooseItem(state, -1)).toBe(state);
   });
@@ -199,7 +199,7 @@ describe('chooseItem', () => {
 
   it('should leave the state alone when the player is still playing', () => {
     const state: GameState = {
-      ...openChest([RED_DIAMOND]),
+      ...openChest([RED_GEM]),
       status: 'PLAYING',
     };
 
@@ -208,10 +208,10 @@ describe('chooseItem', () => {
 
   it('should leave the state alone when the run has already ended', () => {
     const lost: GameState = {
-      ...openChest([RED_DIAMOND]),
+      ...openChest([RED_GEM]),
       status: 'GAME_OVER',
     };
-    const won: GameState = { ...openChest([RED_DIAMOND]), status: 'COMPLETE' };
+    const won: GameState = { ...openChest([RED_GEM]), status: 'COMPLETE' };
 
     expect(chooseItem(lost, 0)).toBe(lost);
     expect(chooseItem(won, 0)).toBe(won);

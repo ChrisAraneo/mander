@@ -1,3 +1,3 @@
 import type { Tile } from '../tile/tile';
 
-export const TILE_DIAMOND: Tile = 13;
+export const TILE_GEM: Tile = 13;

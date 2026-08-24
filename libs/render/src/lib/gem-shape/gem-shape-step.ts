@@ -20,7 +20,7 @@ const CROWN = 0.25;
 
 const FACET_ALPHA = 0.45;
 
-const traceGem = (
+const traceGemShape = (
   centerX: number,
   centerY: number,
   halfWidth: number,
@@ -49,7 +49,7 @@ const traceFacet = (
     closePath,
   ]);
 
-const gemFill = (
+const gemShapeFill = (
   context: CanvasRenderingContext2D,
   centerX: number,
   centerY: number,
@@ -69,7 +69,7 @@ const gemFill = (
     ],
   );
 
-export const gemStep = (
+export const gemShapeStep = (
   centerX: number,
   centerY: number,
   halfWidth: number,
@@ -80,10 +80,10 @@ export const gemStep = (
   sequence([
     save,
     styled({ shadowColor: colors.glow, shadowBlur: glowBlur }),
-    traceGem(centerX, centerY, halfWidth, halfHeight),
+    traceGemShape(centerX, centerY, halfWidth, halfHeight),
     outline(),
     styledWith((context) => ({
-      fillStyle: gemFill(context, centerX, centerY, halfHeight, colors),
+      fillStyle: gemShapeFill(context, centerX, centerY, halfHeight, colors),
     })),
     fill,
     restore,

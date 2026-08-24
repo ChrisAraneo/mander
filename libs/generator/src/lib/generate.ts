@@ -4,7 +4,7 @@ import type { Structure } from '@mander/structures';
 import { floor, map, size, slice } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { addChest } from './structures/add-chest';
-import { addDiamonds } from './structures/add-diamonds';
+import { addGems } from './structures/add-gems';
 import { computeLevelSeeds } from './seed/compute-level-seeds';
 import { addPadding } from './structures/add-padding';
 import { addPlayerSpawn } from './structures/add-player-spawn';
@@ -93,8 +93,8 @@ export const generate = (date: Date): RenderedWorld => {
     const withSpikes = clearSpikes(withPadding, levelNumber);
     const withKey = addKey(withSpikes);
     const withChest = addChest(withKey);
-    const withDiamonds = addDiamonds(withChest);
-    const withStones = addStones(withDiamonds);
+    const withGems = addGems(withChest);
+    const withStones = addStones(withGems);
     const withMirror = isMirrored(levelNumber)
       ? mirrorTiles(withStones)
       : withStones;

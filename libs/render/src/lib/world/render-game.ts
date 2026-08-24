@@ -15,7 +15,7 @@ import {
 import { drawBullets } from '../bullet';
 import { drawCannon, drawCannonballs } from '../cannon';
 import { drawChest } from '../chest';
-import { drawDiamonds } from '../diamond';
+import { drawGems } from '../gem';
 import { drawEnemy } from '../enemies';
 import { drawFireballs, drawPlayerFireballs } from '../fireball';
 import { type Focus, playerFocus } from '../focus';
@@ -90,7 +90,7 @@ export const renderGame = (
             run((target) => drawCannon(target, cannon)),
           ),
         ),
-        run((target) => drawDiamonds(target, state)),
+        run((target) => drawGems(target, state)),
         run((target) => drawKey(target, state)),
         run((target) => drawChest(target, state)),
         run((target) => drawPortal(target, state)),

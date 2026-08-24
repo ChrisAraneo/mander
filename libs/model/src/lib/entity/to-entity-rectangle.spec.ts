@@ -2,7 +2,7 @@ import { forEach } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { CHEST_ENTITY_BOX } from '../chest/chest-entity-box';
-import { DIAMOND_ENTITY_BOX } from '../diamond/diamond-entity-box';
+import { GEM_ENTITY_BOX } from '../gem/gem-entity-box';
 import { KEY_ENTITY_BOX } from '../key/key-entity-box';
 import { PORTAL_ENTITY_BOX } from '../portal/portal-entity-box';
 import { TILE_SIZE } from '../tile/consts';
@@ -62,8 +62,8 @@ describe('toEntityRectangle', () => {
     });
   });
 
-  it('should float the box clear of the floor of its tile when it belongs to the key or the diamond', () => {
-    forEach([KEY_ENTITY_BOX, DIAMOND_ENTITY_BOX], (box) => {
+  it('should float the box clear of the floor of its tile when it belongs to the key or the gem', () => {
+    forEach([KEY_ENTITY_BOX, GEM_ENTITY_BOX], (box) => {
       const rectangle = toEntityRectangle({ x: 5, y: 6 }, box);
 
       expect(rectangle.y + rectangle.height).toBeLessThan(7 * TILE_SIZE);

@@ -1,4 +1,4 @@
-import { isSolidTile, type Tile, TILE_AIR, TILE_DIAMOND } from '@mander/model';
+import { isSolidTile, type Tile, TILE_AIR, TILE_GEM } from '@mander/model';
 import { STRUCTURE_WIDTH } from '@mander/structures';
 import { chain, createRandom } from '@mander/utils';
 import {
@@ -19,9 +19,9 @@ import { patchTiles, type TilePatch } from './patch-tiles';
 
 const { nullish } = P;
 
-const DIAMONDS_PER_STRUCTURE = 5;
+const GEMS_PER_STRUCTURE = 5;
 
-const SLOT_WIDTH = STRUCTURE_WIDTH / DIAMONDS_PER_STRUCTURE;
+const SLOT_WIDTH = STRUCTURE_WIDTH / GEMS_PER_STRUCTURE;
 
 const REST_HEIGHT = 2;
 
@@ -70,11 +70,11 @@ const slotColumns = (width: number, band: number, slot: number): number[] =>
   );
 
 const slots = (width: number): number[][] =>
-  map(range(ceil(width / STRUCTURE_WIDTH) * DIAMONDS_PER_STRUCTURE), (index) =>
+  map(range(ceil(width / STRUCTURE_WIDTH) * GEMS_PER_STRUCTURE), (index) =>
     slotColumns(
       width,
-      floor(index / DIAMONDS_PER_STRUCTURE),
-      index % DIAMONDS_PER_STRUCTURE,
+      floor(index / GEMS_PER_STRUCTURE),
+      index % GEMS_PER_STRUCTURE,
     ),
   );
 
@@ -98,14 +98,14 @@ const sowSlot = (
             {
               row: surfaceRow(tiles, found) - REST_HEIGHT,
               column: found,
-              tile: TILE_DIAMOND,
+              tile: TILE_GEM,
             },
           ],
         })),
     )
     .value();
 
-export const addDiamonds = (tiles: Tile[][]): Tile[][] =>
+export const addGems = (tiles: Tile[][]): Tile[][] =>
   chain(createRandom(seedOf(tiles)))
     .thru((random) =>
       reduce(

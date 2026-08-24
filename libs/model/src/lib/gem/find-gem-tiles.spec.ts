@@ -4,8 +4,8 @@ import { TILE_AIR } from '../air/air';
 import { TILE_DIRT } from '../blocks/dirt';
 import type { Level } from '../level/level';
 import type { Tile } from '../tile/tile';
-import { TILE_DIAMOND } from './diamond';
-import { findDiamondTiles } from './find-diamond-tiles';
+import { TILE_GEM } from './gem';
+import { findGemTiles } from './find-gem-tiles';
 
 const level = (tiles: Tile[][]): Level => ({
   seed: 'SEED',
@@ -15,13 +15,13 @@ const level = (tiles: Tile[][]): Level => ({
   chestItems: [],
 });
 
-describe('findDiamondTiles', () => {
-  it('should gather every diamond when the level is strewn with them', () => {
+describe('findGemTiles', () => {
+  it('should gather every gem when the level is strewn with them', () => {
     expect(
-      findDiamondTiles(
+      findGemTiles(
         level([
-          [TILE_DIAMOND, TILE_AIR, TILE_DIAMOND],
-          [TILE_AIR, TILE_DIAMOND, TILE_AIR],
+          [TILE_GEM, TILE_AIR, TILE_GEM],
+          [TILE_AIR, TILE_GEM, TILE_AIR],
           [TILE_DIRT, TILE_DIRT, TILE_DIRT],
         ]),
       ),
@@ -32,20 +32,20 @@ describe('findDiamondTiles', () => {
     ]);
   });
 
-  it('should gather the one diamond when the level holds a single one', () => {
+  it('should gather the one gem when the level holds a single one', () => {
     expect(
-      findDiamondTiles(
+      findGemTiles(
         level([
-          [TILE_AIR, TILE_DIAMOND],
+          [TILE_AIR, TILE_GEM],
           [TILE_DIRT, TILE_DIRT],
         ]),
       ),
     ).toEqual([{ x: 1, y: 0 }]);
   });
 
-  it('should gather nothing when the level holds no diamond', () => {
+  it('should gather nothing when the level holds no gem', () => {
     expect(
-      findDiamondTiles(
+      findGemTiles(
         level([
           [TILE_AIR, TILE_AIR],
           [TILE_DIRT, TILE_DIRT],

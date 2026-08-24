@@ -1,7 +1,7 @@
 import type { Point } from '@mander/utils';
 import { findTiles } from '../tile/find-tiles';
 import type { Level } from '../level/level';
-import { TILE_DIAMOND } from './diamond';
+import { TILE_GEM } from './gem';
 
-export const findDiamondTiles = (level: Level): Point[] =>
-  findTiles(level, TILE_DIAMOND);
+export const findGemTiles = (level: Level): Point[] =>
+  findTiles(level, TILE_GEM);

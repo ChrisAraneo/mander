@@ -1,8 +1,8 @@
 import { paint } from '../canvas';
 import type { GemColors } from './gem-colors';
-import { gemStep } from './gem-step';
+import { gemShapeStep } from './gem-shape-step';
 
-export const drawGem = (
+export const drawGemShape = (
   context: CanvasRenderingContext2D,
   centerX: number,
   centerY: number,
@@ -13,5 +13,5 @@ export const drawGem = (
 ): void =>
   paint(
     context,
-    gemStep(centerX, centerY, halfWidth, halfHeight, colors, glowBlur),
+    gemShapeStep(centerX, centerY, halfWidth, halfHeight, colors, glowBlur),
   );

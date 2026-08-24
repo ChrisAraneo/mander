@@ -1,6 +1,6 @@
 import type { EntityBox } from '../entity/entity-box';
 
-export const DIAMOND_ENTITY_BOX: EntityBox = {
+export const GEM_ENTITY_BOX: EntityBox = {
   offsetX: 8,
   offsetY: -24,
   width: 16,

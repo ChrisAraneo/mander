@@ -18,7 +18,7 @@ import { createInitialState } from '../../state/create-initial-state';
 import type { GameState } from '../../state/types/game-state';
 import type { GameLevel } from '../../types/game-level';
 import { createBasePlayerVelocity } from '../player/create-base-player-velocity';
-import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../player/consts';
+import { BASE_HEARTS, PLAYER_HEIGHT, PLAYER_WIDTH } from '../player/consts';
 import { reduce } from '../reduce';
 import {
   BEARTRAP_JUMP_TILES,
@@ -351,7 +351,7 @@ describe('a level being played', () => {
   it('costs the player a heart when it snaps shut on them', () => {
     const bitten = played(withSpawn(TRAP_COLUMN, FLOOR_ROW - 5), 90);
 
-    expect(bitten.player.hearts.value).toBe(2);
+    expect(bitten.player.hearts.value).toBe(BASE_HEARTS - 1);
   });
 
   it('survives the player dropping onto it', () => {
@@ -390,7 +390,7 @@ describe('a level being played', () => {
   it('leaves the player alone across the room', () => {
     const safe = played(withSpawn(TRAP_COLUMN + 8, FLOOR_ROW - 1), 90);
 
-    expect(safe.player.hearts.value).toBe(3);
+    expect(safe.player.hearts.value).toBe(BASE_HEARTS);
   });
 
   it('springs at the player who tries to jump clean over it', () => {
@@ -419,7 +419,7 @@ describe('a level being played', () => {
 
     expect(leftTheGround, 'the player really jumped').toBe(true);
     expect(sprang, 'the trap went off').toBe(true);
-    expect(state.player.hearts.value, 'and caught them').toBe(2);
+    expect(state.player.hearts.value, 'and caught them').toBe(BASE_HEARTS - 1);
   });
 
   it('is laid again when the player respawns, as the enemies are', () => {
