@@ -44,6 +44,7 @@ import {
   HARD_043,
   HARD_044,
   HARD_045,
+  HARD_046,
 } from './hard';
 import {
   NORMAL_001,
@@ -293,6 +294,7 @@ export const HARD_STRUCTURES: readonly Structure[] = Object.freeze([
   HARD_043,
   HARD_044,
   HARD_045,
+  HARD_046,
 ]);
 
 export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([

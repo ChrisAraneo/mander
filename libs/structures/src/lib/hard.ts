@@ -1,5 +1,5 @@
 import type { Structure } from './structure';
-import { BR, BT, CN, CR, DR, EE, EN, SC, SP, SS, ST, WD, __, FB } from './consts';
+import { BR, BT, CN, CR, DR, EE, EN, SC, SP, SS, ST, WD, __, FB, SF } from './consts';
 
 export const HARD_001: Structure = [
   [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
@@ -1034,4 +1034,27 @@ export const HARD_045: Structure = [
   [DR, DR, __, __, __, ST, __, __, __, ST, __, __, __, ST, __, __, __, DR, DR, DR],
   [DR, DR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR, DR],
   [DR, DR, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, DR, DR, DR],
+];
+
+export const HARD_046: Structure = [
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, EN, __, __, __, EN, __, __, __, __, __, __, EN, __, __, __, EN, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, SP, __, __, __, __, __, __, EN, __, EN, __, __, __, __, __, __, __, SP, __],
+  [__, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, __],
+  [__, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, __],
+  [__, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, __],
+  [__, ST, ST, ST, ST, ST, ST, ST, ST, ST, ST, ST, ST, ST, ST, ST, ST, ST, ST, __],
+  [__, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, __],
+  [__, ST, ST, ST, ST, ST, ST, ST, CR, ST, ST, CR, ST, ST, ST, ST, ST, ST, ST, __],
+  [__, SF, __, __, SF, __, __, SF, __, SC, SC, __, SF, __, __, SF, __, __, SF, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __],
+  [SS, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __, EE],
+  [DR, FB, ST, ST, FB, ST, ST, FB, CR, ST, ST, CR, FB, ST, ST, FB, ST, ST, FB, DR],
+  [DR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, CR, DR],
+  [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
 ];
