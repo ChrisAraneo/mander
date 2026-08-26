@@ -3,7 +3,7 @@ import { includes, some } from 'lodash-es';
 import {
   computeSpikeTriangles,
   isSpike,
-  spikeOrientation,
+  getSpikeOrientation,
   type SpikeOrientation,
   spikeShape,
   type Level,
@@ -29,12 +29,12 @@ export const overlapsSpikeFacing = (
       tileRange(boxLeft, boxWidth),
       (tileX) =>
         isSpike(level, tileX, tileY) &&
-        includes(orientations, spikeOrientation(level, tileX, tileY)) &&
+        includes(orientations, getSpikeOrientation(level, tileX, tileY)) &&
         some(
           computeSpikeTriangles(
             tileX,
             tileY,
-            spikeOrientation(level, tileX, tileY),
+            getSpikeOrientation(level, tileX, tileY),
             spikeShape(level, tileX, tileY),
           ),
           (triangle) =>

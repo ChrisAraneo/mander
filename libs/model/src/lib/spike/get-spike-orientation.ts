@@ -5,7 +5,7 @@ import { TILE_SPIKE_CEILING } from './spike';
 
 export type SpikeOrientation = 'FLOOR' | 'CEILING';
 
-export const spikeOrientation = (
+export const getSpikeOrientation = (
   level: Level,
   tileX: number,
   tileY: number,

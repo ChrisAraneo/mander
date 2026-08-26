@@ -31,7 +31,7 @@ export * from './lib/blocks/is-solid';
 export * from './lib/level/level';
 export * from './lib/spike/is-spike';
 export * from './lib/spike/is-spike-tile';
-export * from './lib/spike/spike-orientation';
+export * from './lib/spike/get-spike-orientation';
 export * from './lib/spike/spike-shape';
 export * from './lib/spike/compute-spike-triangles';
 export * from './lib/air/air';

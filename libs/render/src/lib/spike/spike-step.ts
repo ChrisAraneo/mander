@@ -2,7 +2,7 @@ import { chain } from '@mander/utils';
 import {
   computeSpikeTriangles,
   type Level,
-  spikeOrientation,
+  getSpikeOrientation,
   spikeShape,
 } from '@mander/model';
 import type { Triangle } from '@mander/utils';
@@ -53,7 +53,7 @@ export const spikeStep = (
     computeSpikeTriangles(
       tileX,
       tileY,
-      spikeOrientation(level, tileX, tileY),
+      getSpikeOrientation(level, tileX, tileY),
       spikeShape(level, tileX, tileY),
     ),
   )
