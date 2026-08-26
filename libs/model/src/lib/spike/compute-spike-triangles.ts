@@ -4,7 +4,7 @@ import { match } from 'ts-pattern';
 import type { Triangle } from '@mander/utils';
 import { TILE_SIZE } from '../tile/consts';
 import { PRONG_HEIGHT, PRONG_PITCH, PRONG_WIDTH, SPIKE_PRONGS } from './spike';
-import type { SpikeOrientation } from './get-spike-orientation';
+import type { SpikeOrientation } from './spike-orientation';
 import type { SpikeShape } from './spike-shape';
 
 const prongCount = (shape: SpikeShape): number =>

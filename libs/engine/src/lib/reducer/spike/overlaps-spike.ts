@@ -5,7 +5,7 @@ import {
   isSpike,
   getSpikeOrientation,
   type SpikeOrientation,
-  spikeShape,
+  getSpikeShape,
   type Level,
 } from '@mander/model';
 import { boxHitsTriangle } from '../collision/box-hits-triangle';
@@ -35,7 +35,7 @@ export const overlapsSpikeFacing = (
             tileX,
             tileY,
             getSpikeOrientation(level, tileX, tileY),
-            spikeShape(level, tileX, tileY),
+            getSpikeShape(level, tileX, tileY),
           ),
           (triangle) =>
             boxHitsTriangle(boxLeft, boxTop, boxWidth, boxHeight, triangle),

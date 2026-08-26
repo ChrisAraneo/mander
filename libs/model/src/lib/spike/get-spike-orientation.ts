@@ -2,8 +2,7 @@ import { match } from 'ts-pattern';
 
 import type { Level } from '../level/level';
 import { TILE_SPIKE_CEILING } from './spike';
-
-export type SpikeOrientation = 'FLOOR' | 'CEILING';
+import type { SpikeOrientation } from './spike-orientation';
 
 export const getSpikeOrientation = (
   level: Level,

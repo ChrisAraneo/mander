@@ -3,7 +3,7 @@ import {
   computeSpikeTriangles,
   type Level,
   getSpikeOrientation,
-  spikeShape,
+  getSpikeShape,
 } from '@mander/model';
 import type { Triangle } from '@mander/utils';
 import { map } from 'lodash-es';
@@ -54,7 +54,7 @@ export const spikeStep = (
       tileX,
       tileY,
       getSpikeOrientation(level, tileX, tileY),
-      spikeShape(level, tileX, tileY),
+      getSpikeShape(level, tileX, tileY),
     ),
   )
     .thru((triangles) => map(triangles, (triangle) => prongStep(triangle)))
