@@ -1,10 +1,10 @@
 import type { Triangle } from '@mander/utils';
 
-import { computeSpikeTrianglesAt } from './compute-spike-triangles';
+import { computeSpikeTriangles } from './compute-spike-triangles';
 import type { FallingSpike } from './falling-spike';
 
 export const fallingSpikeTriangles = (spike: FallingSpike): Triangle[] =>
-  computeSpikeTrianglesAt(
+  computeSpikeTriangles(
     spike.position.x,
     spike.position.y,
     'CEILING',

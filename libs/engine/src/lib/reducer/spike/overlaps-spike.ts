@@ -7,6 +7,7 @@ import {
   type SpikeOrientation,
   getSpikeShape,
   type Level,
+  TILE_SIZE,
 } from '@mander/model';
 import { boxHitsTriangle } from '../collision/box-hits-triangle';
 import { tileRange } from '../collision/tile-range';
@@ -32,8 +33,8 @@ export const overlapsSpikeFacing = (
         includes(orientations, getSpikeOrientation(level, tileX, tileY)) &&
         some(
           computeSpikeTriangles(
-            tileX,
-            tileY,
+            tileX * TILE_SIZE,
+            tileY * TILE_SIZE,
             getSpikeOrientation(level, tileX, tileY),
             getSpikeShape(level, tileX, tileY),
           ),

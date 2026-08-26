@@ -7,50 +7,33 @@ import { PRONG_HEIGHT, PRONG_PITCH, PRONG_WIDTH, SPIKE_PRONGS } from './spike';
 import type { SpikeOrientation } from './spike-orientation';
 import type { SpikeShape } from './spike-shape';
 
-const prongCount = (shape: SpikeShape): number =>
-  match(shape)
-    .with('SINGLE', () => 1)
-    .otherwise(() => SPIKE_PRONGS);
-
-export const computeSpikeTrianglesAt = (
+export const computeSpikeTriangles = (
   pixelX: number,
   pixelY: number,
   orientation: SpikeOrientation,
   shape: SpikeShape,
 ): Triangle[] => {
-  const prongs = prongCount(shape);
+  const prongs = match(shape)
+    .with('SINGLE', () => 1)
+    .otherwise(() => SPIKE_PRONGS);
   const span = (prongs - 1) * PRONG_PITCH + PRONG_WIDTH;
-  const geometry = match(orientation)
+  const left = pixelX + (TILE_SIZE - span) / 2;
+  const { base, apex } = match(orientation)
     .with('CEILING', () => ({
-      left: pixelX + (TILE_SIZE - span) / 2,
       base: pixelY,
       apex: pixelY + PRONG_HEIGHT,
     }))
     .otherwise(() => ({
-      left: pixelX + (TILE_SIZE - span) / 2,
       base: pixelY + TILE_SIZE,
       apex: pixelY + TILE_SIZE - PRONG_HEIGHT,
     }));
 
   return times(prongs, (prongIndex): Triangle => {
-    const prongLeft = geometry.left + prongIndex * PRONG_PITCH;
+    const prongLeft = left + prongIndex * PRONG_PITCH;
     return [
-      { x: prongLeft, y: geometry.base },
-      { x: prongLeft + PRONG_WIDTH / 2, y: geometry.apex },
-      { x: prongLeft + PRONG_WIDTH, y: geometry.base },
+      { x: prongLeft, y: base },
+      { x: prongLeft + PRONG_WIDTH / 2, y: apex },
+      { x: prongLeft + PRONG_WIDTH, y: base },
     ];
   });
 };
-
-export const computeSpikeTriangles = (
-  tileX: number,
-  tileY: number,
-  orientation: SpikeOrientation,
-  shape: SpikeShape,
-): Triangle[] =>
-  computeSpikeTrianglesAt(
-    tileX * TILE_SIZE,
-    tileY * TILE_SIZE,
-    orientation,
-    shape,
-  );

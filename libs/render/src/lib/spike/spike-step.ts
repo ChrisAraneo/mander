@@ -4,6 +4,7 @@ import {
   type Level,
   getSpikeOrientation,
   getSpikeShape,
+  TILE_SIZE,
 } from '@mander/model';
 import type { Triangle } from '@mander/utils';
 import { map } from 'lodash-es';
@@ -51,8 +52,8 @@ export const spikeStep = (
 ): CanvasStep =>
   chain(
     computeSpikeTriangles(
-      tileX,
-      tileY,
+      tileX * TILE_SIZE,
+      tileY * TILE_SIZE,
       getSpikeOrientation(level, tileX, tileY),
       getSpikeShape(level, tileX, tileY),
     ),
