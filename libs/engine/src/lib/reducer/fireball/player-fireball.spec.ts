@@ -2,6 +2,7 @@ import {
   type Enemy,
   type Fireball,
   type Item,
+  MAX_TICK_SECONDS,
   MOON_MAGNET,
   type Player,
   type Tile,
@@ -22,10 +23,14 @@ import { playerCentre } from '../player/player-centre';
 import { tick } from '../tick/tick';
 import { advancePlayerFireballs } from './advance-player-fireballs';
 import { burnEnemies } from './burn-enemies';
-import { PLAYER_FIREBALL_ORBIT_RADIUS } from './consts';
+import {
+  PLAYER_FIREBALL_ANGULAR_SPEED,
+  PLAYER_FIREBALL_ORBIT_RADIUS,
+} from './consts';
 import { createPlayerFireballs } from './create-player-fireballs';
 import { playerFireballPosition } from './player-fireball-position';
 import { startingFireballs } from './starting-fireballs';
+import { stepFireball } from './step-fireball';
 
 const DELTA_SECONDS = 1 / 60;
 
@@ -228,6 +233,18 @@ describe('the fireballs that circle the player', () => {
     const caught = withEnemyOn(state, state.playerFireballs[0]);
 
     expect(isDying(tick(caught, DELTA_SECONDS).enemies[0])).toBe(true);
+  });
+
+  it('burns an enemy the moons only sweep past mid-tick', () => {
+    const state = carrying(MOON_MAGNET);
+    const midTick = stepFireball(
+      state.playerFireballs[0],
+      MAX_TICK_SECONDS / 4,
+      PLAYER_FIREBALL_ANGULAR_SPEED,
+    );
+    const caught = { ...state, enemies: [enemyUnder(midTick)] };
+
+    expect(isDying(tick(caught, MAX_TICK_SECONDS).enemies[0])).toBe(true);
   });
 
   it('burns nothing while the player lies dying', () => {

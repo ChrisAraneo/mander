@@ -343,7 +343,7 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
       );
       const enemies = crushEnemies(
         match(alive)
-          .with(true, () => burnEnemies(playerFireballs, shot))
+          .with(true, () => burnEnemies(playerFireballs, shot, deltaSeconds))
           .otherwise(() => shot),
       );
       const cannonballs = filter(
