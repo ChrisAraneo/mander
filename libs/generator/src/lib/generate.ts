@@ -21,20 +21,7 @@ import { clearCannons } from './structures/clear-cannons';
 import { clearFireballs } from './structures/clear-fireballs';
 import { isMirrored } from './structures/is-mirrored';
 import { mirrorTiles } from './structures/mirror-tiles';
-
-const FIRST_HARD_LEVEL = 7;
-
-const NORMAL_LEVELS = FIRST_HARD_LEVEL - 1;
-
-const STRUCTURES_PER_LEVEL = 7;
-
-const FIRST_MIXED_ENEMY_LEVEL = 3;
-
-const FIRST_HORNED_ENEMY_LEVEL = 6;
-
-const NO_HORNED_ENEMIES = 0;
-
-const ONLY_HORNED_ENEMIES = 1;
+import { FIRST_HORNED_ENEMY_LEVEL, ONLY_HORNED_ENEMIES, FIRST_MIXED_ENEMY_LEVEL, NO_HORNED_ENEMIES, NORMAL_LEVELS, STRUCTURES_PER_LEVEL, FIRST_HARD_LEVEL } from './consts';
 
 const hornedEnemyChanceFor = (levelNumber: number): number =>
   match(levelNumber)

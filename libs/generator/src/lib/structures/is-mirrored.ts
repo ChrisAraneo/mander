@@ -1,6 +1,5 @@
 import { includes } from 'lodash-es';
-
-export const MIRRORED_LEVELS: readonly number[] = Object.freeze([3, 6]);
+import { MIRRORED_LEVELS } from '../consts';
 
 export const isMirrored = (levelNumber: number): boolean =>
   includes(MIRRORED_LEVELS, levelNumber);
