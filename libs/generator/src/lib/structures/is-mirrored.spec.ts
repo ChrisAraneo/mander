@@ -1,7 +1,8 @@
 import { filter, map, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { isMirrored, MIRRORED_LEVELS } from './is-mirrored';
+import { MIRRORED_LEVELS } from '../consts';
+import { isMirrored } from './is-mirrored';
 
 const LEVELS_A_DAY = 8;
 

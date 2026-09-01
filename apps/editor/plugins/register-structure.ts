@@ -1,14 +1,14 @@
 import { match } from 'ts-pattern';
 
 import { appendName, hasName } from './append-name.ts';
-import { type Difficulty, prefixOf } from './difficulty.ts';
+import { type Pool, prefixOf } from './pool.ts';
 
-const importOf = (difficulty: Difficulty): RegExp =>
-  new RegExp(`import \\{([\\s\\S]*?)\\} from '\\./${difficulty}';`);
+const importOf = (pool: Pool): RegExp =>
+  new RegExp(`import \\{([\\s\\S]*?)\\} from '\\./${pool}';`);
 
-const arrayOf = (difficulty: Difficulty): RegExp =>
+const arrayOf = (pool: Pool): RegExp =>
   new RegExp(
-    `export const ${prefixOf(difficulty)}_STRUCTURES: readonly Structure\\[\\] = Object\\.freeze\\(\\[([\\s\\S]*?)\\]\\);`,
+    `export const ${prefixOf(pool)}_STRUCTURES: readonly Structure\\[\\] = Object\\.freeze\\(\\[([\\s\\S]*?)\\]\\);`,
   );
 
 const withName = (source: string, pattern: RegExp, name: string): string =>
@@ -27,10 +27,6 @@ const withName = (source: string, pattern: RegExp, name: string): string =>
 export const registerStructure = (
   source: string,
   name: string,
-  difficulty: Difficulty,
+  pool: Pool,
 ): string =>
-  withName(
-    withName(source, importOf(difficulty), name),
-    arrayOf(difficulty),
-    name,
-  );
+  withName(withName(source, importOf(pool), name), arrayOf(pool), name);

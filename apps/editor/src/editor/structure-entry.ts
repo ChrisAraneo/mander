@@ -1,7 +1,7 @@
-export type Difficulty = 'normal' | 'hard';
+export type Pool = 'normal' | 'hard' | 'vertical';
 
 export interface StructureEntry {
   name: string;
-  difficulty: Difficulty;
+  pool: Pool;
   grid: number[][];
 }

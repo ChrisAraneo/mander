@@ -1,7 +1,9 @@
 import { isSolidTile, type Tile, TILE_DIRT, TILE_STONE } from '@mander/model';
 import { chain, createRandom } from '@mander/utils';
-import { join, map, range, reduce, size, sum, times } from 'lodash-es';
+import { map, range, reduce, size, sum, times } from 'lodash-es';
 import { match } from 'ts-pattern';
+
+import { tilesSeed } from './tiles-seed';
 
 const DIRT_DEPTH = 3;
 
@@ -34,12 +36,6 @@ const UNBURIED = -1;
 type Field = number[][];
 
 const toFlag = (on: boolean): number => Number(on);
-
-const seedOf = (tiles: Tile[][]): string =>
-  join(
-    map(tiles, (row) => join(row, ',')),
-    '|',
-  );
 
 const depthsOf = (tiles: Tile[][]): Field =>
   reduce(
@@ -142,7 +138,7 @@ const shed = (blobs: Field): Field =>
   );
 
 export const addStones = (tiles: Tile[][]): Tile[][] =>
-  chain(createRandom(seedOf(tiles)))
+  chain(createRandom(tilesSeed(tiles)))
     .thru((random) =>
       match(random.chance(DEEP_DIRT_CHANCE))
         .with(true, () => DEEP_DIRT_DEPTH)

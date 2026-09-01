@@ -2,19 +2,19 @@ import { constant, map } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import { parseStructure } from './parse-structure';
-import type { Difficulty, StructureEntry } from './structure-entry';
+import type { Pool, StructureEntry } from './structure-entry';
 
 const ENDPOINT = '/api/structures';
 
 interface LibraryResponse {
   name: string;
-  difficulty: Difficulty;
+  pool: Pool;
   text: string;
 }
 
 export interface SavedStructure {
   name: string;
-  difficulty: Difficulty;
+  pool: Pool;
   created: boolean;
 }
 
@@ -33,7 +33,7 @@ const failure = (response: Response): Promise<never> =>
 
 const toEntry = (entry: LibraryResponse): StructureEntry => ({
   name: entry.name,
-  difficulty: entry.difficulty,
+  pool: entry.pool,
   grid: parseStructure(entry.text),
 });
 

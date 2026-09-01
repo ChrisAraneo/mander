@@ -12,9 +12,12 @@ import {
   STRUCTURE_WIDTH,
   STRUCTURE_END,
   STRUCTURE_HEIGHT,
+  verticalIssues,
 } from '@mander/structures';
 import { every, filter, flatten, includes, map, size } from 'lodash-es';
 import { match } from 'ts-pattern';
+
+import type { Pool } from './structure-entry';
 
 const KNOWN_TILES = [
   TILE_AIR,
@@ -83,8 +86,15 @@ const RULES: Rule[] = [
   },
 ];
 
-export const structureIssues = (grid: number[][]): string[] =>
-  map(
+const poolIssues = (grid: number[][], pool: Pool): string[] =>
+  match(pool)
+    .with('vertical', () => verticalIssues(grid))
+    .otherwise((): string[] => []);
+
+export const structureIssues = (grid: number[][], pool: Pool): string[] => [
+  ...map(
     filter(RULES, (rule) => !rule.isValid(grid)),
     (rule) => rule.message,
-  );
+  ),
+  ...poolIssues(grid, pool),
+];

@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 
-import type { Difficulty } from './difficulty.ts';
+import type { Pool } from './pool.ts';
 import { mergeAliases } from './merge-aliases.ts';
 import { registerStructure } from './register-structure.ts';
 import type { StructurePaths } from './structure-paths.ts';
@@ -9,17 +9,17 @@ import { withEndings } from './with-endings.ts';
 
 export interface SavedStructure {
   name: string;
-  difficulty: Difficulty;
+  pool: Pool;
   created: boolean;
 }
 
 const register = async (
   path: string,
   name: string,
-  difficulty: Difficulty,
+  pool: Pool,
 ): Promise<void> => {
   const original = await readFile(path, 'utf8');
-  const listed = registerStructure(original, name, difficulty);
+  const listed = registerStructure(original, name, pool);
 
   await writeFile(path, withEndings(listed, original), 'utf8');
 };
@@ -27,10 +27,10 @@ const register = async (
 export const saveStructure = async (
   paths: StructurePaths,
   name: string,
-  difficulty: Difficulty,
+  pool: Pool,
   text: string,
 ): Promise<SavedStructure> => {
-  const file = paths.structures[difficulty];
+  const file = paths.structures[pool];
   const original = await readFile(file, 'utf8');
   const { source, created } = upsertStructure(
     mergeAliases(original, text),
@@ -39,7 +39,7 @@ export const saveStructure = async (
   );
 
   await writeFile(file, withEndings(source, original), 'utf8');
-  await register(paths.library, name, difficulty);
+  await register(paths.library, name, pool);
 
-  return { name, difficulty, created };
+  return { name, pool, created };
 };

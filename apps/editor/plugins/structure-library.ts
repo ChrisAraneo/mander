@@ -5,11 +5,7 @@ import { assign } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import type { Plugin } from 'vite';
 
-import {
-  type Difficulty,
-  difficultyOf,
-  isStructureName,
-} from './difficulty.ts';
+import { type Pool, poolOf, isStructureName } from './pool.ts';
 import { isStructureText } from './is-structure-text.ts';
 import { readLibrary } from './read-library.ts';
 import { saveStructure } from './save-structure.ts';
@@ -21,7 +17,7 @@ export const STRUCTURE_ENDPOINT = '/api/structures';
 
 interface SaveRequest {
   name: string;
-  difficulty: Difficulty;
+  pool: Pool;
   text: string;
 }
 
@@ -57,11 +53,11 @@ const readBody = (req: IncomingMessage): Promise<string> =>
 const requested = (body: string): SaveRequest | null =>
   match(JSON.parse(body) as unknown)
     .with({ name: string, text: string }, ({ name, text }) =>
-      match(difficultyOf(name))
+      match(poolOf(name))
         .with(null, (): SaveRequest | null => null)
-        .otherwise((difficulty): SaveRequest | null =>
+        .otherwise((pool): SaveRequest | null =>
           isStructureName(name)
-            ? { name, difficulty, text: text.replace(/\r\n/g, '\n') }
+            ? { name, pool, text: text.replace(/\r\n/g, '\n') }
             : null,
         ),
     )
@@ -78,13 +74,13 @@ const save = (
         message: 'a structure needs a NORMAL_nnn or HARD_nnn name and a grid',
       }),
     )
-    .otherwise(({ name, difficulty, text }) =>
+    .otherwise(({ name, pool, text }) =>
       match(isStructureText(text))
         .with(false, () =>
           send(res, 400, { message: 'the grid is not a structure literal' }),
         )
         .otherwise(async () =>
-          send(res, 200, await saveStructure(paths, name, difficulty, text)),
+          send(res, 200, await saveStructure(paths, name, pool, text)),
         ),
     );
 

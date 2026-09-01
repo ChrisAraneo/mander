@@ -1,7 +1,7 @@
 import type { GameState } from '@mander/engine';
 import { TILE_SIZE } from '@mander/model';
 import { chain } from '@mander/utils';
-import { clamp, map } from 'lodash-es';
+import { map } from 'lodash-es';
 
 import {
   paint,
@@ -27,18 +27,8 @@ import { drawPortal } from '../portal';
 import { drawSky } from '../sky';
 import { drawFallingSpike } from '../spike';
 import { drawTiles } from '../tile';
-import { snapToDevicePixel, type Viewport } from '../viewport';
-
-const cameraAxis = (
-  focusAt: number,
-  viewSize: number,
-  worldSize: number,
-  scale: number,
-): number =>
-  snapToDevicePixel(
-    clamp(focusAt - viewSize / 2, 0, Math.max(0, worldSize - viewSize)),
-    scale,
-  );
+import type { Viewport } from '../viewport';
+import { cameraAxis } from './camera-axis';
 
 export const renderGame = (
   context: CanvasRenderingContext2D,

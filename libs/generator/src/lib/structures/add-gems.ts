@@ -7,7 +7,6 @@ import {
   filter,
   findIndex,
   floor,
-  join,
   map,
   range,
   reduce,
@@ -16,6 +15,7 @@ import {
 } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { patchTiles, type TilePatch } from './patch-tiles';
+import { tilesSeed } from './tiles-seed';
 
 const { nullish } = P;
 
@@ -35,12 +35,6 @@ interface Sowing {
   taken: number[];
   patches: TilePatch[];
 }
-
-const seedOf = (tiles: Tile[][]): string =>
-  join(
-    map(tiles, (row) => join(row, ',')),
-    '|',
-  );
 
 const surfaceRow = (tiles: Tile[][], column: number): number =>
   findIndex(tiles, (row) => isSolidTile(row[column]));
@@ -106,7 +100,7 @@ const sowSlot = (
     .value();
 
 export const addGems = (tiles: Tile[][]): Tile[][] =>
-  chain(createRandom(seedOf(tiles)))
+  chain(createRandom(tilesSeed(tiles)))
     .thru((random) =>
       reduce(
         slots(size(tiles[0] ?? [])),

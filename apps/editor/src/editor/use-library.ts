@@ -59,7 +59,7 @@ export const useLibrary = () =>
                 .thru((verb) =>
                   setRef(
                     state.status,
-                    `${verb} ${saved.name} in ${saved.difficulty}.ts`,
+                    `${verb} ${saved.name} in ${saved.pool}.ts`,
                   ),
                 )
                 .thru(() => state.load())

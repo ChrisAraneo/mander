@@ -8,7 +8,6 @@ import { chain, createRandom } from '@mander/utils';
 import {
   filter,
   flatMap,
-  join,
   map,
   range,
   round,
@@ -18,6 +17,7 @@ import {
 } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { patchTiles, type TilePatch } from './patch-tiles';
+import { tilesSeed } from './tiles-seed';
 
 const NOTHING_REMOVED = 0;
 
@@ -49,10 +49,7 @@ const toAir = ({ row, column }: Cell): TilePatch => ({
 });
 
 const seedOf = (tiles: Tile[][], levelNumber: number): string =>
-  `${levelNumber}#${join(
-    map(tiles, (row) => join(row, ',')),
-    '|',
-  )}`;
+  `${levelNumber}#${tilesSeed(tiles)}`;
 
 const pullSpikes = (
   tiles: Tile[][],

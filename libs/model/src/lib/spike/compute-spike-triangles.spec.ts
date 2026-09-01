@@ -73,14 +73,18 @@ describe('computeSpikeTriangles', () => {
   });
 
   it('should give every prong the same width when it carves a strip', () => {
-    forEach(computeSpikeTriangles(PIXEL_X, PIXEL_Y, 'FLOOR', 'STRIP'), (prong) =>
-      expect(right(prong) - left(prong)).toBeCloseTo(PRONG_WIDTH, 10),
+    forEach(
+      computeSpikeTriangles(PIXEL_X, PIXEL_Y, 'FLOOR', 'STRIP'),
+      (prong) =>
+        expect(right(prong) - left(prong)).toBeCloseTo(PRONG_WIDTH, 10),
     );
   });
 
   it('should set every apex halfway between the feet when it carves a strip', () => {
-    forEach(computeSpikeTriangles(PIXEL_X, PIXEL_Y, 'FLOOR', 'STRIP'), (prong) =>
-      expect(prong[1].x).toBeCloseTo((left(prong) + right(prong)) / 2, 10),
+    forEach(
+      computeSpikeTriangles(PIXEL_X, PIXEL_Y, 'FLOOR', 'STRIP'),
+      (prong) =>
+        expect(prong[1].x).toBeCloseTo((left(prong) + right(prong)) / 2, 10),
     );
   });
 

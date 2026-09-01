@@ -9,29 +9,35 @@ import BrushPicker from './components/BrushPicker.vue';
 import IssuePanel from './components/IssuePanel.vue';
 import OutputPanel from './components/OutputPanel.vue';
 import StructureGrid from './components/StructureGrid.vue';
-import type { Difficulty } from './editor';
-import { BRUSHES, difficultyOf, nextStructureName, setRef } from './editor';
+import type { Pool } from './editor';
+import { BRUSHES, poolOf, nextStructureName, setRef } from './editor';
 import { useEditor, useLibrary } from './editor';
 
 const { nullish } = P;
 
 const UNDO_KEY = 'z';
 
-const editor = useEditor();
 const library = useLibrary();
 
 const loaded = ref('');
-const pool = ref<Difficulty>('normal');
+const pool = ref<Pool>('normal');
 const name = ref('');
 
+const savedTo = computed(() => poolOf(name.value));
+
+const editor = useEditor(savedTo);
+
 const normalEntries = computed(() =>
-  filter(library.entries.value, { difficulty: 'normal' }),
+  filter(library.entries.value, { pool: 'normal' }),
 );
 const hardEntries = computed(() =>
-  filter(library.entries.value, { difficulty: 'hard' }),
+  filter(library.entries.value, { pool: 'hard' }),
+);
+const verticalEntries = computed(() =>
+  filter(library.entries.value, { pool: 'vertical' }),
 );
 
-const target = computed(() => `${difficultyOf(name.value)}.ts`);
+const target = computed(() => `${savedTo.value}.ts`);
 
 const canSave = computed(
   () => library.isReady.value && editor.isValid.value && size(name.value) > 0,
@@ -46,9 +52,7 @@ const loadStructure = (structure: string): void =>
     .otherwise((entry) =>
       chain(entry)
         .thru((found) => withEffect(found, () => editor.replace(found.grid)))
-        .thru((found) =>
-          withEffect(found, () => setRef(pool, found.difficulty)),
-        )
+        .thru((found) => withEffect(found, () => setRef(pool, found.pool)))
         .thru((found) => setRef(name, found.name))
         .value(),
     );
@@ -124,6 +128,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
                 {{ entry.name }}
               </option>
             </optgroup>
+            <optgroup label="Vertical">
+              <option
+                v-for="entry in verticalEntries"
+                :key="entry.name"
+                :value="entry.name">
+                {{ entry.name }}
+              </option>
+            </optgroup>
           </select>
         </div>
 
@@ -132,6 +144,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
           <select v-model="pool" @change="suggestName()">
             <option value="normal">Normal</option>
             <option value="hard">Hard</option>
+            <option value="vertical">Vertical</option>
           </select>
           <input
             v-model="name"

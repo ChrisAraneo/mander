@@ -10,6 +10,7 @@ import { createGrid } from './create-grid';
 import { formatStructure } from './format-structure';
 import { setRef } from './set-ref';
 import { structureIssues } from './structure-issues';
+import type { Pool } from './structure-entry';
 
 const { nullish } = P;
 
@@ -41,7 +42,7 @@ const applyPaint = (
     .thru(() => (grid.value[row][column] = value))
     .value();
 
-export const useEditor = () =>
+export const useEditor = (pool: Readonly<Ref<Pool>>) =>
   chain({
     grid: ref<number[][]>(createGrid()),
     brush: ref<number>(TILE_DIRT),
@@ -49,7 +50,7 @@ export const useEditor = () =>
   })
     .thru((state) => ({
       ...state,
-      issues: computed(() => structureIssues(state.grid.value)),
+      issues: computed(() => structureIssues(state.grid.value, pool.value)),
       remember: (): void =>
         void setRef(
           state.history,

@@ -1,10 +1,14 @@
 import { createEnemies, HORNED_ENEMY_CHANCE } from '@mander/engine';
 import {
   findCannonTiles,
+  findGemTiles,
   findTile,
+  TILE_CHEST,
+  TILE_KEY,
   TILE_PORTAL,
   TILE_SPAWN,
 } from '@mander/model';
+import { STRUCTURE_WIDTH } from '@mander/structures';
 import type { Point } from '@mander/utils';
 import {
   every,
@@ -21,10 +25,12 @@ import {
 import { describe, expect, it } from 'vitest';
 
 import { generate } from './generate';
+import { MIRRORED_LEVELS, VERTICAL_LEVELS } from './consts';
 import { FIRST_CANNON_LEVEL } from './structures/clear-cannons';
-import { MIRRORED_LEVELS } from './structures/is-mirrored';
 
 const LEVELS_A_DAY = 8;
+
+const GEMS_A_CLIMB = 10;
 
 const dayOf = (day: number): Date => new Date(Date.UTC(2026, 0, 1 + day));
 
@@ -35,6 +41,9 @@ interface Run {
   spawn: Point | null;
   portal: Point | null;
 }
+
+const isCrosswise = (run: Run): boolean =>
+  !includes(VERTICAL_LEVELS, run.levelNumber);
 
 const fingerprint = (tiles: number[][]): string =>
   join(
@@ -146,6 +155,8 @@ describe('generate', () => {
       })),
     );
 
+  const crosswiseRuns = (): Run[] => filter(runs(), isCrosswise);
+
   const isTurned = (run: Run): boolean =>
     run.spawn !== null && run.portal !== null && run.spawn.x > run.portal.x;
 
@@ -161,16 +172,16 @@ describe('generate', () => {
 
   it('sends the player in from the right on the third and the sixth level', () => {
     const wrongWay = filter(
-      runs(),
+      crosswiseRuns(),
       (run) => includes(MIRRORED_LEVELS, run.levelNumber) && !isTurned(run),
     );
 
     expect(wrongWay).toEqual([]);
   });
 
-  it('sends the player in from the left on every other level', () => {
+  it('sends the player in from the left on every other level it lays out', () => {
     const wrongWay = filter(
-      runs(),
+      crosswiseRuns(),
       (run) => !includes(MIRRORED_LEVELS, run.levelNumber) && isTurned(run),
     );
 
@@ -178,7 +189,7 @@ describe('generate', () => {
   });
 
   it('turns two levels of every day around, whatever the day', () => {
-    expect(size(filter(runs(), isTurned))).toBe(
+    expect(size(filter(crosswiseRuns(), isTurned))).toBe(
       size(days) * size(MIRRORED_LEVELS),
     );
   });
@@ -192,6 +203,61 @@ describe('generate', () => {
     );
 
     expect(ragged).toEqual([]);
+  });
+
+  const verticalRuns = (): Run[] => filter(runs(), (run) => !isCrosswise(run));
+
+  const isClimbed = (run: Run): boolean =>
+    run.spawn !== null && run.portal !== null && run.spawn.y > run.portal.y;
+
+  it('stands the second and the fifth level up', () => {
+    const standing = flatMap(days, (date) =>
+      map(
+        filter(generate(date).levels, (_, index) =>
+          includes(VERTICAL_LEVELS, index + 1),
+        ),
+        (level) => level.width,
+      ),
+    );
+
+    expect(size(standing)).toBe(size(days) * size(VERTICAL_LEVELS));
+    expect(uniq(standing)).toEqual([STRUCTURE_WIDTH]);
+  });
+
+  it('builds a level it stands up taller than it is wide', () => {
+    const squat = filter(
+      flatMap(days, (date) =>
+        filter(generate(date).levels, (_, index) =>
+          includes(VERTICAL_LEVELS, index + 1),
+        ),
+      ),
+      (level) => level.height <= level.width,
+    );
+
+    expect(squat).toEqual([]);
+  });
+
+  it('sends the player up on every level it stands up', () => {
+    const wrongWay = filter(verticalRuns(), (run) => !isClimbed(run));
+
+    expect(size(verticalRuns())).toBe(size(days) * size(VERTICAL_LEVELS));
+    expect(wrongWay).toEqual([]);
+  });
+
+  it('leaves a level it stands up something to be picked up on the way', () => {
+    const empty = filter(
+      flatMap(days, (date) =>
+        filter(generate(date).levels, (_, index) =>
+          includes(VERTICAL_LEVELS, index + 1),
+        ),
+      ),
+      (level) =>
+        findTile(level, TILE_KEY) === null ||
+        findTile(level, TILE_CHEST) === null ||
+        size(findGemTiles(level)) < GEMS_A_CLIMB,
+    );
+
+    expect(empty).toEqual([]);
   });
 
   it('deals the same day the same way twice', () => {
