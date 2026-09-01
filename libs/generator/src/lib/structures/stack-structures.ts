@@ -11,7 +11,6 @@ import { flatMap, map, range, size, times } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { patchTiles, type TilePatch } from './patch-tiles';
 
-// the sector standing on the ground has its entry gap filled in
 const GROUND: Tile = TILE_DIRT;
 
 const isDrawn = (cell: number): boolean =>

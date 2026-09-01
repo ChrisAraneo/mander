@@ -127,6 +127,7 @@ export const generate = (date: Date): RenderedWorld => {
       tiles,
       chestItems: generateChestItems(seed),
       hornedEnemyChance: hornedEnemyChanceFor(levelNumber),
+      isOpenSided: isVertical(levelNumber),
     };
 
     return level;

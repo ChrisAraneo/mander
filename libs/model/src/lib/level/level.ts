@@ -7,4 +7,5 @@ export interface Level {
   height: number;
   tiles: Tile[][];
   chestItems: Item[];
+  isOpenSided?: boolean;
 }

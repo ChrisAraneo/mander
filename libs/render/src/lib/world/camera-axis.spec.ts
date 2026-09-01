@@ -30,6 +30,11 @@ describe('cameraAxis', () => {
     );
   });
 
+  it('holds such a level still even where the focus has left it altogether', () => {
+    expect(cameraAxis(-200, VIEW, 640, SCALE)).toBe((640 - VIEW) / 2);
+    expect(cameraAxis(840, VIEW, 640, SCALE)).toBe((640 - VIEW) / 2);
+  });
+
   it('leaves the camera on a device pixel', () => {
     expect(cameraAxis(1237.4213, VIEW, 4480, 2)).toBe(
       Math.round((1237.4213 - VIEW / 2) * 2) / 2,

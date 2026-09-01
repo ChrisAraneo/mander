@@ -1,6 +1,7 @@
+import { PLAYER_HEIGHT_TILES } from '@mander/engine';
 import { type Tile, TILE_SPAWN } from '@mander/model';
 import { chain } from '@mander/utils';
-import { floor, size, sortBy } from 'lodash-es';
+import { ceil, floor, size, sortBy } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { patchTiles, type TilePatch } from './patch-tiles';
 import { standTiles } from './stand-tiles';
@@ -10,8 +11,15 @@ const { nullish } = P;
 
 const SPAWN_HEIGHT = 2;
 
+const SPAWN_CLEARANCE = SPAWN_HEIGHT + ceil(PLAYER_HEIGHT_TILES);
+
 const middleColumn = (tiles: Tile[][]): number =>
   floor(size(tiles[0] ?? []) / 2);
+
+const roomySpots = (tiles: Tile[][]): Spot[] =>
+  match(standingSpots(tiles, SPAWN_CLEARANCE))
+    .with([], () => standingSpots(tiles, SPAWN_HEIGHT))
+    .otherwise((roomy) => roomy);
 
 const lowestFirst = (spots: Spot[], middle: number): Spot[] =>
   sortBy(spots, [
@@ -20,7 +28,7 @@ const lowestFirst = (spots: Spot[], middle: number): Spot[] =>
   ]);
 
 export const addVerticalSpawn = (tiles: Tile[][]): Tile[][] =>
-  chain(standingSpots(tiles, SPAWN_HEIGHT))
+  chain(roomySpots(tiles))
     .thru((spots) => lowestFirst(spots, middleColumn(tiles)))
     .head()
     .thru((spot) =>

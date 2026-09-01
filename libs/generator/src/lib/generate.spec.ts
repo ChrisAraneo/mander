@@ -1,11 +1,20 @@
-import { createEnemies, HORNED_ENEMY_CHANCE } from '@mander/engine';
+import {
+  createEnemies,
+  HORNED_ENEMY_CHANCE,
+  PLAYER_HEIGHT,
+  PLAYER_WIDTH,
+  spawnPosition,
+} from '@mander/engine';
 import {
   findCannonTiles,
   findGemTiles,
   findTile,
+  isSolid,
+  type Level,
   TILE_CHEST,
   TILE_KEY,
   TILE_PORTAL,
+  TILE_SIZE,
   TILE_SPAWN,
 } from '@mander/model';
 import { STRUCTURE_WIDTH } from '@mander/structures';
@@ -14,9 +23,11 @@ import {
   every,
   filter,
   flatMap,
+  floor,
   includes,
   join,
   map,
+  range,
   size,
   some,
   times,
@@ -44,6 +55,16 @@ interface Run {
 
 const isCrosswise = (run: Run): boolean =>
   !includes(VERTICAL_LEVELS, run.levelNumber);
+
+const tilesAcross = (start: number, span: number): number[] =>
+  range(floor(start / TILE_SIZE), floor((start + span - 1) / TILE_SIZE) + 1);
+
+const isWalledIn = (level: Level): boolean =>
+  some(tilesAcross(spawnPosition(level).y, PLAYER_HEIGHT), (row) =>
+    some(tilesAcross(spawnPosition(level).x, PLAYER_WIDTH), (column) =>
+      isSolid(level, column, row),
+    ),
+  );
 
 const fingerprint = (tiles: number[][]): string =>
   join(
@@ -258,6 +279,38 @@ describe('generate', () => {
     );
 
     expect(empty).toEqual([]);
+  });
+
+  it('leaves the player room to stand where it sends them in', () => {
+    const buried = flatMap(days, (date, day) =>
+      filter(
+        map(generate(date).levels, (level, index) => ({
+          day,
+          levelNumber: index + 1,
+          walledIn: isWalledIn(level),
+        })),
+        (entry) => entry.walledIn,
+      ),
+    );
+
+    expect(buried).toEqual([]);
+  });
+
+  it('leaves the sides of a level it stands up open, and walls every other level in', () => {
+    const openness = flatMap(days, (date) =>
+      map(generate(date).levels, (level, index) => ({
+        levelNumber: index + 1,
+        isOpenSided: level.isOpenSided === true,
+      })),
+    );
+
+    expect(
+      filter(
+        openness,
+        (level) =>
+          level.isOpenSided !== includes(VERTICAL_LEVELS, level.levelNumber),
+      ),
+    ).toEqual([]);
   });
 
   it('deals the same day the same way twice', () => {

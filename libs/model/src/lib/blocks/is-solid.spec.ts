@@ -17,6 +17,8 @@ const LEVEL: Level = {
   chestItems: [],
 };
 
+const OPEN_LEVEL: Level = { ...LEVEL, isOpenSided: true };
+
 describe('isSolid', () => {
   it('should return true when the coordinates hold a solid tile', () => {
     expect(isSolid(LEVEL, 1, 0)).toBe(true);
@@ -59,5 +61,16 @@ describe('isSolid', () => {
   it('should return false when the coordinates lie far below the level, so a fall never ends', () => {
     expect(isSolid(LEVEL, 0, 100)).toBe(false);
     expect(isSolid(LEVEL, 1, 100)).toBe(false);
+  });
+
+  it('should return false past either edge of an open sided level, leaving air to walk off into', () => {
+    expect(isSolid(OPEN_LEVEL, -1, 0)).toBe(false);
+    expect(isSolid(OPEN_LEVEL, 2, 0)).toBe(false);
+    expect(isSolid(OPEN_LEVEL, -1, 100)).toBe(false);
+  });
+
+  it('should still read the tiles an open sided level does hold', () => {
+    expect(isSolid(OPEN_LEVEL, 1, 0)).toBe(true);
+    expect(isSolid(OPEN_LEVEL, 0, 0)).toBe(false);
   });
 });
