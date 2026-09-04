@@ -249,9 +249,7 @@ import {
   NORMAL_202,
 } from './normal';
 import type { Structure } from './structure';
-import {
-  VERTICAL_001,
-} from './vertical';
+import { VERTICAL_001 } from './vertical';
 
 export const HARD_STRUCTURES: readonly Structure[] = Object.freeze([
   HARD_001,

@@ -1,26 +1,28 @@
 import { isSolidTile, type Tile, TILE_AIR, TILE_DIRT } from '@mander/model';
 import {
-  STRUCTURE_HEIGHT,
   STRUCTURE_WIDTH,
   STRUCTURE_END,
   STRUCTURE_START,
+  VERTICAL_BAND_HEIGHT,
   type Structure,
 } from '@mander/structures';
 import { chain } from '@mander/utils';
-import { flatMap, map, range, size, times } from 'lodash-es';
+import { flatMap, map, range, size, take, times } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { patchTiles, type TilePatch } from './patch-tiles';
 
 const GROUND: Tile = TILE_DIRT;
 
+export const GROUND_DEPTH = 3;
+
 const isDrawn = (cell: number): boolean =>
   cell !== TILE_AIR && cell !== STRUCTURE_START && cell !== STRUCTURE_END;
 
 const bandOf = (structures: Structure[], index: number): number =>
-  (size(structures) - 1 - index) * STRUCTURE_HEIGHT;
+  (size(structures) - 1 - index) * VERTICAL_BAND_HEIGHT;
 
 const painted = (structure: Structure, band: number): TilePatch[] =>
-  chain(structure)
+  chain(take(structure, VERTICAL_BAND_HEIGHT))
     .flatMap((cells, row) =>
       map(cells, (cell, column) => ({
         tile: cell,
@@ -32,8 +34,8 @@ const painted = (structure: Structure, band: number): TilePatch[] =>
     .value();
 
 const sealed = (tiles: Tile[][]): TilePatch[] =>
-  chain(size(tiles) - 1)
-    .thru((row) =>
+  chain(range(size(tiles) - GROUND_DEPTH, size(tiles)))
+    .flatMap((row) =>
       map(range(STRUCTURE_WIDTH), (column) => ({ row, column, tile: GROUND })),
     )
     .filter(({ row, column }) => !isSolidTile(tiles[row][column]))
@@ -44,7 +46,7 @@ export const stackStructures = (structures: Structure[]): Tile[][] =>
     .with(0, (): Tile[][] => [])
     .otherwise((count) =>
       chain(
-        times(count * STRUCTURE_HEIGHT, () =>
+        times(count * VERTICAL_BAND_HEIGHT + GROUND_DEPTH, () =>
           times(STRUCTURE_WIDTH, (): Tile => TILE_AIR),
         ),
       )

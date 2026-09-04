@@ -1,31 +1,22 @@
-import { isSolidTile, TILE_AIR } from '@mander/model';
-import { every, filter, includes, map, range, size } from 'lodash-es';
+import { TILE_AIR } from '@mander/model';
+import { every, filter, includes, map, range, some } from 'lodash-es';
 
-import { STRUCTURE_HEIGHT, STRUCTURE_WIDTH } from './consts';
+import { STRUCTURE_HEIGHT } from './consts';
 import { STRUCTURE_END, STRUCTURE_START } from './special-tiles';
 
 type Grid = readonly (readonly number[])[];
 
 const MARKERS = [STRUCTURE_START, STRUCTURE_END];
 
-export const VERTICAL_SHAFT_ROWS: readonly number[] = Object.freeze([0, 1]);
+export const VERTICAL_BAND_HEIGHT = 17;
 
-export const VERTICAL_EXIT_ROW = 2;
+export const VERTICAL_END_ROW = 0;
 
-export const VERTICAL_EXIT_COLUMNS: readonly number[] = Object.freeze(
-  range(6, 14),
+export const VERTICAL_START_ROWS: readonly number[] = Object.freeze([15, 16]);
+
+export const VERTICAL_IGNORED_ROWS: readonly number[] = Object.freeze(
+  range(VERTICAL_BAND_HEIGHT, STRUCTURE_HEIGHT),
 );
-
-export const VERTICAL_HALL_ROWS: readonly number[] = Object.freeze([17, 18]);
-
-export const VERTICAL_FLOOR_ROW = STRUCTURE_HEIGHT - 1;
-
-export const VERTICAL_ENTRY_COLUMNS: readonly number[] = Object.freeze(
-  range(8, 12),
-);
-
-const spanOf = (columns: readonly number[]): string =>
-  `${columns[0]}-${columns[size(columns) - 1]}`;
 
 const isEmpty = (cell: number): boolean =>
   cell === TILE_AIR || includes(MARKERS, cell);
@@ -33,17 +24,15 @@ const isEmpty = (cell: number): boolean =>
 const areEmpty = (structure: Grid, rows: readonly number[]): boolean =>
   every(rows, (row) => every(structure[row], isEmpty));
 
-const isExitLaid = (structure: Grid): boolean =>
-  every(VERTICAL_EXIT_COLUMNS, (column) =>
-    isSolidTile(structure[VERTICAL_EXIT_ROW]?.[column] ?? TILE_AIR),
-  );
-
-const isFloorLaid = (structure: Grid): boolean =>
+const isMarkerIn = (
+  structure: Grid,
+  marker: number,
+  rows: readonly number[],
+): boolean =>
+  some(rows, (row) => includes(structure[row], marker)) &&
   every(
-    range(STRUCTURE_WIDTH),
-    (column) =>
-      isSolidTile(structure[VERTICAL_FLOOR_ROW]?.[column] ?? TILE_AIR) !==
-      includes(VERTICAL_ENTRY_COLUMNS, column),
+    structure,
+    (cells, row) => !includes(cells, marker) || includes(rows, row),
   );
 
 interface Rule {
@@ -53,20 +42,22 @@ interface Rule {
 
 const RULES: readonly Rule[] = Object.freeze([
   {
-    message: `rows ${VERTICAL_SHAFT_ROWS.join(' and ')} are the shaft the player leaves through and must be empty`,
-    isKept: (structure: Grid) => areEmpty(structure, VERTICAL_SHAFT_ROWS),
+    message: `row ${VERTICAL_END_ROW} is the shaft the player leaves through and must be empty`,
+    isKept: (structure: Grid) => areEmpty(structure, [VERTICAL_END_ROW]),
   },
   {
-    message: `row ${VERTICAL_EXIT_ROW} must carry the exit platform, solid across columns ${spanOf(VERTICAL_EXIT_COLUMNS)}`,
-    isKept: isExitLaid,
+    message: `the end must be marked in row ${VERTICAL_END_ROW}`,
+    isKept: (structure: Grid) =>
+      isMarkerIn(structure, STRUCTURE_END, [VERTICAL_END_ROW]),
   },
   {
-    message: `rows ${VERTICAL_HALL_ROWS.join(' and ')} are the hall the player arrives in and must be empty`,
-    isKept: (structure: Grid) => areEmpty(structure, VERTICAL_HALL_ROWS),
+    message: `rows ${VERTICAL_START_ROWS.join(' and ')} are the hall the player arrives in and must be empty`,
+    isKept: (structure: Grid) => areEmpty(structure, VERTICAL_START_ROWS),
   },
   {
-    message: `row ${VERTICAL_FLOOR_ROW} must be a solid floor but for the entry gap at columns ${spanOf(VERTICAL_ENTRY_COLUMNS)}`,
-    isKept: isFloorLaid,
+    message: `the start must be marked in row ${VERTICAL_START_ROWS.join(' or ')}`,
+    isKept: (structure: Grid) =>
+      isMarkerIn(structure, STRUCTURE_START, VERTICAL_START_ROWS),
   },
 ]);
 
