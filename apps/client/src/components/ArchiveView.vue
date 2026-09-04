@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import type { PackedReplay } from '@mander/engine';
 import { noop } from 'lodash-es';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { match } from 'ts-pattern';
+import { runLabel } from '../game/format';
+import type { RunRecord } from '../game/storage';
 import { useArchive } from '../game/use-archive';
 import ReplayBar from './ReplayBar.vue';
 
-const props = defineProps<{
-  worldName: string;
-  day: string;
-  replay: PackedReplay;
-}>();
+const props = defineProps<{ run: RunRecord }>();
 const emit = defineEmits<{ exit: [] }>();
 
 const canvas = ref<HTMLCanvasElement | null>(null);
-const replay = useArchive({ day: props.day, replay: props.replay }, canvas);
+const replay = useArchive(
+  { day: props.run.day, replay: props.run.replay },
+  canvas,
+);
 
 const {
   isPaused,
@@ -40,7 +40,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
     <canvas ref="canvas" class="stage" />
 
     <ReplayBar
-      :world-name="worldName"
+      :world-name="run.name"
+      :label="runLabel(run)"
       :is-paused="isPaused"
       :is-finished="isFinished"
       :speed="speed"

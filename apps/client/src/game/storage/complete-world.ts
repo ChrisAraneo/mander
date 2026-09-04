@@ -1,9 +1,7 @@
 import { concat, find, isUndefined, reject } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import { loadSave } from './load-save';
-import { persist } from './persist';
-import type { CompletedWorld } from './save-data';
+import type { CompletedWorld, SaveData } from './save-data';
 
 const { when } = P;
 
@@ -21,16 +19,14 @@ const best = (
     )
     .otherwise(() => run);
 
-export const completeWorld = (run: CompletedWorld): void => {
-  const save = loadSave();
-  const previous = find(save.completedWorlds, { name: run.name });
-
-  persist({
-    ...save,
-    score: run.score,
-    completedWorlds: concat(
-      reject(save.completedWorlds, { name: run.name }),
-      best(run, previous),
-    ),
-  });
-};
+export const withCompletedWorld = (
+  save: SaveData,
+  run: CompletedWorld,
+): SaveData => ({
+  ...save,
+  score: run.score,
+  completedWorlds: concat(
+    reject(save.completedWorlds, { name: run.name }),
+    best(run, find(save.completedWorlds, { name: run.name })),
+  ),
+});

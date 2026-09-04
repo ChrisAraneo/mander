@@ -26,6 +26,7 @@ const completed = (name: string, day: string): CompletedWorld => ({
   day,
   score: 100,
   seconds: 42,
+  runId: '',
   replay: { worldName: name, entries: [[0, 1]] },
 });
 

@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { noop } from 'lodash-es';
+import { isFinite, size } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { computeWorldName } from '@mander/generator';
-import { formatClock } from '../game/format';
+import { formatClock, runLabel } from '../game/format';
 import {
-  type CompletedWorld,
   loadSave,
   type PlayableWorld,
   playableWorlds,
+  type RunRecord,
 } from '../game/storage';
 import { useBackdrop } from '../game/use-backdrop';
 import { dailyDate } from '../game/use-game';
 
-const { nonNullable } = P;
+const { nonNullable, when } = P;
 
 const emit = defineEmits<{
   start: [day: string];
-  watch: [world: CompletedWorld];
+  watch: [run: RunRecord];
 }>();
 
 const date = dailyDate();
@@ -34,6 +34,8 @@ const finishedToday = computed(() =>
 );
 
 const playedWorlds = computed(() => playableWorlds(save.value));
+
+const opened = ref<string | null>(null);
 
 const pluralSuffix = (count: number): string =>
   match(count)
@@ -57,14 +59,25 @@ const clockOf = (world: PlayableWorld): string =>
     .with(nonNullable, (run) => formatClock(run.seconds))
     .otherwise(() => '');
 
-const hasReplay = (world: PlayableWorld): boolean =>
-  world.completed?.replay != null;
+const isOpen = (world: PlayableWorld): boolean => opened.value === world.name;
 
-function watchWorld(world: PlayableWorld): void {
-  match(world.completed)
-    .with(nonNullable, (run) => emit('watch', run))
-    .otherwise(noop);
-}
+const toggleRuns = (world: PlayableWorld): void => {
+  opened.value = match(isOpen(world))
+    .with(true, (): string | null => null)
+    .otherwise(() => world.name);
+};
+
+const whenOf = (run: RunRecord): string =>
+  match(new Date(run.playedAt).getTime())
+    .with(when(isFinite), (time) =>
+      new Date(time).toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      }),
+    )
+    .otherwise(() => 'best run');
 </script>
 
 <template>
@@ -122,12 +135,31 @@ function watchWorld(world: PlayableWorld): void {
                 ▶ Play
               </button>
               <button
-                v-if="hasReplay(world)"
+                v-if="world.replays.length"
                 class="ghost"
-                @click="watchWorld(world)">
-                ⟲ Replay
+                :aria-expanded="isOpen(world)"
+                @click="toggleRuns(world)">
+                ⟲ Replays ({{ size(world.replays) }})
               </button>
             </div>
+
+            <ul v-if="isOpen(world)" class="run-list">
+              <li v-for="run in world.replays" :key="run.id" class="run">
+                <span class="run-outcome" :class="run.outcome.toLowerCase()">{{
+                  runLabel(run)
+                }}</span>
+
+                <span class="run-meta">
+                  <span class="run-score">★ {{ formatScore(run.score) }}</span>
+                  <span class="run-time">⏱ {{ formatClock(run.seconds) }}</span>
+                  <span class="run-when">{{ whenOf(run) }}</span>
+                </span>
+
+                <button class="ghost" @click="emit('watch', run)">
+                  ▶ Watch
+                </button>
+              </li>
+            </ul>
           </li>
         </ul>
       </div>
@@ -245,7 +277,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-height: 240px;
+  max-height: 280px;
   overflow-y: auto;
   margin: 0;
   padding: 0;
@@ -311,6 +343,61 @@ h1 {
 }
 
 .row-actions .ghost {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.run-list {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 6px 0 0;
+  padding: 8px 0 0;
+  border-top: 1px solid #2a3648;
+  list-style: none;
+}
+
+.run {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2px 10px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #161d2b;
+}
+
+.run-outcome {
+  font-size: 12px;
+  font-weight: 700;
+  color: #9fb0c3;
+}
+
+.run-outcome.complete {
+  color: #7ddf9a;
+}
+
+.run-outcome.game_over {
+  color: #ff5470;
+}
+
+.run-meta {
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  font-size: 12px;
+}
+
+.run-when {
+  color: #64758a;
+}
+
+.run .ghost {
+  grid-column: 2;
+  grid-row: 1 / span 2;
   padding: 4px 10px;
   font-size: 12px;
 }

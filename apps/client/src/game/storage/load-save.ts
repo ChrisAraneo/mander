@@ -1,13 +1,33 @@
 import type { PackedReplay } from '@mander/engine';
-import { every, isArray, isFinite, isObjectLike, isString } from 'lodash-es';
+import {
+  compact,
+  every,
+  includes,
+  isArray,
+  isFinite,
+  isObjectLike,
+  isString,
+} from 'lodash-es';
 import { tryCatch } from 'ramda';
 import { match, P } from 'ts-pattern';
 
 import { STORAGE_KEY } from './consts';
 import { emptySave } from './empty-save';
-import type { CompletedWorld, PlayedWorld, SaveData } from './save-data';
+import type {
+  CompletedWorld,
+  PlayedWorld,
+  RunOutcome,
+  RunRecord,
+  SaveData,
+} from './save-data';
 
-const { nullish, when } = P;
+const { nonNullable, nullish, when } = P;
+
+const OUTCOMES: readonly RunOutcome[] = Object.freeze([
+  'COMPLETE',
+  'GAME_OVER',
+  'ABANDONED',
+]);
 
 const isSaveShape = (value: unknown): value is Partial<SaveData> =>
   isObjectLike(value);
@@ -36,6 +56,16 @@ const stringOrEmpty = (value: unknown): string =>
     )
     .otherwise(() => '');
 
+const outcomeOrAbandoned = (value: unknown): RunOutcome =>
+  match(value)
+    .with(
+      when((candidate): candidate is RunOutcome =>
+        includes(OUTCOMES, candidate),
+      ),
+      (outcome) => outcome,
+    )
+    .otherwise((): RunOutcome => 'ABANDONED');
+
 const isPackedEntry = (value: unknown): value is number[] =>
   isArray(value) && every(value, isFinite);
 
@@ -61,6 +91,7 @@ const completedWorlds = (value: unknown): CompletedWorld[] =>
       day: stringOrEmpty(world.day),
       score: numberOrZero(world.score),
       seconds: numberOrZero(world.seconds),
+      runId: stringOrEmpty(world.runId),
       replay: replayOrNull(world.replay),
     }));
 
@@ -77,6 +108,30 @@ const playedWorlds = (value: unknown): PlayedWorld[] =>
       runs: numberOrZero(world.runs),
     }));
 
+const isRunRecord = (value: unknown): value is Partial<RunRecord> =>
+  isObjectLike(value) && isString((value as RunRecord).id);
+
+const runs = (value: unknown): RunRecord[] =>
+  compact(
+    arrayOrEmpty<unknown>(value)
+      .filter(isRunRecord)
+      .map((run): RunRecord | null =>
+        match(replayOrNull(run.replay))
+          .with(nonNullable, (replay): RunRecord => ({
+            id: stringOrEmpty(run.id),
+            name: stringOrEmpty(run.name),
+            day: stringOrEmpty(run.day),
+            playedAt: stringOrEmpty(run.playedAt),
+            outcome: outcomeOrAbandoned(run.outcome),
+            score: numberOrZero(run.score),
+            seconds: numberOrZero(run.seconds),
+            levelIndex: numberOrZero(run.levelIndex),
+            replay,
+          }))
+          .otherwise(() => null),
+      ),
+  );
+
 const fromRaw = (raw: string | null): SaveData =>
   match(raw)
     .with(nullish, () => emptySave())
@@ -86,6 +141,7 @@ const fromRaw = (raw: string | null): SaveData =>
           score: numberOrZero(shaped.score),
           completedWorlds: completedWorlds(shaped.completedWorlds),
           playedWorlds: playedWorlds(shaped.playedWorlds),
+          runs: runs(shaped.runs),
         }))
         .otherwise(() => emptySave()),
     );

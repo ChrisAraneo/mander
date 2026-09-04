@@ -8,7 +8,6 @@ import {
   packReplay,
   type Recorder,
   reduce,
-  totalTime,
 } from '@mander/engine';
 import { generate } from '@mander/generator';
 import { renderGame, syncViewport } from '@mander/render';
@@ -41,18 +40,13 @@ import {
   withCanvas,
 } from '../canvas';
 import { createKeyboard, type Keyboard } from '../input';
-import { completeWorld, recordPlayedWorld, saveScore } from '../storage';
+import { recordPlayedWorld, type RunOutcome, saveScore } from '../storage';
 import { tickStream } from '../tick';
 import { useReplay, type ReplayController } from '../use-replay';
 import type { GameController } from './game-controller';
+import { createRunArchive, type RunArchive } from './run-archive';
 
 const { nonNullable } = P;
-
-interface Run {
-  world: GameWorld;
-  day: string;
-  replay: () => PackedReplay;
-}
 
 interface GameCell extends CanvasCell {
   keyboard: Keyboard | null;
@@ -81,36 +75,63 @@ const isRunOver = (world: GameWorld, state: GameState): boolean =>
   state.status === 'GAME_OVER' ||
   (state.status === 'COMPLETE' && state.levelIndex >= size(world.levels) - 1);
 
+const endOutcome = (state: GameState): RunOutcome =>
+  match(state.status)
+    .with('GAME_OVER', (): RunOutcome => 'GAME_OVER')
+    .otherwise((): RunOutcome => 'COMPLETE');
+
 const persistProgress = (
-  run: Run,
+  world: GameWorld,
   previous: GameState,
   next: GameState,
 ): void =>
-  match(next.status === 'COMPLETE' && previous.status !== 'COMPLETE')
+  match(
+    next.status === 'COMPLETE' &&
+      previous.status !== 'COMPLETE' &&
+      next.levelIndex < size(world.levels) - 1,
+  )
+    .with(true, () => saveScore(next.score))
+    .otherwise(noop);
+
+const endRun = (
+  world: GameWorld,
+  recorder: Recorder,
+  archive: RunArchive,
+  next: GameState,
+): void =>
+  match(isRunOver(world, next))
     .with(true, () =>
-      match(next.levelIndex >= size(run.world.levels) - 1)
-        .with(true, () =>
-          completeWorld({
-            name: run.world.name,
-            day: run.day,
-            score: next.score,
-            seconds: totalTime(next.levelTimes),
-            replay: run.replay(),
-          }),
-        )
-        .otherwise(() => saveScore(next.score)),
+      archive.keep(
+        withEffect(next, () => recorder.stop()),
+        endOutcome(next),
+      ),
     )
     .otherwise(noop);
 
+const restartRun = (
+  recorder: Recorder,
+  archive: RunArchive,
+  state: GameState,
+): void =>
+  chain(state)
+    .thru((current) =>
+      withEffect(current, () => archive.keep(current, 'ABANDONED')),
+    )
+    .thru((current) => withEffect(current, () => recorder.reset()))
+    .thru(() => archive.reset())
+    .value();
+
 const capture = (
   recorder: Recorder,
+  archive: RunArchive,
+  state: ShallowRef<GameState>,
   action: Action,
   timestampMs: number,
 ): void =>
   chain(action.type)
     .thru((type) =>
       match(type)
-        .with('RESTART', () => recorder.reset())
+        .with('RESTART', () => restartRun(recorder, archive, state.value))
         .otherwise(noop),
     )
     .thru(() => recorder.record(action, timestampMs))
@@ -119,8 +140,9 @@ const capture = (
 const onState =
   (
     state: ShallowRef<GameState>,
-    run: Run,
+    world: GameWorld,
     recorder: Recorder,
+    archive: RunArchive,
     replay: ReplayController,
     render: (next: GameState) => void,
     dispatch: (action: Action) => void,
@@ -132,14 +154,12 @@ const onState =
         withEffect(step, () => syncDebugGlobals(step.next, dispatch)),
       )
       .thru((step) =>
-        withEffect(step, () => persistProgress(run, step.previous, step.next)),
+        withEffect(step, () =>
+          persistProgress(world, step.previous, step.next),
+        ),
       )
       .thru((step) =>
-        withEffect(step, () =>
-          match(isRunOver(run.world, step.next))
-            .with(true, () => recorder.stop())
-            .otherwise(noop),
-        ),
+        withEffect(step, () => endRun(world, recorder, archive, step.next)),
       )
       .thru((step) =>
         match(replay.isActive.value)
@@ -154,8 +174,8 @@ const startOnMount = (
   world: GameWorld,
   day: string,
   initial: GameState,
-  actions$: Subject<Action>,
-  recorder: Recorder,
+  actions: Subject<Action>,
+  onCapture: (action: Action, timestampMs: number) => void,
   onNext: (next: GameState) => void,
 ): void =>
   match(openCanvas(cell, canvas))
@@ -172,11 +192,11 @@ const startOnMount = (
             subscription: merge(
               tickStream(),
               current.keyboard.actions$,
-              actions$,
+              actions,
             )
               .pipe(
                 timestamp(),
-                tap(({ value, timestamp: at }) => capture(recorder, value, at)),
+                tap(({ value, timestamp: at }) => onCapture(value, at)),
                 map(({ value }) => value),
                 scan(reduce, initial),
               )
@@ -208,14 +228,15 @@ export const useGame = (
       ...setup,
       state: shallowRef(setup.initial),
       dispatch: (action: Action): void => setup.actions$.next(action),
-      run: {
-        world: setup.world,
-        day,
-        replay: (): PackedReplay => packReplay(setup.recorder.snapshot()),
-      } satisfies Run,
+      replayOf: (): PackedReplay => packReplay(setup.recorder.snapshot()),
     }))
     .thru((setup) => ({
       ...setup,
+      archive: createRunArchive({
+        name: setup.world.name,
+        day,
+        replay: setup.replayOf,
+      }),
       renderState: (next: GameState): void =>
         withCanvas(setup.cell, canvas, (context, element) =>
           renderGame(context, next, setup.world.palette, syncViewport(element)),
@@ -240,11 +261,13 @@ export const useGame = (
             day,
             setup.initial,
             setup.actions$,
-            setup.recorder,
+            (action, at) =>
+              capture(setup.recorder, setup.archive, setup.state, action, at),
             onState(
               setup.state,
-              setup.run,
+              setup.world,
               setup.recorder,
+              setup.archive,
               setup.replay,
               setup.renderState,
               setup.dispatch,
@@ -257,6 +280,11 @@ export const useGame = (
       withEffect(setup, () =>
         onUnmounted(() =>
           chain(setup.cell)
+            .thru((cell) =>
+              withEffect(cell, () =>
+                setup.archive.keep(setup.state.value, 'ABANDONED'),
+              ),
+            )
             .thru((cell) =>
               withEffect(cell, () => cell.subscription?.unsubscribe()),
             )
