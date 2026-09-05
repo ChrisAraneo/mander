@@ -7,6 +7,7 @@ import { match } from 'ts-pattern';
 import { addPadding } from './structures/add-padding';
 import { addStones } from './structures/add-stones';
 import { computeLevelSeeds } from './seed/compute-level-seeds';
+import { clearBeartraps } from './structures/clear-beartraps';
 import { clearCannons } from './structures/clear-cannons';
 import { clearFireballs } from './structures/clear-fireballs';
 import { clearSpikes } from './structures/clear-spikes';
@@ -97,7 +98,8 @@ const buildTiles = (structures: Structure[], levelNumber: number): Tile[][] => {
   const withPortal = layout.addPortal(withPlayer);
   const withPadding = addPadding(withPortal);
   const withSpikes = clearSpikes(withPadding, levelNumber);
-  const withKey = layout.addKey(withSpikes);
+  const withBeartraps = clearBeartraps(withSpikes, levelNumber);
+  const withKey = layout.addKey(withBeartraps);
   const withChest = layout.addChest(withKey);
   const withGems = layout.addGems(withChest);
   const withStones = addStones(withGems);

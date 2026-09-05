@@ -247,9 +247,16 @@ import {
   NORMAL_200,
   NORMAL_201,
   NORMAL_202,
+  NORMAL_001,
+  NORMAL_203,
+  NORMAL_204,
+  NORMAL_205,
 } from './normal';
 import type { Structure } from './structure';
-import { VERTICAL_001 } from './vertical';
+import { VERTICAL_001,
+  VERTICAL_001,
+  VERTICAL_002,
+} from './vertical';
 
 export const HARD_STRUCTURES: readonly Structure[] = Object.freeze([
   HARD_001,
@@ -501,8 +508,12 @@ export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
   NORMAL_200,
   NORMAL_201,
   NORMAL_202,
+  NORMAL_203,
+  NORMAL_204,
+  NORMAL_205,
 ]);
 
 export const VERTICAL_STRUCTURES: readonly Structure[] = Object.freeze([
   VERTICAL_001,
+  VERTICAL_002,
 ]);
