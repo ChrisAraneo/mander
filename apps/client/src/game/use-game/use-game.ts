@@ -41,6 +41,7 @@ import {
   setRef,
   withCanvas,
 } from '../canvas';
+import { logWorldMeta } from '../debug';
 import { createKeyboard, type Keyboard } from '../input';
 import {
   ghostRuns,
@@ -221,6 +222,7 @@ export const useGame = (
   canvas: Ref<HTMLCanvasElement | null>,
 ): GameController =>
   chain(generate(new Date(day)))
+    .thru((world) => withEffect(world, () => logWorldMeta(world)))
     .thru((world) => ({
       world,
       initial: startState(world),

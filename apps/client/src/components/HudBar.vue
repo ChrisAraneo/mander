@@ -4,6 +4,7 @@ import { range } from 'lodash-es';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 import { type GameState, isWarded, startingFireballs } from '@mander/engine';
+import { isDebug } from '../game/debug';
 import { formatClock } from '../game/format';
 
 const props = defineProps<{
@@ -45,6 +46,8 @@ const keyLabel = computed(() =>
 );
 
 const score = computed(() => props.state.score.toLocaleString('en-US'));
+
+const debug = isDebug();
 </script>
 
 <template>
@@ -110,7 +113,7 @@ const score = computed(() => props.state.score.toLocaleString('en-US'));
       <span class="chip key" :class="{ found: state.hasKey }">
         {{ keyLabel }}
       </span>
-      <span class="" title="Update Time"
+      <span v-if="debug" class="" title="Update Time"
         >⏱ {{ (1000.0 / state.updateTime).toFixed(2) }} ms</span
       >
     </div>

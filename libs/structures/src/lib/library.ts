@@ -1,3 +1,5 @@
+import { values } from 'lodash-es';
+
 import {
   HARD_001,
   HARD_002,
@@ -265,7 +267,7 @@ import {
   VERTICAL_010,
 } from './vertical';
 
-export const HARD_STRUCTURES: readonly Structure[] = Object.freeze([
+export const HARD_LIBRARY = Object.freeze({
   HARD_001,
   HARD_002,
   HARD_003,
@@ -312,9 +314,13 @@ export const HARD_STRUCTURES: readonly Structure[] = Object.freeze([
   HARD_044,
   HARD_045,
   HARD_046,
-]);
+});
 
-export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
+export const HARD_STRUCTURES: readonly Structure[] = Object.freeze(
+  values(HARD_LIBRARY),
+);
+
+export const NORMAL_LIBRARY = Object.freeze({
   NORMAL_001,
   NORMAL_002,
   NORMAL_003,
@@ -518,9 +524,13 @@ export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze([
   NORMAL_203,
   NORMAL_204,
   NORMAL_205,
-]);
+});
 
-export const VERTICAL_STRUCTURES: readonly Structure[] = Object.freeze([
+export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze(
+  values(NORMAL_LIBRARY),
+);
+
+export const VERTICAL_LIBRARY = Object.freeze({
   VERTICAL_001,
   VERTICAL_002,
   VERTICAL_003,
@@ -531,4 +541,8 @@ export const VERTICAL_STRUCTURES: readonly Structure[] = Object.freeze([
   VERTICAL_008,
   VERTICAL_009,
   VERTICAL_010,
-]);
+});
+
+export const VERTICAL_STRUCTURES: readonly Structure[] = Object.freeze(
+  values(VERTICAL_LIBRARY),
+);

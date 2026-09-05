@@ -36,7 +36,12 @@ import {
 import { describe, expect, it } from 'vitest';
 
 import { generate } from './generate';
-import { MIRRORED_LEVELS, VERTICAL_LEVELS } from './consts';
+import {
+  FIRST_HARD_LEVEL,
+  MIRRORED_LEVELS,
+  STRUCTURES_PER_LEVEL,
+  VERTICAL_LEVELS,
+} from './consts';
 import { FIRST_CANNON_LEVEL } from './structures/clear-cannons';
 
 const LEVELS_A_DAY = 8;
@@ -44,6 +49,13 @@ const LEVELS_A_DAY = 8;
 const GEMS_A_CLIMB = 10;
 
 const dayOf = (day: number): Date => new Date(Date.UTC(2026, 0, 1 + day));
+
+const poolPrefixOf = (levelNumber: number): string =>
+  includes(VERTICAL_LEVELS, levelNumber)
+    ? 'VERTICAL'
+    : levelNumber >= FIRST_HARD_LEVEL
+      ? 'HARD'
+      : 'NORMAL';
 
 const days = times(10, dayOf);
 
@@ -311,6 +323,28 @@ describe('generate', () => {
           level.isOpenSided !== includes(VERTICAL_LEVELS, level.levelNumber),
       ),
     ).toEqual([]);
+  });
+
+  it('records every structure it built a level from', () => {
+    const counts = flatMap(days, (date) =>
+      map(generate(date).levels, (level) => size(level.meta?.structures)),
+    );
+
+    expect(size(counts)).toBe(size(days) * LEVELS_A_DAY);
+    expect(uniq(counts)).toEqual([STRUCTURES_PER_LEVEL]);
+  });
+
+  it('records the structures of the pool the level was dealt from', () => {
+    const strays = flatMap(days, (date) =>
+      flatMap(generate(date).levels, (level, index) =>
+        filter(
+          level.meta?.structures ?? [],
+          (name) => !name.startsWith(`${poolPrefixOf(index + 1)}_`),
+        ),
+      ),
+    );
+
+    expect(strays).toEqual([]);
   });
 
   it('deals the same day the same way twice', () => {

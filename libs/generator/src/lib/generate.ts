@@ -1,7 +1,7 @@
 import { type GameLevel, HORNED_ENEMY_CHANCE } from '@mander/engine';
-import type { Tile } from '@mander/model';
+import type { LevelMeta, Tile } from '@mander/model';
 import type { RenderedWorld } from '@mander/render';
-import type { Structure } from '@mander/structures';
+import { getStructureName, type Structure } from '@mander/structures';
 import { filter, floor, map, range, size, slice, take } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { addPadding } from './structures/add-padding';
@@ -88,6 +88,10 @@ const sliceForLevel = (
   return slice(dealt, index * perLevel, (index + 1) * perLevel);
 };
 
+const metaFor = (structures: Structure[]): LevelMeta => ({
+  structures: map(structures, getStructureName),
+});
+
 const buildTiles = (structures: Structure[], levelNumber: number): Tile[][] => {
   const layout = layoutFor(levelNumber);
   const tiles = clearFireballs(
@@ -117,10 +121,12 @@ export const generate = (date: Date): RenderedWorld => {
   const levels: GameLevel[] = map(seeds, (seed, index) => {
     const levelNumber = index + 1;
     const pool = pools[index];
-    const tiles = buildTiles(
-      sliceForLevel(deal[pool], countIn(pools, pool), rankIn(pools, index)),
-      levelNumber,
+    const structures = sliceForLevel(
+      deal[pool],
+      countIn(pools, pool),
+      rankIn(pools, index),
     );
+    const tiles = buildTiles(structures, levelNumber);
 
     const level: GameLevel = {
       seed,
@@ -130,6 +136,7 @@ export const generate = (date: Date): RenderedWorld => {
       chestItems: generateChestItems(seed),
       hornedEnemyChance: hornedEnemyChanceFor(levelNumber),
       isOpenSided: isVertical(levelNumber),
+      meta: metaFor(structures),
     };
 
     return level;
