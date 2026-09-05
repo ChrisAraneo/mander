@@ -15,9 +15,8 @@ import { advanceGhosts, createGhosts, ghostStates } from './ghost-playback';
 const WIDTH = 20;
 const HEIGHT = 12;
 const GROUND_ROW = 9;
-const FRAME_MS = 1000 / 60;
 
-const tickAction: Action = { type: 'TICK', deltaSeconds: 1 / 60 };
+const tickAction: Action = { type: 'TICK' };
 
 const testLevel = (): GameLevel => {
   const tiles: Tile[][] = times(HEIGHT, (y) =>
@@ -45,14 +44,14 @@ const initialState = (): GameState => createInitialState(LEVEL, 0, []);
 
 const recordingOf = (script: Action[]): Replay => {
   const recorder = createRecorder('GHOST');
-  script.forEach((action, index) => recorder.record(action, index * FRAME_MS));
+  script.forEach((action) => recorder.record(action));
   return recorder.snapshot();
 };
 
-const walkingRight = (frames: number): Replay =>
+const walkingRight = (steps: number): Replay =>
   recordingOf([
     { type: 'MOVE_RIGHT_START' },
-    ...times(frames, () => tickAction),
+    ...times(steps, () => tickAction),
   ]);
 
 const xOf = (state: GameState): number => state.player.position.x;
@@ -75,18 +74,40 @@ describe('the ghosts running alongside a replay', () => {
   it('walks each ghost forward on its own recording', () => {
     const ghosts = advanceGhosts(
       createGhosts([walkingRight(60)], initialState),
-      30 * FRAME_MS,
+      30,
     );
 
     expect(xOf(ghosts[0].playback.state)).toBeGreaterThan(xOf(initialState()));
   });
 
+  it('keeps the state one step back to draw across', () => {
+    const ghosts = advanceGhosts(
+      createGhosts([walkingRight(60)], initialState),
+      30,
+    );
+
+    expect(xOf(ghosts[0].previous)).toBeLessThan(xOf(ghosts[0].playback.state));
+  });
+
+  it('lands on the same place whether the steps come in one batch or many', () => {
+    const [batched] = advanceGhosts(
+      createGhosts([walkingRight(60)], initialState),
+      40,
+    );
+    const drip = times(40).reduce(
+      (ghosts) => advanceGhosts(ghosts, 1),
+      createGhosts([walkingRight(60)], initialState),
+    );
+
+    expect(xOf(drip[0].playback.state)).toBe(xOf(batched.playback.state));
+  });
+
   it('holds a ghost still once its run has played out', () => {
     const ghosts = advanceGhosts(
       createGhosts([walkingRight(10)], initialState),
-      10_000,
+      600,
     );
-    const settled = advanceGhosts(ghosts, 10_000);
+    const settled = advanceGhosts(ghosts, 600);
 
     expect(settled[0]).toBe(ghosts[0]);
   });
@@ -94,22 +115,36 @@ describe('the ghosts running alongside a replay', () => {
   it('shows only the ghosts whose run is still going', () => {
     const ghosts = advanceGhosts(
       createGhosts([walkingRight(10), walkingRight(600)], initialState),
-      20 * FRAME_MS,
+      20,
     );
 
-    expect(ghostStates(ghosts)).toHaveLength(1);
+    expect(ghostStates(ghosts, 0)).toHaveLength(1);
+  });
+
+  it('draws a ghost part-way between the steps it took', () => {
+    const ghosts = advanceGhosts(
+      createGhosts([walkingRight(60)], initialState),
+      30,
+    );
+    const [back] = ghostStates(ghosts, 0);
+    const [middle] = ghostStates(ghosts, 0.5);
+    const [front] = ghostStates(ghosts, 1);
+
+    expect(xOf(back)).toBeLessThan(xOf(middle));
+    expect(xOf(middle)).toBeLessThan(xOf(front));
+    expect(xOf(middle)).toBeCloseTo((xOf(back) + xOf(front)) / 2, 6);
   });
 
   it('shows nothing once every run has played out', () => {
     const ghosts = advanceGhosts(
       createGhosts([walkingRight(10), walkingRight(20)], initialState),
-      10_000,
+      600,
     );
 
-    expect(ghostStates(ghosts)).toEqual([]);
+    expect(ghostStates(ghosts, 0)).toEqual([]);
   });
 
   it('has no ghosts to run when the world has no other runs', () => {
-    expect(ghostStates(createGhosts([], initialState))).toEqual([]);
+    expect(ghostStates(createGhosts([], initialState), 0)).toEqual([]);
   });
 });

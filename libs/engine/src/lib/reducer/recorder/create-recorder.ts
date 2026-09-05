@@ -1,5 +1,5 @@
 import { chain } from '@mander/utils';
-import { assign, noop, size } from 'lodash-es';
+import { assign, noop } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import type { Action } from '../../actions/actions';
@@ -8,53 +8,44 @@ import type { Recorder } from './types/recorder';
 
 interface RecorderState {
   entries: RecordedAction[];
-  startedAtMs: number;
+  step: number;
   isRecording: boolean;
 }
 
 const emptyState = (): RecorderState => ({
   entries: [],
-  startedAtMs: 0,
+  step: 0,
   isRecording: true,
 });
 
 const mutate = (state: RecorderState, patch: Partial<RecorderState>): void =>
   void assign(state, patch);
 
-const append = (
-  state: RecorderState,
-  action: Action,
-  timestampMs: number,
-): void =>
-  chain(
-    match(size(state.entries))
-      .with(0, () => timestampMs)
-      .otherwise(() => state.startedAtMs),
-  )
-    .thru((startedAtMs) => ({
-      startedAtMs,
-      entry: { atMs: timestampMs - startedAtMs, action },
-    }))
-    .thru(({ startedAtMs, entry }) =>
+/**
+ * A tick moves the run's clock on; every other action is an input, and where it
+ * landed is the step it was seen on.
+ */
+const append = (state: RecorderState, action: Action): void =>
+  match(action)
+    .with({ type: 'TICK' }, () => mutate(state, { step: state.step + 1 }))
+    .otherwise((input) =>
       mutate(state, {
-        startedAtMs,
-        entries: [...state.entries, entry],
+        entries: [...state.entries, { atStep: state.step, action: input }],
       }),
-    )
-    .value();
+    );
 
 export const createRecorder = (worldName: string): Recorder =>
   chain(emptyState())
     .thru((state): Recorder => ({
-      record: (action, timestampMs) =>
+      record: (action) =>
         match(state.isRecording)
-          .with(true, () => append(state, action, timestampMs))
+          .with(true, () => append(state, action))
           .otherwise(noop),
       stop: () => mutate(state, { isRecording: false }),
       reset: () => mutate(state, emptyState()),
       snapshot: () => ({
         worldName,
-        startedAtMs: state.startedAtMs,
+        steps: state.step,
         entries: [...state.entries],
       }),
     }))

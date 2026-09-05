@@ -1,3 +1,4 @@
+import { FIXED_STEP_SECONDS } from '@mander/model';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 
@@ -24,7 +25,7 @@ export const reduce = (state: GameState, action: Action): GameState =>
     .thru((startTime) => ({
       startTime,
       newState: match(action)
-        .with({ type: 'TICK' }, ({ deltaSeconds }) => tick(state, deltaSeconds))
+        .with({ type: 'TICK' }, () => tick(state, FIXED_STEP_SECONDS))
         .with({ type: 'MOVE_LEFT_START' }, () => moveLeftStart(state))
         .with({ type: 'MOVE_LEFT_STOP' }, () => moveLeftStop(state))
         .with({ type: 'MOVE_RIGHT_START' }, () => moveRightStart(state))

@@ -242,7 +242,7 @@ describe('a level being played', () => {
   const played = (inventory: Item[], frames: number): GameState => {
     let state = createInitialState(arena(), 0, inventory);
     for (let frame = 0; frame < frames; frame++)
-      state = reduce(state, { type: 'TICK', deltaSeconds: DELTA_SECONDS });
+      state = reduce(state, { type: 'TICK' });
     return state;
   };
 

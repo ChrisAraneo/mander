@@ -1,21 +1,21 @@
 import {
-  advancePlayback,
   createPlayback,
   emptyReplay,
   isReplayFinished,
   type Replay,
   replayDuration,
-  type ReplayPlayback,
   replayProgress,
 } from '@mander/engine';
+import { FIXED_STEP_SECONDS } from '@mander/model';
+import { interpolateState } from '@mander/render';
 import { chain, withEffect } from '@mander/utils';
 import { assign, indexOf, noop, size } from 'lodash-es';
-import { animationFrames, map, type Observable, pairwise } from 'rxjs';
 import type { Subscription } from 'rxjs';
 import { match, P } from 'ts-pattern';
 import { onUnmounted, ref, type Ref } from 'vue';
 
 import { setRef } from '../canvas';
+import { fixedPulses, type Pulse } from '../tick';
 import { REPLAY_SPEEDS } from './consts';
 import {
   advanceGhosts,
@@ -23,6 +23,11 @@ import {
   type GhostPlayback,
   ghostStates,
 } from './ghost-playback';
+import {
+  advanceFrames,
+  type PlaybackFrame,
+  startFrame,
+} from './playback-frame';
 import type { ReplayController } from './replay-controller';
 import type { ReplaySource } from './replay-source';
 
@@ -30,14 +35,15 @@ const { nonNullable } = P;
 
 interface ReplayCell {
   recording: Replay;
-  playback: ReplayPlayback | null;
+  frame: PlaybackFrame | null;
   ghosts: GhostPlayback[];
   subscription: Subscription | null;
 }
 
-interface ReplayFrame {
-  playback: ReplayPlayback;
+interface ReplayStep {
+  frame: PlaybackFrame;
   ghosts: GhostPlayback[];
+  alpha: number;
 }
 
 interface ReplayRefs {
@@ -49,12 +55,6 @@ interface ReplayRefs {
   elapsedSeconds: Ref<number>;
   durationSeconds: Ref<number>;
 }
-
-const frameDeltas = (): Observable<number> =>
-  animationFrames().pipe(
-    pairwise(),
-    map(([previous, current]) => current.timestamp - previous.timestamp),
-  );
 
 const createRefs = (): ReplayRefs => ({
   isActive: ref(false),
@@ -68,43 +68,65 @@ const createRefs = (): ReplayRefs => ({
 
 const createCell = (): ReplayCell => ({
   recording: emptyReplay(''),
-  playback: null,
+  frame: null,
   ghosts: [],
   subscription: null,
 });
 
 const publisher =
   (cell: ReplayCell, refs: ReplayRefs, source: ReplaySource) =>
-  (next: ReplayFrame): void =>
-    chain(assign(cell, { playback: next.playback, ghosts: next.ghosts }))
+  (next: ReplayStep): void =>
+    chain(assign(cell, { frame: next.frame, ghosts: next.ghosts }))
       .thru((current) =>
-        setRef(refs.progress, replayProgress(current.recording, next.playback)),
+        setRef(
+          refs.progress,
+          replayProgress(current.recording, next.frame.playback),
+        ),
       )
-      .thru(() => setRef(refs.elapsedSeconds, next.playback.elapsedMs / 1000))
+      .thru(() =>
+        setRef(
+          refs.elapsedSeconds,
+          next.frame.playback.step * FIXED_STEP_SECONDS,
+        ),
+      )
       .thru(() =>
         setRef(
           refs.isFinished,
-          isReplayFinished(cell.recording, next.playback),
+          isReplayFinished(cell.recording, next.frame.playback),
         ),
       )
-      .thru(() => source.render(next.playback.state, ghostStates(next.ghosts)))
+      .thru(() =>
+        source.render(
+          interpolateState(
+            next.frame.previous,
+            next.frame.playback.state,
+            next.alpha,
+          ),
+          ghostStates(next.ghosts, next.alpha),
+        ),
+      )
       .value();
 
+/**
+ * Speed is a whole multiplier, so running it faster is running more steps, not
+ * bigger ones - the run stays the run it was recorded as at every speed.
+ */
 const framer =
-  (cell: ReplayCell, refs: ReplayRefs, publish: (next: ReplayFrame) => void) =>
-  (deltaMs: number): void =>
+  (cell: ReplayCell, refs: ReplayRefs, publish: (next: ReplayStep) => void) =>
+  (pulse: Pulse): void =>
     match({
-      playback: cell.playback,
+      frame: cell.frame,
       paused: refs.isPaused.value,
       finished: refs.isFinished.value,
     })
       .with(
-        { playback: nonNullable, paused: false, finished: false },
-        ({ playback: current }) =>
-          chain(deltaMs * refs.speed.value)
-            .thru((stepMs) => ({
-              playback: advancePlayback(cell.recording, current, stepMs),
-              ghosts: advanceGhosts(cell.ghosts, stepMs),
+        { frame: nonNullable, paused: false, finished: false },
+        ({ frame: current }) =>
+          chain(pulse.steps * refs.speed.value)
+            .thru((steps) => ({
+              frame: advanceFrames(cell.recording, current, steps),
+              ghosts: advanceGhosts(cell.ghosts, steps),
+              alpha: pulse.alpha,
             }))
             .thru(publish)
             .value(),
@@ -116,8 +138,8 @@ const player =
     cell: ReplayCell,
     refs: ReplayRefs,
     source: ReplaySource,
-    publish: (next: ReplayFrame) => void,
-    onFrame: (deltaMs: number) => void,
+    publish: (next: ReplayStep) => void,
+    onPulse: (pulse: Pulse) => void,
   ) =>
   (): void =>
     chain(withEffect(cell, (current) => current.subscription?.unsubscribe()))
@@ -130,13 +152,14 @@ const player =
       .thru(() => setRef(refs.isActive, true))
       .thru(() =>
         publish({
-          playback: createPlayback(source.initialState()),
+          frame: startFrame(createPlayback(source.initialState())),
           ghosts: createGhosts(source.ghosts(), source.initialState),
+          alpha: 0,
         }),
       )
       .thru(() =>
         assign(cell, {
-          subscription: frameDeltas().subscribe(onFrame),
+          subscription: fixedPulses().subscribe(onPulse),
         }),
       )
       .thru(noop)
@@ -146,7 +169,7 @@ const stopper =
   (cell: ReplayCell, refs: ReplayRefs, source: ReplaySource) => (): void =>
     chain(withEffect(cell, (current) => current.subscription?.unsubscribe()))
       .thru((current) =>
-        assign(current, { subscription: null, playback: null, ghosts: [] }),
+        assign(current, { subscription: null, frame: null, ghosts: [] }),
       )
       .thru(() => setRef(refs.isActive, false))
       .thru(() => source.onStop())
@@ -181,11 +204,11 @@ export const useReplay = (source: ReplaySource): ReplayController =>
     }))
     .thru((ctx) => ({
       ...ctx,
-      onFrame: framer(ctx.cell, ctx.refs, ctx.publish),
+      onPulse: framer(ctx.cell, ctx.refs, ctx.publish),
     }))
     .thru((ctx) => ({
       ...ctx,
-      play: player(ctx.cell, ctx.refs, source, ctx.publish, ctx.onFrame),
+      play: player(ctx.cell, ctx.refs, source, ctx.publish, ctx.onPulse),
       stop: stopper(ctx.cell, ctx.refs, source),
     }))
     .thru((ctx) =>

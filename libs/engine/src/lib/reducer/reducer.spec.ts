@@ -133,8 +133,7 @@ const SPAWN_X = spawnPosition(testLevel()).x;
 const DELTA_SECONDS = 1 / 60;
 
 const act = (state: GameState, action: Action) => reduce(state, action);
-const tick = (state: GameState) =>
-  reduce(state, { type: 'TICK', deltaSeconds: DELTA_SECONDS });
+const tick = (state: GameState) => reduce(state, { type: 'TICK' });
 
 const tickN = (state: GameState, n: number): GameState => {
   let next = state;

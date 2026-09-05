@@ -38,7 +38,11 @@ const stateWith = (patch: Partial<GameState>): GameState => ({
   ...patch,
 });
 
-const replay = (): PackedReplay => ({ worldName: 'ABC', entries: [[0, 1]] });
+const replay = (): PackedReplay => ({
+  worldName: 'ABC',
+  steps: 1,
+  entries: [[0, 1]],
+});
 
 const source = (): RunSource => ({
   name: 'ABC',

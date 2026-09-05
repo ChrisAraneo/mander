@@ -22,8 +22,6 @@ const WIDTH = 20;
 const HEIGHT = 14;
 const GROUND_ROW = 10;
 
-const DELTA_SECONDS = 1 / 60;
-
 const testLevel = (): GameLevel => {
   const tiles: Tile[][] = times(HEIGHT, (row) =>
     times(WIDTH, (): Tile => (row >= GROUND_ROW ? TILE_DIRT : TILE_AIR)),
@@ -43,8 +41,7 @@ const testLevel = (): GameLevel => {
   };
 };
 
-const tick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK', deltaSeconds: DELTA_SECONDS });
+const tick = (state: GameState): GameState => reduce(state, { type: 'TICK' });
 
 const onTopOfPlayer = (state: GameState): Fireball => ({
   spin: 'CLOCKWISE',

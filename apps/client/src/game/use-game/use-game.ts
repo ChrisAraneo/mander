@@ -12,18 +12,15 @@ import {
   unpackReplay,
 } from '@mander/engine';
 import { generate } from '@mander/generator';
-import { playerFocus, renderGame, syncViewport } from '@mander/render';
+import {
+  interpolateState,
+  playerFocus,
+  renderGame,
+  syncViewport,
+} from '@mander/render';
 import { chain, withEffect } from '@mander/utils';
 import { assign, noop, size } from 'lodash-es';
-import {
-  map,
-  merge,
-  scan,
-  Subject,
-  type Subscription,
-  tap,
-  timestamp,
-} from 'rxjs';
+import { merge, scan, Subject, type Subscription, tap } from 'rxjs';
 import { match, P } from 'ts-pattern';
 import {
   onMounted,
@@ -50,20 +47,47 @@ import {
   type RunOutcome,
   saveScore,
 } from '../storage';
-import { tickStream } from '../tick';
+import { fixedPulses, pulseTicks } from '../tick';
 import { levelGhosts, useReplay, type ReplayController } from '../use-replay';
 import type { GameController } from './game-controller';
 import { createRunArchive, type RunArchive } from './run-archive';
 
 const { nonNullable } = P;
 
+/**
+ * The world one step apart. A frame lands between the two, so this is what the
+ * renderer draws across rather than the bare latest state.
+ */
+interface GameFrame {
+  previous: GameState;
+  current: GameState;
+}
+
 interface GameCell extends CanvasCell {
   keyboard: Keyboard | null;
   subscription: Subscription | null;
+  frame: GameFrame;
 }
 
 const startState = (world: GameWorld): GameState =>
   createInitialState(world.levels[0], 0, [], world.score);
+
+const startFrame = (state: GameState): GameFrame => ({
+  previous: state,
+  current: state,
+});
+
+/** Only a step moves the world on; an input changes what the next step will do. */
+const nextFrame = (frame: GameFrame, action: Action): GameFrame =>
+  match(action)
+    .with({ type: 'TICK' }, (): GameFrame => ({
+      previous: frame.current,
+      current: reduce(frame.current, action),
+    }))
+    .otherwise((): GameFrame => ({
+      previous: frame.previous,
+      current: reduce(frame.current, action),
+    }));
 
 const syncDebugGlobals = (
   next: GameState,
@@ -135,7 +159,6 @@ const capture = (
   archive: RunArchive,
   state: ShallowRef<GameState>,
   action: Action,
-  timestampMs: number,
 ): void =>
   chain(action.type)
     .thru((type) =>
@@ -143,21 +166,21 @@ const capture = (
         .with('RESTART', () => restartRun(recorder, archive, state.value))
         .otherwise(noop),
     )
-    .thru(() => recorder.record(action, timestampMs))
+    .thru(() => recorder.record(action))
     .value();
 
 const onState =
   (
+    cell: GameCell,
     state: ShallowRef<GameState>,
     world: GameWorld,
     recorder: Recorder,
     archive: RunArchive,
-    replay: ReplayController,
-    render: (next: GameState) => void,
     dispatch: (action: Action) => void,
   ) =>
-  (next: GameState): void =>
-    chain({ previous: state.value, next })
+  (frame: GameFrame): void =>
+    void chain({ previous: state.value, next: frame.current })
+      .thru((step) => withEffect(step, () => assign(cell, { frame })))
       .thru((step) => withEffect(step, () => setRef(state, step.next)))
       .thru((step) =>
         withEffect(step, () => syncDebugGlobals(step.next, dispatch)),
@@ -170,12 +193,23 @@ const onState =
       .thru((step) =>
         withEffect(step, () => endRun(world, recorder, archive, step.next)),
       )
-      .thru((step) =>
-        match(replay.isActive.value)
-          .with(true, noop)
-          .otherwise(() => render(step.next)),
-      )
       .value();
+
+/** The replay draws its own frames while it is up, so the game stands back. */
+const onDraw =
+  (
+    cell: GameCell,
+    replay: ReplayController,
+    render: (next: GameState) => void,
+  ) =>
+  (alpha: number): void =>
+    match(replay.isActive.value)
+      .with(true, noop)
+      .otherwise(() =>
+        render(
+          interpolateState(cell.frame.previous, cell.frame.current, alpha),
+        ),
+      );
 
 const startOnMount = (
   cell: GameCell,
@@ -184,8 +218,9 @@ const startOnMount = (
   day: string,
   initial: GameState,
   actions: Subject<Action>,
-  onCapture: (action: Action, timestampMs: number) => void,
-  onNext: (next: GameState) => void,
+  onCapture: (action: Action) => void,
+  onNext: (frame: GameFrame) => void,
+  onFrame: (alpha: number) => void,
 ): void =>
   match(openCanvas(cell, canvas))
     .with(nonNullable, () =>
@@ -196,20 +231,21 @@ const startOnMount = (
           ),
         )
         .thru((current) => assign(current, { keyboard: createKeyboard() }))
-        .thru((current) =>
+        .thru((current) => ({ current, pulses$: fixedPulses() }))
+        .thru(({ current, pulses$ }) =>
           assign(current, {
+            /**
+             * The simulation subscribes first and the screen second, so every
+             * step a frame bought has run by the time that frame is drawn.
+             */
             subscription: merge(
-              tickStream(),
+              pulseTicks(pulses$),
               current.keyboard.actions$,
               actions,
             )
-              .pipe(
-                timestamp(),
-                tap(({ value, timestamp: at }) => onCapture(value, at)),
-                map(({ value }) => value),
-                scan(reduce, initial),
-              )
-              .subscribe(onNext),
+              .pipe(tap(onCapture), scan(nextFrame, startFrame(initial)))
+              .subscribe(onNext)
+              .add(pulses$.subscribe((pulse) => onFrame(pulse.alpha))),
           }),
         )
         .thru(noop)
@@ -223,17 +259,18 @@ export const useGame = (
 ): GameController =>
   chain(generate(new Date(day)))
     .thru((world) => withEffect(world, () => logWorldMeta(world)))
-    .thru((world) => ({
-      world,
-      initial: startState(world),
+    .thru((world) => ({ world, initial: startState(world) }))
+    .thru((setup) => ({
+      ...setup,
       cell: {
         ...createCanvasCell(),
         keyboard: null,
         subscription: null,
+        frame: startFrame(setup.initial),
       } as GameCell,
       actions$: new Subject<Action>(),
-      recorder: createRecorder(world.name),
-      rivals: ghostRuns(loadSave(), world.name, ''),
+      recorder: createRecorder(setup.world.name),
+      rivals: ghostRuns(loadSave(), setup.world.name, ''),
     }))
     .thru((setup) => ({
       ...setup,
@@ -283,17 +320,17 @@ export const useGame = (
             day,
             setup.initial,
             setup.actions$,
-            (action, at) =>
-              capture(setup.recorder, setup.archive, setup.state, action, at),
+            (action) =>
+              capture(setup.recorder, setup.archive, setup.state, action),
             onState(
+              setup.cell,
               setup.state,
               setup.world,
               setup.recorder,
               setup.archive,
-              setup.replay,
-              setup.renderState,
               setup.dispatch,
             ),
+            onDraw(setup.cell, setup.replay, setup.renderState),
           ),
         ),
       ),

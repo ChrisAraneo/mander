@@ -2,13 +2,12 @@ import { clamp } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import type { Replay } from '../recorder/types/replay';
-import { replayDuration } from './replay-duration';
 import type { ReplayPlayback } from './types/replay-playback';
 
 export const replayProgress = (
   replay: Replay,
   playback: ReplayPlayback,
 ): number =>
-  match(replayDuration(replay))
+  match(replay.steps)
     .with(0, () => 1)
-    .otherwise((duration) => clamp(playback.elapsedMs / duration, 0, 1));
+    .otherwise((steps) => clamp(playback.step / steps, 0, 1));

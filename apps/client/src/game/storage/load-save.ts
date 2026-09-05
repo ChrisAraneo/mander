@@ -72,6 +72,7 @@ const isPackedEntry = (value: unknown): value is number[] =>
 const isPackedReplay = (value: unknown): value is PackedReplay =>
   isObjectLike(value) &&
   isString((value as PackedReplay).worldName) &&
+  isFinite((value as PackedReplay).steps) &&
   isArray((value as PackedReplay).entries) &&
   every((value as PackedReplay).entries, isPackedEntry);
 

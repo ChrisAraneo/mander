@@ -3,10 +3,7 @@ import { describe, expect, it } from 'vitest';
 import type { Action } from '../../actions/actions';
 import { createRecorder } from './create-recorder';
 
-const DELTA_SECONDS = 1 / 60;
-const FRAME_MS = 1000 / 60;
-
-const tickAction: Action = { type: 'TICK', deltaSeconds: DELTA_SECONDS };
+const tickAction: Action = { type: 'TICK' };
 
 const script: Action[] = [
   ...Array.from({ length: 60 }, () => tickAction),
@@ -21,59 +18,77 @@ const script: Action[] = [
 ];
 
 describe('createRecorder', () => {
-  it('timestamps entries relative to the first recorded action', () => {
+  it('marks each input with the step the run had reached', () => {
     const recorder = createRecorder('TEST-WORLD');
-    recorder.record({ type: 'MOVE_LEFT_START' }, 1_200);
-    recorder.record({ type: 'MOVE_LEFT_STOP' }, 1_700);
+    recorder.record({ type: 'TICK' });
+    recorder.record({ type: 'TICK' });
+    recorder.record({ type: 'MOVE_LEFT_START' });
+    recorder.record({ type: 'TICK' });
+    recorder.record({ type: 'MOVE_LEFT_STOP' });
 
-    const { worldName, startedAtMs, entries } = recorder.snapshot();
+    const { worldName, steps, entries } = recorder.snapshot();
     expect(worldName).toBe('TEST-WORLD');
-    expect(startedAtMs).toBe(1_200);
+    expect(steps).toBe(3);
     expect(entries).toEqual([
-      { atMs: 0, action: { type: 'MOVE_LEFT_START' } },
-      { atMs: 500, action: { type: 'MOVE_LEFT_STOP' } },
+      { atStep: 2, action: { type: 'MOVE_LEFT_START' } },
+      { atStep: 3, action: { type: 'MOVE_LEFT_STOP' } },
     ]);
   });
 
-  it('records every action, ticks included', () => {
+  it('keeps the inputs and counts the steps rather than storing them', () => {
     const recorder = createRecorder('TEST-WORLD');
-    script.forEach((action, index) =>
-      recorder.record(action, 5_000 + index * FRAME_MS),
-    );
+    script.forEach((action) => recorder.record(action));
 
-    const { entries } = recorder.snapshot();
-    expect(entries).toHaveLength(264);
-    expect(entries.filter(({ action }) => action.type === 'TICK')).toHaveLength(
-      260,
-    );
+    const { steps, entries } = recorder.snapshot();
+    expect(steps).toBe(260);
+    expect(entries).toHaveLength(4);
+  });
+
+  it('starts an input on step zero when nothing has stepped yet', () => {
+    const recorder = createRecorder('TEST-WORLD');
+    recorder.record({ type: 'JUMP_START' });
+
+    expect(recorder.snapshot().entries).toEqual([
+      { atStep: 0, action: { type: 'JUMP_START' } },
+    ]);
   });
 
   it('ignores actions once stopped', () => {
     const recorder = createRecorder('TEST-WORLD');
-    recorder.record({ type: 'JUMP_START' }, 0);
+    recorder.record({ type: 'JUMP_START' });
     recorder.stop();
-    recorder.record({ type: 'JUMP_STOP' }, 100);
+    recorder.record({ type: 'JUMP_STOP' });
 
     expect(recorder.snapshot().entries).toHaveLength(1);
   });
 
+  it('stops counting steps once stopped', () => {
+    const recorder = createRecorder('TEST-WORLD');
+    recorder.record({ type: 'TICK' });
+    recorder.stop();
+    recorder.record({ type: 'TICK' });
+
+    expect(recorder.snapshot().steps).toBe(1);
+  });
+
   it('starts a fresh recording after reset', () => {
     const recorder = createRecorder('TEST-WORLD');
-    recorder.record({ type: 'JUMP_START' }, 400);
+    recorder.record({ type: 'TICK' });
+    recorder.record({ type: 'JUMP_START' });
     recorder.stop();
     recorder.reset();
-    recorder.record({ type: 'INTERACT' }, 900);
+    recorder.record({ type: 'INTERACT' });
 
-    const { startedAtMs, entries } = recorder.snapshot();
-    expect(startedAtMs).toBe(900);
-    expect(entries).toEqual([{ atMs: 0, action: { type: 'INTERACT' } }]);
+    const { steps, entries } = recorder.snapshot();
+    expect(steps).toBe(0);
+    expect(entries).toEqual([{ atStep: 0, action: { type: 'INTERACT' } }]);
   });
 
   it('returns a snapshot detached from later recording', () => {
     const recorder = createRecorder('TEST-WORLD');
-    recorder.record({ type: 'JUMP_START' }, 0);
+    recorder.record({ type: 'JUMP_START' });
     const snapshot = recorder.snapshot();
-    recorder.record({ type: 'JUMP_STOP' }, 100);
+    recorder.record({ type: 'JUMP_STOP' });
 
     expect(snapshot.entries).toHaveLength(1);
   });

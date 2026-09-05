@@ -343,7 +343,7 @@ describe('a level being played', () => {
   const played = (level: GameLevel, frames: number): GameState => {
     let state = createInitialState(level, 0, []);
     times(frames, () => {
-      state = reduce(state, { type: 'TICK', deltaSeconds: DELTA_SECONDS });
+      state = reduce(state, { type: 'TICK' });
     });
     return state;
   };
@@ -408,7 +408,7 @@ describe('a level being played', () => {
       if (gap <= TILE_SIZE * 3 && state.player.statuses.isGrounded)
         state = reduce(state, { type: 'JUMP_START' });
 
-      state = reduce(state, { type: 'TICK', deltaSeconds: DELTA_SECONDS });
+      state = reduce(state, { type: 'TICK' });
 
       const trap = state.enemies[0];
       if (trap.statuses.isGrounded) hasSettled = true;

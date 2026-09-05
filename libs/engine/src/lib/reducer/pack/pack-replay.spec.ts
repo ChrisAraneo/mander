@@ -9,7 +9,7 @@ import {
 import { filter, map, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { Action } from '../../actions/actions';
+import type { RecordableAction } from '../../actions/actions';
 import type { GameLevel } from '../../types/game-level';
 import { packReplay } from './pack-replay';
 import type { Replay } from '../recorder/types/replay';
@@ -18,7 +18,6 @@ import { unpackReplay } from './unpack-replay';
 const WIDTH = 20;
 const HEIGHT = 12;
 const GROUND_ROW = 9;
-const DELTA_SECONDS = 1 / 60;
 
 const item = (id: string): Item => ({
   id,
@@ -47,8 +46,7 @@ const testLevel = (seed: string): GameLevel => {
 
 const LEVELS: GameLevel[] = [testLevel('ONE'), testLevel('TWO')];
 
-const script: Action[] = [
-  { type: 'TICK', deltaSeconds: DELTA_SECONDS },
+const script: RecordableAction[] = [
   { type: 'MOVE_RIGHT_START' },
   { type: 'JUMP_START' },
   { type: 'JUMP_STOP' },
@@ -66,8 +64,8 @@ const script: Action[] = [
 
 const recorded = (): Replay => ({
   worldName: 'PACK-WORLD',
-  startedAtMs: 0,
-  entries: map(script, (action, index) => ({ atMs: index * 16, action })),
+  steps: size(script) * 4,
+  entries: map(script, (action, index) => ({ atStep: index * 4, action })),
 });
 
 describe('packReplay', () => {
@@ -76,23 +74,15 @@ describe('packReplay', () => {
 
     expect(restored.worldName).toBe('PACK-WORLD');
     expect(map(restored.entries, 'action')).toEqual(script);
-    expect(map(restored.entries, 'atMs')).toEqual(
-      map(script, (_, index) => index * 16),
+    expect(map(restored.entries, 'atStep')).toEqual(
+      map(script, (_, index) => index * 4),
     );
   });
 
-  it('keeps the tick deltas to the last bit, so physics lands the same', () => {
-    const odd = 0.016_666_666_666_666_666;
-    const packed = packReplay({
-      worldName: 'W',
-      startedAtMs: 0,
-      entries: [{ atMs: 0, action: { type: 'TICK', deltaSeconds: odd } }],
-    });
-
-    expect(unpackReplay(packed, LEVELS).entries[0].action).toEqual({
-      type: 'TICK',
-      deltaSeconds: odd,
-    });
+  it('carries the step count, which is the whole of the run clock', () => {
+    expect(unpackReplay(packReplay(recorded()), LEVELS).steps).toBe(
+      size(script) * 4,
+    );
   });
 
   it('leaves the level grids behind rather than writing them out again', () => {
@@ -102,32 +92,29 @@ describe('packReplay', () => {
     expect(written).not.toContain('"chestItems"');
   });
 
-  it('packs a long run far smaller than the replay it came from', () => {
+  it('costs nothing per step, however long the run ran', () => {
     const long: Replay = {
       worldName: 'W',
-      startedAtMs: 0,
-      entries: times(5000, (index) => ({
-        atMs: index * 16,
-        action: { type: 'TICK', deltaSeconds: DELTA_SECONDS },
+      steps: 36_000,
+      entries: times(40, (index) => ({
+        atStep: index * 900,
+        action: { type: 'JUMP_START' } as RecordableAction,
       })),
     };
 
-    const before = size(JSON.stringify(long));
-    const after = size(JSON.stringify(packReplay(long)));
-
-    expect(after).toBeLessThan(before / 2);
+    expect(size(JSON.stringify(packReplay(long)))).toBeLessThan(600);
   });
 
   it('drops what it cannot seat rather than handing back a broken run', () => {
     const packed = packReplay({
       worldName: 'W',
-      startedAtMs: 0,
+      steps: 2,
       entries: [
         {
-          atMs: 0,
+          atStep: 0,
           action: { type: 'LOAD_LEVEL', level: LEVELS[1], levelIndex: 9 },
         },
-        { atMs: 1, action: { type: 'INTERACT' } },
+        { atStep: 1, action: { type: 'INTERACT' } },
       ],
     });
 
@@ -141,9 +128,10 @@ describe('packReplay', () => {
     const restored = unpackReplay(
       {
         worldName: 'W',
+        steps: 2,
         entries: [
           [0, 99],
-          [1, 7],
+          [1, 6],
         ],
       },
       LEVELS,

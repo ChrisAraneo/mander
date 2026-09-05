@@ -31,7 +31,8 @@ const at = (minute: number): string =>
 
 const replayOf = (name: string, length = 2): PackedReplay => ({
   worldName: name,
-  entries: times(length, (index) => [index * 16, 0, 1 / 60]),
+  steps: length * 4,
+  entries: times(length, (index) => [index * 4, 0]),
 });
 
 const run = (patch: Partial<FinishedRun> = {}): FinishedRun => ({

@@ -1,6 +1,6 @@
-import type { Action } from '../../../actions/actions';
+import type { RecordableAction } from '../../../actions/actions';
 
 export interface RecordedAction {
-  atMs: number;
-  action: Action;
+  atStep: number;
+  action: RecordableAction;
 }
