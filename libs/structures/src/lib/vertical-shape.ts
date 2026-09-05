@@ -1,4 +1,4 @@
-import { TILE_AIR } from '@mander/model';
+import { isSolidTile, TILE_AIR } from '@mander/model';
 import { every, filter, includes, map, range, some } from 'lodash-es';
 
 import { STRUCTURE_HEIGHT } from './consts';
@@ -12,6 +12,19 @@ export const VERTICAL_BAND_HEIGHT = 17;
 
 export const VERTICAL_END_ROW = 0;
 
+export const VERTICAL_LAUNCH_ROW = 1;
+
+export const VERTICAL_LAUNCH_COLUMNS: readonly number[] = Object.freeze(
+  range(8, 12),
+);
+
+export const VERTICAL_LANDING_ROW = 14;
+
+export const VERTICAL_LANDING_BANDS: readonly (readonly number[])[] =
+  Object.freeze([Object.freeze(range(3, 7)), Object.freeze(range(13, 17))]);
+
+export const VERTICAL_HEADROOM_ROWS: readonly number[] = Object.freeze([12, 13]);
+
 export const VERTICAL_START_ROWS: readonly number[] = Object.freeze([15, 16]);
 
 export const VERTICAL_IGNORED_ROWS: readonly number[] = Object.freeze(
@@ -24,6 +37,22 @@ const isEmpty = (cell: number): boolean =>
 const areEmpty = (structure: Grid, rows: readonly number[]): boolean =>
   every(rows, (row) => every(structure[row], isEmpty));
 
+const areEmptyAcross = (
+  structure: Grid,
+  rows: readonly number[],
+  columns: readonly number[],
+): boolean =>
+  every(rows, (row) =>
+    every(columns, (column) => isEmpty(structure[row]?.[column] ?? TILE_AIR)),
+  );
+
+const areSolidAcross = (
+  structure: Grid,
+  row: number,
+  columns: readonly number[],
+): boolean =>
+  every(columns, (column) => isSolidTile(structure[row]?.[column] ?? TILE_AIR));
+
 const isMarkerIn = (
   structure: Grid,
   marker: number,
@@ -34,6 +63,9 @@ const isMarkerIn = (
     structure,
     (cells, row) => !includes(cells, marker) || includes(rows, row),
   );
+
+const spanOf = (columns: readonly number[]): string =>
+  `${columns[0]}-${columns[columns.length - 1]}`;
 
 interface Rule {
   message: string;
@@ -58,6 +90,30 @@ const RULES: readonly Rule[] = Object.freeze([
     message: `the start must be marked in row ${VERTICAL_START_ROWS.join(' or ')}`,
     isKept: (structure: Grid) =>
       isMarkerIn(structure, STRUCTURE_START, VERTICAL_START_ROWS),
+  },
+  {
+    message: `columns ${spanOf(VERTICAL_LAUNCH_COLUMNS)} of row ${VERTICAL_LAUNCH_ROW} are the ledge the player leaves from and must be solid`,
+    isKept: (structure: Grid) =>
+      areSolidAcross(structure, VERTICAL_LAUNCH_ROW, VERTICAL_LAUNCH_COLUMNS),
+  },
+  {
+    message: `row ${VERTICAL_LANDING_ROW} must leave columns ${spanOf(VERTICAL_LAUNCH_COLUMNS)} open so the sector below can be jumped out of`,
+    isKept: (structure: Grid) =>
+      areEmptyAcross(
+        structure,
+        [VERTICAL_LANDING_ROW],
+        VERTICAL_LAUNCH_COLUMNS,
+      ),
+  },
+  {
+    message: `row ${VERTICAL_LANDING_ROW} must carry the ledge the player lands on across columns ${map(VERTICAL_LANDING_BANDS, spanOf).join(' or ')}, clear of rows ${VERTICAL_HEADROOM_ROWS.join(' and ')}`,
+    isKept: (structure: Grid) =>
+      some(
+        VERTICAL_LANDING_BANDS,
+        (band) =>
+          areSolidAcross(structure, VERTICAL_LANDING_ROW, band) &&
+          areEmptyAcross(structure, VERTICAL_HEADROOM_ROWS, band),
+      ),
   },
 ]);
 
