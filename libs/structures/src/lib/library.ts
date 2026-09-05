@@ -247,13 +247,12 @@ import {
   NORMAL_200,
   NORMAL_201,
   NORMAL_202,
-  NORMAL_001,
   NORMAL_203,
   NORMAL_204,
   NORMAL_205,
 } from './normal';
 import type { Structure } from './structure';
-import { VERTICAL_001,
+import {
   VERTICAL_001,
   VERTICAL_002,
 } from './vertical';
