@@ -1,8 +1,15 @@
-import { TILE_AIR, TILE_CERAMIC, TILE_DIRT } from '@mander/model';
+import {
+  isSolidTile,
+  type Tile,
+  TILE_AIR,
+  TILE_CERAMIC,
+  TILE_DIRT,
+} from '@mander/model';
 import {
   STRUCTURE_WIDTH,
   STRUCTURE_END,
   STRUCTURE_START,
+  VERTICAL_AIR_GAP,
   VERTICAL_BAND_HEIGHT,
   VERTICAL_IGNORED_ROWS,
   VERTICAL_START_ROWS,
@@ -14,8 +21,11 @@ import {
   flatten,
   includes,
   map,
+  max,
   range,
   size,
+  some,
+  split,
   take,
   takeRight,
 } from 'lodash-es';
@@ -34,6 +44,15 @@ const topRow = (band: number): number =>
 
 const bandRows = (band: number): number[] =>
   map(BAND_ROWS, (row) => topRow(band) + row);
+
+const airRuns = (tiles: Tile[][]): number[] =>
+  map(
+    split(
+      map(tiles, (cells) => (some(cells, isSolidTile) ? '#' : '.')).join(''),
+      '#',
+    ),
+    size,
+  );
 
 const drawn = (cells: readonly number[]): number[] =>
   map(cells, (cell) =>
@@ -93,6 +112,12 @@ describe('stackStructures', () => {
         map(range(STRUCTURE_WIDTH), () => TILE_DIRT),
       ),
     );
+  });
+
+  it('joins the sectors no further apart than the player can jump', () => {
+    const climb = stackStructures([...VERTICAL_STRUCTURES]);
+
+    expect(max(airRuns(climb))).toBeLessThanOrEqual(VERTICAL_AIR_GAP);
   });
 
   it('leaves the hall every sector is entered through open', () => {

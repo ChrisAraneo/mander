@@ -1,5 +1,5 @@
 import { isSolidTile, TILE_AIR } from '@mander/model';
-import { every, filter, includes, map, range, some } from 'lodash-es';
+import { drop, every, filter, includes, map, range, some } from 'lodash-es';
 
 import { STRUCTURE_HEIGHT } from './consts';
 import { STRUCTURE_END, STRUCTURE_START } from './special-tiles';
@@ -18,12 +18,17 @@ export const VERTICAL_LAUNCH_COLUMNS: readonly number[] = Object.freeze(
   range(8, 12),
 );
 
-export const VERTICAL_LANDING_ROW = 14;
+export const VERTICAL_AIR_GAP = 3;
+
+export const VERTICAL_LANDING_ROW =
+  VERTICAL_BAND_HEIGHT + VERTICAL_LAUNCH_ROW - VERTICAL_AIR_GAP - 1;
 
 export const VERTICAL_LANDING_BANDS: readonly (readonly number[])[] =
   Object.freeze([Object.freeze(range(3, 7)), Object.freeze(range(13, 17))]);
 
-export const VERTICAL_HEADROOM_ROWS: readonly number[] = Object.freeze([12, 13]);
+export const VERTICAL_HEADROOM_ROWS: readonly number[] = Object.freeze([
+  12, 13,
+]);
 
 export const VERTICAL_START_ROWS: readonly number[] = Object.freeze([15, 16]);
 
@@ -66,6 +71,14 @@ const isMarkerIn = (
 
 const spanOf = (columns: readonly number[]): string =>
   `${columns[0]}-${columns[columns.length - 1]}`;
+
+const platformRows = (structure: Grid): number[] =>
+  filter(range(VERTICAL_LAUNCH_ROW, VERTICAL_LANDING_ROW + 1), (row) =>
+    some(structure[row], isSolidTile),
+  );
+
+const areStepsWithinReach = (rows: readonly number[]): boolean =>
+  every(drop(rows), (row, index) => row - rows[index] <= VERTICAL_AIR_GAP + 1);
 
 interface Rule {
   message: string;
@@ -114,6 +127,10 @@ const RULES: readonly Rule[] = Object.freeze([
           areSolidAcross(structure, VERTICAL_LANDING_ROW, band) &&
           areEmptyAcross(structure, VERTICAL_HEADROOM_ROWS, band),
       ),
+  },
+  {
+    message: `no platform may sit more than ${VERTICAL_AIR_GAP} rows of air above the one below it, which is as high as the player jumps`,
+    isKept: (structure: Grid) => areStepsWithinReach(platformRows(structure)),
   },
 ]);
 
