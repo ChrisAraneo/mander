@@ -8,9 +8,11 @@ import {
   packReplay,
   type Recorder,
   reduce,
+  type Replay,
+  unpackReplay,
 } from '@mander/engine';
 import { generate } from '@mander/generator';
-import { renderGame, syncViewport } from '@mander/render';
+import { playerFocus, renderGame, syncViewport } from '@mander/render';
 import { chain, withEffect } from '@mander/utils';
 import { assign, noop, size } from 'lodash-es';
 import {
@@ -40,9 +42,15 @@ import {
   withCanvas,
 } from '../canvas';
 import { createKeyboard, type Keyboard } from '../input';
-import { recordPlayedWorld, type RunOutcome, saveScore } from '../storage';
+import {
+  ghostRuns,
+  loadSave,
+  recordPlayedWorld,
+  type RunOutcome,
+  saveScore,
+} from '../storage';
 import { tickStream } from '../tick';
-import { useReplay, type ReplayController } from '../use-replay';
+import { levelGhosts, useReplay, type ReplayController } from '../use-replay';
 import type { GameController } from './game-controller';
 import { createRunArchive, type RunArchive } from './run-archive';
 
@@ -223,6 +231,7 @@ export const useGame = (
       } as GameCell,
       actions$: new Subject<Action>(),
       recorder: createRecorder(world.name),
+      rivals: ghostRuns(loadSave(), world.name, ''),
     }))
     .thru((setup) => ({
       ...setup,
@@ -237,15 +246,26 @@ export const useGame = (
         day,
         replay: setup.replayOf,
       }),
-      renderState: (next: GameState): void =>
+      renderState: (next: GameState, ghosts: GameState[] = []): void =>
         withCanvas(setup.cell, canvas, (context, element) =>
-          renderGame(context, next, setup.world.palette, syncViewport(element)),
+          renderGame(
+            context,
+            next,
+            setup.world.palette,
+            syncViewport(element),
+            playerFocus(next),
+            levelGhosts(next, ghosts),
+          ),
         ),
     }))
     .thru((setup) => ({
       ...setup,
       replay: useReplay({
         replay: () => setup.recorder.snapshot(),
+        ghosts: (): Replay[] =>
+          setup.rivals.map((run) =>
+            unpackReplay(run.replay, setup.world.levels),
+          ),
         initialState: () => startState(setup.world),
         render: setup.renderState,
         onStop: () => setup.renderState(setup.state.value),

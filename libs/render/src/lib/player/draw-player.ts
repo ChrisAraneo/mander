@@ -192,12 +192,16 @@ const starGlowAlpha = (player: Player, time: number): number =>
     STAR_GLOW_PULSE_ALPHA *
       (0.5 + 0.5 * Math.sin(time * STAR_GLOW_PULSE_RATE)));
 
-const starGlowStep = (player: Player, time: number): CanvasStep =>
+const starGlowStep = (
+  player: Player,
+  time: number,
+  alpha: number,
+): CanvasStep =>
   match(isStarlit(player))
     .with(true, () =>
       sequence([
         save,
-        styled({ globalAlpha: starGlowAlpha(player, time) }),
+        styled({ globalAlpha: alpha * starGlowAlpha(player, time) }),
         scale(STAR_GLOW_SQUASH, 1),
         beginPath,
         arc(0, 0, STAR_GLOW_RADIUS, 0, Math.PI * 2),
@@ -218,6 +222,7 @@ export const drawPlayer = (
   context: CanvasRenderingContext2D,
   player: Player,
   time: number,
+  alpha = 1,
 ): void =>
   chain({
     isDying: !isAlive(player),
@@ -242,9 +247,9 @@ export const drawPlayer = (
         ),
         styled({
           globalAlpha:
-            (1 - progress * progress) * invincibleAlpha(player, time),
+            alpha * (1 - progress * progress) * invincibleAlpha(player, time),
         }),
-        starGlowStep(player, time),
+        starGlowStep(player, time, alpha),
         rotate(-facing * progress * DEATH_SPIN),
         scale(facing, 1),
         legsStep(player.statuses.isGrounded, swing, colors),

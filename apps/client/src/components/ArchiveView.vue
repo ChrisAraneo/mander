@@ -12,7 +12,7 @@ const emit = defineEmits<{ exit: [] }>();
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 const replay = useArchive(
-  { day: props.run.day, replay: props.run.replay },
+  { id: props.run.id, day: props.run.day, replay: props.run.replay },
   canvas,
 );
 

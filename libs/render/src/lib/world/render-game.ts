@@ -22,7 +22,7 @@ import { type Focus, playerFocus } from '../focus';
 import { drawHillLayer, HILL_LAYERS } from '../hill';
 import { drawKey } from '../key';
 import type { Palette } from '../palette';
-import { drawPlayer } from '../player';
+import { drawGhost, drawPlayer, type Ghost } from '../player';
 import { drawPortal } from '../portal';
 import { drawSky } from '../sky';
 import { drawFallingSpike } from '../spike';
@@ -36,6 +36,7 @@ export const renderGame = (
   palette: Palette,
   viewport: Viewport,
   focus: Focus = playerFocus(state),
+  ghosts: Ghost[] = [],
 ): void =>
   chain(state.level)
     .thru((level) => ({
@@ -93,6 +94,9 @@ export const renderGame = (
           map(state.fallingSpikes, (spike) =>
             run((target) => drawFallingSpike(target, spike)),
           ),
+        ),
+        sequence(
+          map(ghosts, (ghost) => run((target) => drawGhost(target, ghost))),
         ),
         run((target) => drawPlayer(target, state.player, state.time)),
         run((target) => drawCannonballs(target, state)),

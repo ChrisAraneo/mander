@@ -5,3 +5,5 @@ export const REPLAYS_KEPT = 5;
 export const PLAYED_WORLDS_KEPT = 50;
 
 export const RUNS_KEPT = 20;
+
+export const GHOSTS_SHOWN = 4;

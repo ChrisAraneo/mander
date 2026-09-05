@@ -8,3 +8,5 @@ export const STAR_GLOW_INNER_ALPHA = 0.5;
 export const STAR_GLOW_PULSE_ALPHA = 0.25;
 export const STAR_GLOW_PULSE_RATE = 9;
 export const STAR_GLOW_FADE_SECONDS = 0.6;
+
+export const GHOST_ALPHA = 0.45;
