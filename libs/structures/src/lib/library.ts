@@ -259,6 +259,10 @@ import {
   VERTICAL_004,
   VERTICAL_005,
   VERTICAL_006,
+  VERTICAL_007,
+  VERTICAL_008,
+  VERTICAL_009,
+  VERTICAL_010,
 } from './vertical';
 
 export const HARD_STRUCTURES: readonly Structure[] = Object.freeze([
@@ -523,4 +527,8 @@ export const VERTICAL_STRUCTURES: readonly Structure[] = Object.freeze([
   VERTICAL_004,
   VERTICAL_005,
   VERTICAL_006,
+  VERTICAL_007,
+  VERTICAL_008,
+  VERTICAL_009,
+  VERTICAL_010,
 ]);
