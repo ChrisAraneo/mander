@@ -4,11 +4,11 @@ import { appendName, hasName } from './append-name.ts';
 import { type Pool, prefixOf } from './pool.ts';
 
 const importOf = (pool: Pool): RegExp =>
-  new RegExp(`import \\{([\\s\\S]*?)\\} from '\\./${pool}';`);
+  new RegExp(`import \\{([^}]*?)\\} from '\\./${pool}';`);
 
-const arrayOf = (pool: Pool): RegExp =>
+const libraryOf = (pool: Pool): RegExp =>
   new RegExp(
-    `export const ${prefixOf(pool)}_STRUCTURES: readonly Structure\\[\\] = Object\\.freeze\\(\\[([\\s\\S]*?)\\]\\);`,
+    `export const ${prefixOf(pool)}_LIBRARY = Object\\.freeze\\(\\{([^}]*?)\\}\\);`,
   );
 
 const withName = (source: string, pattern: RegExp, name: string): string =>
@@ -29,4 +29,4 @@ export const registerStructure = (
   name: string,
   pool: Pool,
 ): string =>
-  withName(withName(source, importOf(pool), name), arrayOf(pool), name);
+  withName(withName(source, importOf(pool), name), libraryOf(pool), name);
