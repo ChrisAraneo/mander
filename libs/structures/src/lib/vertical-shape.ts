@@ -1,24 +1,40 @@
 import { isSolidTile, TILE_AIR } from '@mander/model';
 import { drop, every, filter, includes, map, range, some } from 'lodash-es';
 
-import { STRUCTURE_HEIGHT } from './consts';
 import { STRUCTURE_END, STRUCTURE_START } from './special-tiles';
 
 type Grid = readonly (readonly number[])[];
 
 const MARKERS = [STRUCTURE_START, STRUCTURE_END];
 
-export const VERTICAL_BAND_HEIGHT = 17;
+export const VERTICAL_HEIGHT = 22;
+
+export const VERTICAL_MARKER_COLUMN = 9;
 
 export const VERTICAL_END_ROW = 0;
 
 export const VERTICAL_LAUNCH_ROW = 1;
 
-export const VERTICAL_LAUNCH_COLUMNS: readonly number[] = Object.freeze(
+export const VERTICAL_PLATFORM_COLUMN = VERTICAL_MARKER_COLUMN;
+
+export const VERTICAL_PLATFORM_LENGTH = 1;
+
+export const VERTICAL_PLATFORM_COLUMNS: readonly number[] = Object.freeze(
+  range(
+    VERTICAL_PLATFORM_COLUMN,
+    VERTICAL_PLATFORM_COLUMN + VERTICAL_PLATFORM_LENGTH,
+  ),
+);
+
+export const VERTICAL_START_ROW = VERTICAL_HEIGHT - 1;
+
+export const VERTICAL_SHAFT_COLUMNS: readonly number[] = Object.freeze(
   range(8, 12),
 );
 
 export const VERTICAL_AIR_GAP = 3;
+
+export const VERTICAL_BAND_HEIGHT = VERTICAL_HEIGHT - 1;
 
 export const VERTICAL_LANDING_ROW =
   VERTICAL_BAND_HEIGHT + VERTICAL_LAUNCH_ROW - VERTICAL_AIR_GAP - 1;
@@ -26,14 +42,16 @@ export const VERTICAL_LANDING_ROW =
 export const VERTICAL_LANDING_BANDS: readonly (readonly number[])[] =
   Object.freeze([Object.freeze(range(3, 7)), Object.freeze(range(13, 17))]);
 
-export const VERTICAL_HEADROOM_ROWS: readonly number[] = Object.freeze([
-  12, 13,
-]);
+export const VERTICAL_HEADROOM_ROWS: readonly number[] = Object.freeze(
+  range(VERTICAL_LANDING_ROW - 2, VERTICAL_LANDING_ROW),
+);
 
-export const VERTICAL_START_ROWS: readonly number[] = Object.freeze([15, 16]);
+export const VERTICAL_ARRIVAL_ROWS: readonly number[] = Object.freeze(
+  range(VERTICAL_LANDING_ROW + 1, VERTICAL_HEIGHT),
+);
 
 export const VERTICAL_IGNORED_ROWS: readonly number[] = Object.freeze(
-  range(VERTICAL_BAND_HEIGHT, STRUCTURE_HEIGHT),
+  range(VERTICAL_BAND_HEIGHT, VERTICAL_HEIGHT),
 );
 
 const isEmpty = (cell: number): boolean =>
@@ -58,16 +76,15 @@ const areSolidAcross = (
 ): boolean =>
   every(columns, (column) => isSolidTile(structure[row]?.[column] ?? TILE_AIR));
 
-const isMarkerIn = (
+const isMarkerAt = (
   structure: Grid,
   marker: number,
-  rows: readonly number[],
+  row: number,
+  column: number,
 ): boolean =>
-  some(rows, (row) => includes(structure[row], marker)) &&
-  every(
-    structure,
-    (cells, row) => !includes(cells, marker) || includes(rows, row),
-  );
+  structure[row]?.[column] === marker &&
+  every(structure, (cells, at) => !includes(cells, marker) || at === row) &&
+  every(structure[row], (cell, at) => cell !== marker || at === column);
 
 const spanOf = (columns: readonly number[]): string =>
   `${columns[0]}-${columns[columns.length - 1]}`;
@@ -91,32 +108,38 @@ const RULES: readonly Rule[] = Object.freeze([
     isKept: (structure: Grid) => areEmpty(structure, [VERTICAL_END_ROW]),
   },
   {
-    message: `the end must be marked in row ${VERTICAL_END_ROW}`,
+    message: `the end must be marked in row ${VERTICAL_END_ROW}, column ${VERTICAL_MARKER_COLUMN}, where the sector above is entered`,
     isKept: (structure: Grid) =>
-      isMarkerIn(structure, STRUCTURE_END, [VERTICAL_END_ROW]),
-  },
-  {
-    message: `rows ${VERTICAL_START_ROWS.join(' and ')} are the hall the player arrives in and must be empty`,
-    isKept: (structure: Grid) => areEmpty(structure, VERTICAL_START_ROWS),
-  },
-  {
-    message: `the start must be marked in row ${VERTICAL_START_ROWS.join(' or ')}`,
-    isKept: (structure: Grid) =>
-      isMarkerIn(structure, STRUCTURE_START, VERTICAL_START_ROWS),
-  },
-  {
-    message: `columns ${spanOf(VERTICAL_LAUNCH_COLUMNS)} of row ${VERTICAL_LAUNCH_ROW} are the ledge the player leaves from and must be solid`,
-    isKept: (structure: Grid) =>
-      areSolidAcross(structure, VERTICAL_LAUNCH_ROW, VERTICAL_LAUNCH_COLUMNS),
-  },
-  {
-    message: `row ${VERTICAL_LANDING_ROW} must leave columns ${spanOf(VERTICAL_LAUNCH_COLUMNS)} open so the sector below can be jumped out of`,
-    isKept: (structure: Grid) =>
-      areEmptyAcross(
+      isMarkerAt(
         structure,
-        [VERTICAL_LANDING_ROW],
-        VERTICAL_LAUNCH_COLUMNS,
+        STRUCTURE_END,
+        VERTICAL_END_ROW,
+        VERTICAL_MARKER_COLUMN,
       ),
+  },
+  {
+    message: `rows ${VERTICAL_ARRIVAL_ROWS.join(', ')} are the hall the player arrives in and must be empty`,
+    isKept: (structure: Grid) => areEmpty(structure, VERTICAL_ARRIVAL_ROWS),
+  },
+  {
+    message: `the start must be marked in row ${VERTICAL_START_ROW}, column ${VERTICAL_MARKER_COLUMN}, where the sector below ends`,
+    isKept: (structure: Grid) =>
+      isMarkerAt(
+        structure,
+        STRUCTURE_START,
+        VERTICAL_START_ROW,
+        VERTICAL_MARKER_COLUMN,
+      ),
+  },
+  {
+    message: `row ${VERTICAL_LAUNCH_ROW} must carry a platform of at least ${VERTICAL_PLATFORM_LENGTH} block from column ${VERTICAL_PLATFORM_COLUMN}, the ledge the player leaves from`,
+    isKept: (structure: Grid) =>
+      areSolidAcross(structure, VERTICAL_LAUNCH_ROW, VERTICAL_PLATFORM_COLUMNS),
+  },
+  {
+    message: `row ${VERTICAL_LANDING_ROW} must leave columns ${spanOf(VERTICAL_SHAFT_COLUMNS)} open so the sector below can be jumped out of`,
+    isKept: (structure: Grid) =>
+      areEmptyAcross(structure, [VERTICAL_LANDING_ROW], VERTICAL_SHAFT_COLUMNS),
   },
   {
     message: `row ${VERTICAL_LANDING_ROW} must carry the ledge the player lands on across columns ${map(VERTICAL_LANDING_BANDS, spanOf).join(' or ')}, clear of rows ${VERTICAL_HEADROOM_ROWS.join(' and ')}`,

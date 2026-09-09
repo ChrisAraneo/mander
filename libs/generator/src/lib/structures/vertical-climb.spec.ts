@@ -1,6 +1,9 @@
 import { checkPlayerReach, isReachableCell } from '@mander/engine';
 import { findTile, type Level, TILE_PORTAL } from '@mander/model';
-import { type Structure, VERTICAL_STRUCTURES } from '@mander/structures';
+import {
+  type VerticalStructure,
+  VERTICAL_STRUCTURES,
+} from '@mander/structures';
 import { filter, includes, join, map, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
@@ -18,7 +21,7 @@ const dayOf = (day: number): Date => new Date(Date.UTC(2026, 0, 1 + day));
 const named = (index: number): string =>
   `VERTICAL_${String(index + 1).padStart(3, '0')}`;
 
-const twoUp = (structure: Structure): Level => {
+const twoUp = (structure: VerticalStructure): Level => {
   const tiles = addPadding(
     addVerticalPortal(
       addVerticalSpawn(stackStructures(times(SECTORS, () => structure))),

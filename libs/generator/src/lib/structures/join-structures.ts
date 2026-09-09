@@ -4,7 +4,7 @@ import {
   STRUCTURE_END,
   STRUCTURE_HEIGHT,
   STRUCTURE_START,
-  type Structure,
+  type Sector,
 } from '@mander/structures';
 import { chain } from '@mander/utils';
 import {
@@ -30,7 +30,7 @@ interface Cell {
 }
 
 interface Placement {
-  structure: Structure;
+  structure: Sector;
   row: number;
   column: number;
 }
@@ -41,7 +41,7 @@ const DEFAULT_END: Cell = {
   column: STRUCTURE_WIDTH - 1,
 };
 
-const findMarker = (structure: Structure, marker: number): Cell | undefined =>
+const findMarker = (structure: Sector, marker: number): Cell | undefined =>
   find(
     map(structure, (cells, row): Cell => ({
       row,
@@ -50,13 +50,13 @@ const findMarker = (structure: Structure, marker: number): Cell | undefined =>
     (cell) => cell.column >= 0,
   );
 
-const startOf = (structure: Structure): Cell =>
+const startOf = (structure: Sector): Cell =>
   findMarker(structure, STRUCTURE_START) ?? DEFAULT_START;
 
-const endOf = (structure: Structure): Cell =>
+const endOf = (structure: Sector): Cell =>
   findMarker(structure, STRUCTURE_END) ?? DEFAULT_END;
 
-const place = (structures: Structure[]): Placement[] =>
+const place = (structures: Sector[]): Placement[] =>
   reduce(
     structures,
     (placed: Placement[], structure): Placement[] =>
@@ -133,7 +133,7 @@ const underpinned = (
     .filter(({ row, column }) => tiles[row][column] === TILE_AIR)
     .value();
 
-export const joinStructures = (structures: Structure[]): Tile[][] =>
+export const joinStructures = (structures: Sector[]): Tile[][] =>
   chain(normalise(place(structures)))
     .thru((placements) => ({
       placements,

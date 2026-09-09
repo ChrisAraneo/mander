@@ -1,7 +1,7 @@
 import { type GameLevel, HORNED_ENEMY_CHANCE } from '@mander/engine';
 import type { LevelMeta, Tile } from '@mander/model';
 import type { RenderedWorld } from '@mander/render';
-import { getStructureName, type Structure } from '@mander/structures';
+import { getStructureName, type Sector } from '@mander/structures';
 import { filter, floor, map, range, size, slice, take } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { addPadding } from './structures/add-padding';
@@ -28,7 +28,7 @@ import {
   FIRST_HARD_LEVEL,
 } from './consts';
 
-type Deal = Record<Pool, Structure[]>;
+type Deal = Record<Pool, Sector[]>;
 
 const hornedEnemyChanceFor = (levelNumber: number): number =>
   match(levelNumber)
@@ -79,20 +79,20 @@ const dealFor = (worldName: string, pools: Pool[]): Deal => ({
 });
 
 const sliceForLevel = (
-  dealt: Structure[],
+  dealt: Sector[],
   levels: number,
   index: number,
-): Structure[] => {
+): Sector[] => {
   const perLevel = floor(size(dealt) / levels);
 
   return slice(dealt, index * perLevel, (index + 1) * perLevel);
 };
 
-const metaFor = (structures: Structure[]): LevelMeta => ({
+const metaFor = (structures: Sector[]): LevelMeta => ({
   structures: map(structures, getStructureName),
 });
 
-const buildTiles = (structures: Structure[], levelNumber: number): Tile[][] => {
+const buildTiles = (structures: Sector[], levelNumber: number): Tile[][] => {
   const layout = layoutFor(levelNumber);
   const tiles = clearFireballs(
     clearCannons(layout.join(structures), levelNumber),

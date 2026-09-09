@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { TILE_SIZE } from '@mander/model';
-import { STRUCTURE_WIDTH, STRUCTURE_HEIGHT } from '@mander/structures';
+import { STRUCTURE_WIDTH } from '@mander/structures';
 import { chain, withEffect } from '@mander/utils';
-import { forEach, noop, range } from 'lodash-es';
+import { forEach, noop, range, size } from 'lodash-es';
 import { match, P } from 'ts-pattern';
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
 import { drawStructure, fitCanvas, setRef } from '../editor';
 
@@ -22,7 +22,9 @@ const emit = defineEmits<{
 }>();
 
 const WIDTH = STRUCTURE_WIDTH * TILE_SIZE;
-const HEIGHT = STRUCTURE_HEIGHT * TILE_SIZE;
+
+const tall = computed(() => size(props.grid));
+const height = computed(() => tall.value * TILE_SIZE);
 
 const GRID_LINE = 'rgba(159, 176, 195, 0.13)';
 const HOVER_LINE = '#f4762c';
@@ -30,7 +32,7 @@ const HOVER_LINE = '#f4762c';
 const RIGHT_BUTTON = 2;
 
 const columns = range(STRUCTURE_WIDTH);
-const rows = range(STRUCTURE_HEIGHT);
+const rows = computed(() => range(tall.value));
 
 interface Cell {
   row: number;
@@ -72,13 +74,13 @@ const drawGridLines = (target: CanvasRenderingContext2D): void =>
             column * TILE_SIZE + 0.5,
             0,
             column * TILE_SIZE + 0.5,
-            HEIGHT,
+            height.value,
           ),
         ),
       ),
     )
     .thru((ready) =>
-      forEach(range(STRUCTURE_HEIGHT + 1), (row) =>
+      forEach(range(tall.value + 1), (row) =>
         strokeLine(
           ready,
           0,
@@ -130,16 +132,11 @@ const cellIn = (element: HTMLCanvasElement, event: PointerEvent): Cell | null =>
       column: Math.floor(
         ((event.clientX - box.left) / box.width) * STRUCTURE_WIDTH,
       ),
-      row: Math.floor(
-        ((event.clientY - box.top) / box.height) * STRUCTURE_HEIGHT,
-      ),
+      row: Math.floor(((event.clientY - box.top) / box.height) * tall.value),
     }))
     .thru(({ row, column }) =>
       match(
-        column >= 0 &&
-          column < STRUCTURE_WIDTH &&
-          row >= 0 &&
-          row < STRUCTURE_HEIGHT,
+        column >= 0 && column < STRUCTURE_WIDTH && row >= 0 && row < tall.value,
       )
         .with(true, (): Cell | null => ({ row, column }))
         .otherwise((): Cell | null => null),
@@ -182,15 +179,15 @@ const leave = (): void => void setRef(hover, null);
 
 const stop = (): void => void setRef(isPainting, false);
 
+const refit = (): void =>
+  match(canvas.value)
+    .with(nullish, noop)
+    .otherwise(
+      (target) => void setRef(context, fitCanvas(target, WIDTH, height.value)),
+    );
+
 onMounted(() =>
-  chain(canvas.value)
-    .thru((element) =>
-      match(element)
-        .with(nullish, noop)
-        .otherwise(
-          (target) => void setRef(context, fitCanvas(target, WIDTH, HEIGHT)),
-        ),
-    )
+  chain(refit())
     .thru(() => repaint())
     .thru(() => window.addEventListener('pointerup', stop))
     .value(),
@@ -199,6 +196,11 @@ onMounted(() =>
 onBeforeUnmount(() => window.removeEventListener('pointerup', stop));
 
 watch(() => props.grid, repaint, { deep: true });
+watch(tall, () =>
+  chain(refit())
+    .thru(() => repaint())
+    .value(),
+);
 watch(hover, repaint);
 </script>
 

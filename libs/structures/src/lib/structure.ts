@@ -43,3 +43,30 @@ export type Structure = [
   Row,
   Row,
 ];
+
+export type VerticalStructure = [
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+];
+
+export type Sector = readonly (readonly number[])[];

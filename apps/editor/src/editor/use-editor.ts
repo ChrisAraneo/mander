@@ -3,10 +3,10 @@ import { STRUCTURE_END, STRUCTURE_START } from '@mander/structures';
 import { chain, withEffect } from '@mander/utils';
 import { concat, includes, last, map, noop, size, slice } from 'lodash-es';
 import { match, P } from 'ts-pattern';
-import { computed, ref, type Ref } from 'vue';
+import { computed, ref, type Ref, watch } from 'vue';
 
 import { cloneGrid } from './clone-grid';
-import { createGrid } from './create-grid';
+import { createGrid, heightOf } from './create-grid';
 import { formatStructure } from './format-structure';
 import { setRef } from './set-ref';
 import { structureIssues } from './structure-issues';
@@ -44,7 +44,7 @@ const applyPaint = (
 
 export const useEditor = (pool: Readonly<Ref<Pool>>) =>
   chain({
-    grid: ref<number[][]>(createGrid()),
+    grid: ref<number[][]>(createGrid(pool.value)),
     brush: ref<number>(TILE_DIRT),
     history: ref<number[][][]>([]),
   })
@@ -91,10 +91,19 @@ export const useEditor = (pool: Readonly<Ref<Pool>>) =>
           )
           .value(),
     }))
+    .thru((state) =>
+      withEffect(state, () =>
+        watch(pool, (next) =>
+          match(size(state.grid.value) === heightOf(next))
+            .with(true, noop)
+            .otherwise(() => state.replace(createGrid(next))),
+        ),
+      ),
+    )
     .thru((state) => ({
       brush: state.brush,
       canUndo: computed(() => size(state.history.value) > 0),
-      clear: (): void => state.replace(createGrid()),
+      clear: (): void => state.replace(createGrid(pool.value)),
       eraseValue: TILE_AIR,
       grid: state.grid,
       issues: state.issues,

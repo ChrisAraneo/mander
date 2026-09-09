@@ -11,12 +11,12 @@ import {
   STRUCTURE_START,
   STRUCTURE_WIDTH,
   STRUCTURE_END,
-  STRUCTURE_HEIGHT,
   verticalIssues,
 } from '@mander/structures';
 import { every, filter, flatten, includes, map, size } from 'lodash-es';
 import { match } from 'ts-pattern';
 
+import { heightOf } from './create-grid';
 import type { Pool } from './structure-entry';
 
 const KNOWN_TILES = [
@@ -59,13 +59,14 @@ interface Rule {
   isValid: (grid: number[][]) => boolean;
 }
 
+const sizeRule = (pool: Pool): Rule => ({
+  message: `the grid must be ${STRUCTURE_WIDTH} × ${heightOf(pool)} cells`,
+  isValid: (grid) =>
+    size(grid) === heightOf(pool) &&
+    every(grid, (row) => size(row) === STRUCTURE_WIDTH),
+});
+
 const RULES: Rule[] = [
-  {
-    message: `the grid must be ${STRUCTURE_WIDTH} × ${STRUCTURE_HEIGHT} cells`,
-    isValid: (grid) =>
-      size(grid) === STRUCTURE_HEIGHT &&
-      every(grid, (row) => size(row) === STRUCTURE_WIDTH),
-  },
   {
     message:
       'every cell must be a tile the game knows, a start (98) or an end (99)',
@@ -93,7 +94,7 @@ const poolIssues = (grid: number[][], pool: Pool): string[] =>
 
 export const structureIssues = (grid: number[][], pool: Pool): string[] => [
   ...map(
-    filter(RULES, (rule) => !rule.isValid(grid)),
+    filter([sizeRule(pool), ...RULES], (rule) => !rule.isValid(grid)),
     (rule) => rule.message,
   ),
   ...poolIssues(grid, pool),

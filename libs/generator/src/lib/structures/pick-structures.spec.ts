@@ -1,7 +1,7 @@
 import {
   HARD_STRUCTURES,
   NORMAL_STRUCTURES,
-  type Structure,
+  type Sector,
 } from '@mander/structures';
 import { filter, map, max, size, take, times, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
@@ -16,7 +16,7 @@ const OVER_HARD = size(HARD_STRUCTURES) + 7;
 
 const seeds = times(20, (day) => `DAY-${day}`);
 
-const hasDuplicates = (picked: Structure[]): boolean =>
+const hasDuplicates = (picked: Sector[]): boolean =>
   size(uniq(picked)) !== size(picked);
 
 describe('pickStructures', () => {

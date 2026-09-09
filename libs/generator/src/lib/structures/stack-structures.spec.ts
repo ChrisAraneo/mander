@@ -10,11 +10,15 @@ import {
   STRUCTURE_END,
   STRUCTURE_START,
   VERTICAL_AIR_GAP,
+  VERTICAL_ARRIVAL_ROWS,
   VERTICAL_BAND_HEIGHT,
+  VERTICAL_END_ROW,
+  VERTICAL_HEIGHT,
   VERTICAL_IGNORED_ROWS,
-  VERTICAL_START_ROWS,
+  VERTICAL_MARKER_COLUMN,
+  VERTICAL_START_ROW,
   VERTICAL_STRUCTURES,
-  type Structure,
+  type VerticalStructure,
 } from '@mander/structures';
 import {
   every,
@@ -40,7 +44,7 @@ const stacked = stackStructures(sectors);
 const BAND_ROWS = range(VERTICAL_BAND_HEIGHT);
 
 const topRow = (band: number): number =>
-  size(stacked) - GROUND_DEPTH - (band + 1) * VERTICAL_BAND_HEIGHT;
+  size(stacked) - GROUND_DEPTH - VERTICAL_HEIGHT - band * VERTICAL_BAND_HEIGHT;
 
 const bandRows = (band: number): number[] =>
   map(BAND_ROWS, (row) => topRow(band) + row);
@@ -68,9 +72,11 @@ describe('stackStructures', () => {
     expect(every(stacked, (row) => size(row) === STRUCTURE_WIDTH)).toBe(true);
   });
 
-  it('makes the level as tall as the bands of the sectors and the ground', () => {
+  it('makes the level as tall as the sectors it overlaps and the ground', () => {
     expect(size(stacked)).toBe(
-      size(sectors) * VERTICAL_BAND_HEIGHT + GROUND_DEPTH,
+      (size(sectors) - 1) * VERTICAL_BAND_HEIGHT +
+        VERTICAL_HEIGHT +
+        GROUND_DEPTH,
     );
   });
 
@@ -91,7 +97,7 @@ describe('stackStructures', () => {
       includes(VERTICAL_IGNORED_ROWS, row)
         ? map(cells, () => TILE_CERAMIC)
         : [...cells],
-    ) as Structure;
+    ) as VerticalStructure;
 
     expect(flatten(stackStructures([scribbled]))).not.toContain(TILE_CERAMIC);
   });
@@ -120,9 +126,23 @@ describe('stackStructures', () => {
     expect(max(airRuns(climb))).toBeLessThanOrEqual(VERTICAL_AIR_GAP);
   });
 
+  it('lays the block a sector ends in where the next one starts', () => {
+    const seams = map(range(size(sectors) - 1), (band) => ({
+      end: topRow(band) + VERTICAL_END_ROW,
+      start: topRow(band + 1) + VERTICAL_START_ROW,
+    }));
+
+    expect(map(seams, ({ end }) => end)).toEqual(
+      map(seams, ({ start }) => start),
+    );
+    expect(
+      map(seams, ({ end }) => stacked[end][VERTICAL_MARKER_COLUMN]),
+    ).toEqual(map(seams, () => TILE_AIR));
+  });
+
   it('leaves the hall every sector is entered through open', () => {
     const halls = map(range(size(sectors)), (band) =>
-      every(VERTICAL_START_ROWS, (row) =>
+      every(VERTICAL_ARRIVAL_ROWS, (row) =>
         every(stacked[topRow(band) + row], (tile) => tile === TILE_AIR),
       ),
     );

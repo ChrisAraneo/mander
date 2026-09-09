@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { STRUCTURE_WIDTH, STRUCTURE_HEIGHT } from '@mander/structures';
+import { STRUCTURE_WIDTH } from '@mander/structures';
 import { chain, withEffect } from '@mander/utils';
 import { filter, find, noop, size } from 'lodash-es';
 import { match, P } from 'ts-pattern';
@@ -10,7 +10,7 @@ import IssuePanel from './components/IssuePanel.vue';
 import OutputPanel from './components/OutputPanel.vue';
 import StructureGrid from './components/StructureGrid.vue';
 import type { Pool } from './editor';
-import { BRUSHES, poolOf, nextStructureName, setRef } from './editor';
+import { BRUSHES, heightOf, poolOf, nextStructureName, setRef } from './editor';
 import { useEditor, useLibrary } from './editor';
 
 const { nullish } = P;
@@ -38,6 +38,8 @@ const verticalEntries = computed(() =>
 );
 
 const target = computed(() => `${savedTo.value}.ts`);
+
+const tall = computed(() => heightOf(savedTo.value));
 
 const canSave = computed(
   () => library.isReady.value && editor.isValid.value && size(name.value) > 0,
@@ -93,9 +95,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
     <header class="masthead">
       <h1>Structure Editor</h1>
       <p>
-        {{ STRUCTURE_WIDTH }} × {{ STRUCTURE_HEIGHT }} sector · left-click
-        paints, right-click erases · block material is part of the section, so
-        what you paint is what the generator builds
+        {{ STRUCTURE_WIDTH }} × {{ tall }} sector · left-click paints,
+        right-click erases · block material is part of the section, so what you
+        paint is what the generator builds
       </p>
     </header>
 

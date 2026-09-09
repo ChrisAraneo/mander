@@ -1,5 +1,5 @@
 import { type Tile, TILE_GEM } from '@mander/model';
-import { STRUCTURE_HEIGHT } from '@mander/structures';
+import { VERTICAL_BAND_HEIGHT } from '@mander/structures';
 import { chain, createRandom } from '@mander/utils';
 import {
   ceil,
@@ -21,7 +21,7 @@ const { nullish } = P;
 
 const GEMS_PER_STRUCTURE = 5;
 
-const SLOT_HEIGHT = STRUCTURE_HEIGHT / GEMS_PER_STRUCTURE;
+const SLOT_HEIGHT = VERTICAL_BAND_HEIGHT / GEMS_PER_STRUCTURE;
 
 const REST_HEIGHT = 2;
 

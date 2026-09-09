@@ -14,7 +14,15 @@ const PREFIXES: Record<Pool, string> = {
   vertical: 'VERTICAL',
 };
 
+const TYPES: Record<Pool, string> = {
+  normal: 'Structure',
+  hard: 'Structure',
+  vertical: 'VerticalStructure',
+};
+
 export const prefixOf = (pool: Pool): string => PREFIXES[pool];
+
+export const typeOf = (pool: Pool): string => TYPES[pool];
 
 export const poolOf = (name: string): Pool | null =>
   find(POOLS, (pool) => startsWith(name, `${prefixOf(pool)}_`)) ?? null;

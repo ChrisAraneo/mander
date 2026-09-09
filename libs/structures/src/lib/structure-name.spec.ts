@@ -6,18 +6,18 @@ import {
   NORMAL_STRUCTURES,
   VERTICAL_STRUCTURES,
 } from './library';
-import type { Structure } from './structure';
+import type { Sector } from './structure';
 import { getStructureName } from './structure-name';
 
 const SKIPPED_INDEX = 180;
 
 const SKIPPED_NAME = 'NORMAL_182';
 
-const firstOf = (structures: readonly Structure[]): Structure =>
-  first(structures) as Structure;
+const firstOf = (structures: readonly Sector[]): Sector =>
+  first(structures) as Sector;
 
-const lastOf = (structures: readonly Structure[]): Structure =>
-  last(structures) as Structure;
+const lastOf = (structures: readonly Sector[]): Sector =>
+  last(structures) as Sector;
 
 describe('getStructureName', () => {
   it('should name a structure after its pool and padded position', () => {
@@ -29,7 +29,7 @@ describe('getStructureName', () => {
   it('should name the last structure of every pool', () => {
     expect(getStructureName(lastOf(NORMAL_STRUCTURES))).toBe('NORMAL_205');
     expect(getStructureName(lastOf(HARD_STRUCTURES))).toBe('HARD_046');
-    expect(getStructureName(lastOf(VERTICAL_STRUCTURES))).toBe('VERTICAL_010');
+    expect(getStructureName(lastOf(VERTICAL_STRUCTURES))).toBe('VERTICAL_022');
   });
 
   it('should name a structure after the constant, not its position', () => {
@@ -39,6 +39,6 @@ describe('getStructureName', () => {
   });
 
   it('should fall back when the structure is not in the library', () => {
-    expect(getStructureName([] as unknown as Structure)).toBe('UNKNOWN');
+    expect(getStructureName([] as unknown as Sector)).toBe('UNKNOWN');
   });
 });

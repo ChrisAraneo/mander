@@ -1,16 +1,16 @@
 import { every, filter, flatten, map, size, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { STRUCTURE_HEIGHT, STRUCTURE_WIDTH } from './consts';
+import { STRUCTURE_WIDTH } from './consts';
 import { VERTICAL_STRUCTURES } from './library';
 import { STRUCTURE_END, STRUCTURE_START } from './special-tiles';
-import type { Structure } from './structure';
-import { verticalIssues } from './vertical-shape';
+import type { VerticalStructure } from './structure';
+import { VERTICAL_HEIGHT, verticalIssues } from './vertical-shape';
 
 const named = (index: number): string =>
   `VERTICAL_${String(index + 1).padStart(3, '0')}`;
 
-const countOf = (structure: Structure, tile: number): number =>
+const countOf = (structure: VerticalStructure, tile: number): number =>
   size(filter(flatten(structure), (cell) => cell === tile));
 
 describe('VERTICAL_STRUCTURES', () => {
@@ -28,14 +28,14 @@ describe('VERTICAL_STRUCTURES', () => {
     expect(broken).toEqual([]);
   });
 
-  it('cuts every sector to the size of a structure', () => {
+  it('cuts every sector to the size of a vertical structure', () => {
     const ragged = filter(
       map(VERTICAL_STRUCTURES, (structure, index) => ({
         name: named(index),
         structure,
       })),
       ({ structure }) =>
-        size(structure) !== STRUCTURE_HEIGHT ||
+        size(structure) !== VERTICAL_HEIGHT ||
         !every(structure, (row) => size(row) === STRUCTURE_WIDTH),
     );
 

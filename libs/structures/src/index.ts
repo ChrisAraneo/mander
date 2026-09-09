@@ -4,4 +4,4 @@ export * from './lib/library';
 export * from './lib/structure-name';
 export * from './lib/special-tiles';
 export * from './lib/vertical-shape';
-export type { Structure } from './lib/structure';
+export type { Sector, Structure, VerticalStructure } from './lib/structure';

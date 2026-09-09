@@ -1,6 +1,6 @@
 import { readFile, writeFile } from 'node:fs/promises';
 
-import type { Pool } from './pool.ts';
+import { type Pool, typeOf } from './pool.ts';
 import { mergeAliases } from './merge-aliases.ts';
 import { registerStructure } from './register-structure.ts';
 import type { StructurePaths } from './structure-paths.ts';
@@ -36,6 +36,7 @@ export const saveStructure = async (
     mergeAliases(original, text),
     name,
     text,
+    typeOf(pool),
   );
 
   await writeFile(file, withEndings(source, original), 'utf8');

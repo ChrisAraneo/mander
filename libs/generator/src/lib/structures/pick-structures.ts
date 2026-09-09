@@ -1,7 +1,7 @@
 import {
   HARD_STRUCTURES,
   NORMAL_STRUCTURES,
-  type Structure,
+  type Sector,
   VERTICAL_STRUCTURES,
 } from '@mander/structures';
 import { createRandom } from '@mander/utils';
@@ -10,7 +10,7 @@ import { match } from 'ts-pattern';
 
 export type Pool = 'normal' | 'hard' | 'vertical';
 
-const structuresOf = (pool: Pool): readonly Structure[] =>
+const structuresOf = (pool: Pool): readonly Sector[] =>
   match(pool)
     .with('hard', () => HARD_STRUCTURES)
     .with('vertical', () => VERTICAL_STRUCTURES)
@@ -22,7 +22,7 @@ export const pickStructures = (
   seed: string,
   count: number,
   pool: Pool,
-): Structure[] => {
+): Sector[] => {
   const random = createRandom(seedFor(seed, pool));
   const structures = structuresOf(pool);
 
