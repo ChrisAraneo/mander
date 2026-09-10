@@ -1,4 +1,4 @@
-import { TILE_AIR, TILE_DIRT } from '@mander/model';
+import { type Layers, TILE_AIR, TILE_DIRT } from '@mander/model';
 import {
   STRUCTURE_END,
   STRUCTURE_HEIGHT,
@@ -58,5 +58,15 @@ const laidAcross = (pool: Pool, row: number): number[] =>
       ),
     );
 
+export const emptyGrid = (pool: Pool = 'normal'): number[][] =>
+  map(range(heightOf(pool)), () => times(STRUCTURE_WIDTH, () => TILE_AIR));
+
 export const createGrid = (pool: Pool = 'normal'): number[][] =>
   map(range(heightOf(pool)), (row) => laidAcross(pool, row));
+
+// both layers are held at full size while the sector is painted; the empty one
+// is trimmed away when it is written out
+export const createSketch = (pool: Pool = 'normal'): Layers => ({
+  tiles: createGrid(pool),
+  backTiles: emptyGrid(pool),
+});

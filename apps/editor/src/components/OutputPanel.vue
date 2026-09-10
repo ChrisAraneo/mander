@@ -12,12 +12,27 @@ const props = defineProps<{ text: string }>();
 
 const copied = ref(false);
 const failed = ref(false);
+const isShown = ref(false);
 
 const label = computed(() =>
   match(copied.value)
     .with(true, () => 'Copied')
     .otherwise(() => 'Copy'),
 );
+
+const toggleLabel = computed(() =>
+  match(isShown.value)
+    .with(true, () => 'Hide')
+    .otherwise(() => 'Show'),
+);
+
+const toggle = (): void => void setRef(isShown, !isShown.value);
+
+// a blocked clipboard leaves the source as the only way out, so it is opened
+const blocked = (): void =>
+  void chain(setRef(failed, true))
+    .thru(() => setRef(isShown, true))
+    .value();
 
 const copy = (): Promise<void> =>
   chain(setRef(failed, false))
@@ -29,7 +44,7 @@ const copy = (): Promise<void> =>
               window.setTimeout(() => setRef(copied, false), COPIED_MS),
             )
             .value(),
-        () => setRef(failed, true),
+        () => blocked(),
       ),
     )
     .thru((settled) => settled.then(noop))
@@ -40,14 +55,19 @@ const copy = (): Promise<void> =>
   <section class="output">
     <header>
       <h2>Structure source</h2>
-      <button class="ghost" type="button" @click="copy">
-        {{ label }}
-      </button>
+      <div class="buttons">
+        <button class="ghost" type="button" @click="copy">
+          {{ label }}
+        </button>
+        <button class="ghost" type="button" @click="toggle()">
+          {{ toggleLabel }}
+        </button>
+      </div>
     </header>
     <p v-if="failed" class="failed">
       Clipboard blocked — select the text below and copy manually.
     </p>
-    <pre>{{ text }}</pre>
+    <pre v-if="isShown">{{ text }}</pre>
   </section>
 </template>
 
@@ -70,6 +90,12 @@ header {
   gap: 12px;
 }
 
+.buttons {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+
 h2 {
   margin: 0;
   font-size: 14px;
@@ -86,13 +112,13 @@ h2 {
 
 pre {
   margin: 0;
-  padding: 12px;
+  padding: 10px;
   border-radius: 8px;
   background: #0b0f17;
   color: #c8d3e3;
   font-family: 'Cascadia Mono', Consolas, monospace;
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: 11px;
+  line-height: 1.45;
   overflow-x: auto;
   user-select: all;
 }

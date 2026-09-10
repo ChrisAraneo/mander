@@ -38,6 +38,8 @@ export * from './lib/spike/spike-shape';
 export * from './lib/spike/get-spike-shape';
 export * from './lib/spike/compute-spike-triangles';
 export * from './lib/air/air';
+export * from './lib/back/back-tile-at';
+export * from './lib/back/layers';
 export * from './lib/blocks/brick';
 export * from './lib/blocks/cannon';
 export * from './lib/blocks/ceramic';

@@ -1,5 +1,6 @@
 import { chain } from '@mander/utils';
 import {
+  backTileAt,
   isSolidTile,
   isSpikeTile,
   type Level,
@@ -27,6 +28,7 @@ import {
 import type { Palette } from '../palette';
 import { spikeStep } from '../spike';
 import type { Viewport } from '../viewport';
+import { backTileStep } from './back-tile-step';
 import { solidAt } from './solid-at';
 import { tileEdgesStep } from './tile-edges-step';
 
@@ -83,6 +85,20 @@ const tileStep = (
     )
     .value();
 
+const backStep = (
+  level: Level,
+  column: number,
+  row: number,
+  materials: MaterialPalette,
+): CanvasStep =>
+  chain(backTileAt(level, column, row))
+    .thru((tile) =>
+      match(isSolidTile(tile))
+        .with(true, () => backTileStep(level, column, row, materials(tile)))
+        .otherwise(() => skip),
+    )
+    .value();
+
 const visibleRange = (
   camera: number,
   view: number,
@@ -106,10 +122,15 @@ export const drawTiles = (
     columns: visibleRange(cameraX, viewport.width, level.width - 1),
     rows: visibleRange(cameraY, viewport.height, level.height - 1),
   })
-    .thru(({ materials, columns, rows }) =>
-      flatMap(columns, (column) =>
+    .thru(({ materials, columns, rows }) => [
+      // the back layer is laid down whole before the front, so nothing the
+      // player can touch is painted over by what stands behind it
+      ...flatMap(columns, (column) =>
+        map(rows, (row) => backStep(level, column, row, materials)),
+      ),
+      ...flatMap(columns, (column) =>
         map(rows, (row) => tileStep(level, column, row, materials)),
       ),
-    )
+    ])
     .thru((steps) => paint(context, ...steps))
     .value();

@@ -1,5 +1,6 @@
 import {
   isSolidTile,
+  type Layers,
   TILE_AIR,
   TILE_BEARTRAP,
   TILE_ENEMY,
@@ -36,6 +37,10 @@ const countTile = (grid: number[][], tile: number): number =>
 const isKnown = (cell: number): boolean =>
   includes(KNOWN_TILES, cell) || isSolidTile(cell);
 
+// nothing is played against the back layer, so only blocks belong on it
+const belongsBehind = (cell: number): boolean =>
+  cell === TILE_AIR || isSolidTile(cell);
+
 const hazardsAreAnchored = (grid: number[][]): boolean =>
   every(grid, (cells, row) =>
     every(cells, (cell, column) =>
@@ -54,48 +59,56 @@ const hazardsAreAnchored = (grid: number[][]): boolean =>
     ),
   );
 
+const isCut = (grid: number[][], tall: number): boolean =>
+  size(grid) === tall && every(grid, (row) => size(row) === STRUCTURE_WIDTH);
+
 interface Rule {
   message: string;
-  isValid: (grid: number[][]) => boolean;
+  isValid: (sketch: Layers) => boolean;
 }
 
 const sizeRule = (pool: Pool): Rule => ({
-  message: `the grid must be ${STRUCTURE_WIDTH} × ${heightOf(pool)} cells`,
-  isValid: (grid) =>
-    size(grid) === heightOf(pool) &&
-    every(grid, (row) => size(row) === STRUCTURE_WIDTH),
+  message: `both layers must be ${STRUCTURE_WIDTH} × ${heightOf(pool)} cells`,
+  isValid: ({ tiles, backTiles }) =>
+    isCut(tiles, heightOf(pool)) && isCut(backTiles, heightOf(pool)),
 });
 
 const RULES: Rule[] = [
   {
     message:
       'every cell must be a tile the game knows, a start (98) or an end (99)',
-    isValid: (grid) => every(grid, (row) => every(row, isKnown)),
-  },
-  {
-    message: 'mark where the player enters with exactly one start (98)',
-    isValid: (grid) => countTile(grid, STRUCTURE_START) === 1,
-  },
-  {
-    message: 'mark where the player leaves with exactly one end (99)',
-    isValid: (grid) => countTile(grid, STRUCTURE_END) === 1,
+    isValid: ({ tiles }) => every(tiles, (row) => every(row, isKnown)),
   },
   {
     message:
-      'a spike or beartrap needs a block below it, a ceiling or falling spike one above',
-    isValid: hazardsAreAnchored,
+      'the back layer takes blocks alone — a hazard or a marker has nothing to do behind the level',
+    isValid: ({ backTiles }) =>
+      every(backTiles, (row) => every(row, belongsBehind)),
+  },
+  {
+    message: 'mark where the player enters with exactly one start (98)',
+    isValid: ({ tiles }) => countTile(tiles, STRUCTURE_START) === 1,
+  },
+  {
+    message: 'mark where the player leaves with exactly one end (99)',
+    isValid: ({ tiles }) => countTile(tiles, STRUCTURE_END) === 1,
+  },
+  {
+    message:
+      'a spike or beartrap needs a block below it, a ceiling or falling spike one above — a background block is not something to stand on',
+    isValid: ({ tiles }) => hazardsAreAnchored(tiles),
   },
 ];
 
-const poolIssues = (grid: number[][], pool: Pool): string[] =>
+const poolIssues = (sketch: Layers, pool: Pool): string[] =>
   match(pool)
-    .with('vertical', () => verticalIssues(grid))
+    .with('vertical', () => verticalIssues(sketch.tiles))
     .otherwise((): string[] => []);
 
-export const structureIssues = (grid: number[][], pool: Pool): string[] => [
+export const structureIssues = (sketch: Layers, pool: Pool): string[] => [
   ...map(
-    filter([sizeRule(pool), ...RULES], (rule) => !rule.isValid(grid)),
+    filter([sizeRule(pool), ...RULES], (rule) => !rule.isValid(sketch)),
     (rule) => rule.message,
   ),
-  ...poolIssues(grid, pool),
+  ...poolIssues(sketch, pool),
 ];

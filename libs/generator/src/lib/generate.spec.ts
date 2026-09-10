@@ -10,7 +10,9 @@ import {
   findGemTiles,
   findTile,
   isSolid,
+  isSolidTile,
   type Level,
+  TILE_AIR,
   TILE_CHEST,
   TILE_KEY,
   TILE_PORTAL,
@@ -23,6 +25,7 @@ import {
   every,
   filter,
   flatMap,
+  flatten,
   floor,
   includes,
   join,
@@ -225,6 +228,30 @@ describe('generate', () => {
     expect(size(filter(crosswiseRuns(), isTurned))).toBe(
       size(days) * size(MIRRORED_LEVELS),
     );
+  });
+
+  it('gives every level a back layer cut to the shape of its front', () => {
+    const ragged = filter(
+      flatMap(days, (date) => generate(date).levels),
+      (level) =>
+        size(level.backTiles) !== level.height ||
+        some(level.backTiles, (row) => size(row) !== level.width),
+    );
+
+    expect(ragged).toEqual([]);
+  });
+
+  it('fills the back layer with blocks alone, never with what the level is played against', () => {
+    const stray = filter(
+      flatMap(days, (date) =>
+        flatMap(generate(date).levels, (level) =>
+          flatten(level.backTiles ?? []),
+        ),
+      ),
+      (tile) => tile !== TILE_AIR && !isSolidTile(tile),
+    );
+
+    expect(uniq(stray)).toEqual([]);
   });
 
   it('leaves a mirrored level as wide and as tall as it was built', () => {

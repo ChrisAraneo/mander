@@ -1,5 +1,8 @@
-import { isSolidTile, TILE_AIR, type Tile } from '@mander/model';
+import { type Layers, isSolidTile, TILE_AIR, type Tile } from '@mander/model';
 import {
+  backOf,
+  frontOf,
+  type Layer,
   STRUCTURE_WIDTH,
   STRUCTURE_END,
   STRUCTURE_HEIGHT,
@@ -43,7 +46,7 @@ const DEFAULT_END: Cell = {
 
 const findMarker = (structure: Sector, marker: number): Cell | undefined =>
   find(
-    map(structure, (cells, row): Cell => ({
+    map(frontOf(structure), (cells, row): Cell => ({
       row,
       column: indexOf(cells, marker),
     })),
@@ -103,8 +106,8 @@ const widthOf = (placements: Placement[]): number =>
 const isDrawn = (cell: number): boolean =>
   cell !== TILE_AIR && cell !== STRUCTURE_START && cell !== STRUCTURE_END;
 
-const painted = (placement: Placement): TilePatch[] =>
-  chain(placement.structure)
+const laidOut = (placement: Placement, layer: Layer): TilePatch[] =>
+  chain(layer)
     .flatMap((cells, row) =>
       map(cells, (cell, column) => ({
         tile: cell,
@@ -115,12 +118,16 @@ const painted = (placement: Placement): TilePatch[] =>
     .filter(({ tile }) => isDrawn(tile))
     .value();
 
+// the block a sector stands on is carried down to the floor of the level, in
+// whichever layer it was painted, so a sector lifted above the join line is not
+// left hanging over a gap
 const underpinned = (
   tiles: Tile[][],
   placement: Placement,
   height: number,
+  layer: Layer,
 ): TilePatch[] =>
-  chain(placement.structure[STRUCTURE_HEIGHT - 1])
+  chain(layer[STRUCTURE_HEIGHT - 1] ?? [])
     .map((tile, column) => ({ tile, column }))
     .filter(({ tile }) => isSolidTile(tile))
     .flatMap(({ tile, column }) =>
@@ -133,27 +140,48 @@ const underpinned = (
     .filter(({ row, column }) => tiles[row][column] === TILE_AIR)
     .value();
 
-export const joinStructures = (structures: Sector[]): Tile[][] =>
+type LayerOf = (placement: Placement) => Layer;
+
+const frontLayer: LayerOf = (placement) => frontOf(placement.structure);
+
+const backLayer: LayerOf = (placement) => backOf(placement.structure);
+
+const laid = (
+  placements: Placement[],
+  height: number,
+  width: number,
+  layerOf: LayerOf,
+): Tile[][] =>
+  chain(
+    patchTiles(
+      times(height, () => times(width, (): Tile => TILE_AIR)),
+      flatMap(placements, (placement) =>
+        laidOut(placement, layerOf(placement)),
+      ),
+    ),
+  )
+    .thru((tiles) =>
+      reduce(
+        placements,
+        (grid: Tile[][], placement) =>
+          patchTiles(
+            grid,
+            underpinned(grid, placement, height, layerOf(placement)),
+          ),
+        tiles,
+      ),
+    )
+    .value();
+
+export const joinStructures = (structures: Sector[]): Layers =>
   chain(normalise(place(structures)))
     .thru((placements) => ({
       placements,
       height: heightOf(placements),
       width: widthOf(placements),
     }))
-    .thru(({ placements, height, width }) => ({
-      placements,
-      height,
-      tiles: patchTiles(
-        times(height, () => times(width, (): Tile => TILE_AIR)),
-        flatMap(placements, painted),
-      ),
+    .thru(({ placements, height, width }): Layers => ({
+      tiles: laid(placements, height, width, frontLayer),
+      backTiles: laid(placements, height, width, backLayer),
     }))
-    .thru(({ placements, height, tiles }) =>
-      reduce(
-        placements,
-        (grid: Tile[][], placement) =>
-          patchTiles(grid, underpinned(grid, placement, height)),
-        tiles,
-      ),
-    )
     .value();

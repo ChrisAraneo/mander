@@ -1,29 +1,29 @@
 <script setup lang="ts">
-import { TILE_SIZE } from '@mander/model';
+import { type Layers, TILE_AIR, TILE_SIZE } from '@mander/model';
 import { STRUCTURE_WIDTH } from '@mander/structures';
 import { chain, withEffect } from '@mander/utils';
 import { forEach, noop, range, size } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
+import type { Brush, BrushLayer } from '../editor';
 import { drawStructure, fitCanvas, setRef } from '../editor';
 
 const { nonNullable, nullish } = P;
 
 const props = defineProps<{
-  grid: number[][];
-  brush: number;
-  eraseValue: number;
+  sketch: Layers;
+  brush: Brush;
 }>();
 
 const emit = defineEmits<{
   strokeStart: [];
-  paint: [row: number, column: number, value: number];
+  paint: [row: number, column: number, value: number, layer: BrushLayer];
 }>();
 
 const WIDTH = STRUCTURE_WIDTH * TILE_SIZE;
 
-const tall = computed(() => size(props.grid));
+const tall = computed(() => size(props.sketch.tiles));
 const height = computed(() => tall.value * TILE_SIZE);
 
 const GRID_LINE = 'rgba(159, 176, 195, 0.13)';
@@ -43,7 +43,8 @@ const canvas = ref<HTMLCanvasElement | null>(null);
 const context = ref<CanvasRenderingContext2D | null>(null);
 const hover = ref<Cell | null>(null);
 const isPainting = ref(false);
-const strokeValue = ref(props.brush);
+const strokeValue = ref(props.brush.value);
+const strokeLayer = ref<BrushLayer>(props.brush.layer);
 
 const strokeLine = (
   target: CanvasRenderingContext2D,
@@ -119,7 +120,7 @@ const repaint = (): void =>
     .otherwise((target) =>
       chain(target)
         .thru((ready) =>
-          withEffect(ready, () => drawStructure(ready, props.grid)),
+          withEffect(ready, () => drawStructure(ready, props.sketch)),
         )
         .thru((ready) => withEffect(ready, () => drawGridLines(ready)))
         .thru((ready) => drawHover(ready))
@@ -148,19 +149,26 @@ const cellAt = (event: PointerEvent): Cell | null =>
     .with(nullish, (): Cell | null => null)
     .otherwise((element) => cellIn(element, event));
 
+// the right button erases the layer the brush belongs to, so a background
+// brush rubs out background and leaves the level in front of it alone
 const start = (event: PointerEvent): void =>
   match(cellAt(event))
     .with(nullish, noop)
     .otherwise((cell) =>
       chain(
         match(event.button)
-          .with(RIGHT_BUTTON, () => props.eraseValue)
-          .otherwise(() => props.brush),
+          .with(RIGHT_BUTTON, () => TILE_AIR)
+          .otherwise(() => props.brush.value),
       )
         .thru((value) => setRef(strokeValue, value))
+        .thru((value) =>
+          withEffect(value, () => setRef(strokeLayer, props.brush.layer)),
+        )
         .thru((value) => withEffect(value, () => setRef(isPainting, true)))
         .thru((value) => withEffect(value, () => emit('strokeStart')))
-        .thru((value) => emit('paint', cell.row, cell.column, value))
+        .thru((value) =>
+          emit('paint', cell.row, cell.column, value, strokeLayer.value),
+        )
         .value(),
     );
 
@@ -169,7 +177,13 @@ const move = (event: PointerEvent): void =>
     .thru((cell) =>
       match({ painting: isPainting.value, cell })
         .with({ painting: true, cell: nonNullable }, ({ cell: target }) =>
-          emit('paint', target.row, target.column, strokeValue.value),
+          emit(
+            'paint',
+            target.row,
+            target.column,
+            strokeValue.value,
+            strokeLayer.value,
+          ),
         )
         .otherwise(noop),
     )
@@ -195,7 +209,7 @@ onMounted(() =>
 
 onBeforeUnmount(() => window.removeEventListener('pointerup', stop));
 
-watch(() => props.grid, repaint, { deep: true });
+watch(() => props.sketch, repaint, { deep: true });
 watch(tall, () =>
   chain(refit())
     .thru(() => repaint())

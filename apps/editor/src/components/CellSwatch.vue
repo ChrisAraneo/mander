@@ -1,23 +1,36 @@
 <script setup lang="ts">
-import { TILE_SIZE } from '@mander/model';
+import { type Layers, TILE_AIR, TILE_SIZE } from '@mander/model';
 import { chain } from '@mander/utils';
 import { noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { onMounted, ref, watch } from 'vue';
 
+import type { BrushLayer } from '../editor';
 import { drawStructure, fitCanvas, setRef } from '../editor';
 
 const { nullish } = P;
 
-const props = defineProps<{ value: number }>();
+const props = defineProps<{ value: number; layer: BrushLayer }>();
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 const context = ref<CanvasRenderingContext2D | null>(null);
 
+// a background brush is shown the way the game draws it: behind the level
+const swatch = (): Layers =>
+  match(props.layer)
+    .with('back', (): Layers => ({
+      tiles: [[TILE_AIR]],
+      backTiles: [[props.value]],
+    }))
+    .otherwise((): Layers => ({
+      tiles: [[props.value]],
+      backTiles: [[TILE_AIR]],
+    }));
+
 const repaint = (): void =>
   match(context.value)
     .with(nullish, noop)
-    .otherwise((target) => drawStructure(target, [[props.value]]));
+    .otherwise((target) => drawStructure(target, swatch()));
 
 onMounted(() =>
   chain(canvas.value)
@@ -33,7 +46,7 @@ onMounted(() =>
     .value(),
 );
 
-watch(() => props.value, repaint);
+watch(() => [props.value, props.layer], repaint);
 </script>
 
 <template>

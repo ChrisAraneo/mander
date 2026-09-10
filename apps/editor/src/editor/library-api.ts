@@ -34,7 +34,7 @@ const failure = (response: Response): Promise<never> =>
 const toEntry = (entry: LibraryResponse): StructureEntry => ({
   name: entry.name,
   pool: entry.pool,
-  grid: parseStructure(entry.text),
+  sketch: parseStructure(entry.text),
 });
 
 export const fetchLibrary = (): Promise<StructureEntry[]> =>

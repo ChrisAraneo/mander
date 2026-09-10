@@ -83,6 +83,53 @@ Max jump over spikes with ceiling above:
 [__, __, __, __, __, __, DR, DR, DR, DR, DR, __, __, __, __, __, __, __, __, __],
 ```
 
+# The two layers
+
+A sector is written as two grids: the front, which the level is played against,
+and the back, drawn dimmed and flattened behind it with no border. The player
+passes straight through the back layer — nothing lands on it and no hazard is
+anchored by it — so the same cell can hold a spike in front and a brick wall
+behind:
+
+```ts
+export const NORMAL_001: Structure = [
+  [
+    [__, __, __, __, __],
+    [__, SP, __, BT, __],
+    [DR, DR, DR, DR, DR],
+  ],
+  [
+    [BR, BR, BR, BR, BR],
+    [BR, BR, BR, BR, BR],
+    [__, __, __, __, __],
+  ],
+];
+```
+
+A sector with nothing painted behind it leaves its back layer empty:
+
+```ts
+export const NORMAL_002: Structure = [
+  [
+    [__, __, __, __, __],
+    [DR, DR, DR, DR, DR],
+  ],
+  [],
+];
+```
+
+The back layer takes blocks alone. A hazard, an enemy, or a start or end marker
+belongs on the front, and the editor will say so.
+
+Both layers are painted on the one canvas. The Background brush group paints
+into the back layer and the right button erases from whichever layer the brush
+belongs to, so a background brush rubs out background and leaves the level in
+front of it alone.
+
+The generator keeps the layers apart the whole way through: the spawn, the
+portal, the key, the chest and the gems are all placed against the front layer,
+and what is painted behind stays behind them.
+
 # Vertical sectors
 
 A vertical sector is 20 × 22, four rows taller than a normal one, and the

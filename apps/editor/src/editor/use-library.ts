@@ -1,3 +1,4 @@
+import type { Layers } from '@mander/model';
 import { chain } from '@mander/utils';
 import { noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';
@@ -47,8 +48,8 @@ export const useLibrary = () =>
       isReady: state.isReady,
       status: state.status,
       load: state.load,
-      save: (name: string, grid: number[][]): Promise<void> =>
-        postStructure(name, formatStructure(grid))
+      save: (name: string, sketch: Layers): Promise<void> =>
+        postStructure(name, formatStructure(sketch))
           .then(
             (saved) =>
               chain(

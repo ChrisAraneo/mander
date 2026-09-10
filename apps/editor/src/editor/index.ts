@@ -6,6 +6,7 @@ export * from './create-grid';
 export * from './draw-marker';
 export * from './draw-orbit';
 export * from './draw-structure';
+export * from './fill-sketch';
 export * from './fit-canvas';
 export * from './format-structure';
 export * from './library-api';

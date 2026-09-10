@@ -1,4 +1,4 @@
-import type { Tile } from '@mander/model';
+import type { Layers, Tile } from '@mander/model';
 import type { Sector } from '@mander/structures';
 import { match } from 'ts-pattern';
 
@@ -19,7 +19,7 @@ import { stackStructures } from './stack-structures';
 type Sow = (tiles: Tile[][]) => Tile[][];
 
 export interface Layout {
-  join: (structures: Sector[]) => Tile[][];
+  join: (structures: Sector[]) => Layers;
   addSpawn: Sow;
   addPortal: Sow;
   addKey: Sow;

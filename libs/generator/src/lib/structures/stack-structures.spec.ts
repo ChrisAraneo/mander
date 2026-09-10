@@ -19,6 +19,7 @@ import {
   VERTICAL_START_ROW,
   VERTICAL_STRUCTURES,
   type VerticalStructure,
+  frontOf,
 } from '@mander/structures';
 import {
   every,
@@ -39,7 +40,7 @@ import { GROUND_DEPTH, stackStructures } from './stack-structures';
 
 const sectors = take([...VERTICAL_STRUCTURES], 3);
 
-const stacked = stackStructures(sectors);
+const stacked = stackStructures(sectors).tiles;
 
 const BAND_ROWS = range(VERTICAL_BAND_HEIGHT);
 
@@ -65,7 +66,7 @@ const drawn = (cells: readonly number[]): number[] =>
 
 describe('stackStructures', () => {
   it('gives back nothing when it is given nothing to stack', () => {
-    expect(stackStructures([])).toEqual([]);
+    expect(stackStructures([])).toEqual({ tiles: [], backTiles: [] });
   });
 
   it('keeps the level as wide as a single sector', () => {
@@ -82,24 +83,29 @@ describe('stackStructures', () => {
 
   it('stands the first sector at the bottom of the climb', () => {
     expect(map(bandRows(0), (row) => stacked[row])).toEqual(
-      map(BAND_ROWS, (row) => drawn(sectors[0][row])),
+      map(BAND_ROWS, (row) => drawn(frontOf(sectors[0])[row])),
     );
   });
 
   it('stands the last sector at the top of the climb', () => {
     expect(map(bandRows(size(sectors) - 1), (row) => stacked[row])).toEqual(
-      map(BAND_ROWS, (row) => drawn(sectors[size(sectors) - 1][row])),
+      map(BAND_ROWS, (row) => drawn(frontOf(sectors[size(sectors) - 1])[row])),
     );
   });
 
   it('leaves what is drawn below the band of a sector out of the climb', () => {
-    const scribbled = map(sectors[0], (cells, row) =>
-      includes(VERTICAL_IGNORED_ROWS, row)
-        ? map(cells, () => TILE_CERAMIC)
-        : [...cells],
-    ) as VerticalStructure;
+    const scribbled = [
+      map(frontOf(sectors[0]), (cells, row) =>
+        includes(VERTICAL_IGNORED_ROWS, row)
+          ? map(cells, () => TILE_CERAMIC)
+          : [...cells],
+      ),
+      [],
+    ] as unknown as VerticalStructure;
 
-    expect(flatten(stackStructures([scribbled]))).not.toContain(TILE_CERAMIC);
+    expect(flatten(stackStructures([scribbled]).tiles)).not.toContain(
+      TILE_CERAMIC,
+    );
   });
 
   it('leaves no start or end marker in the tiles it lays', () => {
@@ -121,7 +127,7 @@ describe('stackStructures', () => {
   });
 
   it('joins the sectors no further apart than the player can jump', () => {
-    const climb = stackStructures([...VERTICAL_STRUCTURES]);
+    const climb = stackStructures([...VERTICAL_STRUCTURES]).tiles;
 
     expect(max(airRuns(climb))).toBeLessThanOrEqual(VERTICAL_AIR_GAP);
   });

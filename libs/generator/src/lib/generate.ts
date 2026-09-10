@@ -1,10 +1,10 @@
 import { type GameLevel, HORNED_ENEMY_CHANCE } from '@mander/engine';
-import type { LevelMeta, Tile } from '@mander/model';
+import type { Layers, LevelMeta } from '@mander/model';
 import type { RenderedWorld } from '@mander/render';
 import { getStructureName, type Sector } from '@mander/structures';
 import { filter, floor, map, range, size, slice, take } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { addPadding } from './structures/add-padding';
+import { paddingOf, padTiles } from './structures/add-padding';
 import { addStones } from './structures/add-stones';
 import { computeLevelSeeds } from './seed/compute-level-seeds';
 import { clearBeartraps } from './structures/clear-beartraps';
@@ -92,23 +92,32 @@ const metaFor = (structures: Sector[]): LevelMeta => ({
   structures: map(structures, getStructureName),
 });
 
-const buildTiles = (structures: Sector[], levelNumber: number): Tile[][] => {
+// the sectors carry two layers of their own, and the level is sown against the
+// front one alone: the spawn, the portal and the pickups all read cells the
+// back layer has something in as empty, so what is painted behind the level
+// stays behind it
+const buildLayers = (structures: Sector[], levelNumber: number): Layers => {
   const layout = layoutFor(levelNumber);
-  const tiles = clearFireballs(
-    clearCannons(layout.join(structures), levelNumber),
-    levelNumber,
-  );
+  const { tiles: joined, backTiles } = layout.join(structures);
+  const tiles = clearFireballs(clearCannons(joined, levelNumber), levelNumber);
   const withPlayer = layout.addSpawn(tiles);
   const withPortal = layout.addPortal(withPlayer);
-  const withPadding = addPadding(withPortal);
+  const padding = paddingOf(withPortal);
+  const withPadding = padTiles(withPortal, padding);
   const withSpikes = clearSpikes(withPadding, levelNumber);
   const withBeartraps = clearBeartraps(withSpikes, levelNumber);
   const withKey = layout.addKey(withBeartraps);
   const withChest = layout.addChest(withKey);
   const withGems = layout.addGems(withChest);
   const withStones = addStones(withGems);
+  const paddedBack = padTiles(backTiles, padding);
 
-  return isMirrored(levelNumber) ? mirrorTiles(withStones) : withStones;
+  return match(isMirrored(levelNumber))
+    .with(true, (): Layers => ({
+      tiles: mirrorTiles(withStones),
+      backTiles: mirrorTiles(paddedBack),
+    }))
+    .otherwise((): Layers => ({ tiles: withStones, backTiles: paddedBack }));
 };
 
 export const generate = (date: Date): RenderedWorld => {
@@ -126,13 +135,14 @@ export const generate = (date: Date): RenderedWorld => {
       countIn(pools, pool),
       rankIn(pools, index),
     );
-    const tiles = buildTiles(structures, levelNumber);
+    const { tiles, backTiles } = buildLayers(structures, levelNumber);
 
     const level: GameLevel = {
       seed,
       width: size(tiles[0]),
       height: size(tiles),
       tiles,
+      backTiles,
       chestItems: generateChestItems(seed),
       hornedEnemyChance: hornedEnemyChanceFor(levelNumber),
       isOpenSided: isVertical(levelNumber),

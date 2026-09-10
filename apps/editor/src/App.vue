@@ -53,13 +53,13 @@ const loadStructure = (structure: string): void =>
     .with(nullish, noop)
     .otherwise((entry) =>
       chain(entry)
-        .thru((found) => withEffect(found, () => editor.replace(found.grid)))
+        .thru((found) => withEffect(found, () => editor.replace(found.sketch)))
         .thru((found) => withEffect(found, () => setRef(pool, found.pool)))
         .thru((found) => setRef(name, found.name))
         .value(),
     );
 
-const save = (): void => void library.save(name.value, editor.grid.value);
+const save = (): void => void library.save(name.value, editor.sketch.value);
 
 const undoShortcut = (event: KeyboardEvent): void =>
   match(event.key === UNDO_KEY && (event.ctrlKey || event.metaKey))
@@ -77,7 +77,7 @@ const onKeydown = (event: KeyboardEvent): void =>
     .otherwise(() =>
       match(find(BRUSHES, { shortcut: event.key }))
         .with(nullish, () => undoShortcut(event))
-        .otherwise((brush) => void setRef(editor.brush, brush.value)),
+        .otherwise((brush) => void setRef(editor.brush, brush)),
     );
 
 onMounted(() =>
@@ -97,7 +97,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
       <p>
         {{ STRUCTURE_WIDTH }} × {{ tall }} sector · left-click paints,
         right-click erases · block material is part of the section, so what you
-        paint is what the generator builds
+        paint is what the generator builds · a Background brush paints the layer
+        behind the level, which a hazard can stand in front of
       </p>
     </header>
 
@@ -109,84 +110,12 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
             :brush="editor.brush.value"
             @pick="editor.brush.value = $event" />
         </div>
-
-        <div class="group">
-          <h2>Start from</h2>
-          <select v-model="loaded" @change="loadStructure(loaded)">
-            <option value="">Blank grid</option>
-            <optgroup label="Normal">
-              <option
-                v-for="entry in normalEntries"
-                :key="entry.name"
-                :value="entry.name">
-                {{ entry.name }}
-              </option>
-            </optgroup>
-            <optgroup label="Hard">
-              <option
-                v-for="entry in hardEntries"
-                :key="entry.name"
-                :value="entry.name">
-                {{ entry.name }}
-              </option>
-            </optgroup>
-            <optgroup label="Vertical">
-              <option
-                v-for="entry in verticalEntries"
-                :key="entry.name"
-                :value="entry.name">
-                {{ entry.name }}
-              </option>
-            </optgroup>
-          </select>
-        </div>
-
-        <div class="group">
-          <h2>Save to library</h2>
-          <select v-model="pool" @change="suggestName()">
-            <option value="normal">Normal</option>
-            <option value="hard">Hard</option>
-            <option value="vertical">Vertical</option>
-          </select>
-          <input
-            v-model="name"
-            class="name"
-            spellcheck="false"
-            placeholder="NORMAL_001" />
-          <button
-            class="primary"
-            type="button"
-            :disabled="!canSave"
-            @click="save()">
-            Write to {{ target }}
-          </button>
-          <p v-if="library.status.value" class="status">
-            {{ library.status.value }}
-          </p>
-          <p v-else-if="!editor.isValid.value" class="status">
-            Settle the issues before writing to the library.
-          </p>
-        </div>
-
-        <div class="group actions">
-          <button
-            class="ghost"
-            type="button"
-            :disabled="!editor.canUndo.value"
-            @click="editor.undo()">
-            Undo
-          </button>
-          <button class="ghost" type="button" @click="editor.clear()">
-            Clear
-          </button>
-        </div>
       </aside>
 
       <section class="canvas">
         <StructureGrid
-          :grid="editor.grid.value"
+          :sketch="editor.sketch.value"
           :brush="editor.brush.value"
-          :erase-value="editor.eraseValue"
           @stroke-start="editor.remember()"
           @paint="editor.paint" />
       </section>
@@ -196,6 +125,79 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
           :issues="editor.issues.value"
           :is-valid="editor.isValid.value" />
         <OutputPanel :text="editor.output.value" />
+
+        <section class="library">
+          <div class="group">
+            <h2>Start from</h2>
+            <select v-model="loaded" @change="loadStructure(loaded)">
+              <option value="">Blank grid</option>
+              <optgroup label="Normal">
+                <option
+                  v-for="entry in normalEntries"
+                  :key="entry.name"
+                  :value="entry.name">
+                  {{ entry.name }}
+                </option>
+              </optgroup>
+              <optgroup label="Hard">
+                <option
+                  v-for="entry in hardEntries"
+                  :key="entry.name"
+                  :value="entry.name">
+                  {{ entry.name }}
+                </option>
+              </optgroup>
+              <optgroup label="Vertical">
+                <option
+                  v-for="entry in verticalEntries"
+                  :key="entry.name"
+                  :value="entry.name">
+                  {{ entry.name }}
+                </option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="group">
+            <h2>Save to library</h2>
+            <select v-model="pool" @change="suggestName()">
+              <option value="normal">Normal</option>
+              <option value="hard">Hard</option>
+              <option value="vertical">Vertical</option>
+            </select>
+            <input
+              v-model="name"
+              class="name"
+              spellcheck="false"
+              placeholder="NORMAL_001" />
+            <button
+              class="primary"
+              type="button"
+              :disabled="!canSave"
+              @click="save()">
+              Write to {{ target }}
+            </button>
+            <p v-if="library.status.value" class="status">
+              {{ library.status.value }}
+            </p>
+            <p v-else-if="!editor.isValid.value" class="status">
+              Settle the issues before writing to the library.
+            </p>
+          </div>
+
+          <div class="actions">
+            <button
+              class="ghost"
+              type="button"
+              :disabled="!editor.canUndo.value"
+              @click="editor.undo()">
+              Undo
+            </button>
+            <button class="ghost" type="button" @click="editor.clear()">
+              Clear
+            </button>
+          </div>
+        </section>
       </aside>
     </div>
   </main>
@@ -234,8 +236,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
   display: flex;
   flex-direction: column;
   gap: 20px;
-  width: 200px;
+  width: 360px;
   flex: none;
+}
+
+.library {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid #33445a;
+  border-radius: 12px;
+  background: #10151f;
 }
 
 .group h2 {
@@ -314,6 +326,6 @@ select:focus,
   flex-direction: column;
   gap: 16px;
   flex: 1;
-  min-width: 320px;
+  min-width: 240px;
 }
 </style>

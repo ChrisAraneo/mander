@@ -4,7 +4,7 @@ import {
   createFallingSpikes,
   createFireballs,
 } from '@mander/engine';
-import { TILE_SIZE } from '@mander/model';
+import { type Layers, TILE_SIZE } from '@mander/model';
 import {
   drawCannon,
   drawEnemy,
@@ -47,9 +47,9 @@ const markerCells = (grid: number[][]): MarkerCell[] =>
 
 export const drawStructure = (
   context: CanvasRenderingContext2D,
-  grid: number[][],
+  sketch: Layers,
 ): void =>
-  void chain(structureTileMap(grid))
+  void chain(structureTileMap(sketch))
     .thru((level) => ({
       level,
       width: level.width * TILE_SIZE,
@@ -103,7 +103,7 @@ export const drawStructure = (
       ),
     )
     .thru(() =>
-      forEach(markerCells(grid), ({ cell, row, column }) =>
+      forEach(markerCells(sketch.tiles), ({ cell, row, column }) =>
         drawMarker(context, cell, row, column),
       ),
     )

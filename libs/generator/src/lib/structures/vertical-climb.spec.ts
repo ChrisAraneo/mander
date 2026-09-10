@@ -24,7 +24,7 @@ const named = (index: number): string =>
 const twoUp = (structure: VerticalStructure): Level => {
   const tiles = addPadding(
     addVerticalPortal(
-      addVerticalSpawn(stackStructures(times(SECTORS, () => structure))),
+      addVerticalSpawn(stackStructures(times(SECTORS, () => structure)).tiles),
     ),
   );
 

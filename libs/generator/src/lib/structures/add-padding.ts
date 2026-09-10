@@ -9,6 +9,11 @@ const GROUND_DEPTH = 4;
 
 const SKY_HEIGHT = 20;
 
+export interface Padding {
+  sky: number;
+  depth: number;
+}
+
 const lowestFilledRow = (tiles: Tile[][]): number =>
   findLastIndex(tiles, (row) => some(row, (tile) => tile !== TILE_AIR));
 
@@ -23,16 +28,23 @@ const missingDepth = (tiles: Tile[][]): number =>
     )
     .value();
 
-export const addPadding = (tiles: Tile[][]): Tile[][] =>
+export const paddingOf = (tiles: Tile[][]): Padding => ({
+  sky: SKY_HEIGHT,
+  depth: missingDepth(tiles),
+});
+
+// measured once off the front layer and applied to both, so the two layers of
+// a level stay the same shape
+export const padTiles = (tiles: Tile[][], padding: Padding): Tile[][] =>
   match(tiles)
     .with([], (): Tile[][] => [])
     .otherwise(() =>
       chain(last(tiles) ?? [])
         .thru((floor) => ({
-          sky: times(SKY_HEIGHT, () =>
+          sky: times(padding.sky, () =>
             times(size(floor), (): Tile => TILE_AIR),
           ),
-          bedrock: times(missingDepth(tiles), () => [...floor]),
+          bedrock: times(padding.depth, () => [...floor]),
         }))
         .thru(({ sky, bedrock }) => [
           ...sky,
@@ -41,3 +53,6 @@ export const addPadding = (tiles: Tile[][]): Tile[][] =>
         ])
         .value(),
     );
+
+export const addPadding = (tiles: Tile[][]): Tile[][] =>
+  padTiles(tiles, paddingOf(tiles));

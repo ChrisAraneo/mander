@@ -53,3 +53,9 @@ export const FIREBALL_STYLE: MaterialStyle = {
 };
 
 export const CAP_LIGHTNESS_GAIN = 7;
+
+// what sends a block to the back of the level: its detail is drawn faintly so
+// the material reads flatter, then the whole tile is shaded down. Both together
+// darken it and pull its contrast in, which is what distance looks like.
+export const BACK_DETAIL_ALPHA = 0.5;
+export const BACK_SHADE = 'RGBA(15, 13, 22, 0.46)';
