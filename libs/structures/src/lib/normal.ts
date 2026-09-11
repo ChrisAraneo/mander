@@ -1043,8 +1043,8 @@ export const NORMAL_025: Structure = [
     [__, EN, __, __, __, __, __, __, __, __, __, __, __, __, WD, WD, __, __, __, __],
     [__, __, __, __, __, BT, __, __, __, __, __, __, __, __, WD, WD, __, __, __, __],
     [__, __, __, __, WD, WD, __, __, __, __, __, __, __, __, WD, WD, __, __, __, __],
-    [__, __, __, __, WD, WD, __, EN, __, __, EN, __, __, EN, WD, WD, __, __, __, __],
-    [SS, __, __, DR, DR, DR, DR, DR, DR, DR, FB, DR, DR, DR, DR, DR, DR, DR, __, EE],
+    [__, __, __, SP, WD, WD, __, EN, __, __, EN, __, __, EN, WD, WD, SP, __, __, __],
+    [SS, __, __, DR, DR, DR, DR, DR, DR, DR, FB, DR, DR, DR, DR, DR, DR, SP, SP, EE],
     [DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR, DR],
   ],
   [
