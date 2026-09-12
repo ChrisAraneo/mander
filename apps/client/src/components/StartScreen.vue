@@ -166,7 +166,7 @@ const whenOf = (run: RunRecord): string =>
 
       <p class="controls">
         A / D move · W jump · E interact · Space star · X shoot · Esc close ·
-        Backspace respawn
+        Backspace respawn · M moons
       </p>
     </div>
   </div>

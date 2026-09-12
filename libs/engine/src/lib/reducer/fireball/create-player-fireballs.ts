@@ -1,5 +1,6 @@
 import type { Fireball, Item, Player } from '@mander/model';
 import { times } from 'lodash-es';
+import { match } from 'ts-pattern';
 
 import { playerCentre } from '../player/player-centre';
 import { startingFireballs } from './starting-fireballs';
@@ -16,4 +17,11 @@ const spread = (count: number, origin: Fireball['origin']): Fireball[] =>
 export const createPlayerFireballs = (
   inventory: readonly Item[],
   player: Player,
-): Fireball[] => spread(startingFireballs(inventory), playerCentre(player));
+  isMoonMagnetOn = true,
+): Fireball[] =>
+  spread(
+    match(isMoonMagnetOn)
+      .with(false, () => 0)
+      .otherwise(() => startingFireballs(inventory)),
+    playerCentre(player),
+  );

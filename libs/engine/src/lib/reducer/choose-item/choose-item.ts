@@ -25,7 +25,11 @@ export const chooseItem = (state: GameState, index: number): GameState =>
               isChestOpened: true,
               isNearChest: false,
               inventory,
-              playerFireballs: createPlayerFireballs(inventory, state.player),
+              playerFireballs: createPlayerFireballs(
+                inventory,
+                state.player,
+                state.isMoonMagnetOn,
+              ),
               score:
                 state.score + getScoreAmount(state.level.chestItems[index]),
               ammo:

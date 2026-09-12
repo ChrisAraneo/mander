@@ -12,6 +12,7 @@ export type Action =
   | { type: 'CHOOSE_ITEM'; index: number }
   | { type: 'USE_STAR' }
   | { type: 'SHOOT' }
+  | { type: 'TOGGLE_MOON_MAGNET' }
   | { type: 'CLOSE' }
   | { type: 'LOAD_LEVEL'; level: GameLevel; levelIndex: number }
   | { type: 'RESPAWN' }

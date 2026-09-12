@@ -3,7 +3,12 @@ import { computed } from 'vue';
 import { range } from 'lodash-es';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
-import { type GameState, isWarded, startingFireballs } from '@mander/engine';
+import {
+  type GameState,
+  hasMoonMagnet,
+  isWarded,
+  startingFireballs,
+} from '@mander/engine';
 import { isDebug } from '../game/debug';
 import { formatClock } from '../game/format';
 
@@ -35,7 +40,29 @@ const hasHelmet = computed(() =>
   isWarded(props.state.inventory, 'CEILING_SPIKE'),
 );
 
+const hasMoons = computed(() => hasMoonMagnet(props.state.inventory));
+
 const moons = computed(() => startingFireballs(props.state.inventory));
+
+const areMoonsOn = computed(() => props.state.isMoonMagnetOn);
+
+const moonsLabel = computed(() =>
+  match(areMoonsOn.value)
+    .with(true, () => `\u{1F319} ${moons.value} Moons`)
+    .otherwise(() => '\u{1F319} Moons off'),
+);
+
+const moonsTitle = computed(() =>
+  match(areMoonsOn.value)
+    .with(
+      true,
+      () =>
+        'Moon Magnet — moons circle you and burn the enemies they sweep through (M to call them off)',
+    )
+    .otherwise(
+      () => 'Moon Magnet — the moons are called off (M to bring them back)',
+    ),
+);
 
 const shieldSeconds = computed(() => props.state.player.timers.invincibility);
 
@@ -96,10 +123,11 @@ const debug = isDebug();
         >⛑ Helmet</span
       >
       <span
-        v-if="moons > 0"
+        v-if="hasMoons"
         class="chip gear"
-        title="Moon Magnet — moons circle you and burn the enemies they sweep through"
-        >🌙 {{ moons }} Moons</span
+        :class="{ muted: !areMoonsOn }"
+        :title="moonsTitle"
+        >{{ moonsLabel }}</span
       >
       <span
         v-if="shieldSeconds > 0"
@@ -200,6 +228,11 @@ const debug = isDebug();
 .gear {
   color: #c9a2ff;
   border-color: #6a4a9e;
+}
+
+.gear.muted {
+  color: #7c6a95;
+  border-color: #453763;
 }
 
 .shield {

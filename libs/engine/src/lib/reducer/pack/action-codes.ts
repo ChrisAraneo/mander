@@ -22,6 +22,7 @@ export const ACTION_CODES: readonly RecordableAction['type'][] = Object.freeze([
   'RESTART',
   'USE_STAR',
   'SHOOT',
+  'TOGGLE_MOON_MAGNET',
 ]);
 
 export const codeOf = (type: RecordableAction['type']): number =>

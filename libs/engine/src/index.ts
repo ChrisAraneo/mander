@@ -36,6 +36,7 @@ export * from './lib/reducer/fireball/burn-enemies';
 export * from './lib/reducer/fireball/create-player-fireballs';
 export * from './lib/reducer/fireball/player-fireball-position';
 export * from './lib/reducer/fireball/starting-fireballs';
+export * from './lib/reducer/toggle-moon-magnet/has-moon-magnet';
 export * from './lib/reducer/enemy/consts';
 export * from './lib/reducer/enemy/create-enemies';
 export * from './lib/reducer/enemy/crush-enemies';

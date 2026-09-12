@@ -25,7 +25,11 @@ export const loadLevel = (
       cannonballs: [],
       fallingSpikes: createFallingSpikes(level),
       fireballs: createFireballs(level),
-      playerFireballs: createPlayerFireballs(state.inventory, player),
+      playerFireballs: createPlayerFireballs(
+        state.inventory,
+        player,
+        state.isMoonMagnetOn,
+      ),
       bullets: [],
       gems: findGemTiles(level),
       status: 'PLAYING',

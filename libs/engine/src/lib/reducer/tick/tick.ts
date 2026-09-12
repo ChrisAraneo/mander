@@ -295,7 +295,7 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         ? createFireballs(state.level)
         : advanceFireballs(state.fireballs, deltaSeconds);
       const playerFireballs = respawned
-        ? createPlayerFireballs(state.inventory, moved)
+        ? createPlayerFireballs(state.inventory, moved, state.isMoonMagnetOn)
         : advancePlayerFireballs(state.playerFireballs, moved, deltaSeconds);
       const flyingBullets = respawned
         ? []

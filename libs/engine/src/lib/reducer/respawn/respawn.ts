@@ -21,7 +21,11 @@ export const respawn = (state: GameState): GameState =>
           cannonballs: [],
           fallingSpikes: createFallingSpikes(state.level),
           fireballs: createFireballs(state.level),
-          playerFireballs: createPlayerFireballs(state.inventory, player),
+          playerFireballs: createPlayerFireballs(
+            state.inventory,
+            player,
+            state.isMoonMagnetOn,
+          ),
           bullets: [],
         }))
         .value(),

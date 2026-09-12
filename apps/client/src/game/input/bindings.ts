@@ -36,6 +36,7 @@ export const BINDINGS: KeyBinding[] = [
   { code: 'Period', start: { type: 'USE_STAR' } },
   { code: 'KeyX', start: { type: 'SHOOT' } },
   { code: 'Slash', start: { type: 'SHOOT' } },
+  { code: 'KeyM', start: { type: 'TOGGLE_MOON_MAGNET' } },
   { code: 'Digit1', start: { type: 'CHOOSE_ITEM', index: 0 } },
   { code: 'Digit2', start: { type: 'CHOOSE_ITEM', index: 1 } },
   { code: 'Digit3', start: { type: 'CHOOSE_ITEM', index: 2 } },

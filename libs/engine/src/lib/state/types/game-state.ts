@@ -33,6 +33,7 @@ export interface GameState {
   hasKey: boolean;
   isChestOpened: boolean;
   inventory: Item[];
+  isMoonMagnetOn: boolean;
   isNearChest: boolean;
   isNearPortal: boolean;
   time: number;

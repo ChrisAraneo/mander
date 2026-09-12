@@ -39,6 +39,7 @@ export const createInitialState = (
       hasKey: false,
       isChestOpened: false,
       inventory,
+      isMoonMagnetOn: true,
       isNearChest: false,
       isNearPortal: false,
       time: 0,
