@@ -30,7 +30,7 @@ export const BINDINGS: KeyBinding[] = [
   { code: 'KeyE', start: { type: 'INTERACT' } },
   { code: 'Enter', start: { type: 'INTERACT' } },
   { code: 'Escape', start: { type: 'CLOSE' } },
-  { code: 'KeyR', start: { type: 'RESPAWN' } },
+  { code: 'Backspace', start: { type: 'RESPAWN' } },
   { code: 'Space', start: { type: 'USE_STAR' } },
   { code: 'KeyZ', start: { type: 'USE_STAR' } },
   { code: 'Period', start: { type: 'USE_STAR' } },
