@@ -123,7 +123,7 @@ describe('chooseItem', () => {
     );
 
     expect(state.stars, 'the star it just took').toBe(1);
-    expect(state.ammo, 'and the rounds it was already carrying').toBe(2);
+    expect(state.ammo, 'and the rounds it was already carrying').toBe(4);
     expect(state.player.hearts.value).toBe(BASE_HEARTS + 2);
     expect(
       state.playerFireballs,
@@ -142,7 +142,7 @@ describe('chooseItem', () => {
       0,
     );
 
-    expect(gear.ammo, 'the rounds survive the star').toBe(2);
+    expect(gear.ammo, 'the rounds survive the star').toBe(4);
     expect(gear.stars, 'the star survives the gear').toBe(1);
     expect(gear.inventory).toEqual([TWO_BULLETS, STAR, BOOTS_OF_CLOUDS]);
   });

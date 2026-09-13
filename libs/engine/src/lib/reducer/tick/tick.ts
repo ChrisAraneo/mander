@@ -335,11 +335,18 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
           deaths: state.deaths,
           status: 'PLAYING',
         }));
-      const { bullets, enemies: shot } = resolveVolley(
+      const {
+        bullets,
+        enemies: shot,
+        fallingSpikes: unshot,
+        level,
+      } = resolveVolley(
         flyingBullets,
         map(afterStomps, (enemy) =>
           includes(gored, enemy) ? killEnemy(enemy) : enemy,
         ),
+        fallingSpikes,
+        state.level,
       );
       const enemies = crushEnemies(
         match(alive)
@@ -357,11 +364,12 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
 
       return {
         ...state,
+        level,
         player,
         enemies,
         cannons,
         cannonballs,
-        fallingSpikes,
+        fallingSpikes: unshot,
         fireballs,
         playerFireballs,
         bullets,

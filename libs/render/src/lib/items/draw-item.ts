@@ -1,5 +1,5 @@
 import type { Item } from '@mander/model';
-import { clamp, map, round, times } from 'lodash-es';
+import { clamp, findLast, keys, map, round, sortBy, times } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import { bulletBodyStep, ICE_BULLET } from '../bullet';
@@ -59,7 +59,7 @@ const STAR_CLUSTERS: Readonly<Record<number, StarCluster>> = Object.freeze({
 const HEART_LOBE = 0.26;
 
 const BULLET_GLOW = 14;
-const BULLET_RAIN_FROM = 5;
+const BULLET_RAIN_FROM = 9;
 
 const ORBIT_RADIUS = 0.27;
 const FIREBALL_RADIUS = 0.15;
@@ -111,6 +111,30 @@ const BULLET_CLUSTERS: Readonly<Record<number, BulletCluster>> = Object.freeze({
       { x: 0.66, y: 0.66 },
     ],
   },
+  6: {
+    radius: 0.13,
+    spots: [
+      { x: 0.28, y: 0.34 },
+      { x: 0.5, y: 0.34 },
+      { x: 0.72, y: 0.34 },
+      { x: 0.28, y: 0.66 },
+      { x: 0.5, y: 0.66 },
+      { x: 0.72, y: 0.66 },
+    ],
+  },
+  8: {
+    radius: 0.11,
+    spots: [
+      { x: 0.2, y: 0.36 },
+      { x: 0.4, y: 0.36 },
+      { x: 0.6, y: 0.36 },
+      { x: 0.8, y: 0.36 },
+      { x: 0.2, y: 0.64 },
+      { x: 0.4, y: 0.64 },
+      { x: 0.6, y: 0.64 },
+      { x: 0.8, y: 0.64 },
+    ],
+  },
   [BULLET_RAIN_FROM]: {
     radius: 0.1,
     spots: [
@@ -130,8 +154,18 @@ const BULLET_CLUSTERS: Readonly<Record<number, BulletCluster>> = Object.freeze({
 const clusterFor = (count: number): HeartCluster =>
   CLUSTERS[clamp(round(count), 1, 3)];
 
+// counts without a cluster of their own borrow the largest one below them
+const BULLET_CLUSTER_COUNTS: readonly number[] = Object.freeze(
+  sortBy(map(keys(BULLET_CLUSTERS), Number)),
+);
+
 const bulletClusterFor = (count: number): BulletCluster =>
-  BULLET_CLUSTERS[clamp(round(count), 1, BULLET_RAIN_FROM)];
+  BULLET_CLUSTERS[
+    findLast(
+      BULLET_CLUSTER_COUNTS,
+      (clusterCount) => clusterCount <= round(count),
+    ) ?? 1
+  ];
 
 const starClusterFor = (count: number): StarCluster =>
   STAR_CLUSTERS[clamp(round(count), 1, 3)];

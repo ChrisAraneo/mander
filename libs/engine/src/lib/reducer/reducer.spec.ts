@@ -68,6 +68,7 @@ import {
   TILE_SIZE,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
+  TILE_SPIKE_FALLING,
   TITANIUM_HELMET,
   TRIPLE_STAR,
   TWO_BULLETS,
@@ -2154,17 +2155,54 @@ describe('bullets', () => {
     expect(leftward.bullets[0].velocity.x.current).toBeLessThan(0);
   });
 
-  it('flies on through spikes and walls, then leaves the level behind', () => {
-    let state = fire(facing(armedAt(spikeLevel(3), shooterX, 1), false));
+  it('flies on through walls, then leaves the level behind', () => {
+    let state = fire(facing(armed(1), false));
 
     state = tickN(state, ticksFor(0.2));
-    expect(
-      state.bullets[0].position.x,
-      'the spike does not stop it',
-    ).toBeLessThan(3 * TILE_SIZE);
+    expect(size(state.bullets), 'still in the air').toBe(1);
 
     state = tickN(state, ticksFor(1));
     expect(state.bullets, 'and it is gone once past the wall').toEqual([]);
+  });
+
+  it('shatters the floor spike it hits, and is spent on it', () => {
+    let state = fire(facing(armedAt(spikeLevel(3), shooterX, 1), false));
+
+    state = tickN(state, ticksFor(0.2));
+    expect(state.level.tiles[11][3], 'the spike is gone').toBe(TILE_AIR);
+    expect(state.bullets, 'and so is the bullet').toEqual([]);
+    expect(
+      overlapsSpike(state.level, 3 * TILE_SIZE, 11 * TILE_SIZE, 1, 1),
+      'nothing is left there to bite',
+    ).toBe(false);
+  });
+
+  it('shatters a ceiling spike hanging low enough to be hit', () => {
+    let state = fire(
+      facing(armedAt(ceilingSpikeLevel(3, 11), shooterX, 1), false),
+    );
+
+    state = tickN(state, ticksFor(0.2));
+    expect(state.level.tiles[11][3]).toBe(TILE_AIR);
+    expect(state.bullets).toEqual([]);
+  });
+
+  it('keeps the spikes it shattered gone after RESPAWN', () => {
+    let state = fire(facing(armedAt(spikeLevel(3), shooterX, 1), false));
+
+    state = act(tickN(state, ticksFor(0.2)), { type: 'RESPAWN' });
+    expect(state.level.tiles[11][3]).toBe(TILE_AIR);
+  });
+
+  it('shoots down a spike hanging from above before it drops', () => {
+    const level = testLevel();
+    level.tiles[11][3] = TILE_SPIKE_FALLING;
+    let state = fire(facing(armedAt(level, 8 * TILE_SIZE, 1), false));
+
+    expect(size(state.fallingSpikes), 'still hanging').toBe(1);
+    state = tickN(state, ticksFor(0.5));
+    expect(state.fallingSpikes, 'the spike is gone').toEqual([]);
+    expect(state.bullets, 'and so is the bullet').toEqual([]);
   });
 
   it('drops any enemy it hits, and is spent on the kill', () => {
@@ -2476,10 +2514,10 @@ describe('items', () => {
   });
 
   it('the bullet cards each load what their name promises', () => {
-    expect(opened(BULLET).ammo).toBe(1);
-    expect(opened(TWO_BULLETS).ammo).toBe(2);
-    expect(opened(THREE_BULLETS).ammo).toBe(3);
-    expect(opened(FOUR_BULLETS).ammo).toBe(4);
+    expect(opened(BULLET).ammo).toBe(2);
+    expect(opened(TWO_BULLETS).ammo).toBe(4);
+    expect(opened(THREE_BULLETS).ammo).toBe(6);
+    expect(opened(FOUR_BULLETS).ammo).toBe(8);
     expect(opened(VAMPIRE_SLAYER_BULLET_RAIN).ammo).toBe(9999);
   });
 
@@ -2495,7 +2533,7 @@ describe('items', () => {
         },
         { type: 'CHOOSE_ITEM', index: 0 },
       ).ammo,
-    ).toBe(5);
+    ).toBe(10);
   });
 });
 
