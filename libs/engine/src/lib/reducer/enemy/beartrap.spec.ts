@@ -28,10 +28,10 @@ import {
   ENEMY_WIDTH,
   HORNED_ENEMY_CHANCE,
 } from './consts';
-import { beartrapAhead } from './beartrap-ahead';
+import { isBeartrapAhead } from './is-beartrap-ahead';
 import { createEnemies } from './create-enemies';
 import { crushEnemies } from './crush-enemies';
-import { playerNearTrap } from './player-near-trap';
+import { isPlayerNearTrap } from './is-player-near-trap';
 import { stepBeartrap } from './step-beartrap';
 
 const DELTA_SECONDS = 1 / 60;
@@ -150,16 +150,17 @@ describe('createEnemies', () => {
   });
 });
 
-describe('playerNearTrap', () => {
+describe('isPlayerNearTrap', () => {
   it('notices the player at two blocks, and at anything closer, from either side', () => {
     times(4, (index) => {
       const gap = [-BEARTRAP_TRIGGER_RANGE, -1, 1, BEARTRAP_TRIGGER_RANGE][
         index
       ];
 
-      expect(playerNearTrap(trapIn(room()), eyeToEye(gap)), 'gap ' + gap).toBe(
-        true,
-      );
+      expect(
+        isPlayerNearTrap(trapIn(room()), eyeToEye(gap)),
+        'gap ' + gap,
+      ).toBe(true);
     });
   });
 
@@ -167,9 +168,10 @@ describe('playerNearTrap', () => {
     times(2, (side) => {
       const gap = (side === 0 ? -1 : 1) * (BEARTRAP_TRIGGER_RANGE + 1);
 
-      expect(playerNearTrap(trapIn(room()), eyeToEye(gap)), 'gap ' + gap).toBe(
-        false,
-      );
+      expect(
+        isPlayerNearTrap(trapIn(room()), eyeToEye(gap)),
+        'gap ' + gap,
+      ).toBe(false);
     });
   });
 
@@ -177,42 +179,46 @@ describe('playerNearTrap', () => {
     const leaping = eyeToEye(TILE_SIZE);
     leaping.position.y -= TILE_SIZE * 3;
 
-    expect(playerNearTrap(trapIn(room()), leaping)).toBe(true);
+    expect(isPlayerNearTrap(trapIn(room()), leaping)).toBe(true);
   });
 
   it('ignores a player who is already dead', () => {
     const fallen = eyeToEye(0);
     fallen.timers.death = 0;
 
-    expect(playerNearTrap(trapIn(room()), fallen)).toBe(false);
+    expect(isPlayerNearTrap(trapIn(room()), fallen)).toBe(false);
   });
 });
 
-describe('beartrapAhead', () => {
+describe('isBeartrapAhead', () => {
   const UP_TO_TRAP_FROM_LEFT = TRAP_COLUMN * TILE_SIZE - ENEMY_WIDTH;
   const UP_TO_TRAP_FROM_RIGHT = (TRAP_COLUMN + 1) * TILE_SIZE;
 
   it('sees the trap the enemy walking right is about to step into', () => {
-    expect(beartrapAhead(room(), UP_TO_TRAP_FROM_LEFT, TRAP_Y, 1)).toBe(true);
+    expect(isBeartrapAhead(room(), UP_TO_TRAP_FROM_LEFT, TRAP_Y, 1)).toBe(true);
   });
 
   it('sees the trap the enemy walking left is about to step into', () => {
-    expect(beartrapAhead(room(), UP_TO_TRAP_FROM_RIGHT, TRAP_Y, -1)).toBe(true);
+    expect(isBeartrapAhead(room(), UP_TO_TRAP_FROM_RIGHT, TRAP_Y, -1)).toBe(
+      true,
+    );
   });
 
   it('sees nothing behind the enemy walking away from the trap', () => {
-    expect(beartrapAhead(room(), UP_TO_TRAP_FROM_LEFT, TRAP_Y, -1)).toBe(false);
+    expect(isBeartrapAhead(room(), UP_TO_TRAP_FROM_LEFT, TRAP_Y, -1)).toBe(
+      false,
+    );
   });
 
   it('sees nothing on open floor across the room', () => {
-    expect(beartrapAhead(room(), 0, TRAP_Y, 1)).toBe(false);
+    expect(isBeartrapAhead(room(), 0, TRAP_Y, 1)).toBe(false);
   });
 
   it('sees nothing in a room without the tile', () => {
     const bare = room();
     bare.tiles[TRAP_ROW][TRAP_COLUMN] = TILE_AIR;
 
-    expect(beartrapAhead(bare, UP_TO_TRAP_FROM_LEFT, TRAP_Y, 1)).toBe(false);
+    expect(isBeartrapAhead(bare, UP_TO_TRAP_FROM_LEFT, TRAP_Y, 1)).toBe(false);
   });
 });
 
@@ -399,8 +405,8 @@ describe('a level being played', () => {
       type: 'MOVE_RIGHT_START',
     });
     let hasSettled = false;
-    let sprang = false;
-    let leftTheGround = false;
+    let hasSprung = false;
+    let hasLeftTheGround = false;
 
     for (let frame = 0; frame < 240; frame++) {
       const gap = TRAP_CENTRE_X - (state.player.position.x + PLAYER_WIDTH / 2);
@@ -412,13 +418,13 @@ describe('a level being played', () => {
 
       const trap = state.enemies[0];
       if (trap.statuses.isGrounded) hasSettled = true;
-      else if (hasSettled) sprang = true;
+      else if (hasSettled) hasSprung = true;
 
-      leftTheGround = leftTheGround || !state.player.statuses.isGrounded;
+      hasLeftTheGround = hasLeftTheGround || !state.player.statuses.isGrounded;
     }
 
-    expect(leftTheGround, 'the player really jumped').toBe(true);
-    expect(sprang, 'the trap went off').toBe(true);
+    expect(hasLeftTheGround, 'the player really jumped').toBe(true);
+    expect(hasSprung, 'the trap went off').toBe(true);
     expect(state.player.hearts.value, 'and caught them').toBe(BASE_HEARTS - 1);
   });
 

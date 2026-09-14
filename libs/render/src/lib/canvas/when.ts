@@ -4,7 +4,7 @@ import type { CanvasStep } from './canvas-step';
 import { sequence } from './sequence';
 import { skip } from './skip';
 
-export const when = (condition: boolean, ...steps: CanvasStep[]): CanvasStep =>
-  match(condition)
+export const when = (shouldRun: boolean, ...steps: CanvasStep[]): CanvasStep =>
+  match(shouldRun)
     .with(true, () => sequence(steps))
     .otherwise(() => skip);

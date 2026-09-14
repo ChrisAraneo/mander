@@ -13,13 +13,13 @@ import { match } from 'ts-pattern';
 import { moveHorizontal } from '../collision/move-horizontal';
 import { moveVertical } from '../collision/move-vertical';
 import { resolveLanding } from '../collision/resolve-landing';
-import { spikeAhead } from '../spike/spike-ahead';
-import { beartrapAhead } from './beartrap-ahead';
+import { isSpikeAhead } from '../spike/is-spike-ahead';
+import { isBeartrapAhead } from './is-beartrap-ahead';
 import { ENEMY_DEATH_SECONDS, ENEMY_HEIGHT, ENEMY_WIDTH } from './consts';
-import { ledgeAhead } from './ledge-ahead';
-import { playerOverhead } from './player-overhead';
+import { isLedgeAhead } from './is-ledge-ahead';
+import { isPlayerOverhead } from './is-player-overhead';
 import type { EnemyMotion } from './types/enemy-motion';
-import { wallAhead } from './wall-ahead';
+import { isWallAhead } from './is-wall-ahead';
 
 const opposite = (facing: 1 | -1): 1 | -1 =>
   match(facing)
@@ -37,7 +37,7 @@ const enemyHop = (
   enemy: Enemy,
   player: Player,
 ): { vy: number; isGrounded: boolean } =>
-  match({ isGrounded, isOverhead: playerOverhead(enemy, player) })
+  match({ isGrounded, isOverhead: isPlayerOverhead(enemy, player) })
     .with({ isGrounded: true, isOverhead: true }, () => ({
       vy: -enemy.velocity.y.max,
       isGrounded: false,
@@ -54,10 +54,10 @@ const enemyTurn = (
   match({
     isGrounded,
     hasObstacle:
-      wallAhead(level, x, y, facing) ||
-      ledgeAhead(level, x, y, facing) ||
-      spikeAhead(level, x, y, facing) ||
-      beartrapAhead(level, x, y, facing),
+      isWallAhead(level, x, y, facing) ||
+      isLedgeAhead(level, x, y, facing) ||
+      isSpikeAhead(level, x, y, facing) ||
+      isBeartrapAhead(level, x, y, facing),
   })
     .with({ isGrounded: true, hasObstacle: true }, () => opposite(facing))
     .otherwise(() => facing);

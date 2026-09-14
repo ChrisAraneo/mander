@@ -15,7 +15,7 @@ interface LibraryResponse {
 export interface SavedStructure {
   name: string;
   pool: Pool;
-  created: boolean;
+  isCreated: boolean;
 }
 
 const failure = (response: Response): Promise<never> =>

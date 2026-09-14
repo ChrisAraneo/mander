@@ -5,7 +5,7 @@ import {
 } from '@mander/model';
 import { some } from 'lodash-es';
 
-import { boxHitsTriangle } from '../collision/box-hits-triangle';
+import { isBoxHittingTriangle } from '../collision/is-box-hitting-triangle';
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../player/consts';
 
 export const isTouchingFallingSpike = (
@@ -13,7 +13,7 @@ export const isTouchingFallingSpike = (
   spike: FallingSpike,
 ): boolean =>
   some(fallingSpikeTriangles(spike), (triangle) =>
-    boxHitsTriangle(
+    isBoxHittingTriangle(
       player.position.x,
       player.position.y,
       PLAYER_WIDTH,

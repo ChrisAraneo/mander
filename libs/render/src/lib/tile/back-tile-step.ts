@@ -16,7 +16,7 @@ import {
   materialStep,
   type MaterialStyle,
 } from '../material';
-import { coveredAt } from './covered-at';
+import { isCoveredAt } from './is-covered-at';
 
 const CAP_HEIGHT = 7;
 const CAP_HIGHLIGHT_HEIGHT = 3;
@@ -40,7 +40,7 @@ export const backTileStep = (
         styled({ globalAlpha: BACK_DETAIL_ALPHA }),
         materialStep(tile, pixelX, pixelY, style),
         when(
-          !coveredAt(level, column, row - 1),
+          !isCoveredAt(level, column, row - 1),
           styled({ fillStyle: style.cap }),
           fillRect(pixelX, pixelY, TILE_SIZE, CAP_HEIGHT),
           styled({ fillStyle: style.capHighlight }),

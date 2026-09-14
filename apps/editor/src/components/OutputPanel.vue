@@ -10,12 +10,12 @@ const COPIED_MS = 1400;
 
 const props = defineProps<{ text: string }>();
 
-const copied = ref(false);
-const failed = ref(false);
+const isCopied = ref(false);
+const hasFailed = ref(false);
 const isShown = ref(false);
 
 const label = computed(() =>
-  match(copied.value)
+  match(isCopied.value)
     .with(true, () => 'Copied')
     .otherwise(() => 'Copy'),
 );
@@ -30,18 +30,18 @@ const toggle = (): void => void setRef(isShown, !isShown.value);
 
 // a blocked clipboard leaves the source as the only way out, so it is opened
 const blocked = (): void =>
-  void chain(setRef(failed, true))
+  void chain(setRef(hasFailed, true))
     .thru(() => setRef(isShown, true))
     .value();
 
 const copy = (): Promise<void> =>
-  chain(setRef(failed, false))
+  chain(setRef(hasFailed, false))
     .thru(() =>
       navigator.clipboard.writeText(props.text).then(
         () =>
-          chain(setRef(copied, true))
+          chain(setRef(isCopied, true))
             .thru(() =>
-              window.setTimeout(() => setRef(copied, false), COPIED_MS),
+              window.setTimeout(() => setRef(isCopied, false), COPIED_MS),
             )
             .value(),
         () => blocked(),
@@ -64,7 +64,7 @@ const copy = (): Promise<void> =>
         </button>
       </div>
     </header>
-    <p v-if="failed" class="failed">
+    <p v-if="hasFailed" class="failed">
       Clipboard blocked — select the text below and copy manually.
     </p>
     <pre v-if="isShown">{{ text }}</pre>

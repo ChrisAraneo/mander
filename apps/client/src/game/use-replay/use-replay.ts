@@ -116,11 +116,11 @@ const framer =
   (pulse: Pulse): void =>
     match({
       frame: cell.frame,
-      paused: refs.isPaused.value,
-      finished: refs.isFinished.value,
+      isPaused: refs.isPaused.value,
+      isFinished: refs.isFinished.value,
     })
       .with(
-        { frame: nonNullable, paused: false, finished: false },
+        { frame: nonNullable, isPaused: false, isFinished: false },
         ({ frame: current }) =>
           chain(pulse.steps * refs.speed.value)
             .thru((steps) => ({
@@ -183,8 +183,8 @@ const toController = (
   ...refs,
   play,
   stop,
-  togglePause: () =>
-    match(refs.isFinished.value)
+  togglePause: (): void =>
+    void match(refs.isFinished.value)
       .with(true, () => play())
       .otherwise(() => setRef(refs.isPaused, !refs.isPaused.value)),
   cycleSpeed: () =>

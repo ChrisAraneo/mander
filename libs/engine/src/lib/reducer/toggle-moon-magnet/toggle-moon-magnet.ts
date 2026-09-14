@@ -26,7 +26,7 @@ const flipped = (state: GameState): GameState =>
 export const toggleMoonMagnet = (state: GameState): GameState =>
   match({
     status: state.status,
-    owned: hasMoonMagnet(state.inventory),
+    isOwned: hasMoonMagnet(state.inventory),
   })
-    .with({ status: 'PLAYING', owned: true }, (): GameState => flipped(state))
+    .with({ status: 'PLAYING', isOwned: true }, (): GameState => flipped(state))
     .otherwise((): GameState => state);

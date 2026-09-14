@@ -12,7 +12,7 @@ import { match } from 'ts-pattern';
 
 import { tileRange } from '../collision/tile-range';
 import { bulletBox } from './bullet-box';
-import { overlapsBox } from './overlaps-box';
+import { isOverlappingBox } from './is-overlapping-box';
 
 // the whole band the prongs rise through, not the prongs themselves: a shot
 // grazing the tips still shatters the row, where it would slip between them
@@ -37,6 +37,6 @@ export const struckSpikeTile = (
     ),
     (tile) =>
       isSpike(level, tile.x, tile.y) &&
-      overlapsBox(box, prongBand(level, tile)),
+      isOverlappingBox(box, prongBand(level, tile)),
   );
 };

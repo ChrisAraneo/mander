@@ -176,12 +176,12 @@ const bodyColors = (player: Player): PlayerColors =>
 
 const invincibleAlpha = (player: Player, time: number): number =>
   match({
-    flashing: isFlashing(player),
-    blinking: player.timers.invincibility > 0 && isAlive(player),
+    isFlashing: isFlashing(player),
+    isBlinking: player.timers.invincibility > 0 && isAlive(player),
   })
-    .with({ flashing: true }, () => 1)
+    .with({ isFlashing: true }, () => 1)
     .with(
-      { blinking: true },
+      { isBlinking: true },
       () => 0.35 + 0.45 * (0.5 + 0.5 * Math.sin(time * 30)),
     )
     .otherwise(() => 1);

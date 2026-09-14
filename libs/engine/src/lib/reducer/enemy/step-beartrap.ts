@@ -13,7 +13,7 @@ import { match } from 'ts-pattern';
 import { moveVertical } from '../collision/move-vertical';
 import { resolveLanding } from '../collision/resolve-landing';
 import { ENEMY_DEATH_SECONDS, ENEMY_HEIGHT, ENEMY_WIDTH } from './consts';
-import { playerNearTrap } from './player-near-trap';
+import { isPlayerNearTrap } from './is-player-near-trap';
 import type { TrapMotion } from './types/trap-motion';
 
 const snapShut = (
@@ -22,7 +22,7 @@ const snapShut = (
   trap: Enemy,
   player: Player,
 ): { vy: number; isGrounded: boolean } =>
-  match({ isGrounded, isNear: playerNearTrap(trap, player) })
+  match({ isGrounded, isNear: isPlayerNearTrap(trap, player) })
     .with({ isGrounded: true, isNear: true }, () => ({
       vy: -trap.velocity.y.max,
       isGrounded: false,

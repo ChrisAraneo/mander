@@ -74,7 +74,7 @@ const createPatrols = (level: GameLevel): Enemy[] => {
     const y = spawnY(spawn);
     const kind = kindFor(
       !isSolid(level, spawn.x, spawn.y + 1),
-      random.chance(level.hornedEnemyChance),
+      random.isRollUnder(level.hornedEnemyChance),
     );
 
     return {

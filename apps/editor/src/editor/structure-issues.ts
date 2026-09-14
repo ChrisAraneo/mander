@@ -38,10 +38,10 @@ const isKnown = (cell: number): boolean =>
   includes(KNOWN_TILES, cell) || isSolidTile(cell);
 
 // nothing is played against the back layer, so only blocks belong on it
-const belongsBehind = (cell: number): boolean =>
+const canBeBehind = (cell: number): boolean =>
   cell === TILE_AIR || isSolidTile(cell);
 
-const hazardsAreAnchored = (grid: number[][]): boolean =>
+const areHazardsAnchored = (grid: number[][]): boolean =>
   every(grid, (cells, row) =>
     every(cells, (cell, column) =>
       match(cell)
@@ -83,7 +83,7 @@ const RULES: Rule[] = [
     message:
       'the back layer takes blocks alone — a hazard or a marker has nothing to do behind the level',
     isValid: ({ backTiles }) =>
-      every(backTiles, (row) => every(row, belongsBehind)),
+      every(backTiles, (row) => every(row, canBeBehind)),
   },
   {
     message: 'mark where the player enters with exactly one start (98)',
@@ -96,7 +96,7 @@ const RULES: Rule[] = [
   {
     message:
       'a spike or beartrap needs a block below it, a ceiling or falling spike one above — a background block is not something to stand on',
-    isValid: ({ tiles }) => hazardsAreAnchored(tiles),
+    isValid: ({ tiles }) => areHazardsAnchored(tiles),
   },
 ];
 

@@ -155,7 +155,7 @@ describe('generate', () => {
   });
 
   it('lets flying enemies through at every step of the ramp', () => {
-    const flyingOn = (indexes: number[]): boolean =>
+    const hasFlyingEnemiesOn = (indexes: number[]): boolean =>
       some(days, (date) =>
         some(indexes, (index) =>
           some(
@@ -165,9 +165,11 @@ describe('generate', () => {
         ),
       );
 
-    expect(flyingOn([0, 1]), 'on the hopping-only levels').toBe(true);
-    expect(flyingOn([2, 3, 4]), 'on the mixed levels').toBe(true);
-    expect(flyingOn([5, 6, 7]), 'on the horned-only levels').toBe(true);
+    expect(hasFlyingEnemiesOn([0, 1]), 'on the hopping-only levels').toBe(true);
+    expect(hasFlyingEnemiesOn([2, 3, 4]), 'on the mixed levels').toBe(true);
+    expect(hasFlyingEnemiesOn([5, 6, 7]), 'on the horned-only levels').toBe(
+      true,
+    );
   });
 
   it('holds the cannons back until the fifth level', () => {
@@ -326,9 +328,9 @@ describe('generate', () => {
         map(generate(date).levels, (level, index) => ({
           day,
           levelNumber: index + 1,
-          walledIn: isWalledIn(level),
+          isWalledIn: isWalledIn(level),
         })),
-        (entry) => entry.walledIn,
+        (entry) => entry.isWalledIn,
       ),
     );
 

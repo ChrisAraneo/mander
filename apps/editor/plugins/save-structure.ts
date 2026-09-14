@@ -10,7 +10,7 @@ import { withEndings } from './with-endings.ts';
 export interface SavedStructure {
   name: string;
   pool: Pool;
-  created: boolean;
+  isCreated: boolean;
 }
 
 const register = async (
@@ -32,7 +32,7 @@ export const saveStructure = async (
 ): Promise<SavedStructure> => {
   const file = paths.structures[pool];
   const original = await readFile(file, 'utf8');
-  const { source, created } = upsertStructure(
+  const { source, isCreated } = upsertStructure(
     mergeAliases(original, text),
     name,
     text,
@@ -42,5 +42,5 @@ export const saveStructure = async (
   await writeFile(file, withEndings(source, original), 'utf8');
   await register(paths.library, name, pool);
 
-  return { name, pool, created };
+  return { name, pool, isCreated };
 };

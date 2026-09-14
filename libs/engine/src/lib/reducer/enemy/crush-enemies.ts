@@ -2,7 +2,7 @@ import type { Enemy } from '@mander/model';
 import { filter, map, some } from 'lodash-es';
 
 import { isAlive } from '../player/is-alive';
-import { enemiesOverlap } from './enemies-overlap';
+import { areEnemiesOverlapping } from './are-enemies-overlapping';
 import { killEnemy } from './kill-enemy';
 
 const isTrap = (enemy: Enemy): boolean => enemy.kind === 'BEARTRAP';
@@ -12,7 +12,7 @@ const isArmedTrap = (enemy: Enemy): boolean => isTrap(enemy) && isAlive(enemy);
 const isCaught = (traps: Enemy[], prey: Enemy): boolean =>
   isAlive(prey) &&
   !isTrap(prey) &&
-  some(traps, (trap) => enemiesOverlap(trap, prey));
+  some(traps, (trap) => areEnemiesOverlapping(trap, prey));
 
 export const crushEnemies = (enemies: Enemy[]): Enemy[] => {
   const traps = filter(enemies, isArmedTrap);

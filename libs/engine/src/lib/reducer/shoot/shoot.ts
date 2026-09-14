@@ -10,11 +10,11 @@ const { number } = P;
 export const shoot = (state: GameState): GameState =>
   match({
     status: state.status,
-    alive: isAlive(state.player),
+    isAlive: isAlive(state.player),
     ammo: state.ammo,
   })
     .with(
-      { status: 'PLAYING', alive: true, ammo: number.gte(1) },
+      { status: 'PLAYING', isAlive: true, ammo: number.gte(1) },
       (): GameState => ({
         ...state,
         ammo: state.ammo - 1,

@@ -99,7 +99,9 @@ describe('checkPlayerReach', () => {
     const reach = checkPlayerReach(FLOATING);
 
     expect(
-      every(reach, (cells) => every(cells, (cell) => cell === false)),
+      every(reach, (cells) =>
+        every(cells, (isReachable) => isReachable === false),
+      ),
     ).toBe(true);
   });
 

@@ -53,7 +53,7 @@ export const useLibrary = () =>
           .then(
             (saved) =>
               chain(
-                match(saved.created)
+                match(saved.isCreated)
                   .with(true, () => 'Wrote')
                   .otherwise(() => 'Updated'),
               )

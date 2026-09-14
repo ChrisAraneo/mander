@@ -75,16 +75,16 @@ const confirm = (): void =>
 const isModalStatus = (status: GameState['status']): boolean =>
   status === 'COMPLETE' || status === 'GAME_OVER';
 
-const modalReady = ref(false);
+const isModalReady = ref(false);
 
 watch(
   () => state.value.status,
   (status) => {
-    modalReady.value = false;
+    isModalReady.value = false;
     match(isModalStatus(status))
       .with(true, () =>
         requestAnimationFrame(() => {
-          modalReady.value = isModalStatus(state.value.status);
+          isModalReady.value = isModalStatus(state.value.status);
         }),
       )
       .otherwise(noop);
@@ -93,7 +93,7 @@ watch(
 
 const onModalKey = (event: KeyboardEvent): void =>
   match({
-    active: modalReady.value && isModalStatus(state.value.status),
+    active: isModalReady.value && isModalStatus(state.value.status),
     repeat: event.repeat,
     code: event.code,
   })

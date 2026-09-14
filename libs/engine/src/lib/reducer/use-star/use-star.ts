@@ -28,11 +28,11 @@ const burnStar = (state: GameState): GameState => ({
 export const useStar = (state: GameState): GameState =>
   match({
     status: state.status,
-    alive: isAlive(state.player),
+    isAlive: isAlive(state.player),
     stars: state.stars,
   })
     .with(
-      { status: 'PLAYING', alive: true, stars: number.gte(1) },
+      { status: 'PLAYING', isAlive: true, stars: number.gte(1) },
       (): GameState => burnStar(state),
     )
     .otherwise((): GameState => state);

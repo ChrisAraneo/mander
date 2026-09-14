@@ -33,7 +33,7 @@ const isOverlappingHorizontally = (player: Player, enemy: Enemy): boolean => {
   return playerLeft < enemyRight && playerRight > enemyLeft;
 };
 
-const dropsOntoHead = (
+const isDroppingOntoHead = (
   previousPlayer: Player,
   player: Player,
   enemy: Enemy,
@@ -51,4 +51,4 @@ export const isStompingEnemy = (
 ): boolean =>
   player.velocity.y.current > 0 &&
   isOverlappingHorizontally(player, enemy) &&
-  dropsOntoHead(previousPlayer, player, enemy, deltaSeconds);
+  isDroppingOntoHead(previousPlayer, player, enemy, deltaSeconds);

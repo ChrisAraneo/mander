@@ -74,7 +74,7 @@ const keyLabel = computed(() =>
 
 const score = computed(() => props.state.score.toLocaleString('en-US'));
 
-const debug = isDebug();
+const isDebugShown = isDebug();
 </script>
 
 <template>
@@ -91,10 +91,10 @@ const debug = isDebug();
       <span class="chip score" title="Score">★ {{ score }}</span>
       <span class="chip hearts" title="Hearts">
         <span
-          v-for="(filled, index) in hearts"
+          v-for="(isFilled, index) in hearts"
           :key="index"
           class="pip"
-          :class="{ filled }"
+          :class="{ filled: isFilled }"
           >♥</span
         >
       </span>
@@ -141,7 +141,7 @@ const debug = isDebug();
       <span class="chip key" :class="{ found: state.hasKey }">
         {{ keyLabel }}
       </span>
-      <span v-if="debug" class="" title="Update Time"
+      <span v-if="isDebugShown" class="" title="Update Time"
         >⏱ {{ (1000.0 / state.updateTime).toFixed(2) }} ms</span
       >
     </div>

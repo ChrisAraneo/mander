@@ -35,7 +35,7 @@ const UNBURIED = -1;
 
 type Field = number[][];
 
-const toFlag = (on: boolean): number => Number(on);
+const toFlag = (isOn: boolean): number => Number(isOn);
 
 const depthsOf = (tiles: Tile[][]): Field =>
   reduce(
@@ -140,7 +140,7 @@ const shed = (blobs: Field): Field =>
 export const addStones = (tiles: Tile[][]): Tile[][] =>
   chain(createRandom(tilesSeed(tiles)))
     .thru((random) =>
-      match(random.chance(DEEP_DIRT_CHANCE))
+      match(random.isRollUnder(DEEP_DIRT_CHANCE))
         .with(true, () => DEEP_DIRT_DEPTH)
         .otherwise(() => DIRT_DEPTH),
     )

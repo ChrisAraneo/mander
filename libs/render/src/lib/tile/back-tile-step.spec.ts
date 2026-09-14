@@ -13,7 +13,7 @@ import { paint } from '../canvas';
 import { BACK_SHADE, materialStyle } from '../material';
 import { STROKE_COLOR } from '../stroke';
 import { backTileStep } from './back-tile-step';
-import { solidAt } from './solid-at';
+import { isSolidAt } from './is-solid-at';
 
 interface Fill {
   style: string;
@@ -91,7 +91,7 @@ const painted = (backTile: number): Fill[] =>
     .thru(({ fills }) => fills)
     .value();
 
-const covers = (fill: Fill): boolean =>
+const isCovering = (fill: Fill): boolean =>
   fill.x === 0 &&
   fill.y === 0 &&
   fill.width === TILE_SIZE &&
@@ -103,7 +103,7 @@ describe('backTileStep', () => {
 
     expect(base?.style).toBe(materialStyle(TILE_BRICK).base);
     expect(base?.alpha).toBe(1);
-    expect(covers(base as Fill)).toBe(true);
+    expect(isCovering(base as Fill)).toBe(true);
   });
 
   it('should shade the whole tile down last, which is what sends it to the back', () => {
@@ -111,11 +111,11 @@ describe('backTileStep', () => {
 
     expect(shade?.style).toBe(BACK_SHADE);
     expect(shade?.alpha).toBe(1);
-    expect(covers(shade as Fill)).toBe(true);
+    expect(isCovering(shade as Fill)).toBe(true);
   });
 
   it('should draw the detail faintly, so the material keeps its look at lower contrast', () => {
-    const detail = filter(painted(TILE_BRICK), (fill) => !covers(fill));
+    const detail = filter(painted(TILE_BRICK), (fill) => !isCovering(fill));
 
     expect(detail).not.toEqual([]);
     expect(every(detail, (fill) => fill.alpha < 1)).toBe(true);
@@ -149,7 +149,7 @@ describe('backTileStep', () => {
       chestItems: [],
     };
 
-    expect(solidAt(covered, 0, 0)).toBe(true);
+    expect(isSolidAt(covered, 0, 0)).toBe(true);
     expect(
       some(
         chain(recorder())

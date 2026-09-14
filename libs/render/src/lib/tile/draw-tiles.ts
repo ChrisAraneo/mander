@@ -29,7 +29,7 @@ import type { Palette } from '../palette';
 import { spikeStep } from '../spike';
 import type { Viewport } from '../viewport';
 import { backTileStep } from './back-tile-step';
-import { solidAt } from './solid-at';
+import { isSolidAt } from './is-solid-at';
 import { tileEdgesStep } from './tile-edges-step';
 
 const solidTileStep = (
@@ -50,7 +50,7 @@ const solidTileStep = (
         fillRect(pixelX, pixelY, TILE_SIZE, TILE_SIZE),
         materialStep(tile, pixelX, pixelY, style),
         when(
-          !solidAt(level, column, row - 1),
+          !isSolidAt(level, column, row - 1),
           styled({ fillStyle: style.cap }),
           fillRect(pixelX, pixelY, TILE_SIZE, 7),
           styled({ fillStyle: style.capHighlight }),

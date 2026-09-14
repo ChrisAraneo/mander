@@ -1,7 +1,7 @@
 import type { Enemy, Level, Player } from '@mander/model';
 import { match, P } from 'ts-pattern';
 
-import { overlapsSpike } from '../spike/overlaps-spike';
+import { isOverlappingSpike } from '../spike/is-overlapping-spike';
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from './consts';
 import { killEnemy } from './kill-enemy';
 import { stepBeartrap } from './step-beartrap';
@@ -30,7 +30,7 @@ const patrol = (
 ): Enemy => {
   const stepped = moveAlive(level, enemy, player, deltaSeconds);
   return match(
-    overlapsSpike(
+    isOverlappingSpike(
       level,
       stepped.position.x,
       stepped.position.y,

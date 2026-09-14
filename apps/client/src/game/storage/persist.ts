@@ -28,7 +28,7 @@ const rungs = (): Rung[] => [
   ...map(range(REPLAYS_KEPT - 1, -1, -1), (worlds): Rung => [0, worlds]),
 ];
 
-const write: (save: SaveData) => boolean = tryCatch(
+const isWritten: (save: SaveData) => boolean = tryCatch(
   (save: SaveData) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(save));
 
@@ -40,6 +40,6 @@ const write: (save: SaveData) => boolean = tryCatch(
 export const persist = (save: SaveData): void => {
   find(
     map(rungs(), (rung) => trimmed(save, rung)),
-    write,
+    isWritten,
   );
 };

@@ -11,7 +11,7 @@ export const createRandom = (seed: string) => {
     int(min: number, max: number) {
       return min + floor(next() * (max - min + 1));
     },
-    chance(probability: number) {
+    isRollUnder(probability: number) {
       return next() < probability;
     },
     pick<T>(values: T[]): T {

@@ -32,7 +32,7 @@ const advance = (
       chain(direction * Math.min(Math.abs(remaining), SUBSTEP))
         .thru((step) => ({ step, nextPosition: current + step }))
         .thru(({ step, nextPosition }) =>
-          match(config.collides(nextPosition))
+          match(config.isColliding(nextPosition))
             .with(true, (): AxisMove => ({
               position: blockedPosition(nextPosition, direction, config.size),
               isBlocked: true,

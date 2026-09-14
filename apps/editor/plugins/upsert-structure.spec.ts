@@ -23,13 +23,13 @@ export const NORMAL_002: Structure = ${OTHER};
 
 describe('upsertStructure', () => {
   it('should rewrite the structure that is already there', () => {
-    const { source: written, created } = upsertStructure(
+    const { source: written, isCreated } = upsertStructure(
       source,
       'NORMAL_001',
       OTHER,
     );
 
-    expect(created).toBe(false);
+    expect(isCreated).toBe(false);
     expect(readStructures(written)).toEqual([
       { name: 'NORMAL_001', text: OTHER },
       { name: 'NORMAL_002', text: OTHER },
@@ -51,13 +51,13 @@ export const NORMAL_002: Structure = ${TEXT};
   });
 
   it('should add a structure the file has never seen, after the last one', () => {
-    const { source: written, created } = upsertStructure(
+    const { source: written, isCreated } = upsertStructure(
       source,
       'NORMAL_003',
       TEXT,
     );
 
-    expect(created).toBe(true);
+    expect(isCreated).toBe(true);
     expect(
       written.endsWith(`export const NORMAL_003: Structure = ${TEXT};\n`),
     ).toBe(true);

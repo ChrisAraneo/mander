@@ -28,7 +28,7 @@ export const createFireballs = (level: Level): Fireball[] => {
   const random = createRandom(`${level.seed}#fireballs`);
 
   return map(findFireballTiles(level), (tile): Fireball => ({
-    spin: spinFor(random.chance(FIREBALL_ANTICLOCKWISE_CHANCE)),
+    spin: spinFor(random.isRollUnder(FIREBALL_ANTICLOCKWISE_CHANCE)),
     origin: {
       x: tile.x * TILE_SIZE + TILE_SIZE / 2,
       y: tile.y * TILE_SIZE + TILE_SIZE / 2,

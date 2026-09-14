@@ -34,7 +34,7 @@ import {
   LEVEL_SCORE_MIN,
   LEVEL_SCORE_PER_SECOND,
 } from './score/consts';
-import { overlapsSpike } from './spike/overlaps-spike';
+import { isOverlappingSpike } from './spike/is-overlapping-spike';
 import { spawnPosition } from './player/spawn-position';
 import type { GameLevel } from '../types/game-level';
 import { createInitialState } from '../state/create-initial-state';
@@ -1354,21 +1354,21 @@ describe('precise spike collision', () => {
 
   it('is not triggered by the clear air above the prongs', () => {
     const level = spikeLevel(col);
-    expect(overlapsSpike(level, left, 11 * TILE_SIZE, TILE_SIZE, 6)).toBe(
+    expect(isOverlappingSpike(level, left, 11 * TILE_SIZE, TILE_SIZE, 6)).toBe(
       false,
     );
   });
 
   it('is triggered when the box reaches down into the prongs', () => {
     const level = spikeLevel(col);
-    expect(overlapsSpike(level, left, 11 * TILE_SIZE + 23, TILE_SIZE, 6)).toBe(
-      true,
-    );
+    expect(
+      isOverlappingSpike(level, left, 11 * TILE_SIZE + 23, TILE_SIZE, 6),
+    ).toBe(true);
   });
 
   it('is not triggered in the notch between two prongs', () => {
     const level = spikeLevel(col);
-    expect(overlapsSpike(level, left + 8, 11 * TILE_SIZE + 9, 5, 6)).toBe(
+    expect(isOverlappingSpike(level, left + 8, 11 * TILE_SIZE + 9, 5, 6)).toBe(
       false,
     );
   });
@@ -1377,28 +1377,40 @@ describe('precise spike collision', () => {
 describe('lone spikes', () => {
   const col = 6;
   const left = col * TILE_SIZE;
-  const edgeBox = (level: Level, tileLeft: number): boolean =>
-    overlapsSpike(level, tileLeft + 1, 11 * TILE_SIZE + 8, 8, TILE_SIZE - 8);
+  const isEdgeTouchingSpike = (level: Level, tileLeft: number): boolean =>
+    isOverlappingSpike(
+      level,
+      tileLeft + 1,
+      11 * TILE_SIZE + 8,
+      8,
+      TILE_SIZE - 8,
+    );
 
   it('leaves the tile edges clear when nothing sits beside it', () => {
-    expect(edgeBox(spikeLevel(col), left)).toBe(false);
+    expect(isEdgeTouchingSpike(spikeLevel(col), left)).toBe(false);
   });
 
   it('still fills the tile when another spike sits beside it', () => {
     const level = spikeLevel(col);
     level.tiles[11][col + 1] = TILE_SPIKE;
-    expect(edgeBox(level, left)).toBe(true);
+    expect(isEdgeTouchingSpike(level, left)).toBe(true);
   });
 
   it('does not pair a floor spike with a ceiling spike beside it', () => {
     const level = spikeLevel(col);
     level.tiles[11][col + 1] = TILE_SPIKE_CEILING;
-    expect(edgeBox(level, left)).toBe(false);
+    expect(isEdgeTouchingSpike(level, left)).toBe(false);
   });
 
   it('is still lethal head on', () => {
     expect(
-      overlapsSpike(spikeLevel(col), left, 11 * TILE_SIZE + 23, TILE_SIZE, 6),
+      isOverlappingSpike(
+        spikeLevel(col),
+        left,
+        11 * TILE_SIZE + 23,
+        TILE_SIZE,
+        6,
+      ),
     ).toBe(true);
   });
 });
@@ -2172,7 +2184,7 @@ describe('bullets', () => {
     expect(state.level.tiles[11][3], 'the spike is gone').toBe(TILE_AIR);
     expect(state.bullets, 'and so is the bullet').toEqual([]);
     expect(
-      overlapsSpike(state.level, 3 * TILE_SIZE, 11 * TILE_SIZE, 1, 1),
+      isOverlappingSpike(state.level, 3 * TILE_SIZE, 11 * TILE_SIZE, 1, 1),
       'nothing is left there to bite',
     ).toBe(false);
   });

@@ -33,7 +33,7 @@ const tweenPlayer = (
 });
 
 /** An enemy has no id, but where it spawned is fixed and unique to it. */
-const sameEnemy = (one: Enemy, other: Enemy): boolean =>
+const isSameEnemy = (one: Enemy, other: Enemy): boolean =>
   one.spawn.x === other.spawn.x && one.spawn.y === other.spawn.y;
 
 const tweenEnemies = (
@@ -42,7 +42,7 @@ const tweenEnemies = (
   alpha: number,
 ): Enemy[] =>
   map(current, (enemy) =>
-    match(find(previous, (before) => sameEnemy(before, enemy)))
+    match(find(previous, (before) => isSameEnemy(before, enemy)))
       .with(nonNullable, (before): Enemy => ({
         ...enemy,
         position: lerpPoint(before.position, enemy.position, alpha),

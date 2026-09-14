@@ -3,7 +3,7 @@ import { match } from 'ts-pattern';
 
 export interface Upsert {
   source: string;
-  created: boolean;
+  isCreated: boolean;
 }
 
 const blockOf = (name: string): RegExp =>
@@ -28,9 +28,9 @@ export const upsertStructure = (
       source: replace(source, blockOf(name), () =>
         declarationOf(name, type, text),
       ),
-      created: false,
+      isCreated: false,
     }))
     .otherwise((): Upsert => ({
       source: appended(source, declarationOf(name, type, text)),
-      created: true,
+      isCreated: true,
     }));

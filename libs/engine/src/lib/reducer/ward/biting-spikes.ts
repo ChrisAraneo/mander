@@ -2,7 +2,7 @@ import type { HazardKind, Item, SpikeOrientation } from '@mander/model';
 import { filter } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import { SPIKE_ORIENTATIONS } from '../spike/overlaps-spike';
+import { SPIKE_ORIENTATIONS } from '../spike/is-overlapping-spike';
 import { isWarded } from './is-warded';
 
 const hazardOf = (orientation: SpikeOrientation): HazardKind =>

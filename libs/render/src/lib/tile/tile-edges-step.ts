@@ -3,7 +3,7 @@ import { map } from 'lodash-es';
 
 import { type CanvasStep, fillRect, sequence, styled, when } from '../canvas';
 import { STROKE_COLOR, STROKE_WIDTH } from '../stroke';
-import { solidAt } from './solid-at';
+import { isSolidAt } from './is-solid-at';
 
 interface Edge {
   column: number;
@@ -58,7 +58,7 @@ const edgeStep = (
   edge: Edge,
 ): CanvasStep =>
   when(
-    !solidAt(level, column + edge.column, row + edge.row),
+    !isSolidAt(level, column + edge.column, row + edge.row),
     fillRect(
       column * TILE_SIZE + edge.x,
       row * TILE_SIZE + edge.y,
@@ -74,9 +74,9 @@ const cornerStep = (
   corner: Corner,
 ): CanvasStep =>
   when(
-    !solidAt(level, column + corner.column, row + corner.row) &&
-      solidAt(level, column + corner.column, row) &&
-      solidAt(level, column, row + corner.row),
+    !isSolidAt(level, column + corner.column, row + corner.row) &&
+      isSolidAt(level, column + corner.column, row) &&
+      isSolidAt(level, column, row + corner.row),
     fillRect(
       column * TILE_SIZE + corner.x,
       row * TILE_SIZE + corner.y,

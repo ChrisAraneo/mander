@@ -11,7 +11,7 @@ const { nullish } = P;
 const createBuffer = (): CanvasRenderingContext2D | null =>
   document.createElement('canvas').getContext('2d', { alpha: false });
 
-const supportsWebgl2 = (): boolean =>
+const isWebgl2Supported = (): boolean =>
   chain(document.createElement('canvas').getContext('webgl2'))
     .thru((gl) =>
       withEffect(gl, () =>
@@ -27,7 +27,7 @@ const attachScreen = (
   display: HTMLCanvasElement,
   buffer: CanvasRenderingContext2D,
 ): Screen | null =>
-  match(supportsWebgl2())
+  match(isWebgl2Supported())
     .with(true, () => createGlScreen(display, buffer))
     .otherwise(() => createBlitScreen(display, buffer));
 

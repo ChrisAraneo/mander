@@ -22,9 +22,9 @@ const horizontalDirection = (input: InputState): number =>
     .with({ isRight: false, isLeft: true }, () => -1)
     .otherwise(() => 0);
 
-const isFacingRightFor = (direction: number, current: boolean): boolean =>
+const isFacingRightFor = (direction: number, isFacingRight: boolean): boolean =>
   match(direction)
-    .with(0, () => current)
+    .with(0, () => isFacingRight)
     .otherwise(() => direction > 0);
 
 const afterJump = (
