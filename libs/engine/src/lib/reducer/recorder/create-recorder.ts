@@ -12,7 +12,7 @@ interface RecorderState {
   isRecording: boolean;
 }
 
-const emptyState = (): RecorderState => ({
+const createEmptyState = (): RecorderState => ({
   entries: [],
   step: 0,
   isRecording: true,
@@ -35,14 +35,14 @@ const append = (state: RecorderState, action: Action): void =>
     );
 
 export const createRecorder = (worldName: string): Recorder =>
-  chain(emptyState())
+  chain(createEmptyState())
     .thru((state): Recorder => ({
       record: (action) =>
         match(state.isRecording)
           .with(true, () => append(state, action))
           .otherwise(noop),
       stop: () => mutate(state, { isRecording: false }),
-      reset: () => mutate(state, emptyState()),
+      reset: () => mutate(state, createEmptyState()),
       snapshot: () => ({
         worldName,
         steps: state.step,

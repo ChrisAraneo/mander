@@ -1,6 +1,6 @@
 import { paint } from '../canvas';
 import type { StarColors } from './star-colors';
-import { starStep } from './star-step';
+import { createStarStep } from './create-star-step';
 
 export const drawStar = (
   context: CanvasRenderingContext2D,
@@ -9,4 +9,5 @@ export const drawStar = (
   radius: number,
   colors: StarColors,
   glowBlur: number,
-): void => paint(context, starStep(centerX, centerY, radius, colors, glowBlur));
+): void =>
+  paint(context, createStarStep(centerX, centerY, radius, colors, glowBlur));

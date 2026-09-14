@@ -16,7 +16,7 @@ import { PLAYER_HEIGHT, PLAYER_WIDTH } from './consts';
 
 const JUMP_CUT_GRAVITY_FACTOR = 2.6;
 
-const horizontalDirection = (input: InputState): number =>
+const getHorizontalDirection = (input: InputState): number =>
   match(input)
     .with({ isRight: true, isLeft: false }, () => 1)
     .with({ isRight: false, isLeft: true }, () => -1)
@@ -27,7 +27,7 @@ const isFacingRightFor = (direction: number, isFacingRight: boolean): boolean =>
     .with(0, () => isFacingRight)
     .otherwise(() => direction > 0);
 
-const afterJump = (
+const applyJump = (
   base: { vy: number; isGrounded: boolean },
   input: InputState,
   player: Player,
@@ -42,24 +42,24 @@ const afterJump = (
     }))
     .otherwise(() => base);
 
-const gravityFor = (vy: number, input: InputState): number =>
+const getGravity = (vy: number, input: InputState): number =>
   match(vy < 0 && !input.isJump)
     .with(true, () => GRAVITY * JUMP_CUT_GRAVITY_FACTOR)
     .otherwise(() => GRAVITY);
 
-const blockedVx = (isBlocked: boolean, vx: number): number =>
+const getBlockedVx = (isBlocked: boolean, vx: number): number =>
   match(isBlocked)
     .with(true, () => 0)
     .otherwise(() => vx);
 
-const playerIntent = (
+const getPlayerIntent = (
   player: Player,
   input: InputState,
   deltaSeconds: number,
 ) =>
   chain({
     deltaSeconds,
-    direction: horizontalDirection(input),
+    direction: getHorizontalDirection(input),
   })
     .thru((stage) => ({
       ...stage,
@@ -68,7 +68,7 @@ const playerIntent = (
         stage.direction,
         player.statuses.isFacingRight,
       ),
-      ...afterJump(
+      ...applyJump(
         {
           vy: player.velocity.y.current,
           isGrounded: player.statuses.isGrounded,
@@ -80,7 +80,7 @@ const playerIntent = (
     .thru((stage) => ({
       ...stage,
       vy: Math.min(
-        stage.vy + gravityFor(stage.vy, input) * stage.deltaSeconds,
+        stage.vy + getGravity(stage.vy, input) * stage.deltaSeconds,
         TERMINAL_VELOCITY,
       ),
     }))
@@ -89,7 +89,7 @@ const playerIntent = (
 const resolvePlayer = (
   level: Level,
   player: Player,
-  intent: ReturnType<typeof playerIntent>,
+  intent: ReturnType<typeof getPlayerIntent>,
 ): Player =>
   chain(intent)
     .thru((stage) => ({
@@ -106,7 +106,7 @@ const resolvePlayer = (
     .thru((stage) => ({
       ...stage,
       nextX: stage.horizontal.position,
-      vxOut: blockedVx(stage.horizontal.isBlocked, stage.vx),
+      vxOut: getBlockedVx(stage.horizontal.isBlocked, stage.vx),
     }))
     .thru((stage) => ({
       ...stage,
@@ -152,6 +152,6 @@ export const stepPlayer = (
   elapsedSeconds: number,
 ): Player => {
   const deltaSeconds = Math.min(elapsedSeconds, MAX_TICK_SECONDS);
-  const intent = playerIntent(player, input, deltaSeconds);
+  const intent = getPlayerIntent(player, input, deltaSeconds);
   return resolvePlayer(level, player, intent);
 };

@@ -5,7 +5,7 @@ import type { GameState } from '../../state/types/game-state';
 import { createPlayerFireballs } from '../fireball/create-player-fireballs';
 import { hasMoonMagnet } from './has-moon-magnet';
 
-const flipped = (state: GameState): GameState =>
+const flipMoonMagnet = (state: GameState): GameState =>
   chain(!state.isMoonMagnetOn)
     .thru((isMoonMagnetOn): GameState => ({
       ...state,
@@ -28,5 +28,7 @@ export const toggleMoonMagnet = (state: GameState): GameState =>
     status: state.status,
     isOwned: hasMoonMagnet(state.inventory),
   })
-    .with({ status: 'PLAYING', isOwned: true }, (): GameState => flipped(state))
+    .with({ status: 'PLAYING', isOwned: true }, (): GameState =>
+      flipMoonMagnet(state),
+    )
     .otherwise((): GameState => state);

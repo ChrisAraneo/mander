@@ -21,8 +21,8 @@ import {
   FIREBALL_ORBIT_TILES,
 } from './consts';
 import { createFireballs } from './create-fireballs';
-import { fireballHeading } from './fireball-heading';
-import { fireballPosition } from './fireball-position';
+import { getFireballHeading } from './get-fireball-heading';
+import { getFireballPosition } from './get-fireball-position';
 import { isBurning } from './is-burning';
 import { stepFireball } from './step-fireball';
 
@@ -49,7 +49,7 @@ const player = (x: number, y: number, invincibility = 0): Player => ({
 });
 
 const radiusOf = (fireball: Fireball): number => {
-  const at = fireballPosition(fireball);
+  const at = getFireballPosition(fireball);
 
   return Math.hypot(at.x - fireball.origin.x, at.y - fireball.origin.y);
 };
@@ -144,8 +144,8 @@ describe('stepFireball', () => {
 
   it('should come back around to where it started after one orbit', () => {
     forEach(SPINS, (spin) => {
-      const start = fireballPosition(turning(spin));
-      const round = fireballPosition(
+      const start = getFireballPosition(turning(spin));
+      const round = getFireballPosition(
         spun(turning(spin), FIREBALL_ORBIT_SECONDS),
       );
 
@@ -168,8 +168,8 @@ describe('stepFireball', () => {
       ]),
     );
 
-    expect(map(advanceFireballs(walled, 1), fireballPosition)).toEqual(
-      map(advanceFireballs(open, 1), fireballPosition),
+    expect(map(advanceFireballs(walled, 1), getFireballPosition)).toEqual(
+      map(advanceFireballs(open, 1), getFireballPosition),
     );
   });
 });
@@ -178,20 +178,22 @@ describe('stepFireball spin', () => {
   const START = turning('CLOCKWISE').origin;
 
   it('should carry the clockwise fireball downward off its three o clock start', () => {
-    expect(fireballPosition(spun(turning('CLOCKWISE'), 0.2)).y).toBeGreaterThan(
-      START.y,
-    );
+    expect(
+      getFireballPosition(spun(turning('CLOCKWISE'), 0.2)).y,
+    ).toBeGreaterThan(START.y);
   });
 
   it('should carry the anticlockwise fireball upward off the same start', () => {
     expect(
-      fireballPosition(spun(turning('ANTICLOCKWISE'), 0.2)).y,
+      getFireballPosition(spun(turning('ANTICLOCKWISE'), 0.2)).y,
     ).toBeLessThan(START.y);
   });
 
   it('should mirror the one spin against the other', () => {
-    const clockwise = fireballPosition(spun(turning('CLOCKWISE'), 0.7));
-    const anticlockwise = fireballPosition(spun(turning('ANTICLOCKWISE'), 0.7));
+    const clockwise = getFireballPosition(spun(turning('CLOCKWISE'), 0.7));
+    const anticlockwise = getFireballPosition(
+      spun(turning('ANTICLOCKWISE'), 0.7),
+    );
 
     expect(anticlockwise.x).toBeCloseTo(clockwise.x, 6);
     expect(anticlockwise.y - START.y).toBeCloseTo(START.y - clockwise.y, 6);
@@ -216,13 +218,13 @@ describe('stepFireball spin', () => {
   });
 });
 
-describe('fireballHeading', () => {
+describe('getFireballHeading', () => {
   const QUARTER_TURN = Math.PI / 2;
 
   it('should point the clockwise fireball a quarter turn ahead', () => {
     const fireball = turning('CLOCKWISE');
 
-    expect(fireballHeading(fireball)).toBeCloseTo(
+    expect(getFireballHeading(fireball)).toBeCloseTo(
       fireball.angle + QUARTER_TURN,
     );
   });
@@ -230,7 +232,7 @@ describe('fireballHeading', () => {
   it('should point the anticlockwise fireball a quarter turn the other way', () => {
     const fireball = turning('ANTICLOCKWISE');
 
-    expect(fireballHeading(fireball)).toBeCloseTo(
+    expect(getFireballHeading(fireball)).toBeCloseTo(
       fireball.angle - QUARTER_TURN,
     );
   });
@@ -238,11 +240,11 @@ describe('fireballHeading', () => {
   it('should point each spin along the way it is really travelling', () => {
     forEach(SPINS, (spin) => {
       const fireball = spun(turning(spin), 0.4);
-      const from = fireballPosition(fireball);
-      const to = fireballPosition(stepFireball(fireball, 0.001));
+      const from = getFireballPosition(fireball);
+      const to = getFireballPosition(stepFireball(fireball, 0.001));
       const travel = Math.atan2(to.y - from.y, to.x - from.x);
 
-      expect(Math.cos(fireballHeading(fireball) - travel), spin).toBeCloseTo(
+      expect(Math.cos(getFireballHeading(fireball) - travel), spin).toBeCloseTo(
         1,
         4,
       );
@@ -253,7 +255,7 @@ describe('fireballHeading', () => {
 describe('isBurning', () => {
   const [fireball] = createFireballs(level([[TILE_FIREBALL], [TILE_DIRT]]));
 
-  const at = fireballPosition(fireball);
+  const at = getFireballPosition(fireball);
 
   it('should scorch the player standing in the flame', () => {
     expect(

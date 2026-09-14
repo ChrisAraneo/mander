@@ -10,25 +10,25 @@ import { match } from 'ts-pattern';
 
 export type Pool = 'normal' | 'hard' | 'vertical';
 
-const structuresOf = (pool: Pool): readonly Sector[] =>
+const getStructures = (pool: Pool): readonly Sector[] =>
   match(pool)
     .with('hard', () => HARD_STRUCTURES)
     .with('vertical', () => VERTICAL_STRUCTURES)
     .otherwise(() => NORMAL_STRUCTURES);
 
-const seedFor = (seed: string, pool: Pool): string => `${seed}#${pool}`;
+const formatPoolSeed = (seed: string, pool: Pool): string => `${seed}#${pool}`;
 
 export const pickStructures = (
   seed: string,
   count: number,
   pool: Pool,
 ): Sector[] => {
-  const random = createRandom(seedFor(seed, pool));
-  const structures = structuresOf(pool);
+  const random = createRandom(formatPoolSeed(seed, pool));
+  const structures = getStructures(pool);
 
   return take(
     flatMap(range(ceil(count / size(structures))), () =>
-      sortBy(structures, () => random.next()),
+      sortBy(structures, () => random.rollFloat()),
     ),
     count,
   );

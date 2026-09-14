@@ -11,7 +11,7 @@ import type { StructureEntry } from './structure-entry';
 
 const { instanceOf } = P;
 
-const messageOf = (error: unknown): string =>
+const getMessage = (error: unknown): string =>
   match(error)
     .with(instanceOf(Error), (thrown) => thrown.message)
     .otherwise((thrown) => String(thrown));
@@ -36,7 +36,7 @@ export const useLibrary = () =>
                 .thru(() =>
                   setRef(
                     state.status,
-                    `The library is out of reach — ${messageOf(error)}`,
+                    `The library is out of reach — ${getMessage(error)}`,
                   ),
                 )
                 .value(),
@@ -66,7 +66,7 @@ export const useLibrary = () =>
                 .thru(() => state.load())
                 .value(),
             (error: unknown) =>
-              setRef(state.status, `Nothing saved — ${messageOf(error)}`),
+              setRef(state.status, `Nothing saved — ${getMessage(error)}`),
           )
           .then(noop),
     }))

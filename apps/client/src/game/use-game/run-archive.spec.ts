@@ -47,7 +47,7 @@ const replay = (): PackedReplay => ({
 const source = (): RunSource => ({
   name: 'ABC',
   day: '2026-09-04',
-  replay,
+  getReplay: replay,
 });
 
 const archived = (): number => size(loadSave().runs);

@@ -2,7 +2,11 @@ import { type Layers, TILE_AIR } from '@mander/model';
 import { chain } from '@mander/utils';
 import { head, map, range, size, times } from 'lodash-es';
 
-const filled = (grid: number[][], height: number, width: number): number[][] =>
+const fillGrid = (
+  grid: number[][],
+  height: number,
+  width: number,
+): number[][] =>
   map(range(height), (row) =>
     times(width, (column) => grid[row]?.[column] ?? TILE_AIR),
   );
@@ -12,7 +16,7 @@ const filled = (grid: number[][], height: number, width: number): number[][] =>
 export const fillSketch = (sketch: Layers): Layers =>
   chain({ height: size(sketch.tiles), width: size(head(sketch.tiles)) })
     .thru(({ height, width }): Layers => ({
-      tiles: filled(sketch.tiles, height, width),
-      backTiles: filled(sketch.backTiles, height, width),
+      tiles: fillGrid(sketch.tiles, height, width),
+      backTiles: fillGrid(sketch.backTiles, height, width),
     }))
     .value();

@@ -3,25 +3,25 @@ import type { GameState } from '@mander/engine';
 import {
   CHEST_ENTITY_BOX,
   findChestTile,
+  getEntityRectangle,
   type Level,
-  toEntityRectangle,
 } from '@mander/model';
 import type { Rectangle } from '@mander/utils';
 import { constant } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import {
+  applyStyle,
   beginPath,
   type CanvasStep,
   fill,
   fillRect,
   paint,
-  rect,
   restore,
+  runWhen,
   save,
   sequence,
-  styled,
-  when,
+  traceRect,
 } from '../canvas';
 import { outline } from '../stroke';
 
@@ -36,14 +36,14 @@ const CAVITY = '#2C2418';
 const LATCH = '#E8C15C';
 const SHADOW = 'RGBA(0, 0, 0, 0.25)';
 
-const lidStep = (chest: Rectangle, isOpen: boolean): CanvasStep =>
+const createLidStep = (chest: Rectangle, isOpen: boolean): CanvasStep =>
   sequence([
     beginPath,
     match(isOpen)
-      .with(true, () => rect(chest.x - 2, chest.y - 6, chest.width + 4, 7))
-      .otherwise(() => rect(chest.x - 1, chest.y, chest.width + 2, 9)),
+      .with(true, () => traceRect(chest.x - 2, chest.y - 6, chest.width + 4, 7))
+      .otherwise(() => traceRect(chest.x - 1, chest.y, chest.width + 2, 9)),
     outline(),
-    styled({
+    applyStyle({
       fillStyle: match(isOpen)
         .with(true, () => LID_OPEN)
         .otherwise(() => LID_CLOSED),
@@ -52,51 +52,54 @@ const lidStep = (chest: Rectangle, isOpen: boolean): CanvasStep =>
     match(isOpen)
       .with(true, () =>
         sequence([
-          styled({ fillStyle: CAVITY }),
+          applyStyle({ fillStyle: CAVITY }),
           fillRect(chest.x + 2, chest.y + 6, chest.width - 4, 5),
         ]),
       )
       .otherwise(() =>
         sequence([
-          styled({ fillStyle: LATCH }),
+          applyStyle({ fillStyle: LATCH }),
           fillRect(chest.x + chest.width / 2 - 2, chest.y + 6, 4, 7),
         ]),
       ),
   ]);
 
-const chestStep = (chest: Rectangle, state: GameState): CanvasStep =>
+const createChestStep = (chest: Rectangle, state: GameState): CanvasStep =>
   sequence([
     save,
-    when(state.isNearChest, styled({ shadowColor: GLOW, shadowBlur: 20 })),
+    runWhen(
+      state.isNearChest,
+      applyStyle({ shadowColor: GLOW, shadowBlur: 20 }),
+    ),
     beginPath,
-    rect(chest.x, chest.y + 6, chest.width, chest.height - 6),
+    traceRect(chest.x, chest.y + 6, chest.width, chest.height - 6),
     outline(),
-    styled({
+    applyStyle({
       fillStyle: match(state.isChestOpened)
         .with(true, () => BODY_OPEN)
         .otherwise(() => BODY_CLOSED),
     }),
     fill,
-    lidStep(chest, state.isChestOpened),
-    styled({ fillStyle: SHADOW }),
+    createLidStep(chest, state.isChestOpened),
+    applyStyle({ fillStyle: SHADOW }),
     fillRect(chest.x + 3, chest.y + 6, 2, chest.height - 6),
     fillRect(chest.x + chest.width - 5, chest.y + 6, 2, chest.height - 6),
     restore,
   ]);
 
-const chestRectangle = (level: Level): Rectangle | undefined =>
+const getChestRectangle = (level: Level): Rectangle | undefined =>
   match(findChestTile(level))
     .with(nullish, constant(undefined))
-    .otherwise((tile) => toEntityRectangle(tile, CHEST_ENTITY_BOX));
+    .otherwise((tile) => getEntityRectangle(tile, CHEST_ENTITY_BOX));
 
 export const drawChest = (
   context: CanvasRenderingContext2D,
   state: GameState,
 ): void =>
-  chain(chestRectangle(state.level))
+  chain(getChestRectangle(state.level))
     .thru((chest) =>
       match(chest)
         .with(nullish, constant(undefined))
-        .otherwise((box) => paint(context, chestStep(box, state))),
+        .otherwise((box) => paint(context, createChestStep(box, state))),
     )
     .value();

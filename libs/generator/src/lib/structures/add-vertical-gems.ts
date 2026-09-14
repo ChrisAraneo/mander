@@ -14,8 +14,8 @@ import {
 } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { patchTiles, type TilePatch } from './patch-tiles';
-import { type Spot, standingSpots } from './standing-spots';
-import { tilesSeed } from './tiles-seed';
+import { findStandingSpots, type Spot } from './find-standing-spots';
+import { formatTilesSeed } from './format-tiles-seed';
 
 const { nullish } = P;
 
@@ -44,18 +44,20 @@ const isApart = (taken: Spot[], spot: Spot): boolean =>
       Math.abs(other.column - spot.column) >= MIN_GAP,
   );
 
-const slotSpots = (spots: Spot[], slot: number): Spot[] =>
+const filterSlotSpots = (spots: Spot[], slot: number): Spot[] =>
   filter(spots, (spot) => floor(spot.row / SLOT_HEIGHT) === slot);
 
-const slots = (tiles: Tile[][], spots: Spot[]): Spot[][] =>
-  map(range(ceil(size(tiles) / SLOT_HEIGHT)), (slot) => slotSpots(spots, slot));
+const groupSlots = (tiles: Tile[][], spots: Spot[]): Spot[][] =>
+  map(range(ceil(size(tiles) / SLOT_HEIGHT)), (slot) =>
+    filterSlotSpots(spots, slot),
+  );
 
 const sowSlot = (
   random: ReturnType<typeof createRandom>,
   sown: Sowing,
   spots: Spot[],
 ): Sowing =>
-  chain(sortBy(spots, () => random.next()))
+  chain(sortBy(spots, () => random.rollFloat()))
     .find((candidate) => isApart(sown.taken, candidate))
     .thru((spot) =>
       match(spot)
@@ -75,10 +77,10 @@ const sowSlot = (
     .value();
 
 export const addVerticalGems = (tiles: Tile[][]): Tile[][] =>
-  chain(createRandom(tilesSeed(tiles)))
+  chain(createRandom(formatTilesSeed(tiles)))
     .thru((random) =>
       reduce(
-        slots(tiles, standingSpots(tiles, CLEARANCE)),
+        groupSlots(tiles, findStandingSpots(tiles, CLEARANCE)),
         (sown: Sowing, spots): Sowing => sowSlot(random, sown, spots),
         { taken: [], patches: [] },
       ),

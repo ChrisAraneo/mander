@@ -1,9 +1,9 @@
 import {
   createEnemies,
+  getSpawnPosition,
   HORNED_ENEMY_CHANCE,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
-  spawnPosition,
 } from '@mander/engine';
 import {
   findCannonTiles,
@@ -75,8 +75,8 @@ const tilesAcross = (start: number, span: number): number[] =>
   range(floor(start / TILE_SIZE), floor((start + span - 1) / TILE_SIZE) + 1);
 
 const isWalledIn = (level: Level): boolean =>
-  some(tilesAcross(spawnPosition(level).y, PLAYER_HEIGHT), (row) =>
-    some(tilesAcross(spawnPosition(level).x, PLAYER_WIDTH), (column) =>
+  some(tilesAcross(getSpawnPosition(level).y, PLAYER_HEIGHT), (row) =>
+    some(tilesAcross(getSpawnPosition(level).x, PLAYER_WIDTH), (column) =>
       isSolid(level, column, row),
     ),
   );

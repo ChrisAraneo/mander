@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { STRUCTURE_WIDTH } from '@mander/structures';
-import { chain, withEffect } from '@mander/utils';
+import { chain, tapEffect } from '@mander/utils';
 import { filter, find, noop, size } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
@@ -10,7 +10,13 @@ import IssuePanel from './components/IssuePanel.vue';
 import OutputPanel from './components/OutputPanel.vue';
 import StructureGrid from './components/StructureGrid.vue';
 import type { Pool } from './editor';
-import { BRUSHES, heightOf, poolOf, nextStructureName, setRef } from './editor';
+import {
+  BRUSHES,
+  getHeight,
+  getPool,
+  createNextStructureName,
+  setRef,
+} from './editor';
 import { useEditor, useLibrary } from './editor';
 
 const { nullish } = P;
@@ -23,7 +29,7 @@ const loaded = ref('');
 const pool = ref<Pool>('normal');
 const name = ref('');
 
-const savedTo = computed(() => poolOf(name.value));
+const savedTo = computed(() => getPool(name.value));
 
 const editor = useEditor(savedTo);
 
@@ -39,55 +45,55 @@ const verticalEntries = computed(() =>
 
 const target = computed(() => `${savedTo.value}.ts`);
 
-const tall = computed(() => heightOf(savedTo.value));
+const tall = computed(() => getHeight(savedTo.value));
 
 const canSave = computed(
   () => library.isReady.value && editor.isValid.value && size(name.value) > 0,
 );
 
 const suggestName = (): void =>
-  void setRef(name, nextStructureName(library.entries.value, pool.value));
+  void setRef(name, createNextStructureName(library.entries.value, pool.value));
 
 const loadStructure = (structure: string): void =>
   void match(find(library.entries.value, { name: structure }))
     .with(nullish, noop)
     .otherwise((entry) =>
       chain(entry)
-        .thru((found) => withEffect(found, () => editor.replace(found.sketch)))
-        .thru((found) => withEffect(found, () => setRef(pool, found.pool)))
+        .thru((found) => tapEffect(found, () => editor.replace(found.sketch)))
+        .thru((found) => tapEffect(found, () => setRef(pool, found.pool)))
         .thru((found) => setRef(name, found.name))
         .value(),
     );
 
 const save = (): void => void library.save(name.value, editor.sketch.value);
 
-const undoShortcut = (event: KeyboardEvent): void =>
+const handleUndoShortcut = (event: KeyboardEvent): void =>
   match(event.key === UNDO_KEY && (event.ctrlKey || event.metaKey))
     .with(true, () =>
       chain(event)
-        .thru((pressed) => withEffect(pressed, () => pressed.preventDefault()))
+        .thru((pressed) => tapEffect(pressed, () => pressed.preventDefault()))
         .thru(() => editor.undo())
         .value(),
     )
     .otherwise(noop);
 
-const onKeydown = (event: KeyboardEvent): void =>
+const handleKeydown = (event: KeyboardEvent): void =>
   match(document.activeElement?.tagName)
     .with('INPUT', noop)
     .otherwise(() =>
       match(find(BRUSHES, { shortcut: event.key }))
-        .with(nullish, () => undoShortcut(event))
+        .with(nullish, () => handleUndoShortcut(event))
         .otherwise((brush) => void setRef(editor.brush, brush)),
     );
 
 onMounted(() =>
-  chain(window.addEventListener('keydown', onKeydown))
+  chain(window.addEventListener('keydown', handleKeydown))
     .thru(() => library.load())
     .thru((loading) => loading.then(suggestName))
     .value(),
 );
 
-onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown));
+onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
 </script>
 
 <template>

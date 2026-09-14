@@ -29,7 +29,7 @@ const snapShut = (
     }))
     .otherwise(() => ({ vy, isGrounded }));
 
-const lostToThePit = (trap: Enemy): Enemy => ({
+const loseToThePit = (trap: Enemy): Enemy => ({
   ...trap,
   velocity: {
     x: { ...trap.velocity.x, current: 0 },
@@ -38,9 +38,13 @@ const lostToThePit = (trap: Enemy): Enemy => ({
   timers: { ...trap.timers, death: ENEMY_DEATH_SECONDS },
 });
 
-const toBeartrap = (motion: TrapMotion, trap: Enemy, level: Level): Enemy =>
+const applyTrapMotion = (
+  motion: TrapMotion,
+  trap: Enemy,
+  level: Level,
+): Enemy =>
   match(motion.y > (level.height + 2) * TILE_SIZE)
-    .with(true, (): Enemy => lostToThePit(trap))
+    .with(true, (): Enemy => loseToThePit(trap))
     .otherwise((): Enemy => ({
       ...trap,
       position: { ...trap.position, y: motion.y },
@@ -51,7 +55,7 @@ const toBeartrap = (motion: TrapMotion, trap: Enemy, level: Level): Enemy =>
       statuses: { ...trap.statuses, isGrounded: motion.isGrounded },
     }));
 
-const trapIntent = (
+const getTrapIntent = (
   trap: Enemy,
   player: Player,
   deltaSeconds: number,
@@ -99,7 +103,7 @@ const resolveBeartrap = (
         stage.vy,
       ),
     }))
-    .thru((stage): Enemy => toBeartrap(stage, trap, level))
+    .thru((stage): Enemy => applyTrapMotion(stage, trap, level))
     .value();
 
 export const stepBeartrap = (
@@ -109,5 +113,9 @@ export const stepBeartrap = (
   elapsedSeconds: number,
 ): Enemy => {
   const deltaSeconds = Math.min(elapsedSeconds, MAX_TICK_SECONDS);
-  return resolveBeartrap(level, trap, trapIntent(trap, player, deltaSeconds));
+  return resolveBeartrap(
+    level,
+    trap,
+    getTrapIntent(trap, player, deltaSeconds),
+  );
 };

@@ -1,7 +1,7 @@
 import { type Layers, isSolidTile, TILE_AIR, type Tile } from '@mander/model';
 import {
-  backOf,
-  frontOf,
+  getBack,
+  getFront,
   type Layer,
   STRUCTURE_WIDTH,
   STRUCTURE_END,
@@ -46,17 +46,17 @@ const DEFAULT_END: Cell = {
 
 const findMarker = (structure: Sector, marker: number): Cell | undefined =>
   find(
-    map(frontOf(structure), (cells, row): Cell => ({
+    map(getFront(structure), (cells, row): Cell => ({
       row,
       column: indexOf(cells, marker),
     })),
     (cell) => cell.column >= 0,
   );
 
-const startOf = (structure: Sector): Cell =>
+const getStart = (structure: Sector): Cell =>
   findMarker(structure, STRUCTURE_START) ?? DEFAULT_START;
 
-const endOf = (structure: Sector): Cell =>
+const getEnd = (structure: Sector): Cell =>
   findMarker(structure, STRUCTURE_END) ?? DEFAULT_END;
 
 const place = (structures: Sector[]): Placement[] =>
@@ -67,8 +67,8 @@ const place = (structures: Sector[]): Placement[] =>
         .with(nullish, () => [{ structure, row: 0, column: 0 }])
         .otherwise((previous) =>
           chain({
-            exit: endOf(previous.structure),
-            entry: startOf(structure),
+            exit: getEnd(previous.structure),
+            entry: getStart(structure),
           })
             .thru(({ exit, entry }) => [
               ...placed,
@@ -97,16 +97,16 @@ const normalise = (placements: Placement[]): Placement[] =>
     )
     .value();
 
-const heightOf = (placements: Placement[]): number =>
+const getHeight = (placements: Placement[]): number =>
   max(map(placements, (placement) => placement.row + STRUCTURE_HEIGHT)) ?? 0;
 
-const widthOf = (placements: Placement[]): number =>
+const getWidth = (placements: Placement[]): number =>
   max(map(placements, (placement) => placement.column + STRUCTURE_WIDTH)) ?? 0;
 
 const isDrawn = (cell: number): boolean =>
   cell !== TILE_AIR && cell !== STRUCTURE_START && cell !== STRUCTURE_END;
 
-const laidOut = (placement: Placement, layer: Layer): TilePatch[] =>
+const layOut = (placement: Placement, layer: Layer): TilePatch[] =>
   chain(layer)
     .flatMap((cells, row) =>
       map(cells, (cell, column) => ({
@@ -121,7 +121,7 @@ const laidOut = (placement: Placement, layer: Layer): TilePatch[] =>
 // the block a sector stands on is carried down to the floor of the level, in
 // whichever layer it was painted, so a sector lifted above the join line is not
 // left hanging over a gap
-const underpinned = (
+const underpin = (
   tiles: Tile[][],
   placement: Placement,
   height: number,
@@ -142,11 +142,11 @@ const underpinned = (
 
 type LayerOf = (placement: Placement) => Layer;
 
-const frontLayer: LayerOf = (placement) => frontOf(placement.structure);
+const getFrontLayer: LayerOf = (placement) => getFront(placement.structure);
 
-const backLayer: LayerOf = (placement) => backOf(placement.structure);
+const getBackLayer: LayerOf = (placement) => getBack(placement.structure);
 
-const laid = (
+const layTiles = (
   placements: Placement[],
   height: number,
   width: number,
@@ -155,9 +155,7 @@ const laid = (
   chain(
     patchTiles(
       times(height, () => times(width, (): Tile => TILE_AIR)),
-      flatMap(placements, (placement) =>
-        laidOut(placement, layerOf(placement)),
-      ),
+      flatMap(placements, (placement) => layOut(placement, layerOf(placement))),
     ),
   )
     .thru((tiles) =>
@@ -166,7 +164,7 @@ const laid = (
         (grid: Tile[][], placement) =>
           patchTiles(
             grid,
-            underpinned(grid, placement, height, layerOf(placement)),
+            underpin(grid, placement, height, layerOf(placement)),
           ),
         tiles,
       ),
@@ -177,11 +175,11 @@ export const joinStructures = (structures: Sector[]): Layers =>
   chain(normalise(place(structures)))
     .thru((placements) => ({
       placements,
-      height: heightOf(placements),
-      width: widthOf(placements),
+      height: getHeight(placements),
+      width: getWidth(placements),
     }))
     .thru(({ placements, height, width }): Layers => ({
-      tiles: laid(placements, height, width, frontLayer),
-      backTiles: laid(placements, height, width, backLayer),
+      tiles: layTiles(placements, height, width, getFrontLayer),
+      backTiles: layTiles(placements, height, width, getBackLayer),
     }))
     .value();

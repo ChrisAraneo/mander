@@ -4,10 +4,10 @@ import { range } from 'lodash-es';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 import {
+  countStartingFireballs,
   type GameState,
   hasMoonMagnet,
   isWarded,
-  startingFireballs,
 } from '@mander/engine';
 import { isDebug } from '../game/debug';
 import { formatClock } from '../game/format';
@@ -42,7 +42,7 @@ const hasHelmet = computed(() =>
 
 const hasMoons = computed(() => hasMoonMagnet(props.state.inventory));
 
-const moons = computed(() => startingFireballs(props.state.inventory));
+const moons = computed(() => countStartingFireballs(props.state.inventory));
 
 const areMoonsOn = computed(() => props.state.isMoonMagnetOn);
 

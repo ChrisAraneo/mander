@@ -1,8 +1,8 @@
 import { isBeartrap, type Level } from '@mander/model';
 import { some } from 'lodash-es';
 
-import { probeColumn } from './probe-column';
-import { probeRows } from './probe-rows';
+import { getProbeColumn } from './get-probe-column';
+import { getProbeRows } from './get-probe-rows';
 
 export const isBeartrapAhead = (
   level: Level,
@@ -10,6 +10,6 @@ export const isBeartrapAhead = (
   originY: number,
   facing: 1 | -1,
 ): boolean =>
-  some(probeRows(originY), (row) =>
-    isBeartrap(level, probeColumn(originX, facing), row),
+  some(getProbeRows(originY), (row) =>
+    isBeartrap(level, getProbeColumn(originX, facing), row),
   );

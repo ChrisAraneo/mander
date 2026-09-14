@@ -19,7 +19,7 @@ import type { GameState } from '../../state/types/game-state';
 import type { GameLevel } from '../../types/game-level';
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from '../enemy/consts';
 import { createBasePlayerVelocity } from '../player/create-base-player-velocity';
-import { playerCentre } from '../player/player-centre';
+import { getPlayerCentre } from '../player/get-player-centre';
 import { tick } from '../tick/tick';
 import { advancePlayerFireballs } from './advance-player-fireballs';
 import { burnEnemies } from './burn-enemies';
@@ -28,8 +28,8 @@ import {
   PLAYER_FIREBALL_ORBIT_RADIUS,
 } from './consts';
 import { createPlayerFireballs } from './create-player-fireballs';
-import { playerFireballPosition } from './player-fireball-position';
-import { startingFireballs } from './starting-fireballs';
+import { getPlayerFireballPosition } from './get-player-fireball-position';
+import { countStartingFireballs } from './count-starting-fireballs';
 import { stepFireball } from './step-fireball';
 
 const DELTA_SECONDS = 1 / 60;
@@ -64,7 +64,7 @@ const enemy = (x: number, y: number, death: number | null = null): Enemy => ({
 });
 
 const radiusOf = (fireball: Fireball): number => {
-  const orbiting = playerFireballPosition(fireball);
+  const orbiting = getPlayerFireballPosition(fireball);
 
   return Math.hypot(
     orbiting.x - fireball.origin.x,
@@ -73,7 +73,7 @@ const radiusOf = (fireball: Fireball): number => {
 };
 
 const enemyUnder = (fireball: Fireball, death: number | null = null): Enemy => {
-  const orbiting = playerFireballPosition(fireball);
+  const orbiting = getPlayerFireballPosition(fireball);
 
   return enemy(
     orbiting.x - ENEMY_WIDTH / 2,
@@ -125,14 +125,14 @@ describe('the fireballs that circle the player', () => {
   });
 
   it('lights the two the magnet promises', () => {
-    expect(startingFireballs([MOON_MAGNET])).toBe(2);
+    expect(countStartingFireballs([MOON_MAGNET])).toBe(2);
     expect(createPlayerFireballs([MOON_MAGNET], STANDING)).toHaveLength(2);
   });
 
   it('counts what every magnet the player carries is worth', () => {
-    expect(startingFireballs([MOON_MAGNET, trinket('GEM'), MOON_MAGNET])).toBe(
-      4,
-    );
+    expect(
+      countStartingFireballs([MOON_MAGNET, trinket('GEM'), MOON_MAGNET]),
+    ).toBe(4);
   });
 
   it('hangs them on opposite sides of the player', () => {
@@ -143,7 +143,7 @@ describe('the fireballs that circle the player', () => {
 
   it('hangs them off the player rather than off a block in the level', () => {
     for (const fireball of createPlayerFireballs([MOON_MAGNET], STANDING)) {
-      expect(fireball.origin).toEqual(playerCentre(STANDING));
+      expect(fireball.origin).toEqual(getPlayerCentre(STANDING));
     }
   });
 
@@ -175,7 +175,7 @@ describe('the fireballs that circle the player', () => {
       DELTA_SECONDS,
     );
 
-    expect(followed.origin).toEqual(playerCentre(walked));
+    expect(followed.origin).toEqual(getPlayerCentre(walked));
   });
 
   it('burns the enemy one of them sweeps through', () => {
@@ -224,7 +224,7 @@ describe('the fireballs that circle the player', () => {
       map(state.playerFireballs, 'angle'),
     );
     expect(ticked.playerFireballs[0].origin).toEqual(
-      playerCentre(ticked.player),
+      getPlayerCentre(ticked.player),
     );
   });
 

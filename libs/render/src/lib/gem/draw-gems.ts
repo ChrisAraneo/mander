@@ -1,11 +1,11 @@
 import { chain } from '@mander/utils';
 import type { GameState } from '@mander/engine';
-import { GEM_ENTITY_BOX, toEntityRectangle } from '@mander/model';
+import { GEM_ENTITY_BOX, getEntityRectangle } from '@mander/model';
 import type { Point } from '@mander/utils';
 import { map } from 'lodash-es';
 
 import { type CanvasStep, paint } from '../canvas';
-import { CYAN_GEM_COLORS, gemShapeStep } from '../gem-shape';
+import { createGemShapeStep, CYAN_GEM_COLORS } from '../gem-shape';
 
 const BOB_SPEED = 3;
 const BOB_HEIGHT = 3;
@@ -13,9 +13,9 @@ const SPIN_SPEED = 2;
 const SPIN_FLAT = 0.4;
 const GLOW_BLUR = 12;
 
-const gemStep = (tile: Point, time: number): CanvasStep =>
+const createGemStep = (tile: Point, time: number): CanvasStep =>
   chain({
-    box: toEntityRectangle(tile, GEM_ENTITY_BOX),
+    box: getEntityRectangle(tile, GEM_ENTITY_BOX),
     phase: tile.x + tile.y,
   })
     .thru(({ box, phase }) => ({
@@ -33,7 +33,7 @@ const gemStep = (tile: Point, time: number): CanvasStep =>
       halfHeight: box.height / 2,
     }))
     .thru(({ centerX, centerY, halfWidth, halfHeight }) =>
-      gemShapeStep(
+      createGemShapeStep(
         centerX,
         centerY,
         halfWidth,
@@ -48,4 +48,4 @@ export const drawGems = (
   context: CanvasRenderingContext2D,
   state: GameState,
 ): void =>
-  paint(context, ...map(state.gems, (tile) => gemStep(tile, state.time)));
+  paint(context, ...map(state.gems, (tile) => createGemStep(tile, state.time)));

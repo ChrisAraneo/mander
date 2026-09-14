@@ -3,7 +3,7 @@ import { chain, createRandom } from '@mander/utils';
 import { map, range, reduce, size, sum, times } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import { tilesSeed } from './tiles-seed';
+import { formatTilesSeed } from './format-tiles-seed';
 
 const DIRT_DEPTH = 3;
 
@@ -35,9 +35,9 @@ const UNBURIED = -1;
 
 type Field = number[][];
 
-const toFlag = (isOn: boolean): number => Number(isOn);
+const convertToFlag = (isOn: boolean): number => Number(isOn);
 
-const depthsOf = (tiles: Tile[][]): Field =>
+const measureDepths = (tiles: Tile[][]): Field =>
   reduce(
     tiles,
     (depths: Field, cells, row): Field => [
@@ -51,17 +51,17 @@ const depthsOf = (tiles: Tile[][]): Field =>
     [],
   );
 
-const buriedOf = (tiles: Tile[][], dirtDepth: number): Field =>
-  map(depthsOf(tiles), (depths, row) =>
+const findBuried = (tiles: Tile[][], dirtDepth: number): Field =>
+  map(measureDepths(tiles), (depths, row) =>
     map(depths, (depth, column) =>
-      toFlag(tiles[row][column] === TILE_DIRT && depth >= dirtDepth),
+      convertToFlag(tiles[row][column] === TILE_DIRT && depth >= dirtDepth),
     ),
   );
 
-const nearest = (index: number, edge: number): number =>
+const clampIndex = (index: number, edge: number): number =>
   Math.min(Math.max(index, 0), edge);
 
-const tapTotal = (sampleAt: (tap: number) => number): number => {
+const sumTaps = (sampleAt: (tap: number) => number): number => {
   let total = 0;
 
   for (let tap = 0; tap < BLUR_TAPS.length; tap++) {
@@ -76,7 +76,7 @@ const blurRows = (field: Field): Field =>
     chain(size(cells) - 1)
       .thru((edge) =>
         times(size(cells), (column) =>
-          tapTotal((tap) => cells[nearest(column + tap - BLUR_REACH, edge)]),
+          sumTaps((tap) => cells[clampIndex(column + tap - BLUR_REACH, edge)]),
         ),
       )
       .value(),
@@ -86,11 +86,9 @@ const blurColumns = (field: Field): Field =>
   chain(size(field) - 1)
     .thru((edge) =>
       map(field, (cells, row) =>
-        chain(map(BLUR_SPAN, (offset) => field[nearest(row + offset, edge)]))
+        chain(map(BLUR_SPAN, (offset) => field[clampIndex(row + offset, edge)]))
           .thru((rows) =>
-            times(size(cells), (column) =>
-              tapTotal((tap) => rows[tap][column]),
-            ),
+            times(size(cells), (column) => sumTaps((tap) => rows[tap][column])),
           )
           .value(),
       ),
@@ -103,9 +101,11 @@ const soften = (field: Field): Field =>
   reduce(times(BLUR_PASSES), (softened: Field) => blur(softened), field);
 
 const sharpen = (field: Field): Field =>
-  map(field, (cells) => map(cells, (share) => toFlag(share >= STONE_SHARE)));
+  map(field, (cells) =>
+    map(cells, (share) => convertToFlag(share >= STONE_SHARE)),
+  );
 
-const both = (field: Field, other: Field): Field =>
+const multiplyFields = (field: Field, other: Field): Field =>
   map(field, (cells, row) =>
     map(cells, (share, column) => share * other[row][column]),
   );
@@ -113,11 +113,11 @@ const both = (field: Field, other: Field): Field =>
 const roundOff = (buried: Field): Field =>
   reduce(
     times(BLOB_ROUNDS),
-    (blobs: Field) => both(sharpen(blur(blobs)), buried),
-    both(sharpen(soften(buried)), buried),
+    (blobs: Field) => multiplyFields(sharpen(blur(blobs)), buried),
+    multiplyFields(sharpen(soften(buried)), buried),
   );
 
-const company = (blobs: Field, row: number, column: number): number =>
+const countCompany = (blobs: Field, row: number, column: number): number =>
   sum([
     blobs[row - 1]?.[column] ?? 0,
     blobs[row + 1]?.[column] ?? 0,
@@ -131,20 +131,22 @@ const shed = (blobs: Field): Field =>
     (kept: Field) =>
       map(kept, (cells, row) =>
         map(cells, (stone, column) =>
-          toFlag(stone === 1 && company(kept, row, column) >= STONE_COMPANY),
+          convertToFlag(
+            stone === 1 && countCompany(kept, row, column) >= STONE_COMPANY,
+          ),
         ),
       ),
     blobs,
   );
 
 export const addStones = (tiles: Tile[][]): Tile[][] =>
-  chain(createRandom(tilesSeed(tiles)))
+  chain(createRandom(formatTilesSeed(tiles)))
     .thru((random) =>
       match(random.isRollUnder(DEEP_DIRT_CHANCE))
         .with(true, () => DEEP_DIRT_DEPTH)
         .otherwise(() => DIRT_DEPTH),
     )
-    .thru((dirtDepth) => shed(roundOff(buriedOf(tiles, dirtDepth))))
+    .thru((dirtDepth) => shed(roundOff(findBuried(tiles, dirtDepth))))
     .thru((stones) =>
       map(tiles, (cells, row) =>
         map(cells, (tile, column) =>

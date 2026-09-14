@@ -77,7 +77,7 @@ export const RARITY_CHANCE: Readonly<Record<ItemRarity, number>> =
     EPIC: 0.02,
   });
 
-export const chestTypeOf = (item: Item): ChestItemType | undefined =>
+export const getChestType = (item: Item): ChestItemType | undefined =>
   find(CHEST_ITEM_TYPES, (type) => some(POOL_BY_TYPE[type], { id: item.id }));
 
 const EPIC_POOL: readonly Item[] = Object.freeze(
@@ -99,9 +99,9 @@ interface Deal {
   typesLeft: ChestItemType[];
 }
 
-const seedFor = (seed: string): string => `${seed}#chest`;
+const formatChestSeed = (seed: string): string => `${seed}#chest`;
 
-const rarityFor = (roll: number): ItemRarity =>
+const getRarity = (roll: number): ItemRarity =>
   match(roll)
     .when(
       (value) => value < RARITY_CHANCE.COMMON,
@@ -114,12 +114,12 @@ const rarityFor = (roll: number): ItemRarity =>
     .otherwise((): ItemRarity => 'EPIC');
 
 const rollRarities = (random: Random): ItemRarity[] =>
-  times(CHEST_ITEM_COUNT, () => rarityFor(random.next()));
+  times(CHEST_ITEM_COUNT, () => getRarity(random.rollFloat()));
 
-const epicsAmong = (rarities: ItemRarity[]): number =>
+const countEpics = (rarities: ItemRarity[]): number =>
   size(filter(rarities, (rarity) => rarity === 'EPIC'));
 
-const candidatesIn = (items: Item[], rarity: ItemRarity): Item[] =>
+const findCandidates = (items: Item[], rarity: ItemRarity): Item[] =>
   match(filter(items, { rarity }))
     .when(isEmpty, () => items)
     .otherwise((matching) => matching);
@@ -132,12 +132,12 @@ const takeType = (
 ): Deal => ({
   picked: concat(
     deal.picked,
-    random.pick(candidatesIn(EVERYDAY_BY_TYPE[type], rarity)),
+    random.pick(findCandidates(EVERYDAY_BY_TYPE[type], rarity)),
   ),
   typesLeft: without(deal.typesLeft, type),
 });
 
-const typesHolding = (
+const findTypesHolding = (
   typesLeft: ChestItemType[],
   rarity: ItemRarity,
 ): ChestItemType[] =>
@@ -148,7 +148,7 @@ const typesHolding = (
 const dealCard = (deal: Deal, rarity: ItemRarity, random: Random): Deal =>
   takeType(
     deal,
-    random.pick(typesHolding(deal.typesLeft, rarity)),
+    random.pick(findTypesHolding(deal.typesLeft, rarity)),
     rarity,
     random,
   );
@@ -172,10 +172,10 @@ const dealEpics = (rolled: number, random: Random): Item[] =>
   );
 
 export const generateChestItems = (seed: string): Item[] => {
-  const random = createRandom(seedFor(seed));
+  const random = createRandom(formatChestSeed(seed));
   const rarities = rollRarities(random);
 
-  return match(epicsAmong(rarities))
+  return match(countEpics(rarities))
     .when(
       (epics) => epics > 0 && !isEmpty(EPIC_POOL),
       (epics) => dealEpics(epics, random),

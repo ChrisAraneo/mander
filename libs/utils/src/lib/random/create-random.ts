@@ -1,21 +1,21 @@
 import { floor } from 'lodash-es';
 
-import { mulberry32 } from './mulberry32.ts';
-import { xmur3 } from './xmur3.ts';
+import { createMulberry32 } from './create-mulberry32.ts';
+import { createXmur3 } from './create-xmur3.ts';
 
 export const createRandom = (seed: string) => {
-  const next = mulberry32(xmur3(seed)());
+  const rollFloat = createMulberry32(createXmur3(seed)());
 
   return {
-    next,
-    int(min: number, max: number) {
-      return min + floor(next() * (max - min + 1));
+    rollFloat,
+    rollInt(min: number, max: number) {
+      return min + floor(rollFloat() * (max - min + 1));
     },
     isRollUnder(probability: number) {
-      return next() < probability;
+      return rollFloat() < probability;
     },
     pick<T>(values: T[]): T {
-      return values[floor(next() * values.length)];
+      return values[floor(rollFloat() * values.length)];
     },
   };
 };

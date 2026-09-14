@@ -4,14 +4,14 @@ import { forEach, range, round } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { snapToDevicePixel } from './snap-to-device-pixel';
-import { wholeTileScale } from './whole-tile-scale';
+import { getWholeTileScale } from './get-whole-tile-scale';
 
 const RAW_SCALES = [0.5, 0.83, 1, 1.25, 1.3333333, 1.5625, 2, 2.7, 3.1];
 
-describe('wholeTileScale', () => {
+describe('getWholeTileScale', () => {
   it('gives every tile a whole number of device pixels', () => {
     forEach(RAW_SCALES, (raw) =>
-      chain(wholeTileScale(raw) * TILE_SIZE)
+      chain(getWholeTileScale(raw) * TILE_SIZE)
         .thru((tile) => expect(tile, `${raw}`).toBe(round(tile)))
         .value(),
     );
@@ -20,20 +20,20 @@ describe('wholeTileScale', () => {
   it('stays within half a device pixel per tile of the scale asked for', () => {
     forEach(RAW_SCALES, (raw) => {
       expect(
-        Math.abs(wholeTileScale(raw) - raw) * TILE_SIZE,
+        Math.abs(getWholeTileScale(raw) - raw) * TILE_SIZE,
       ).toBeLessThanOrEqual(0.5);
     });
   });
 
   it('never collapses a tile to nothing', () => {
-    expect(wholeTileScale(0.001) * TILE_SIZE).toBe(1);
+    expect(getWholeTileScale(0.001) * TILE_SIZE).toBe(1);
   });
 });
 
 describe('snapToDevicePixel', () => {
   it('puts every tile edge on a device pixel edge', () => {
     forEach(RAW_SCALES, (raw) =>
-      chain(wholeTileScale(raw))
+      chain(getWholeTileScale(raw))
         .thru((scale) => ({
           scale,
           camera: snapToDevicePixel(137.4213, scale),

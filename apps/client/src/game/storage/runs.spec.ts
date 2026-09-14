@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { archiveRun, type FinishedRun } from './archive-run';
 import { RUNS_KEPT, STORAGE_KEY } from './consts';
 import { loadSave } from './load-save';
-import { playableWorlds } from './playable-worlds';
+import { listPlayableWorlds } from './list-playable-worlds';
 import { recordPlayedWorld } from './record-played-world';
 import type { RunRecord } from './save-data';
 
@@ -47,8 +47,8 @@ const run = (patch: Partial<FinishedRun> = {}): FinishedRun => ({
 });
 
 const replaysOf = (name: string): RunRecord[] =>
-  playableWorlds(loadSave()).find((world) => world.name === name)?.replays ??
-  [];
+  listPlayableWorlds(loadSave()).find((world) => world.name === name)
+    ?.replays ?? [];
 
 describe('the runs a player has archived', () => {
   beforeEach(() => {
@@ -114,7 +114,7 @@ describe('the runs a player has archived', () => {
   it('lists a run whose world fell out of the played worlds', () => {
     archiveRun(run({ name: 'LOST', day: '2026-01-01' }), at(0));
 
-    const [world] = playableWorlds(loadSave());
+    const [world] = listPlayableWorlds(loadSave());
     expect(world.name).toBe('LOST');
     expect(world.day, 'the day is all it takes to rebuild it').toBe(
       '2026-01-01',
@@ -148,7 +148,7 @@ describe('the runs a player has archived', () => {
     store.set(STORAGE_KEY, JSON.stringify({ score: 7 }));
 
     expect(loadSave().runs).toEqual([]);
-    expect(playableWorlds(loadSave())).toEqual([]);
+    expect(listPlayableWorlds(loadSave())).toEqual([]);
   });
 
   it('drops an archived run whose replay did not survive the trip', () => {

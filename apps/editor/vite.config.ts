@@ -3,7 +3,7 @@ import { map } from 'lodash-es';
 import { defineConfig } from 'vite';
 
 import { POOLS } from './plugins/pool.ts';
-import { structureLibrary } from './plugins/structure-library.ts';
+import { createStructureLibrary } from './plugins/create-structure-library.ts';
 
 const LIBRARY_DIR = '**/libs/structures/src/lib';
 
@@ -13,7 +13,7 @@ const LIBRARY_FILES = map(
 );
 
 export default defineConfig({
-  plugins: [vue(), structureLibrary()],
+  plugins: [vue(), createStructureLibrary()],
   server: {
     port: 4201,
     watch: {

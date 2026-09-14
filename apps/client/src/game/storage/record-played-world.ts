@@ -13,7 +13,7 @@ export interface PlayedRun {
   day: string;
 }
 
-const runsAfter = (previous: PlayedWorld | undefined): number =>
+const countRunsAfter = (previous: PlayedWorld | undefined): number =>
   match(previous)
     .with(nullish, () => 1)
     .otherwise((earlier) => earlier.runs + 1);
@@ -32,7 +32,7 @@ export const recordPlayedWorld = (
         name: run.name,
         day: run.day,
         playedAt,
-        runs: runsAfter(previous),
+        runs: countRunsAfter(previous),
       }),
       PLAYED_WORLDS_KEPT,
     ),

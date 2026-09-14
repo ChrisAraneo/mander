@@ -13,8 +13,8 @@ import {
   PLAYER_FIREBALL_ORBIT_RADIUS,
   PLAYER_FIREBALL_SWEEP_STEP,
 } from './consts';
-import { playerFireballPosition } from './player-fireball-position';
-import { spinDirection } from './spin-direction';
+import { getPlayerFireballPosition } from './get-player-fireball-position';
+import { getSpinDirection } from './get-spin-direction';
 
 const isHittingEnemy = (centre: Point, enemy: Enemy): boolean => {
   const reach = FIREBALL_SIZE / 2 - FIREBALL_HITBOX_INSET;
@@ -32,7 +32,7 @@ const isHittingEnemy = (centre: Point, enemy: Enemy): boolean => {
   );
 };
 
-const sweptSteps = (sweptAngle: number): number =>
+const countSweptSteps = (sweptAngle: number): number =>
   Math.max(
     1,
     Math.ceil(
@@ -40,21 +40,21 @@ const sweptSteps = (sweptAngle: number): number =>
     ),
   );
 
-const sweptCentres = (
+const getSweptCentres = (
   fireball: Fireball,
   elapsedSeconds: number,
 ): readonly Point[] =>
   chain(
     PLAYER_FIREBALL_ANGULAR_SPEED * Math.min(elapsedSeconds, MAX_TICK_SECONDS),
   )
-    .thru((sweptAngle) => ({ sweptAngle, steps: sweptSteps(sweptAngle) }))
+    .thru((sweptAngle) => ({ sweptAngle, steps: countSweptSteps(sweptAngle) }))
     .thru(({ sweptAngle, steps }) =>
       times(steps + 1, (step) =>
-        playerFireballPosition({
+        getPlayerFireballPosition({
           ...fireball,
           angle:
             fireball.angle -
-            spinDirection(fireball.spin) * sweptAngle * (step / steps),
+            getSpinDirection(fireball.spin) * sweptAngle * (step / steps),
         }),
       ),
     )
@@ -67,7 +67,7 @@ const isBurned = (
 ): boolean =>
   isAlive(enemy) &&
   some(fireballs, (fireball) =>
-    some(sweptCentres(fireball, elapsedSeconds), (centre) =>
+    some(getSweptCentres(fireball, elapsedSeconds), (centre) =>
       isHittingEnemy(centre, enemy),
     ),
   );

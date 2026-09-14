@@ -1,7 +1,7 @@
 import { type Fireball, MAX_TICK_SECONDS, type Player } from '@mander/model';
 import { map } from 'lodash-es';
 
-import { playerCentre } from '../player/player-centre';
+import { getPlayerCentre } from '../player/get-player-centre';
 import { PLAYER_FIREBALL_ANGULAR_SPEED } from './consts';
 import { stepFireball } from './step-fireball';
 
@@ -16,5 +16,5 @@ export const advancePlayerFireballs = (
       Math.min(elapsedSeconds, MAX_TICK_SECONDS),
       PLAYER_FIREBALL_ANGULAR_SPEED,
     ),
-    origin: playerCentre(player),
+    origin: getPlayerCentre(player),
   }));

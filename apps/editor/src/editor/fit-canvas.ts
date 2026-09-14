@@ -1,4 +1,4 @@
-import { chain, withEffect } from '@mander/utils';
+import { chain, tapEffect } from '@mander/utils';
 import { assign, round } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
@@ -11,7 +11,7 @@ export const fitCanvas = (
 ): CanvasRenderingContext2D | null =>
   chain(window.devicePixelRatio || 1)
     .thru((ratio) =>
-      withEffect(ratio, () =>
+      tapEffect(ratio, () =>
         assign(canvas, {
           width: round(width * ratio),
           height: round(height * ratio),
@@ -19,7 +19,7 @@ export const fitCanvas = (
       ),
     )
     .thru((ratio) =>
-      withEffect(ratio, () =>
+      tapEffect(ratio, () =>
         assign(canvas.style, {
           width: `${width}px`,
           height: `${height}px`,
@@ -31,7 +31,7 @@ export const fitCanvas = (
       match(context)
         .with(nullish, () => null)
         .otherwise((ready) =>
-          withEffect(ready, () => ready.setTransform(ratio, 0, 0, ratio, 0, 0)),
+          tapEffect(ready, () => ready.setTransform(ratio, 0, 0, ratio, 0, 0)),
         ),
     )
     .value();

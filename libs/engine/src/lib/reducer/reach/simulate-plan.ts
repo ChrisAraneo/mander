@@ -3,7 +3,7 @@ import { match } from 'ts-pattern';
 
 import { stepPlayer } from '../player/step-player';
 import { FRAME_SECONDS, MAX_GROUNDED_FRAMES, MAX_PLAN_FRAMES } from './consts';
-import { planInput } from './plan-input';
+import { getPlanInput } from './get-plan-input';
 import type { Flight } from './types/flight';
 import type { MovePlan } from './types/move-plan';
 
@@ -24,7 +24,7 @@ const advance = (
   const next = stepPlayer(
     flight.tiles,
     player,
-    planInput(flight.plan, frame),
+    getPlanInput(flight.plan, frame),
     FRAME_SECONDS,
   );
 

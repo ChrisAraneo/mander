@@ -28,18 +28,18 @@ const isOverlappingOn = (
   corners: readonly Vec[],
 ): boolean => !areSeparated(project(axis, triangle), project(axis, corners));
 
-const edgeAxes = (triangle: Triangle): Axis[] =>
+const getEdgeAxes = (triangle: Triangle): Axis[] =>
   map(range(3), (edge) => ({
     nx: triangle[edge].y - triangle[(edge + 1) % 3].y,
     ny: triangle[(edge + 1) % 3].x - triangle[edge].x,
   }));
 
-const candidateAxes = (triangle: Triangle): Axis[] => [
+const getCandidateAxes = (triangle: Triangle): Axis[] => [
   ...AABB_AXES,
-  ...edgeAxes(triangle),
+  ...getEdgeAxes(triangle),
 ];
 
-const boxCorners = (
+const getBoxCorners = (
   left: number,
   top: number,
   width: number,
@@ -58,9 +58,9 @@ export const isBoxHittingTriangle = (
   boxHeight: number,
   triangle: Triangle,
 ): boolean =>
-  chain(boxCorners(boxLeft, boxTop, boxWidth, boxHeight))
+  chain(getBoxCorners(boxLeft, boxTop, boxWidth, boxHeight))
     .thru((corners) =>
-      every(candidateAxes(triangle), (axis) =>
+      every(getCandidateAxes(triangle), (axis) =>
         isOverlappingOn(axis, triangle, corners),
       ),
     )

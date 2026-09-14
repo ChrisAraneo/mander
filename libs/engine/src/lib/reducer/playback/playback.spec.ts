@@ -21,11 +21,11 @@ import type { GameState } from '../../state/types/game-state';
 import { advancePlayback } from './advance-playback';
 import { createPlayback } from './create-playback';
 import { createRecorder } from '../recorder/create-recorder';
-import { emptyReplay } from '../recorder/empty-replay';
+import { createEmptyReplay } from '../recorder/create-empty-replay';
 import { isReplayFinished } from './is-replay-finished';
 import type { Replay } from '../recorder/types/replay';
-import { replayDuration } from './replay-duration';
-import { replayProgress } from './replay-progress';
+import { getReplayDuration } from './get-replay-duration';
+import { getReplayProgress } from './get-replay-progress';
 
 const simulation = (state: GameState): Omit<GameState, 'updateTime'> =>
   omit(state, 'updateTime');
@@ -103,15 +103,15 @@ const playToEnd = (replay: Replay, stepsPerCall: number): GameState => {
   return playback.state;
 };
 
-describe('replayDuration', () => {
+describe('getReplayDuration', () => {
   it('is zero for an empty replay', () => {
-    expect(replayDuration(emptyReplay('TEST-WORLD'))).toBe(0);
+    expect(getReplayDuration(createEmptyReplay('TEST-WORLD'))).toBe(0);
   });
 
   it('is one step length for every step the run took', () => {
     const { replay } = runScript();
     expect(replay.steps).toBe(260);
-    expect(replayDuration(replay)).toBeCloseTo(260 * FIXED_STEP_MS, 6);
+    expect(getReplayDuration(replay)).toBeCloseTo(260 * FIXED_STEP_MS, 6);
   });
 });
 
@@ -182,25 +182,25 @@ describe('advancePlayback', () => {
   });
 });
 
-describe('replayProgress', () => {
+describe('getReplayProgress', () => {
   it('walks from zero to one across the run', () => {
     const { replay } = runScript();
     const start = createPlayback(initialState());
-    expect(replayProgress(replay, start)).toBe(0);
+    expect(getReplayProgress(replay, start)).toBe(0);
 
     const half = advancePlayback(replay, start, replay.steps / 2);
-    expect(replayProgress(replay, half)).toBeCloseTo(0.5, 6);
+    expect(getReplayProgress(replay, half)).toBeCloseTo(0.5, 6);
 
     const end = advancePlayback(replay, start, replay.steps * 2);
-    expect(replayProgress(replay, end)).toBe(1);
+    expect(getReplayProgress(replay, end)).toBe(1);
     expect(isReplayFinished(replay, end)).toBe(true);
   });
 
   it('reports an empty replay as complete', () => {
-    const replay = emptyReplay('TEST-WORLD');
+    const replay = createEmptyReplay('TEST-WORLD');
     const playback = createPlayback(initialState());
 
-    expect(replayProgress(replay, playback)).toBe(1);
+    expect(getReplayProgress(replay, playback)).toBe(1);
     expect(isReplayFinished(replay, playback)).toBe(true);
   });
 });

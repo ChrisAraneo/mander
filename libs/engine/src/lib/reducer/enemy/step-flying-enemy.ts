@@ -5,14 +5,14 @@ import { match } from 'ts-pattern';
 import { moveVertical } from '../collision/move-vertical';
 import { ENEMY_HEIGHT, ENEMY_WIDTH, FLYING_ENEMY_RANGE } from './consts';
 
-const opposite = (facing: 1 | -1): 1 | -1 =>
+const flipFacing = (facing: 1 | -1): 1 | -1 =>
   match(facing)
     .with(1, (): 1 | -1 => -1)
     .otherwise((): 1 | -1 => 1);
 
 const turnAtBound = (isBlocked: boolean, facing: 1 | -1): 1 | -1 =>
   match(isBlocked)
-    .with(true, () => opposite(facing))
+    .with(true, () => flipFacing(facing))
     .otherwise(() => facing);
 
 export const stepFlyingEnemy = (

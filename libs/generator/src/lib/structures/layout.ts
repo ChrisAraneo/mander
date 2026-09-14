@@ -45,7 +45,7 @@ export const UPWARD: Layout = Object.freeze({
   addGems: addVerticalGems,
 });
 
-export const layoutFor = (levelNumber: number): Layout =>
+export const getLayout = (levelNumber: number): Layout =>
   match(isVertical(levelNumber))
     .with(true, () => UPWARD)
     .otherwise(() => ACROSS);

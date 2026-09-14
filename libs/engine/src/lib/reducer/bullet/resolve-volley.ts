@@ -8,47 +8,47 @@ import { isAlive } from '../player/is-alive';
 import { isHittingEnemy } from './is-hitting-enemy';
 import { isHittingFallingSpike } from './is-hitting-falling-spike';
 import { shatterSpikeTile } from './shatter-spike-tile';
-import { struckSpikeTile } from './struck-spike-tile';
+import { findStruckSpikeTile } from './find-struck-spike-tile';
 import type { Volley } from './types/volley';
 
 const { nonNullable } = P;
 
-const victimOf = (bullet: Bullet, enemies: Enemy[]): Enemy | undefined =>
+const findVictim = (bullet: Bullet, enemies: Enemy[]): Enemy | undefined =>
   find(enemies, (enemy) => isAlive(enemy) && isHittingEnemy(bullet, enemy));
 
-const fallingSpikeOf = (
+const findFallingSpike = (
   bullet: Bullet,
   fallingSpikes: FallingSpike[],
 ): FallingSpike | undefined =>
   find(fallingSpikes, (spike) => isHittingFallingSpike(bullet, spike));
 
-const struckDown = (volley: Volley, victim: Enemy): Volley => ({
+const strikeDown = (volley: Volley, victim: Enemy): Volley => ({
   ...volley,
   enemies: map(volley.enemies, (enemy) =>
     enemy === victim ? killEnemy(enemy) : enemy,
   ),
 });
 
-const shotDown = (volley: Volley, target: FallingSpike): Volley => ({
+const shootDown = (volley: Volley, target: FallingSpike): Volley => ({
   ...volley,
   fallingSpikes: filter(volley.fallingSpikes, (spike) => spike !== target),
 });
 
-const flewOn = (volley: Volley, bullet: Bullet): Volley => ({
+const flyOn = (volley: Volley, bullet: Bullet): Volley => ({
   ...volley,
   bullets: concat(volley.bullets, bullet),
 });
 
-const spikeOrFlewOn = (volley: Volley, bullet: Bullet): Volley =>
-  match(struckSpikeTile(volley.level, bullet))
+const strikeSpikeOrFlyOn = (volley: Volley, bullet: Bullet): Volley =>
+  match(findStruckSpikeTile(volley.level, bullet))
     .with(nonNullable, (tile): Volley => ({
       ...volley,
       level: shatterSpikeTile(volley.level, tile),
     }))
     .otherwise(() =>
-      match(fallingSpikeOf(bullet, volley.fallingSpikes))
-        .with(nonNullable, (target) => shotDown(volley, target))
-        .otherwise(() => flewOn(volley, bullet)),
+      match(findFallingSpike(bullet, volley.fallingSpikes))
+        .with(nonNullable, (target) => shootDown(volley, target))
+        .otherwise(() => flyOn(volley, bullet)),
     );
 
 export const resolveVolley = (
@@ -60,8 +60,8 @@ export const resolveVolley = (
   reduce(
     bullets,
     (volley, bullet): Volley =>
-      match(victimOf(bullet, volley.enemies))
-        .with(nonNullable, (victim) => struckDown(volley, victim))
-        .otherwise(() => spikeOrFlewOn(volley, bullet)),
+      match(findVictim(bullet, volley.enemies))
+        .with(nonNullable, (victim) => strikeDown(volley, victim))
+        .otherwise(() => strikeSpikeOrFlyOn(volley, bullet)),
     { bullets: [], enemies, fallingSpikes, level } as Volley,
   );

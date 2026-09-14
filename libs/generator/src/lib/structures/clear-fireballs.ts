@@ -25,17 +25,17 @@ const NEIGHBOURS: readonly number[][] = Object.freeze([
 const isBorrowable = (tile: Tile | undefined): boolean =>
   !isUndefined(tile) && tile !== TILE_FIREBALL && isSolidTile(tile);
 
-const borrowedFrom = (tiles: Tile[][], row: number, column: number): Tile =>
+const borrowNeighbour = (tiles: Tile[][], row: number, column: number): Tile =>
   find(
     map(NEIGHBOURS, ([stepX, stepY]) => tiles[row + stepY]?.[column + stepX]),
     isBorrowable,
   ) ?? TILE_BRICK;
 
-const quenched = (tiles: Tile[][]): Tile[][] =>
+const quenchFireballs = (tiles: Tile[][]): Tile[][] =>
   map(tiles, (cells, row) =>
     map(cells, (tile, column) =>
       match(tile === TILE_FIREBALL)
-        .with(true, () => borrowedFrom(tiles, row, column))
+        .with(true, () => borrowNeighbour(tiles, row, column))
         .otherwise(() => tile),
     ),
   );
@@ -48,4 +48,4 @@ export const clearFireballs = (
     levelNumber >= FIRST_FIREBALL_LEVEL && levelNumber <= LAST_FIREBALL_LEVEL,
   )
     .with(true, () => map(tiles, (row) => [...row]))
-    .otherwise(() => quenched(tiles));
+    .otherwise(() => quenchFireballs(tiles));

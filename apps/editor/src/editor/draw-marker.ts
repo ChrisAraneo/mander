@@ -1,6 +1,6 @@
 import { TILE_SIZE } from '@mander/model';
 import { STRUCTURE_END } from '@mander/structures';
-import { chain, withEffect } from '@mander/utils';
+import { chain, tapEffect } from '@mander/utils';
 import { assign } from 'lodash-es';
 import { match } from 'ts-pattern';
 
@@ -31,9 +31,9 @@ export const drawMarker = (
       pixelX: column * TILE_SIZE,
       pixelY: row * TILE_SIZE,
     }))
-    .thru((marker) => withEffect(marker, () => context.save()))
+    .thru((marker) => tapEffect(marker, () => context.save()))
     .thru((marker) =>
-      withEffect(marker, () =>
+      tapEffect(marker, () =>
         assign(context, {
           globalAlpha: 0.22,
           fillStyle: marker.colour,
@@ -41,12 +41,12 @@ export const drawMarker = (
       ),
     )
     .thru((marker) =>
-      withEffect(marker, () =>
+      tapEffect(marker, () =>
         context.fillRect(marker.pixelX, marker.pixelY, TILE_SIZE, TILE_SIZE),
       ),
     )
     .thru((marker) =>
-      withEffect(marker, () =>
+      tapEffect(marker, () =>
         assign(context, {
           globalAlpha: 1,
           strokeStyle: marker.colour,
@@ -55,7 +55,7 @@ export const drawMarker = (
       ),
     )
     .thru((marker) =>
-      withEffect(marker, () =>
+      tapEffect(marker, () =>
         context.strokeRect(
           marker.pixelX + 1,
           marker.pixelY + 1,
@@ -65,7 +65,7 @@ export const drawMarker = (
       ),
     )
     .thru((marker) =>
-      withEffect(marker, () =>
+      tapEffect(marker, () =>
         assign(context, {
           fillStyle: marker.colour,
           font: `bold ${TILE_SIZE / 2}px 'Cascadia Mono', Consolas, monospace`,
@@ -75,7 +75,7 @@ export const drawMarker = (
       ),
     )
     .thru((marker) =>
-      withEffect(marker, () =>
+      tapEffect(marker, () =>
         context.fillText(
           marker.glyph,
           marker.pixelX + TILE_SIZE / 2,

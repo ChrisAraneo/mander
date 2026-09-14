@@ -10,8 +10,10 @@ import type { Replay } from '../recorder/types/replay';
 
 const { nonNullable, nullish } = P;
 
-const levelAt = (levels: GameLevel[], index: number): GameLevel | undefined =>
-  levels[index];
+const getLevelAt = (
+  levels: GameLevel[],
+  index: number,
+): GameLevel | undefined => levels[index];
 
 const unpackAction = (
   entry: PackedEntry,
@@ -23,7 +25,7 @@ const unpackAction = (
       index: entry[2],
     }))
     .with('LOAD_LEVEL', (): RecordableAction | null =>
-      match(levelAt(levels, entry[2]))
+      match(getLevelAt(levels, entry[2]))
         .with(nonNullable, (level): RecordableAction => ({
           type: 'LOAD_LEVEL',
           level,
@@ -32,7 +34,7 @@ const unpackAction = (
         .otherwise(() => null),
     )
     .with('RESTART', (): RecordableAction | null =>
-      match(levelAt(levels, 0))
+      match(getLevelAt(levels, 0))
         .with(nonNullable, (level): RecordableAction => ({
           type: 'RESTART',
           level,

@@ -7,14 +7,14 @@ const IMPORT = /import \{([^}]*)\} from '\.\/consts';/;
 
 const TOKEN = /[A-Za-z_][A-Za-z0-9_]*/g;
 
-const aliasesIn = (text: string): string[] =>
+const findAliases = (text: string): string[] =>
   uniq(map([...text.matchAll(TOKEN)], ([alias]) => alias));
 
 export const mergeAliases = (source: string, text: string): string =>
   match(IMPORT.exec(source))
     .with(null, () => source)
     .otherwise(([statement, list]) =>
-      match(difference(aliasesIn(text), listNames(list)))
+      match(difference(findAliases(text), listNames(list)))
         .when(isEmpty, () => source)
         .otherwise((missing) =>
           source.replace(statement, () =>

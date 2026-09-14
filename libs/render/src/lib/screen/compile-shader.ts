@@ -1,4 +1,4 @@
-import { chain, withEffect } from '@mander/utils';
+import { chain, tapEffect } from '@mander/utils';
 import { match, P } from 'ts-pattern';
 
 const { nullish } = P;
@@ -9,11 +9,11 @@ const discard = (
 ): WebGLShader | null =>
   chain(shader)
     .thru((current) =>
-      withEffect(current, () =>
+      tapEffect(current, () =>
         console.error('screen shader failed', gl.getShaderInfoLog(current)),
       ),
     )
-    .thru((current) => withEffect(current, () => gl.deleteShader(current)))
+    .thru((current) => tapEffect(current, () => gl.deleteShader(current)))
     .thru((): WebGLShader | null => null)
     .value();
 
@@ -27,9 +27,9 @@ export const compileShader = (
     .otherwise((shader) =>
       chain(shader)
         .thru((current) =>
-          withEffect(current, () => gl.shaderSource(current, source)),
+          tapEffect(current, () => gl.shaderSource(current, source)),
         )
-        .thru((current) => withEffect(current, () => gl.compileShader(current)))
+        .thru((current) => tapEffect(current, () => gl.compileShader(current)))
         .thru((current) =>
           match(gl.getShaderParameter(current, gl.COMPILE_STATUS))
             .with(true, () => current)

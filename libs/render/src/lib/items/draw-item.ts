@@ -2,14 +2,14 @@ import type { Item } from '@mander/model';
 import { clamp, findLast, keys, map, round, sortBy, times } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import { bulletBodyStep, ICE_BULLET } from '../bullet';
+import { createBulletBodyStep, ICE_BULLET } from '../bullet';
 import { type CanvasStep, paint, sequence } from '../canvas';
-import { flameStep, WHITE_FIREBALL } from '../fireball';
-import { bootStep, helmetStep } from '../gear';
-import { gemShapeStep } from '../gem-shape';
-import { type StarColors, starStep } from '../star';
-import { heartStep } from './heart-step';
-import { type ItemArt, itemArt } from './item-art';
+import { createFlameStep, WHITE_FIREBALL } from '../fireball';
+import { createBootStep, createHelmetStep } from '../gear';
+import { createGemShapeStep } from '../gem-shape';
+import { createStarStep, type StarColors } from '../star';
+import { createHeartStep } from './create-heart-step';
+import { getItemArt, type ItemArt } from './get-item-art';
 
 interface Spot {
   x: number;
@@ -151,7 +151,7 @@ const BULLET_CLUSTERS: Readonly<Record<number, BulletCluster>> = Object.freeze({
   },
 });
 
-const clusterFor = (count: number): HeartCluster =>
+const getHeartCluster = (count: number): HeartCluster =>
   CLUSTERS[clamp(round(count), 1, 3)];
 
 // counts without a cluster of their own borrow the largest one below them
@@ -159,7 +159,7 @@ const BULLET_CLUSTER_COUNTS: readonly number[] = Object.freeze(
   sortBy(map(keys(BULLET_CLUSTERS), Number)),
 );
 
-const bulletClusterFor = (count: number): BulletCluster =>
+const getBulletCluster = (count: number): BulletCluster =>
   BULLET_CLUSTERS[
     findLast(
       BULLET_CLUSTER_COUNTS,
@@ -167,25 +167,29 @@ const bulletClusterFor = (count: number): BulletCluster =>
     ) ?? 1
   ];
 
-const starClusterFor = (count: number): StarCluster =>
+const getStarCluster = (count: number): StarCluster =>
   STAR_CLUSTERS[clamp(round(count), 1, 3)];
 
-const heartsStep = (count: number, size: number): CanvasStep => {
-  const cluster = clusterFor(count);
+const createHeartsStep = (count: number, size: number): CanvasStep => {
+  const cluster = getHeartCluster(count);
 
   return sequence(
     map(cluster.spots, (spot) =>
-      heartStep(size * spot.x, size * spot.y, size * HEART_LOBE * cluster.lobe),
+      createHeartStep(
+        size * spot.x,
+        size * spot.y,
+        size * HEART_LOBE * cluster.lobe,
+      ),
     ),
   );
 };
 
-const bulletsStep = (count: number, size: number): CanvasStep => {
-  const cluster = bulletClusterFor(count);
+const createBulletsStep = (count: number, size: number): CanvasStep => {
+  const cluster = getBulletCluster(count);
 
   return sequence(
     map(cluster.spots, (spot) =>
-      bulletBodyStep(
+      createBulletBodyStep(
         size * spot.x,
         size * spot.y,
         size * cluster.radius,
@@ -196,16 +200,16 @@ const bulletsStep = (count: number, size: number): CanvasStep => {
   );
 };
 
-const starsStep = (
+const createStarsStep = (
   count: number,
   size: number,
   colors: StarColors,
 ): CanvasStep => {
-  const cluster = starClusterFor(count);
+  const cluster = getStarCluster(count);
 
   return sequence(
     map(cluster.spots, (spot) =>
-      starStep(
+      createStarStep(
         size * spot.x,
         size * spot.y,
         size * cluster.radius,
@@ -216,7 +220,7 @@ const starsStep = (
   );
 };
 
-const fireballsStep = (count: number, size: number): CanvasStep => {
+const createFireballsStep = (count: number, size: number): CanvasStep => {
   const orbiting = Math.max(1, round(count));
   const centre = size / 2;
 
@@ -224,7 +228,7 @@ const fireballsStep = (count: number, size: number): CanvasStep => {
     times(orbiting, (index) => {
       const angle = FIRST_ORBIT + (index * Math.PI * 2) / orbiting;
 
-      return flameStep(
+      return createFlameStep(
         {
           x: centre + Math.cos(angle) * size * ORBIT_RADIUS,
           y: centre + Math.sin(angle) * size * ORBIT_RADIUS,
@@ -238,11 +242,11 @@ const fireballsStep = (count: number, size: number): CanvasStep => {
   );
 };
 
-const artStep = (art: ItemArt, size: number): CanvasStep =>
+const createArtStep = (art: ItemArt, size: number): CanvasStep =>
   match(art)
-    .with({ kind: 'HEARTS' }, ({ count }) => heartsStep(count, size))
+    .with({ kind: 'HEARTS' }, ({ count }) => createHeartsStep(count, size))
     .with({ kind: 'GEM' }, ({ colors }) =>
-      gemShapeStep(
+      createGemShapeStep(
         size / 2,
         size / 2,
         size * GEM_WIDTH,
@@ -252,16 +256,18 @@ const artStep = (art: ItemArt, size: number): CanvasStep =>
       ),
     )
     .with({ kind: 'STARS' }, ({ count, colors }) =>
-      starsStep(count, size, colors),
+      createStarsStep(count, size, colors),
     )
-    .with({ kind: 'BULLETS' }, ({ count }) => bulletsStep(count, size))
-    .with({ kind: 'FIREBALLS' }, ({ count }) => fireballsStep(count, size))
-    .with({ kind: 'BOOTS' }, () => bootStep(0, 0, size))
-    .with({ kind: 'HELMET' }, () => helmetStep(0, 0, size))
+    .with({ kind: 'BULLETS' }, ({ count }) => createBulletsStep(count, size))
+    .with({ kind: 'FIREBALLS' }, ({ count }) =>
+      createFireballsStep(count, size),
+    )
+    .with({ kind: 'BOOTS' }, () => createBootStep(0, 0, size))
+    .with({ kind: 'HELMET' }, () => createHelmetStep(0, 0, size))
     .exhaustive();
 
 export const drawItem = (
   context: CanvasRenderingContext2D,
   item: Item,
   size: number,
-): void => paint(context, artStep(itemArt(item), size));
+): void => paint(context, createArtStep(getItemArt(item), size));

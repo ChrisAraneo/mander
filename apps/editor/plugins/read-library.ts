@@ -4,7 +4,7 @@ import { flatten, map } from 'lodash-es';
 
 import { POOLS, type Pool } from './pool.ts';
 import { readStructures } from './read-structures.ts';
-import type { StructurePaths } from './structure-paths.ts';
+import type { StructurePaths } from './resolve-structure-paths.ts';
 
 export interface LibraryEntry {
   name: string;
@@ -12,7 +12,7 @@ export interface LibraryEntry {
   text: string;
 }
 
-const entriesIn = async (
+const readEntries = async (
   paths: StructurePaths,
   pool: Pool,
 ): Promise<LibraryEntry[]> =>
@@ -24,4 +24,4 @@ const entriesIn = async (
 export const readLibrary = async (
   paths: StructurePaths,
 ): Promise<LibraryEntry[]> =>
-  flatten(await Promise.all(map(POOLS, (pool) => entriesIn(paths, pool))));
+  flatten(await Promise.all(map(POOLS, (pool) => readEntries(paths, pool))));

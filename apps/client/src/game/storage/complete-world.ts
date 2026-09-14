@@ -5,7 +5,7 @@ import type { CompletedWorld, SaveData } from './save-data';
 
 const { when } = P;
 
-const best = (
+const pickBest = (
   run: CompletedWorld,
   previous: CompletedWorld | undefined,
 ): CompletedWorld =>
@@ -19,7 +19,7 @@ const best = (
     )
     .otherwise(() => run);
 
-export const withCompletedWorld = (
+export const addCompletedWorld = (
   save: SaveData,
   run: CompletedWorld,
 ): SaveData => ({
@@ -27,6 +27,6 @@ export const withCompletedWorld = (
   score: run.score,
   completedWorlds: concat(
     reject(save.completedWorlds, { name: run.name }),
-    best(run, find(save.completedWorlds, { name: run.name })),
+    pickBest(run, find(save.completedWorlds, { name: run.name })),
   ),
 });

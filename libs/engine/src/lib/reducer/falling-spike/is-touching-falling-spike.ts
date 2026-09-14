@@ -1,6 +1,6 @@
 import {
+  computeFallingSpikeTriangles,
   type FallingSpike,
-  fallingSpikeTriangles,
   type Player,
 } from '@mander/model';
 import { some } from 'lodash-es';
@@ -12,7 +12,7 @@ export const isTouchingFallingSpike = (
   player: Player,
   spike: FallingSpike,
 ): boolean =>
-  some(fallingSpikeTriangles(spike), (triangle) =>
+  some(computeFallingSpikeTriangles(spike), (triangle) =>
     isBoxHittingTriangle(
       player.position.x,
       player.position.y,

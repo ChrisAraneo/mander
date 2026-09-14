@@ -4,15 +4,15 @@ import { describe, expect, it } from 'vitest';
 import { STRUCTURE_WIDTH } from './consts';
 import { VERTICAL_STRUCTURES } from './library';
 import { STRUCTURE_END, STRUCTURE_START } from './special-tiles';
-import { frontOf } from './layers';
+import { getFront } from './layers';
 import type { VerticalStructure } from './structure';
-import { VERTICAL_HEIGHT, verticalIssues } from './vertical-shape';
+import { findVerticalIssues, VERTICAL_HEIGHT } from './vertical-shape';
 
 const named = (index: number): string =>
   `VERTICAL_${String(index + 1).padStart(3, '0')}`;
 
 const countOf = (structure: VerticalStructure, tile: number): number =>
-  size(filter(flatten(frontOf(structure)), (cell) => cell === tile));
+  size(filter(flatten(getFront(structure)), (cell) => cell === tile));
 
 describe('VERTICAL_STRUCTURES', () => {
   it('gives the generator sectors to stack', () => {
@@ -23,7 +23,7 @@ describe('VERTICAL_STRUCTURES', () => {
     const broken = flatten(
       map(VERTICAL_STRUCTURES, (structure, index) =>
         map(
-          verticalIssues(frontOf(structure)),
+          findVerticalIssues(getFront(structure)),
           (issue) => `${named(index)}: ${issue}`,
         ),
       ),
@@ -39,8 +39,8 @@ describe('VERTICAL_STRUCTURES', () => {
         structure,
       })),
       ({ structure }) =>
-        size(frontOf(structure)) !== VERTICAL_HEIGHT ||
-        !every(frontOf(structure), (row) => size(row) === STRUCTURE_WIDTH),
+        size(getFront(structure)) !== VERTICAL_HEIGHT ||
+        !every(getFront(structure), (row) => size(row) === STRUCTURE_WIDTH),
     );
 
     expect(map(ragged, ({ name }) => name)).toEqual([]);

@@ -86,10 +86,10 @@ const isMarkerAt = (
   every(structure, (cells, at) => !includes(cells, marker) || at === row) &&
   every(structure[row], (cell, at) => cell !== marker || at === column);
 
-const spanOf = (columns: readonly number[]): string =>
+const formatSpan = (columns: readonly number[]): string =>
   `${columns[0]}-${columns[columns.length - 1]}`;
 
-const platformRows = (structure: Grid): number[] =>
+const findPlatformRows = (structure: Grid): number[] =>
   filter(range(VERTICAL_LAUNCH_ROW, VERTICAL_LANDING_ROW + 1), (row) =>
     some(structure[row], isSolidTile),
   );
@@ -137,12 +137,12 @@ const RULES: readonly Rule[] = Object.freeze([
       areSolidAcross(structure, VERTICAL_LAUNCH_ROW, VERTICAL_PLATFORM_COLUMNS),
   },
   {
-    message: `row ${VERTICAL_LANDING_ROW} must leave columns ${spanOf(VERTICAL_SHAFT_COLUMNS)} open so the sector below can be jumped out of`,
+    message: `row ${VERTICAL_LANDING_ROW} must leave columns ${formatSpan(VERTICAL_SHAFT_COLUMNS)} open so the sector below can be jumped out of`,
     isKept: (structure: Grid) =>
       areEmptyAcross(structure, [VERTICAL_LANDING_ROW], VERTICAL_SHAFT_COLUMNS),
   },
   {
-    message: `row ${VERTICAL_LANDING_ROW} must carry the ledge the player lands on across columns ${map(VERTICAL_LANDING_BANDS, spanOf).join(' or ')}, clear of rows ${VERTICAL_HEADROOM_ROWS.join(' and ')}`,
+    message: `row ${VERTICAL_LANDING_ROW} must carry the ledge the player lands on across columns ${map(VERTICAL_LANDING_BANDS, formatSpan).join(' or ')}, clear of rows ${VERTICAL_HEADROOM_ROWS.join(' and ')}`,
     isKept: (structure: Grid) =>
       some(
         VERTICAL_LANDING_BANDS,
@@ -153,11 +153,12 @@ const RULES: readonly Rule[] = Object.freeze([
   },
   {
     message: `no platform may sit more than ${VERTICAL_AIR_GAP} rows of air above the one below it, which is as high as the player jumps`,
-    isKept: (structure: Grid) => areStepsWithinReach(platformRows(structure)),
+    isKept: (structure: Grid) =>
+      areStepsWithinReach(findPlatformRows(structure)),
   },
 ]);
 
-export const verticalIssues = (structure: Grid): string[] =>
+export const findVerticalIssues = (structure: Grid): string[] =>
   map(
     filter(RULES, (rule) => !rule.isKept(structure)),
     (rule) => rule.message,

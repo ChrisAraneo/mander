@@ -10,7 +10,7 @@ const PORTAL_HEIGHT = 2;
 
 const PREFERRED_OFFSETS = [1, 2, 3, 0];
 
-const columnOrder = (width: number): number[] =>
+const getColumnOrder = (width: number): number[] =>
   filter(
     map(
       concat(PREFERRED_OFFSETS, range(size(PREFERRED_OFFSETS), width)),
@@ -19,14 +19,14 @@ const columnOrder = (width: number): number[] =>
     (column) => column >= 0,
   );
 
-const surfaceRow = (tiles: Tile[][], column: number): number =>
+const findSurfaceRow = (tiles: Tile[][], column: number): number =>
   findIndex(tiles, (row) => isSolidTile(row[column]));
 
 const stackRows = (surface: number): number[] =>
   map(range(1, PORTAL_HEIGHT + 1), (offset) => surface - offset);
 
 const isFree = (tiles: Tile[][], column: number): boolean =>
-  chain(surfaceRow(tiles, column))
+  chain(findSurfaceRow(tiles, column))
     .thru(
       (surface) =>
         surface >= PORTAL_HEIGHT &&
@@ -35,13 +35,13 @@ const isFree = (tiles: Tile[][], column: number): boolean =>
     .value();
 
 export const addPortal = (tiles: Tile[][]): Tile[][] =>
-  chain(columnOrder(size(tiles[0])))
+  chain(getColumnOrder(size(tiles[0])))
     .find((candidate) => isFree(tiles, candidate))
     .thru((column) =>
       match(column)
         .with(nullish, (): TilePatch[] => [])
         .otherwise((found): TilePatch[] =>
-          map(stackRows(surfaceRow(tiles, found)), (row) => ({
+          map(stackRows(findSurfaceRow(tiles, found)), (row) => ({
             row,
             column: found,
             tile: TILE_PORTAL,

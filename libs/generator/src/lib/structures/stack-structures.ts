@@ -6,8 +6,8 @@ import {
   TILE_DIRT,
 } from '@mander/model';
 import {
-  backOf,
-  frontOf,
+  getBack,
+  getFront,
   type Layer,
   STRUCTURE_WIDTH,
   STRUCTURE_END,
@@ -28,13 +28,13 @@ export const GROUND_DEPTH = 3;
 const isDrawn = (cell: number): boolean =>
   cell !== TILE_AIR && cell !== STRUCTURE_START && cell !== STRUCTURE_END;
 
-const heightOf = (count: number): number =>
+const getHeight = (count: number): number =>
   (count - 1) * VERTICAL_BAND_HEIGHT + VERTICAL_HEIGHT + GROUND_DEPTH;
 
-const bandOf = (structures: Sector[], index: number): number =>
+const getBand = (structures: Sector[], index: number): number =>
   (size(structures) - 1 - index) * VERTICAL_BAND_HEIGHT;
 
-const painted = (layer: Layer, band: number): TilePatch[] =>
+const paintBand = (layer: Layer, band: number): TilePatch[] =>
   chain(take(layer, VERTICAL_BAND_HEIGHT))
     .flatMap((cells, row) =>
       map(cells, (cell, column) => ({
@@ -46,7 +46,7 @@ const painted = (layer: Layer, band: number): TilePatch[] =>
     .filter(({ tile }) => isDrawn(tile))
     .value();
 
-const sealed = (tiles: Tile[][]): TilePatch[] =>
+const sealGround = (tiles: Tile[][]): TilePatch[] =>
   chain(range(size(tiles) - GROUND_DEPTH, size(tiles)))
     .flatMap((row) =>
       map(range(STRUCTURE_WIDTH), (column) => ({ row, column, tile: GROUND })),
@@ -54,12 +54,12 @@ const sealed = (tiles: Tile[][]): TilePatch[] =>
     .filter(({ row, column }) => !isSolidTile(tiles[row][column]))
     .value();
 
-const stacked = (
+const stackTiles = (
   structures: Sector[],
   layerOf: (structure: Sector) => Layer,
 ): Tile[][] =>
   chain(
-    times(heightOf(size(structures)), () =>
+    times(getHeight(size(structures)), () =>
       times(STRUCTURE_WIDTH, (): Tile => TILE_AIR),
     ),
   )
@@ -67,7 +67,7 @@ const stacked = (
       patchTiles(
         grid,
         flatMap(structures, (structure, index) =>
-          painted(layerOf(structure), bandOf(structures, index)),
+          paintBand(layerOf(structure), getBand(structures, index)),
         ),
       ),
     )
@@ -77,12 +77,12 @@ export const stackStructures = (structures: Sector[]): Layers =>
   match(size(structures))
     .with(0, (): Layers => ({ tiles: [], backTiles: [] }))
     .otherwise((): Layers =>
-      chain(stacked(structures, frontOf))
+      chain(stackTiles(structures, getFront))
         .thru((tiles) => ({
           // only the front layer is sealed: the bedrock under a climb is what
           // the player stands on
-          tiles: patchTiles(tiles, sealed(tiles)),
-          backTiles: stacked(structures, backOf),
+          tiles: patchTiles(tiles, sealGround(tiles)),
+          backTiles: stackTiles(structures, getBack),
         }))
         .value(),
     );

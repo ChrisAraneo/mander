@@ -16,7 +16,7 @@ const canvas = ref<HTMLCanvasElement | null>(null);
 const context = ref<CanvasRenderingContext2D | null>(null);
 
 // a background brush is shown the way the game draws it: behind the level
-const swatch = (): Layers =>
+const createSwatch = (): Layers =>
   match(props.layer)
     .with('back', (): Layers => ({
       tiles: [[TILE_AIR]],
@@ -30,7 +30,7 @@ const swatch = (): Layers =>
 const repaint = (): void =>
   match(context.value)
     .with(nullish, noop)
-    .otherwise((target) => drawStructure(target, swatch()));
+    .otherwise((target) => drawStructure(target, createSwatch()));
 
 onMounted(() =>
   chain(canvas.value)

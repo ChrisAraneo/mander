@@ -20,12 +20,12 @@ const TYPES: Record<Pool, string> = {
   vertical: 'VerticalStructure',
 };
 
-export const prefixOf = (pool: Pool): string => PREFIXES[pool];
+export const getPrefix = (pool: Pool): string => PREFIXES[pool];
 
-export const typeOf = (pool: Pool): string => TYPES[pool];
+export const getType = (pool: Pool): string => TYPES[pool];
 
-export const poolOf = (name: string): Pool | null =>
-  find(POOLS, (pool) => startsWith(name, `${prefixOf(pool)}_`)) ?? null;
+export const getPool = (name: string): Pool | null =>
+  find(POOLS, (pool) => startsWith(name, `${getPrefix(pool)}_`)) ?? null;
 
 export const isStructureName = (name: string): boolean =>
   /^(NORMAL|HARD|VERTICAL)_\d{3,}$/.test(name);

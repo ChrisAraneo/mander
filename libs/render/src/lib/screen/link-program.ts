@@ -1,4 +1,4 @@
-import { chain, withEffect } from '@mander/utils';
+import { chain, tapEffect } from '@mander/utils';
 import { match, P } from 'ts-pattern';
 
 import { compileShader } from './compile-shader';
@@ -20,11 +20,11 @@ const discard = (
 ): WebGLProgram | null =>
   chain(program)
     .thru((current) =>
-      withEffect(current, () =>
+      tapEffect(current, () =>
         console.error('screen program failed', gl.getProgramInfoLog(current)),
       ),
     )
-    .thru((current) => withEffect(current, () => gl.deleteProgram(current)))
+    .thru((current) => tapEffect(current, () => gl.deleteProgram(current)))
     .thru((): WebGLProgram | null => null)
     .value();
 
@@ -35,17 +35,17 @@ const link = (
 ): WebGLProgram | null =>
   chain(program)
     .thru((current) =>
-      withEffect(current, () => gl.attachShader(current, shaders.vertex)),
+      tapEffect(current, () => gl.attachShader(current, shaders.vertex)),
     )
     .thru((current) =>
-      withEffect(current, () => gl.attachShader(current, shaders.fragment)),
+      tapEffect(current, () => gl.attachShader(current, shaders.fragment)),
     )
-    .thru((current) => withEffect(current, () => gl.linkProgram(current)))
+    .thru((current) => tapEffect(current, () => gl.linkProgram(current)))
     .thru((current) =>
-      withEffect(current, () => gl.deleteShader(shaders.vertex)),
+      tapEffect(current, () => gl.deleteShader(shaders.vertex)),
     )
     .thru((current) =>
-      withEffect(current, () => gl.deleteShader(shaders.fragment)),
+      tapEffect(current, () => gl.deleteShader(shaders.fragment)),
     )
     .thru((current) =>
       match(gl.getProgramParameter(current, gl.LINK_STATUS))
@@ -54,7 +54,7 @@ const link = (
     )
     .value();
 
-const withShaders = (
+const createLinkedProgram = (
   gl: WebGL2RenderingContext,
   shaders: Shaders,
 ): WebGLProgram | null =>
@@ -68,10 +68,10 @@ const dropShaders = (
 ): WebGLProgram | null =>
   chain(shaders)
     .thru((current) =>
-      withEffect(current, () => gl.deleteShader(current.vertex)),
+      tapEffect(current, () => gl.deleteShader(current.vertex)),
     )
     .thru((current) =>
-      withEffect(current, () => gl.deleteShader(current.fragment)),
+      tapEffect(current, () => gl.deleteShader(current.fragment)),
     )
     .thru((): WebGLProgram | null => null)
     .value();
@@ -82,6 +82,6 @@ export const linkProgram = (gl: WebGL2RenderingContext): WebGLProgram | null =>
     fragment: compileShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SOURCE),
   })
     .with({ vertex: P.nonNullable, fragment: P.nonNullable }, (shaders) =>
-      withShaders(gl, shaders),
+      createLinkedProgram(gl, shaders),
     )
     .otherwise((shaders) => dropShaders(gl, shaders));

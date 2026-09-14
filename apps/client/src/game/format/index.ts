@@ -1,2 +1,2 @@
 export * from './format-clock';
-export * from './run-label';
+export * from './format-run-label';

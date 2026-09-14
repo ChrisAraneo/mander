@@ -1,5 +1,9 @@
-import { type GameState, type PackedReplay, totalTime } from '@mander/engine';
-import { chain, withEffect } from '@mander/utils';
+import {
+  computeTotalTime,
+  type GameState,
+  type PackedReplay,
+} from '@mander/engine';
+import { chain, tapEffect } from '@mander/utils';
 import { assign, noop } from 'lodash-es';
 import { match } from 'ts-pattern';
 
@@ -9,7 +13,7 @@ import { MIN_ABANDONED_SECONDS } from './consts';
 export interface RunSource {
   name: string;
   day: string;
-  replay(): PackedReplay;
+  getReplay(): PackedReplay;
 }
 
 export interface RunArchive {
@@ -21,22 +25,22 @@ interface ArchiveCell {
   isKept: boolean;
 }
 
-const emptyCell = (): ArchiveCell => ({ isKept: false });
+const createEmptyCell = (): ArchiveCell => ({ isKept: false });
 
 const mutate = (cell: ArchiveCell, patch: Partial<ArchiveCell>): void =>
   void assign(cell, patch);
 
-const runSeconds = (state: GameState): number =>
+const countRunSeconds = (state: GameState): number =>
   match(state.status)
-    .with('COMPLETE', () => totalTime(state.levelTimes))
-    .otherwise(() => totalTime(state.levelTimes) + state.time);
+    .with('COMPLETE', () => computeTotalTime(state.levelTimes))
+    .otherwise(() => computeTotalTime(state.levelTimes) + state.time);
 
 const isWorthKeeping = (outcome: RunOutcome, seconds: number): boolean =>
   match(outcome)
     .with('ABANDONED', () => seconds >= MIN_ABANDONED_SECONDS)
     .otherwise(() => true);
 
-const toFinished = (
+const createFinishedRun = (
   source: RunSource,
   state: GameState,
   outcome: RunOutcome,
@@ -48,13 +52,13 @@ const toFinished = (
   score: state.score,
   seconds,
   levelIndex: state.levelIndex,
-  replay: source.replay(),
+  replay: source.getReplay(),
 });
 
-const keeper =
+const createKeeper =
   (cell: ArchiveCell, source: RunSource) =>
   (state: GameState, outcome: RunOutcome): void =>
-    chain(runSeconds(state))
+    chain(countRunSeconds(state))
       .thru((seconds) => ({
         seconds,
         isKeeping: !cell.isKept && isWorthKeeping(outcome, seconds),
@@ -63,8 +67,9 @@ const keeper =
         match(isKeeping)
           .with(true, () =>
             archiveRun(
-              withEffect(toFinished(source, state, outcome, seconds), () =>
-                mutate(cell, { isKept: true }),
+              tapEffect(
+                createFinishedRun(source, state, outcome, seconds),
+                () => mutate(cell, { isKept: true }),
               ),
             ),
           )
@@ -73,9 +78,9 @@ const keeper =
       .value();
 
 export const createRunArchive = (source: RunSource): RunArchive =>
-  chain(emptyCell())
+  chain(createEmptyCell())
     .thru((cell): RunArchive => ({
-      keep: keeper(cell, source),
-      reset: () => mutate(cell, emptyCell()),
+      keep: createKeeper(cell, source),
+      reset: () => mutate(cell, createEmptyCell()),
     }))
     .value();

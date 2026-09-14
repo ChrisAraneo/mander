@@ -1,12 +1,12 @@
 import { chain } from '@mander/utils';
 
-import { deviceSize } from './device-size';
+import { getDeviceSize } from './get-device-size';
 import { resizeCanvas } from './resize-canvas';
-import { viewportScale } from './viewport-scale';
+import { getViewportScale } from './get-viewport-scale';
 import type { Viewport } from './viewport';
 
 export const syncViewport = (canvas: HTMLCanvasElement): Viewport =>
-  chain({ size: deviceSize(canvas), scale: viewportScale(canvas) })
+  chain({ size: getDeviceSize(canvas), scale: getViewportScale(canvas) })
     .thru(({ size, scale }) => ({ resized: resizeCanvas(canvas, size), scale }))
     .thru(({ resized, scale }) => ({
       width: resized.width / scale,

@@ -19,7 +19,7 @@ import {
   VERTICAL_START_ROW,
   VERTICAL_STRUCTURES,
   type VerticalStructure,
-  frontOf,
+  getFront,
 } from '@mander/structures';
 import {
   every,
@@ -83,19 +83,19 @@ describe('stackStructures', () => {
 
   it('stands the first sector at the bottom of the climb', () => {
     expect(map(bandRows(0), (row) => stacked[row])).toEqual(
-      map(BAND_ROWS, (row) => drawn(frontOf(sectors[0])[row])),
+      map(BAND_ROWS, (row) => drawn(getFront(sectors[0])[row])),
     );
   });
 
   it('stands the last sector at the top of the climb', () => {
     expect(map(bandRows(size(sectors) - 1), (row) => stacked[row])).toEqual(
-      map(BAND_ROWS, (row) => drawn(frontOf(sectors[size(sectors) - 1])[row])),
+      map(BAND_ROWS, (row) => drawn(getFront(sectors[size(sectors) - 1])[row])),
     );
   });
 
   it('leaves what is drawn below the band of a sector out of the climb', () => {
     const scribbled = [
-      map(frontOf(sectors[0]), (cells, row) =>
+      map(getFront(sectors[0]), (cells, row) =>
         includes(VERTICAL_IGNORED_ROWS, row)
           ? map(cells, () => TILE_CERAMIC)
           : [...cells],

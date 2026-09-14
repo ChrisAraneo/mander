@@ -35,12 +35,12 @@ import {
   LEVEL_SCORE_PER_SECOND,
 } from './score/consts';
 import { isOverlappingSpike } from './spike/is-overlapping-spike';
-import { spawnPosition } from './player/spawn-position';
+import { getSpawnPosition } from './player/get-spawn-position';
 import type { GameLevel } from '../types/game-level';
 import { createInitialState } from '../state/create-initial-state';
 import type { GameState } from '../state/types/game-state';
 import { reduce } from './reduce';
-import { totalTime } from './score/total-time';
+import { computeTotalTime } from './score/compute-total-time';
 import {
   BOOTS_OF_CLOUDS,
   BULLET,
@@ -129,7 +129,7 @@ const testLevel = (enemies: Point[] = []): GameLevel => {
   };
 };
 
-const SPAWN_X = spawnPosition(testLevel()).x;
+const SPAWN_X = getSpawnPosition(testLevel()).x;
 
 const DELTA_SECONDS = 1 / 60;
 
@@ -2342,7 +2342,7 @@ describe('score', () => {
     state = enterPortal({ ...state, time: 30, isNearPortal: true });
 
     expect(state.levelTimes).toEqual([10, 30]);
-    expect(totalTime(state.levelTimes)).toBe(40);
+    expect(computeTotalTime(state.levelTimes)).toBe(40);
   });
 
   it('pays out a red gem on the spot', () => {

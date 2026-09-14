@@ -10,7 +10,7 @@ import {
   TILE_SIZE,
 } from '@mander/model';
 import { isBoxHittingTriangle } from '../collision/is-box-hitting-triangle';
-import { tileRange } from '../collision/tile-range';
+import { getTileRange } from '../collision/get-tile-range';
 
 export const SPIKE_ORIENTATIONS: readonly SpikeOrientation[] = Object.freeze([
   'FLOOR',
@@ -25,9 +25,9 @@ export const isOverlappingSpikeFacing = (
   boxHeight: number,
   orientations: readonly SpikeOrientation[],
 ): boolean =>
-  some(tileRange(boxTop, boxHeight), (tileY) =>
+  some(getTileRange(boxTop, boxHeight), (tileY) =>
     some(
-      tileRange(boxLeft, boxWidth),
+      getTileRange(boxLeft, boxWidth),
       (tileX) =>
         isSpike(level, tileX, tileY) &&
         includes(orientations, getSpikeOrientation(level, tileX, tileY)) &&

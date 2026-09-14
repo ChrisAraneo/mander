@@ -6,12 +6,12 @@ import type { WorldLevelMeta, WorldMeta } from './world-meta';
 
 const EMPTY_STRUCTURES: string[] = [];
 
-const levelMetaOf = (level: Level, index: number): WorldLevelMeta => ({
+const getLevelMeta = (level: Level, index: number): WorldLevelMeta => ({
   level: index + 1,
   structures: level.meta?.structures ?? EMPTY_STRUCTURES,
 });
 
 export const getWorldMeta = (world: World): WorldMeta => ({
   name: world.name,
-  levels: map(world.levels, levelMetaOf),
+  levels: map(world.levels, getLevelMeta),
 });

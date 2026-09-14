@@ -6,12 +6,12 @@ const LAYER = String.raw`(?:\[\]|\[\n(?: {4}\[\w+(?:, \w+)*\],\n)+ {2}\])`;
 // was painted behind the level
 const SHAPE = new RegExp(String.raw`^\[\n {2}${LAYER},\n {2}${LAYER},\n\]$`);
 
-const rowsOf = (text: string): string[][] =>
+const parseRows = (text: string): string[][] =>
   map([...text.matchAll(/ {4}\[(\w+(?:, \w+)*)\],/g)], ([, row]) =>
     split(row, ', '),
   );
 
 export const isStructureText = (text: string): boolean =>
   SHAPE.test(text) &&
-  size(uniq(map(rowsOf(text), size))) === 1 &&
-  every(rowsOf(text), (row) => size(row) > 0);
+  size(uniq(map(parseRows(text), size))) === 1 &&
+  every(parseRows(text), (row) => size(row) > 0);

@@ -14,11 +14,11 @@ export interface Padding {
   depth: number;
 }
 
-const lowestFilledRow = (tiles: Tile[][]): number =>
+const findLowestFilledRow = (tiles: Tile[][]): number =>
   findLastIndex(tiles, (row) => some(row, (tile) => tile !== TILE_AIR));
 
-const missingDepth = (tiles: Tile[][]): number =>
-  chain(lowestFilledRow(tiles))
+const getMissingDepth = (tiles: Tile[][]): number =>
+  chain(findLowestFilledRow(tiles))
     .thru((lowest) =>
       match(lowest)
         .with(number.lt(0), () => 0)
@@ -28,9 +28,9 @@ const missingDepth = (tiles: Tile[][]): number =>
     )
     .value();
 
-export const paddingOf = (tiles: Tile[][]): Padding => ({
+export const getPadding = (tiles: Tile[][]): Padding => ({
   sky: SKY_HEIGHT,
-  depth: missingDepth(tiles),
+  depth: getMissingDepth(tiles),
 });
 
 // measured once off the front layer and applied to both, so the two layers of
@@ -55,4 +55,4 @@ export const padTiles = (tiles: Tile[][], padding: Padding): Tile[][] =>
     );
 
 export const addPadding = (tiles: Tile[][]): Tile[][] =>
-  padTiles(tiles, paddingOf(tiles));
+  padTiles(tiles, getPadding(tiles));

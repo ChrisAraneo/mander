@@ -4,20 +4,20 @@ import { floor, size, sortBy } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { patchTiles, type TilePatch } from './patch-tiles';
 import { standTiles } from './stand-tiles';
-import { type Spot, standingSpots } from './standing-spots';
+import { findStandingSpots, type Spot } from './find-standing-spots';
 
 const { nullish } = P;
 
 const KEY_HEIGHT = 1;
 
-const middleRow = (tiles: Tile[][]): number => floor(size(tiles) / 2);
+const getMiddleRow = (tiles: Tile[][]): number => floor(size(tiles) / 2);
 
-const middleFirst = (spots: Spot[], middle: number): Spot[] =>
+const sortMiddleFirst = (spots: Spot[], middle: number): Spot[] =>
   sortBy(spots, (spot) => Math.abs(spot.row - middle));
 
 export const addVerticalKey = (tiles: Tile[][]): Tile[][] =>
-  chain(standingSpots(tiles, KEY_HEIGHT))
-    .thru((spots) => middleFirst(spots, middleRow(tiles)))
+  chain(findStandingSpots(tiles, KEY_HEIGHT))
+    .thru((spots) => sortMiddleFirst(spots, getMiddleRow(tiles)))
     .head()
     .thru((spot) =>
       match(spot)

@@ -10,26 +10,26 @@ import { assign, clamp, map } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import {
-  arc,
+  applyStyle,
   beginPath,
   type CanvasStep,
   closePath,
-  ellipse,
   fill,
-  lineTo,
   moveTo,
   paint,
-  rect,
   restore,
   rotate,
-  roundRect,
+  runWhen,
   save,
   scale,
   sequence,
   stroke,
-  styled,
+  traceArc,
+  traceEllipse,
+  traceLineTo,
+  traceRect,
+  traceRoundRect,
   translate,
-  when,
 } from '../canvas';
 import { outline } from '../stroke';
 
@@ -68,22 +68,22 @@ const FLYING_PALETTE: EnemyPalette = {
   brow: '#123A6B',
 };
 
-const paletteFor = (kind: EnemyKind): EnemyPalette =>
+const getPalette = (kind: EnemyKind): EnemyPalette =>
   match(kind)
     .with('HORNED', () => HORNED_PALETTE)
     .with('FLYING', () => FLYING_PALETTE)
     .otherwise(() => HOPPING_PALETTE);
 
-const bodyStep = (palette: EnemyPalette): CanvasStep =>
+const createBodyStep = (palette: EnemyPalette): CanvasStep =>
   sequence([
     beginPath,
-    rect(-HALF_WIDTH + 3, HALF_HEIGHT - 4, 5, 3),
-    rect(HALF_WIDTH - 8, HALF_HEIGHT - 4, 5, 3),
+    traceRect(-HALF_WIDTH + 3, HALF_HEIGHT - 4, 5, 3),
+    traceRect(HALF_WIDTH - 8, HALF_HEIGHT - 4, 5, 3),
     outline(),
-    styled({ fillStyle: palette.feet }),
+    applyStyle({ fillStyle: palette.feet }),
     fill,
     beginPath,
-    roundRect(
+    traceRoundRect(
       -HALF_WIDTH + 2,
       -HALF_HEIGHT + 2,
       ENEMY_WIDTH - 4,
@@ -91,11 +91,11 @@ const bodyStep = (palette: EnemyPalette): CanvasStep =>
       6,
     ),
     outline(),
-    styled({ fillStyle: palette.body }),
+    applyStyle({ fillStyle: palette.body }),
     fill,
-    styled({ fillStyle: palette.belly }),
+    applyStyle({ fillStyle: palette.belly }),
     beginPath,
-    roundRect(-HALF_WIDTH + 5, -1, ENEMY_WIDTH - 10, HALF_HEIGHT - 3, 4),
+    traceRoundRect(-HALF_WIDTH + 5, -1, ENEMY_WIDTH - 10, HALF_HEIGHT - 3, 4),
     fill,
   ]);
 
@@ -104,87 +104,87 @@ const HORN_BASE_Y = -9;
 const HORN_TIP_Y = -15;
 const HORN_HALF_WIDTH = 2;
 
-const hornStep = (hornX: number, palette: EnemyPalette): CanvasStep =>
+const createHornStep = (hornX: number, palette: EnemyPalette): CanvasStep =>
   sequence([
     beginPath,
     moveTo(hornX - HORN_HALF_WIDTH, HORN_BASE_Y),
-    lineTo(hornX + HORN_HALF_WIDTH, HORN_BASE_Y),
-    lineTo(hornX, HORN_TIP_Y),
+    traceLineTo(hornX + HORN_HALF_WIDTH, HORN_BASE_Y),
+    traceLineTo(hornX, HORN_TIP_Y),
     closePath,
     outline(),
-    styled({ fillStyle: palette.feet }),
+    applyStyle({ fillStyle: palette.feet }),
     fill,
   ]);
 
-const hornsStep = (palette: EnemyPalette): CanvasStep =>
-  sequence(map(HORN_X_POSITIONS, (hornX) => hornStep(hornX, palette)));
+const createHornsStep = (palette: EnemyPalette): CanvasStep =>
+  sequence(map(HORN_X_POSITIONS, (hornX) => createHornStep(hornX, palette)));
 
 const WING_COLOR = '#FFFFFF';
 const WING_FLAP_SPEED = 10;
 const WING_FLAP_ANGLE = 0.6;
 const WING_SIDES = [-1, 1];
 
-const wingStep = (side: number, flap: number): CanvasStep =>
+const createWingStep = (side: number, flap: number): CanvasStep =>
   sequence([
     save,
     translate(side * (HALF_WIDTH - 3), -3),
     rotate(side * flap),
     beginPath,
-    ellipse(side * 7, 0, 8, 3.5, 0, 0, Math.PI * 2),
+    traceEllipse(side * 7, 0, 8, 3.5, 0, 0, Math.PI * 2),
     outline(),
-    styled({ fillStyle: WING_COLOR }),
+    applyStyle({ fillStyle: WING_COLOR }),
     fill,
     restore,
   ]);
 
-const wingsStep = (time: number): CanvasStep =>
+const createWingsStep = (time: number): CanvasStep =>
   chain(Math.sin(time * WING_FLAP_SPEED) * WING_FLAP_ANGLE)
-    .thru((flap) => map(WING_SIDES, (side) => wingStep(side, flap)))
+    .thru((flap) => map(WING_SIDES, (side) => createWingStep(side, flap)))
     .thru(sequence)
     .value();
 
-const deadEyesStep: CanvasStep = sequence([
-  styled({ lineWidth: 1.2 }),
+const drawDeadEyes: CanvasStep = sequence([
+  applyStyle({ lineWidth: 1.2 }),
   beginPath,
   moveTo(-6, -6),
-  lineTo(-1.5, -2),
+  traceLineTo(-1.5, -2),
   moveTo(-1.5, -6),
-  lineTo(-6, -2),
+  traceLineTo(-6, -2),
   moveTo(1, -6),
-  lineTo(5.5, -2),
+  traceLineTo(5.5, -2),
   moveTo(5.5, -6),
-  lineTo(1, -2),
+  traceLineTo(1, -2),
   stroke,
 ]);
 
-const livingEyesStep: CanvasStep = sequence([
+const drawLivingEyes: CanvasStep = sequence([
   beginPath,
-  arc(-3, -4, 1.4, 0, Math.PI * 2),
-  arc(4, -4, 1.4, 0, Math.PI * 2),
+  traceArc(-3, -4, 1.4, 0, Math.PI * 2),
+  traceArc(4, -4, 1.4, 0, Math.PI * 2),
   fill,
 ]);
 
-const eyesStep = (isDying: boolean): CanvasStep =>
+const createEyesStep = (isDying: boolean): CanvasStep =>
   sequence([
-    styled({ fillStyle: '#FDF3EA' }),
+    applyStyle({ fillStyle: '#FDF3EA' }),
     beginPath,
-    arc(-4, -4, 3.2, 0, Math.PI * 2),
-    arc(3, -4, 3.2, 0, Math.PI * 2),
+    traceArc(-4, -4, 3.2, 0, Math.PI * 2),
+    traceArc(3, -4, 3.2, 0, Math.PI * 2),
     fill,
-    styled({ strokeStyle: '#1C1C28', fillStyle: '#1C1C28' }),
+    applyStyle({ strokeStyle: '#1C1C28', fillStyle: '#1C1C28' }),
     match(isDying)
-      .with(true, () => deadEyesStep)
-      .otherwise(() => livingEyesStep),
+      .with(true, () => drawDeadEyes)
+      .otherwise(() => drawLivingEyes),
   ]);
 
-const browsStep = (palette: EnemyPalette): CanvasStep =>
+const createBrowsStep = (palette: EnemyPalette): CanvasStep =>
   sequence([
-    styled({ strokeStyle: palette.brow, lineWidth: 1.4 }),
+    applyStyle({ strokeStyle: palette.brow, lineWidth: 1.4 }),
     beginPath,
     moveTo(-7, -8),
-    lineTo(-1, -6),
+    traceLineTo(-1, -6),
     moveTo(7, -8),
-    lineTo(1, -6),
+    traceLineTo(1, -6),
     stroke,
   ]);
 
@@ -208,42 +208,54 @@ const TOOTH_Y_POSITIONS = [-4.5, -8.5, -12.5];
 
 const SPRING_SIDES = [-1, 1];
 
-const toothStep = (toothY: number): CanvasStep =>
+const createToothStep = (toothY: number): CanvasStep =>
   sequence([
     moveTo(JAW_THICKNESS / 2, toothY - TOOTH_HALF_HEIGHT),
-    lineTo(JAW_THICKNESS / 2 + TOOTH_LENGTH, toothY),
-    lineTo(JAW_THICKNESS / 2, toothY + TOOTH_HALF_HEIGHT),
+    traceLineTo(JAW_THICKNESS / 2 + TOOTH_LENGTH, toothY),
+    traceLineTo(JAW_THICKNESS / 2, toothY + TOOTH_HALF_HEIGHT),
     closePath,
   ]);
 
-const teethStep: CanvasStep = sequence([
+const drawTeeth: CanvasStep = sequence([
   beginPath,
-  sequence(map(TOOTH_Y_POSITIONS, toothStep)),
+  sequence(map(TOOTH_Y_POSITIONS, createToothStep)),
   outline(),
-  styled({ fillStyle: BEARTRAP_TOOTH }),
+  applyStyle({ fillStyle: BEARTRAP_TOOTH }),
   fill,
 ]);
 
-const jawStep = (tilt: number): CanvasStep =>
+const createJawStep = (tilt: number): CanvasStep =>
   sequence([
     save,
     translate(-JAW_HINGE_X, JAW_HINGE_Y),
     rotate(tilt),
     beginPath,
-    roundRect(-JAW_THICKNESS / 2, -JAW_LENGTH, JAW_THICKNESS, JAW_LENGTH, 1.6),
+    traceRoundRect(
+      -JAW_THICKNESS / 2,
+      -JAW_LENGTH,
+      JAW_THICKNESS,
+      JAW_LENGTH,
+      1.6,
+    ),
     outline(),
-    styled({ fillStyle: BEARTRAP_STEEL }),
+    applyStyle({ fillStyle: BEARTRAP_STEEL }),
     fill,
-    teethStep,
+    drawTeeth,
     restore,
   ]);
 
-const jawsStep = (tilt: number): CanvasStep =>
-  sequence([jawStep(tilt), save, scale(-1, 1), jawStep(tilt), restore]);
+const createJawsStep = (tilt: number): CanvasStep =>
+  sequence([
+    createJawStep(tilt),
+    save,
+    scale(-1, 1),
+    createJawStep(tilt),
+    restore,
+  ]);
 
-const plateStep: CanvasStep = sequence([
+const drawPlate: CanvasStep = sequence([
   beginPath,
-  roundRect(
+  traceRoundRect(
     -HALF_WIDTH + 1,
     HALF_HEIGHT - PLATE_HEIGHT,
     ENEMY_WIDTH - 2,
@@ -251,11 +263,11 @@ const plateStep: CanvasStep = sequence([
     2,
   ),
   outline(),
-  styled({ fillStyle: BEARTRAP_SHADOW }),
+  applyStyle({ fillStyle: BEARTRAP_SHADOW }),
   fill,
-  styled({ fillStyle: BEARTRAP_STEEL }),
+  applyStyle({ fillStyle: BEARTRAP_STEEL }),
   beginPath,
-  roundRect(
+  traceRoundRect(
     -HALF_WIDTH + 3,
     HALF_HEIGHT - PLATE_HEIGHT + 1.5,
     ENEMY_WIDTH - 6,
@@ -265,58 +277,65 @@ const plateStep: CanvasStep = sequence([
   fill,
 ]);
 
-const panStep: CanvasStep = sequence([
+const drawPan: CanvasStep = sequence([
   beginPath,
-  roundRect(-5, HALF_HEIGHT - PLATE_HEIGHT - 3, 10, 3, 1),
+  traceRoundRect(-5, HALF_HEIGHT - PLATE_HEIGHT - 3, 10, 3, 1),
   outline(),
-  styled({ fillStyle: BEARTRAP_TOOTH }),
+  applyStyle({ fillStyle: BEARTRAP_TOOTH }),
   fill,
 ]);
 
-const springStep = (side: number): CanvasStep =>
+const createSpringStep = (side: number): CanvasStep =>
   sequence([
     beginPath,
-    arc(side * JAW_HINGE_X, JAW_HINGE_Y, 2.6, 0, Math.PI * 2),
+    traceArc(side * JAW_HINGE_X, JAW_HINGE_Y, 2.6, 0, Math.PI * 2),
     outline(),
-    styled({ fillStyle: BEARTRAP_SPRING }),
+    applyStyle({ fillStyle: BEARTRAP_SPRING }),
     fill,
   ]);
 
-const springsStep: CanvasStep = sequence(map(SPRING_SIDES, springStep));
+const drawSprings: CanvasStep = sequence(map(SPRING_SIDES, createSpringStep));
 
-const jawTilt = (isSnapped: boolean): number =>
+const getJawTilt = (isSnapped: boolean): number =>
   match(isSnapped)
     .with(true, () => JAW_SHUT_TILT)
     .otherwise(() => -JAW_OPEN_TILT);
 
-const beartrapStep = (isSnapped: boolean): CanvasStep =>
-  sequence([plateStep, panStep, jawsStep(jawTilt(isSnapped)), springsStep]);
+const createBeartrapStep = (isSnapped: boolean): CanvasStep =>
+  sequence([
+    drawPlate,
+    drawPan,
+    createJawsStep(getJawTilt(isSnapped)),
+    drawSprings,
+  ]);
 
-const creatureStep = (
+const createCreatureStep = (
   enemy: Enemy,
   palette: EnemyPalette,
   isDying: boolean,
   time: number,
 ): CanvasStep =>
   sequence([
-    when(enemy.kind === 'FLYING', wingsStep(time)),
-    bodyStep(palette),
-    when(enemy.kind === 'HORNED', hornsStep(palette)),
-    eyesStep(isDying),
-    browsStep(palette),
+    runWhen(enemy.kind === 'FLYING', createWingsStep(time)),
+    createBodyStep(palette),
+    runWhen(enemy.kind === 'HORNED', createHornsStep(palette)),
+    createEyesStep(isDying),
+    createBrowsStep(palette),
   ]);
 
-const figureStep = (
+const createFigureStep = (
   enemy: Enemy,
   palette: EnemyPalette,
   isDying: boolean,
   time: number,
 ): CanvasStep =>
   match(enemy.kind)
-    .with('BEARTRAP', () => beartrapStep(!enemy.statuses.isGrounded || isDying))
-    .otherwise(() => creatureStep(enemy, palette, isDying, time));
+    .with('BEARTRAP', () =>
+      createBeartrapStep(!enemy.statuses.isGrounded || isDying),
+    )
+    .otherwise(() => createCreatureStep(enemy, palette, isDying, time));
 
-const deathProgress = (death: Enemy['timers']['death']): number =>
+const getDeathProgress = (death: Enemy['timers']['death']): number =>
   match(death)
     .with(number, (seconds) => clamp(seconds / ENEMY_DEATH_SECONDS, 0, 1))
     .otherwise(() => 0);
@@ -328,8 +347,8 @@ export const drawEnemy = (
 ): void =>
   chain({
     isDying: !isAlive(enemy),
-    progress: deathProgress(enemy.timers.death),
-    palette: paletteFor(enemy.kind),
+    progress: getDeathProgress(enemy.timers.death),
+    palette: getPalette(enemy.kind),
   })
     .thru((stage) =>
       assign({}, stage, {
@@ -354,9 +373,9 @@ export const drawEnemy = (
           enemy.position.x + HALF_WIDTH,
           enemy.position.y + HALF_HEIGHT + wobble + HALF_HEIGHT * (1 - squash),
         ),
-        styled({ globalAlpha: 1 - progress * progress }),
+        applyStyle({ globalAlpha: 1 - progress * progress }),
         scale(facing * (1 + progress * 0.35), squash),
-        figureStep(enemy, palette, isDying, time),
+        createFigureStep(enemy, palette, isDying, time),
         restore,
       ),
     )

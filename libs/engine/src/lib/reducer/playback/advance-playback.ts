@@ -16,17 +16,17 @@ const TICK: Action = { type: 'TICK' };
  * starting at `index` that carry it. Recursion depth is the number of inputs
  * seen within one step, which is a keypress or two.
  */
-const dueEnd = (
+const getDueEnd = (
   entries: RecordedAction[],
   index: number,
   step: number,
 ): number =>
   match<RecordedAction | undefined>(entries[index])
-    .with({ atStep: step }, () => dueEnd(entries, index + 1, step))
+    .with({ atStep: step }, () => getDueEnd(entries, index + 1, step))
     .otherwise(() => index);
 
 const stepOnce = (replay: Replay, playback: ReplayPlayback): ReplayPlayback =>
-  chain(dueEnd(replay.entries, playback.index, playback.step))
+  chain(getDueEnd(replay.entries, playback.index, playback.step))
     .thru((index) => ({
       index,
       due: map(

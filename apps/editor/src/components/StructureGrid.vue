@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type Layers, TILE_AIR, TILE_SIZE } from '@mander/model';
 import { STRUCTURE_WIDTH } from '@mander/structures';
-import { chain, withEffect } from '@mander/utils';
+import { chain, tapEffect } from '@mander/utils';
 import { forEach, noop, range, size } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
@@ -54,21 +54,21 @@ const strokeLine = (
   toY: number,
 ): void =>
   chain(target)
-    .thru((ready) => withEffect(ready, () => ready.beginPath()))
-    .thru((ready) => withEffect(ready, () => ready.moveTo(fromX, fromY)))
-    .thru((ready) => withEffect(ready, () => ready.lineTo(toX, toY)))
+    .thru((ready) => tapEffect(ready, () => ready.beginPath()))
+    .thru((ready) => tapEffect(ready, () => ready.moveTo(fromX, fromY)))
+    .thru((ready) => tapEffect(ready, () => ready.lineTo(toX, toY)))
     .thru((ready) => ready.stroke())
     .value();
 
 const drawGridLines = (target: CanvasRenderingContext2D): void =>
   void chain(target)
     .thru((ready) =>
-      withEffect(ready, () =>
+      tapEffect(ready, () =>
         Object.assign(ready, { strokeStyle: GRID_LINE, lineWidth: 1 }),
       ),
     )
     .thru((ready) =>
-      withEffect(ready, () =>
+      tapEffect(ready, () =>
         forEach(range(STRUCTURE_WIDTH + 1), (column) =>
           strokeLine(
             ready,
@@ -99,7 +99,7 @@ const drawHover = (target: CanvasRenderingContext2D): void =>
     .otherwise((cell) =>
       chain(target)
         .thru((ready) =>
-          withEffect(ready, () =>
+          tapEffect(ready, () =>
             Object.assign(ready, { strokeStyle: HOVER_LINE, lineWidth: 2 }),
           ),
         )
@@ -120,14 +120,17 @@ const repaint = (): void =>
     .otherwise((target) =>
       chain(target)
         .thru((ready) =>
-          withEffect(ready, () => drawStructure(ready, props.sketch)),
+          tapEffect(ready, () => drawStructure(ready, props.sketch)),
         )
-        .thru((ready) => withEffect(ready, () => drawGridLines(ready)))
+        .thru((ready) => tapEffect(ready, () => drawGridLines(ready)))
         .thru((ready) => drawHover(ready))
         .value(),
     );
 
-const cellIn = (element: HTMLCanvasElement, event: PointerEvent): Cell | null =>
+const findCellIn = (
+  element: HTMLCanvasElement,
+  event: PointerEvent,
+): Cell | null =>
   chain(element.getBoundingClientRect())
     .thru((box) => ({
       column: Math.floor(
@@ -144,15 +147,15 @@ const cellIn = (element: HTMLCanvasElement, event: PointerEvent): Cell | null =>
     )
     .value();
 
-const cellAt = (event: PointerEvent): Cell | null =>
+const findCellAt = (event: PointerEvent): Cell | null =>
   match(canvas.value)
     .with(nullish, (): Cell | null => null)
-    .otherwise((element) => cellIn(element, event));
+    .otherwise((element) => findCellIn(element, event));
 
 // the right button erases the layer the brush belongs to, so a background
 // brush rubs out background and leaves the level in front of it alone
 const start = (event: PointerEvent): void =>
-  match(cellAt(event))
+  match(findCellAt(event))
     .with(nullish, noop)
     .otherwise((cell) =>
       chain(
@@ -162,10 +165,10 @@ const start = (event: PointerEvent): void =>
       )
         .thru((value) => setRef(strokeValue, value))
         .thru((value) =>
-          withEffect(value, () => setRef(strokeLayer, props.brush.layer)),
+          tapEffect(value, () => setRef(strokeLayer, props.brush.layer)),
         )
-        .thru((value) => withEffect(value, () => setRef(isPainting, true)))
-        .thru((value) => withEffect(value, () => emit('strokeStart')))
+        .thru((value) => tapEffect(value, () => setRef(isPainting, true)))
+        .thru((value) => tapEffect(value, () => emit('strokeStart')))
         .thru((value) =>
           emit('paint', cell.row, cell.column, value, strokeLayer.value),
         )
@@ -173,7 +176,7 @@ const start = (event: PointerEvent): void =>
     );
 
 const move = (event: PointerEvent): void =>
-  chain(setRef(hover, cellAt(event)))
+  chain(setRef(hover, findCellAt(event)))
     .thru((cell) =>
       match({ painting: isPainting.value, cell })
         .with({ painting: true, cell: nonNullable }, ({ cell: target }) =>

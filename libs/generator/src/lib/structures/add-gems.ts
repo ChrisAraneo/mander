@@ -15,7 +15,7 @@ import {
 } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { patchTiles, type TilePatch } from './patch-tiles';
-import { tilesSeed } from './tiles-seed';
+import { formatTilesSeed } from './format-tiles-seed';
 
 const { nullish } = P;
 
@@ -36,11 +36,11 @@ interface Sowing {
   patches: TilePatch[];
 }
 
-const surfaceRow = (tiles: Tile[][], column: number): number =>
+const findSurfaceRow = (tiles: Tile[][], column: number): number =>
   findIndex(tiles, (row) => isSolidTile(row[column]));
 
 const isFree = (tiles: Tile[][], column: number): boolean =>
-  chain(surfaceRow(tiles, column))
+  chain(findSurfaceRow(tiles, column))
     .thru(
       (surface) =>
         surface >= CLEARANCE &&
@@ -54,7 +54,7 @@ const isFree = (tiles: Tile[][], column: number): boolean =>
 const isApart = (taken: number[], column: number): boolean =>
   every(taken, (other) => Math.abs(other - column) >= MIN_GAP);
 
-const slotColumns = (width: number, band: number, slot: number): number[] =>
+const getSlotColumns = (width: number, band: number, slot: number): number[] =>
   filter(
     range(
       band * STRUCTURE_WIDTH + slot * SLOT_WIDTH,
@@ -63,9 +63,9 @@ const slotColumns = (width: number, band: number, slot: number): number[] =>
     (column) => column < width,
   );
 
-const slots = (width: number): number[][] =>
+const listSlots = (width: number): number[][] =>
   map(range(ceil(width / STRUCTURE_WIDTH) * GEMS_PER_STRUCTURE), (index) =>
-    slotColumns(
+    getSlotColumns(
       width,
       floor(index / GEMS_PER_STRUCTURE),
       index % GEMS_PER_STRUCTURE,
@@ -78,7 +78,7 @@ const sowSlot = (
   sown: Sowing,
   columns: number[],
 ): Sowing =>
-  chain(sortBy(columns, () => random.next()))
+  chain(sortBy(columns, () => random.rollFloat()))
     .find(
       (candidate) => isFree(tiles, candidate) && isApart(sown.taken, candidate),
     )
@@ -90,7 +90,7 @@ const sowSlot = (
           patches: [
             ...sown.patches,
             {
-              row: surfaceRow(tiles, found) - REST_HEIGHT,
+              row: findSurfaceRow(tiles, found) - REST_HEIGHT,
               column: found,
               tile: TILE_GEM,
             },
@@ -100,10 +100,10 @@ const sowSlot = (
     .value();
 
 export const addGems = (tiles: Tile[][]): Tile[][] =>
-  chain(createRandom(tilesSeed(tiles)))
+  chain(createRandom(formatTilesSeed(tiles)))
     .thru((random) =>
       reduce(
-        slots(size(tiles[0] ?? [])),
+        listSlots(size(tiles[0] ?? [])),
         (sown: Sowing, columns): Sowing =>
           sowSlot(tiles, random, sown, columns),
         { taken: [], patches: [] },

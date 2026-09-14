@@ -1,5 +1,5 @@
 import { createScreen, type Screen } from '@mander/render';
-import { chain, withEffect } from '@mander/utils';
+import { chain, tapEffect } from '@mander/utils';
 import { assign, noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import type { Ref } from 'vue';
@@ -30,7 +30,7 @@ export const openCanvas = (
     .thru((current) => current.context)
     .value();
 
-export const withCanvas = (
+export const drawWithCanvas = (
   cell: CanvasCell,
   canvas: Ref<HTMLCanvasElement | null>,
   draw: (context: CanvasRenderingContext2D, element: HTMLCanvasElement) => void,
@@ -40,8 +40,8 @@ export const withCanvas = (
       { element: nonNullable, context: nonNullable, screen: nonNullable },
       ({ element, context, screen }) =>
         chain(screen)
-          .thru((current) => withEffect(current, () => current.fit()))
-          .thru((current) => withEffect(current, () => draw(context, element)))
+          .thru((current) => tapEffect(current, () => current.fit()))
+          .thru((current) => tapEffect(current, () => draw(context, element)))
           .thru((current) => current.present())
           .value(),
     )
@@ -49,6 +49,6 @@ export const withCanvas = (
 
 export const closeCanvas = (cell: CanvasCell): void =>
   void chain(cell.screen)
-    .thru((screen) => withEffect(screen, () => screen?.dispose()))
+    .thru((screen) => tapEffect(screen, () => screen?.dispose()))
     .thru(() => assign(cell, { screen: null, context: null }))
     .value();

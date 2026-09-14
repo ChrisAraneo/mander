@@ -15,7 +15,7 @@ import {
 import { map, range, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { paddingOf, padTiles } from './add-padding';
+import { getPadding, padTiles } from './add-padding';
 import { joinStructures } from './join-structures';
 import { mirrorTiles } from './mirror-tiles';
 
@@ -92,7 +92,7 @@ describe('a sector painted in two layers', () => {
 
   it('carries both layers through the padding as one shape', () => {
     const { tiles, backTiles } = joined();
-    const padding = paddingOf(tiles);
+    const padding = getPadding(tiles);
 
     expect(map(padTiles(backTiles, padding), (row) => row.length)).toEqual(
       map(padTiles(tiles, padding), (row) => row.length),

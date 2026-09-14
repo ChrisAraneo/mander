@@ -18,7 +18,7 @@ export interface SavedStructure {
   isCreated: boolean;
 }
 
-const failure = (response: Response): Promise<never> =>
+const rejectFailure = (response: Response): Promise<never> =>
   response
     .json()
     .then(
@@ -31,7 +31,7 @@ const failure = (response: Response): Promise<never> =>
       ),
     );
 
-const toEntry = (entry: LibraryResponse): StructureEntry => ({
+const createEntry = (entry: LibraryResponse): StructureEntry => ({
   name: entry.name,
   pool: entry.pool,
   sketch: parseStructure(entry.text),
@@ -40,9 +40,11 @@ const toEntry = (entry: LibraryResponse): StructureEntry => ({
 export const fetchLibrary = (): Promise<StructureEntry[]> =>
   fetch(ENDPOINT).then((response) =>
     match(response.ok)
-      .with(false, () => failure(response))
+      .with(false, () => rejectFailure(response))
       .otherwise(() =>
-        response.json().then((body) => map(body as LibraryResponse[], toEntry)),
+        response
+          .json()
+          .then((body) => map(body as LibraryResponse[], createEntry)),
       ),
   );
 
@@ -56,6 +58,6 @@ export const postStructure = (
     body: JSON.stringify({ name, text }),
   }).then((response) =>
     match(response.ok)
-      .with(false, () => failure(response))
+      .with(false, () => rejectFailure(response))
       .otherwise(() => response.json() as Promise<SavedStructure>),
   );

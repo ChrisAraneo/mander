@@ -25,5 +25,5 @@ export const ACTION_CODES: readonly RecordableAction['type'][] = Object.freeze([
   'TOGGLE_MOON_MAGNET',
 ]);
 
-export const codeOf = (type: RecordableAction['type']): number =>
+export const getActionCode = (type: RecordableAction['type']): number =>
   indexOf(ACTION_CODES, type);

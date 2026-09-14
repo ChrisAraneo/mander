@@ -1,8 +1,8 @@
-import { chain, withEffect } from '@mander/utils';
+import { chain, tapEffect } from '@mander/utils';
 import { noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import { deviceSize, resizeCanvas } from '../viewport';
+import { getDeviceSize, resizeCanvas } from '../viewport';
 import type { Screen } from './screen';
 
 const { nullish } = P;
@@ -13,10 +13,8 @@ const blit = (
 ): Screen => ({
   buffer,
   fit: () =>
-    void chain(deviceSize(display.canvas))
-      .thru((size) =>
-        withEffect(size, () => resizeCanvas(display.canvas, size)),
-      )
+    void chain(getDeviceSize(display.canvas))
+      .thru((size) => tapEffect(size, () => resizeCanvas(display.canvas, size)))
       .thru((size) => resizeCanvas(buffer.canvas, size))
       .value(),
   present: () => display.drawImage(buffer.canvas, 0, 0),

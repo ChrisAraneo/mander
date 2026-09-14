@@ -5,8 +5,8 @@ import {
   unpackReplay,
 } from '@mander/engine';
 import { generate } from '@mander/generator';
-import { playerFocus, renderGame, syncViewport } from '@mander/render';
-import { chain, withEffect } from '@mander/utils';
+import { getPlayerFocus, renderGame, syncViewport } from '@mander/render';
+import { chain, tapEffect } from '@mander/utils';
 import { map, noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { onMounted, onUnmounted, type Ref } from 'vue';
@@ -14,11 +14,11 @@ import { onMounted, onUnmounted, type Ref } from 'vue';
 import {
   type CanvasCell,
   createCanvasCell,
+  drawWithCanvas,
   openCanvas,
-  withCanvas,
 } from '../canvas';
-import { ghostRuns, loadSave } from '../storage';
-import { levelGhosts, useReplay } from '../use-replay';
+import { findGhostRuns, loadSave } from '../storage';
+import { getLevelGhosts, useReplay } from '../use-replay';
 import type { ReplayController } from '../use-replay';
 import type { ArchiveSource } from './archive-source';
 
@@ -33,42 +33,42 @@ export const useArchive = (
       world,
       cell: createCanvasCell(),
       recording: unpackReplay(source.replay, world.levels),
-      rivals: ghostRuns(loadSave(), world.name, source.id),
+      rivals: findGhostRuns(loadSave(), world.name, source.id),
     }))
     .thru((setup) => ({
       ...setup,
       renderState: (next: GameState, ghosts: GameState[] = []): void =>
-        withCanvas(setup.cell, canvas, (context, element) =>
+        drawWithCanvas(setup.cell, canvas, (context, element) =>
           renderGame(
             context,
             next,
             setup.world.palette,
             syncViewport(element),
-            playerFocus(next),
-            levelGhosts(next, ghosts),
+            getPlayerFocus(next),
+            getLevelGhosts(next, ghosts),
           ),
         ),
     }))
     .thru((setup) => ({
       ...setup,
       replay: useReplay({
-        replay: () => setup.recording,
-        ghosts: (): Replay[] =>
+        getReplay: () => setup.recording,
+        getGhosts: (): Replay[] =>
           map(setup.rivals, (run) =>
             unpackReplay(run.replay, setup.world.levels),
           ),
-        initialState: () => createInitialState(setup.world.levels[0], 0, []),
+        getInitialState: () => createInitialState(setup.world.levels[0], 0, []),
         render: setup.renderState,
-        onStop: noop,
+        handleStop: noop,
       }),
     }))
     .thru((setup) =>
-      withEffect(setup, () =>
+      tapEffect(setup, () =>
         onMounted(() => playOnMount(setup.cell, canvas, setup.replay)),
       ),
     )
     .thru((setup) =>
-      withEffect(setup, () => onUnmounted(() => setup.replay.stop())),
+      tapEffect(setup, () => onUnmounted(() => setup.replay.stop())),
     )
     .thru(({ replay }) => replay)
     .value();

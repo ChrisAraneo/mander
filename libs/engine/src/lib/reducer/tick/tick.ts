@@ -21,7 +21,7 @@ import { resolveVolley } from '../bullet/resolve-volley';
 import { advanceCannonballs } from '../cannon/advance-cannonballs';
 import { advanceCannons } from '../cannon/advance-cannons';
 import { createCannons } from '../cannon/create-cannons';
-import { strikingCannonballs } from '../cannon/striking-cannonballs';
+import { findStrikingCannonballs } from '../cannon/find-striking-cannonballs';
 import type { Barrage } from '../cannon/types/barrage';
 import { advanceEnemy } from '../enemy/advance-enemy';
 import { createEnemies } from '../enemy/create-enemies';
@@ -52,7 +52,7 @@ import { stepPlayer } from '../player/step-player';
 import { stepPlayerDeath } from '../player/step-player-death';
 import { GEM_SCORE } from '../score/consts';
 import { isOverlappingSpikeFacing } from '../spike/is-overlapping-spike';
-import { bitingSpikes } from '../ward/biting-spikes';
+import { findBitingSpikes } from '../ward/find-biting-spikes';
 import type { GameState } from '../../state/types/game-state';
 import { hasFallenIntoPit } from './has-fallen-into-pit';
 import { isNearTile } from './is-near-tile';
@@ -138,7 +138,7 @@ const stompVictims = (
       isStompingEnemy(previousPlayer, player, enemy, deltaSeconds),
   );
 
-const bounceVelocityFor = (isJumpHeld: boolean, player: Player): number =>
+const getBounceVelocity = (isJumpHeld: boolean, player: Player): number =>
   match(isJumpHeld)
     .with(true, () => -player.velocity.y.max)
     .otherwise(() => -STOMP_BOUNCE_VELOCITY);
@@ -159,7 +159,7 @@ const applyStomps = (
           ...player.velocity,
           y: {
             ...player.velocity.y,
-            current: bounceVelocityFor(isJumpHeld, player),
+            current: getBounceVelocity(isJumpHeld, player),
           },
         },
       },
@@ -170,7 +170,7 @@ const applyStomps = (
     .otherwise((): Bounced => ({ player, enemies }));
 };
 
-const hornedVictims = (player: Player, enemies: Enemy[]): Enemy[] =>
+const findHornedVictims = (player: Player, enemies: Enemy[]): Enemy[] =>
   match(player.timers.invincibility <= 0)
     .with(true, () =>
       filter(
@@ -188,7 +188,7 @@ const isTouchingAnyFallingSpike = (
   player: Player,
   fallingSpikes: FallingSpike[],
 ): boolean =>
-  includes(bitingSpikes(state.inventory), 'CEILING') &&
+  includes(findBitingSpikes(state.inventory), 'CEILING') &&
   some(fallingSpikes, (spike) => isTouchingFallingSpike(player, spike));
 
 const isTouchingHazard = (
@@ -205,7 +205,7 @@ const isTouchingHazard = (
     player.position.y,
     PLAYER_WIDTH,
     PLAYER_HEIGHT,
-    bitingSpikes(state.inventory),
+    findBitingSpikes(state.inventory),
   ) ||
   isTouchingAnyFallingSpike(state, player, fallingSpikes) ||
   some(enemies, (enemy) => isAlive(enemy) && isTouchingEnemy(player, enemy)) ||
@@ -217,7 +217,7 @@ const loseHeart = (hearts: Player['hearts']): Player['hearts'] => ({
   value: Math.max(0, hearts.value - 1),
 });
 
-const fell = (state: GameState, player: Player): Outcome => ({
+const fallIntoPit = (state: GameState, player: Player): Outcome => ({
   player: { ...killPlayer(player), hearts: loseHeart(player.hearts) },
   deaths: state.deaths + 1,
   status: 'PLAYING',
@@ -233,13 +233,13 @@ const hurt = (player: Player): Player => ({
   },
 });
 
-const gameOver = (state: GameState, player: Player): Outcome => ({
+const endGame = (state: GameState, player: Player): Outcome => ({
   player: { ...killPlayer(player), hearts: loseHeart(player.hearts) },
   deaths: state.deaths + 1,
   status: 'GAME_OVER',
 });
 
-const leftBehind = (player: Player, gems: Point[]): Point[] =>
+const filterLeftBehind = (player: Player, gems: Point[]): Point[] =>
   filter(gems, (gem) => !isNearTile(player, gem, GEM_ENTITY_BOX, PICKUP_RANGE));
 
 const resolveHarm = (
@@ -258,15 +258,15 @@ const resolveHarm = (
     canSurvive: player.hearts.value > 1,
   })
     .with({ hasFallenIntoPit: true, canSurvive: true }, () =>
-      fell(state, player),
+      fallIntoPit(state, player),
     )
-    .with({ hasFallenIntoPit: true }, () => gameOver(state, player))
+    .with({ hasFallenIntoPit: true }, () => endGame(state, player))
     .with({ isStruck: true, canSurvive: true }, (): Outcome => ({
       player: hurt(player),
       deaths: state.deaths,
       status: 'PLAYING',
     }))
-    .with({ isStruck: true }, () => gameOver(state, player))
+    .with({ isStruck: true }, () => endGame(state, player))
     .otherwise((): Outcome => ({
       player,
       deaths: state.deaths,
@@ -315,10 +315,10 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
         )
         .otherwise((): Bounced => ({ player: moved, enemies: steppedEnemies }));
       const gored = match(isPlayerAlive)
-        .with(true, () => hornedVictims(bounced, afterStomps))
+        .with(true, () => findHornedVictims(bounced, afterStomps))
         .otherwise((): Enemy[] => []);
       const hits = match(isPlayerAlive)
-        .with(true, () => strikingCannonballs(bounced, flying))
+        .with(true, () => findStrikingCannonballs(bounced, flying))
         .otherwise((): Cannonball[] => []);
       const isBurned = isPlayerAlive && isBurning(bounced, fireballs);
       const { player, deaths, status } = match(isPlayerAlive)
@@ -361,7 +361,7 @@ export const tick = (state: GameState, deltaSeconds: number): GameState =>
       );
       const canReach = isAlive(player);
       const gems = match(canReach)
-        .with(true, () => leftBehind(player, state.gems))
+        .with(true, () => filterLeftBehind(player, state.gems))
         .otherwise((): Point[] => state.gems);
 
       return {

@@ -1,7 +1,7 @@
 import { isSolid, type Level } from '@mander/model';
 import { some } from 'lodash-es';
 
-import { tileRange } from './tile-range';
+import { getTileRange } from './get-tile-range';
 
 export const isOverlappingSolid = (
   level: Level,
@@ -10,6 +10,8 @@ export const isOverlappingSolid = (
   boxWidth: number,
   boxHeight: number,
 ): boolean =>
-  some(tileRange(boxTop, boxHeight), (tileY) =>
-    some(tileRange(boxLeft, boxWidth), (tileX) => isSolid(level, tileX, tileY)),
+  some(getTileRange(boxTop, boxHeight), (tileY) =>
+    some(getTileRange(boxLeft, boxWidth), (tileX) =>
+      isSolid(level, tileX, tileY),
+    ),
   );

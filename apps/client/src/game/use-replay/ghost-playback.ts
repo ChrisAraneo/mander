@@ -11,8 +11,8 @@ import { match } from 'ts-pattern';
 
 import {
   advanceFrames,
+  createStartFrame,
   type PlaybackFrame,
-  startFrame,
 } from './playback-frame';
 
 export interface GhostPlayback extends PlaybackFrame {
@@ -24,7 +24,7 @@ export const createGhosts = (
   initialState: () => GameState,
 ): GhostPlayback[] =>
   map(recordings, (recording) =>
-    chain(startFrame(createPlayback(initialState())))
+    chain(createStartFrame(createPlayback(initialState())))
       .thru((frame): GhostPlayback => ({ ...frame, recording }))
       .value(),
   );
@@ -46,7 +46,7 @@ export const advanceGhosts = (
       })),
   );
 
-export const ghostStates = (
+export const getGhostStates = (
   ghosts: GhostPlayback[],
   alpha: number,
 ): GameState[] =>

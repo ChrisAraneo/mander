@@ -11,10 +11,10 @@ import {
 } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-const withoutComments = (list: string): string =>
+const stripComments = (list: string): string =>
   replace(list, /\/\/[^\n]*/g, '');
 
-const closed = (list: string): string =>
+const closeList = (list: string): string =>
   match(trimEnd(list))
     .when(
       (body) => isEmpty(body) || endsWith(body, ','),
@@ -23,12 +23,12 @@ const closed = (list: string): string =>
     .otherwise((body) => `${body},`);
 
 export const listNames = (list: string): string[] =>
-  compact(map(split(withoutComments(list), ','), trim));
+  compact(map(split(stripComments(list), ','), trim));
 
 export const hasName = (list: string, name: string): boolean =>
   includes(listNames(list), name);
 
 export const appendName = (list: string, name: string): string =>
   match(includes(list, '\n'))
-    .with(true, () => `${closed(list)}\n  ${name},\n`)
-    .otherwise(() => `${closed(list)} ${name} `);
+    .with(true, () => `${closeList(list)}\n  ${name},\n`)
+    .otherwise(() => `${closeList(list)} ${name} `);

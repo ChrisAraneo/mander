@@ -31,9 +31,9 @@ interface Carry {
   steps: number;
 }
 
-const emptyCarry = (): Carry => ({ carryMs: 0, steps: 0 });
+const createEmptyCarry = (): Carry => ({ carryMs: 0, steps: 0 });
 
-const nextCarry = (carry: Carry, deltaMs: number): Carry =>
+const advanceCarry = (carry: Carry, deltaMs: number): Carry =>
   chain(carry.carryMs + deltaMs * TIME_SCALE)
     .thru((carried) => Math.min(carried, FIXED_STEP_MS * MAX_STEPS_PER_FRAME))
     .thru((carried): Carry => ({
@@ -47,11 +47,11 @@ const nextCarry = (carry: Carry, deltaMs: number): Carry =>
  * served in subscription order: subscribe the simulation before the renderer so
  * a frame's steps have run by the time it is drawn.
  */
-export const fixedPulses = (): Observable<Pulse> =>
+export const createFixedPulses = (): Observable<Pulse> =>
   animationFrames().pipe(
     pairwise(),
     map(([previous, current]) => current.timestamp - previous.timestamp),
-    scan(nextCarry, emptyCarry()),
+    scan(advanceCarry, createEmptyCarry()),
     map((carry): Pulse => ({
       steps: carry.steps,
       alpha: carry.carryMs / FIXED_STEP_MS,
@@ -60,5 +60,7 @@ export const fixedPulses = (): Observable<Pulse> =>
   );
 
 /** The pulse's steps as actions, for a reducer pipeline to fold over. */
-export const pulseTicks = (pulses$: Observable<Pulse>): Observable<Action> =>
+export const createPulseTicks = (
+  pulses$: Observable<Pulse>,
+): Observable<Action> =>
   pulses$.pipe(concatMap((pulse) => times(pulse.steps, () => TICK)));

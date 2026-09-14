@@ -4,7 +4,7 @@ import { match } from 'ts-pattern';
 
 export const FIRST_CANNON_LEVEL = 5;
 
-const bricked = (tile: Tile): Tile =>
+const brickCannon = (tile: Tile): Tile =>
   match(tile === TILE_CANNON)
     .with(true, () => TILE_BRICK)
     .otherwise(() => tile);
@@ -12,4 +12,4 @@ const bricked = (tile: Tile): Tile =>
 export const clearCannons = (tiles: Tile[][], levelNumber: number): Tile[][] =>
   match(levelNumber >= FIRST_CANNON_LEVEL)
     .with(true, () => map(tiles, (row) => [...row]))
-    .otherwise(() => map(tiles, (row) => map(row, bricked)));
+    .otherwise(() => map(tiles, (row) => map(row, brickCannon)));

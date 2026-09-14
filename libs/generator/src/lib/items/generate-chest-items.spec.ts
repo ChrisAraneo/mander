@@ -30,7 +30,7 @@ import {
   CHEST_ITEM_COUNT,
   CHEST_ITEM_POOL,
   CHEST_ITEM_TYPES,
-  chestTypeOf,
+  getChestType,
   generateChestItems,
   RARITY_CHANCE,
 } from './generate-chest-items';
@@ -44,7 +44,7 @@ const drawn = (): Item[] => flatMap(seeds, generateChestItems);
 const idsIn = (seed: string): string[] => map(generateChestItems(seed), 'id');
 
 const typesIn = (seed: string): (ChestItemType | undefined)[] =>
-  map(generateChestItems(seed), chestTypeOf);
+  map(generateChestItems(seed), getChestType);
 
 const isEpicChest = (seed: string): boolean =>
   some(generateChestItems(seed), { rarity: 'EPIC' });
@@ -90,7 +90,7 @@ describe('generateChestItems', () => {
   });
 
   it('reaches for every type across enough chests', () => {
-    expect(uniq(map(drawn(), chestTypeOf)).sort()).toEqual(
+    expect(uniq(map(drawn(), getChestType)).sort()).toEqual(
       [...CHEST_ITEM_TYPES].sort(),
     );
   });

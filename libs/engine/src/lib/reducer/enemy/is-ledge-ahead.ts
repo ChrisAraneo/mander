@@ -1,11 +1,12 @@
 import { isSolid, type Level } from '@mander/model';
 
-import { belowRow } from './below-row';
-import { probeColumn } from './probe-column';
+import { getBelowRow } from './get-below-row';
+import { getProbeColumn } from './get-probe-column';
 
 export const isLedgeAhead = (
   level: Level,
   originX: number,
   originY: number,
   facing: 1 | -1,
-): boolean => !isSolid(level, probeColumn(originX, facing), belowRow(originY));
+): boolean =>
+  !isSolid(level, getProbeColumn(originX, facing), getBelowRow(originY));

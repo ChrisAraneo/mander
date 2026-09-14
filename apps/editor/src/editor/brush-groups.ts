@@ -24,11 +24,11 @@ const ROWS: readonly (readonly string[])[] = Object.freeze([
   Object.freeze([HAZARDS, MARKERS]),
 ]);
 
-const groupOf = (name: string): BrushGroup => ({
+const createGroup = (name: string): BrushGroup => ({
   name,
   brushes: filter(BRUSHES, (brush) => brush.group === name),
 });
 
 export const BRUSH_ROWS: BrushGroup[][] = map(ROWS, (names) =>
-  map(names, groupOf),
+  map(names, createGroup),
 );

@@ -1,8 +1,8 @@
-import { chain, withEffect } from '@mander/utils';
+import { chain, tapEffect } from '@mander/utils';
 import { assign, noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import { deviceSize, resizeCanvas, viewportScale } from '../viewport';
+import { getDeviceSize, getViewportScale, resizeCanvas } from '../viewport';
 import { linkProgram } from './link-program';
 import type { Screen } from './screen';
 
@@ -26,7 +26,7 @@ interface ScreenCell {
   scale: number;
 }
 
-const uniformsOf = (
+const getUniforms = (
   gl: WebGL2RenderingContext,
   program: WebGLProgram,
 ): Uniforms => ({
@@ -38,25 +38,25 @@ const uniformsOf = (
 const createTexture = (gl: WebGL2RenderingContext): WebGLTexture | null =>
   chain(gl.createTexture())
     .thru((texture) =>
-      withEffect(texture, () => gl.bindTexture(gl.TEXTURE_2D, texture)),
+      tapEffect(texture, () => gl.bindTexture(gl.TEXTURE_2D, texture)),
     )
     .thru((texture) =>
-      withEffect(texture, () =>
+      tapEffect(texture, () =>
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE),
       ),
     )
     .thru((texture) =>
-      withEffect(texture, () =>
+      tapEffect(texture, () =>
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE),
       ),
     )
     .thru((texture) =>
-      withEffect(texture, () =>
+      tapEffect(texture, () =>
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR),
       ),
     )
     .thru((texture) =>
-      withEffect(texture, () =>
+      tapEffect(texture, () =>
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR),
       ),
     )
@@ -67,10 +67,10 @@ const fitTo = (
   buffer: HTMLCanvasElement,
   cell: ScreenCell,
 ): void =>
-  void chain(deviceSize(display))
-    .thru((size) => withEffect(size, () => resizeCanvas(display, size)))
-    .thru((size) => withEffect(size, () => resizeCanvas(buffer, size)))
-    .thru(() => assign(cell, { scale: viewportScale(display) }))
+  void chain(getDeviceSize(display))
+    .thru((size) => tapEffect(size, () => resizeCanvas(display, size)))
+    .thru((size) => tapEffect(size, () => resizeCanvas(buffer, size)))
+    .thru(() => assign(cell, { scale: getViewportScale(display) }))
     .value();
 
 const uploadFrame = (
@@ -79,7 +79,7 @@ const uploadFrame = (
   buffer: HTMLCanvasElement,
 ): void =>
   void chain(texture)
-    .thru((current) => withEffect(current, () => gl.activeTexture(gl.TEXTURE0)))
+    .thru((current) => tapEffect(current, () => gl.activeTexture(gl.TEXTURE0)))
     .thru((current) => gl.bindTexture(gl.TEXTURE_2D, current))
     .thru(() =>
       gl.texImage2D(
@@ -101,20 +101,18 @@ const drawFrame = (
 ): void =>
   void chain(uniforms)
     .thru((current) =>
-      withEffect(current, () =>
+      tapEffect(current, () =>
         gl.viewport(0, 0, display.width, display.height),
       ),
     )
+    .thru((current) => tapEffect(current, () => gl.uniform1i(current.scene, 0)))
     .thru((current) =>
-      withEffect(current, () => gl.uniform1i(current.scene, 0)),
-    )
-    .thru((current) =>
-      withEffect(current, () =>
+      tapEffect(current, () =>
         gl.uniform2f(current.resolution, display.width, display.height),
       ),
     )
     .thru((current) =>
-      withEffect(current, () => gl.uniform1f(current.scale, cell.scale)),
+      tapEffect(current, () => gl.uniform1f(current.scale, cell.scale)),
     )
     .thru(() => gl.drawArrays(gl.TRIANGLES, 0, 3))
     .value();
@@ -133,24 +131,24 @@ const assemble = (
 ): Screen =>
   chain({
     cell: { scale: 1 } as ScreenCell,
-    uniforms: uniformsOf(gl, program),
+    uniforms: getUniforms(gl, program),
   })
     .thru((state): Screen => ({
       buffer,
       fit: () => fitTo(display, buffer.canvas, state.cell),
       present: () =>
         chain(buffer.canvas)
-          .thru((frame) => withEffect(frame, () => gl.useProgram(program)))
+          .thru((frame) => tapEffect(frame, () => gl.useProgram(program)))
           .thru((frame) => uploadFrame(gl, texture, frame))
           .thru(() => drawFrame(gl, display, state.uniforms, state.cell))
           .value(),
       dispose: () =>
         chain(gl)
           .thru((context) =>
-            withEffect(context, () => context.deleteTexture(texture)),
+            tapEffect(context, () => context.deleteTexture(texture)),
           )
           .thru((context) =>
-            withEffect(context, () => context.deleteProgram(program)),
+            tapEffect(context, () => context.deleteProgram(program)),
           )
           .thru((context) => releaseContext(context))
           .value(),
@@ -166,7 +164,7 @@ export const createGlScreen = (
     .otherwise((gl) =>
       chain(gl)
         .thru((context) =>
-          withEffect(context, () =>
+          tapEffect(context, () =>
             context.pixelStorei(context.UNPACK_FLIP_Y_WEBGL, true),
           ),
         )

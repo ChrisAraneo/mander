@@ -5,7 +5,7 @@ import type { Sector } from './structure';
 
 const UNKNOWN_STRUCTURE = 'UNKNOWN';
 
-const namesOf = (
+const listNamePairs = (
   library: Readonly<Record<string, Sector>>,
 ): [Sector, string][] =>
   map(toPairs(library), ([name, structure]): [Sector, string] => [
@@ -14,9 +14,9 @@ const namesOf = (
   ]);
 
 const STRUCTURE_NAMES = new Map<Sector, string>([
-  ...namesOf(NORMAL_LIBRARY),
-  ...namesOf(HARD_LIBRARY),
-  ...namesOf(VERTICAL_LIBRARY),
+  ...listNamePairs(NORMAL_LIBRARY),
+  ...listNamePairs(HARD_LIBRARY),
+  ...listNamePairs(VERTICAL_LIBRARY),
 ]);
 
 export const getStructureName = (structure: Sector): string =>

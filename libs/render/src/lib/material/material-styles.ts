@@ -18,7 +18,7 @@ import {
 } from './consts';
 import type { MaterialStyle } from './material-style';
 
-export const materialStyle = (tile: Tile): MaterialStyle =>
+export const getMaterialStyle = (tile: Tile): MaterialStyle =>
   match(tile)
     .with(TILE_BRICK, () => BRICK_STYLE)
     .with(TILE_STONE, () => STONE_STYLE)

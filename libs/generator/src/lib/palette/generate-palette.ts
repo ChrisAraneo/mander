@@ -1,5 +1,5 @@
 import type { Palette } from '@mander/render';
-import { createRandom, type Hsl, hslCss, wrapHue } from '@mander/utils';
+import { createRandom, formatHslCss, type Hsl, wrapHue } from '@mander/utils';
 import { match } from 'ts-pattern';
 
 import { CAP_HUES, GROUND_HUES, SKY_HUES } from './cel-hues';
@@ -47,7 +47,7 @@ interface Ground {
   capLightness: number;
 }
 
-const awayFromEntityHue = (hue: number): number =>
+const pushAwayFromEntityHue = (hue: number): number =>
   match(wrapHue(hue - ENTITY_HUE))
     .when(
       (gap) => gap >= ENTITY_HUE_GUARD && gap <= 360 - ENTITY_HUE_GUARD,
@@ -65,10 +65,10 @@ const rollSky = (random: ReturnType<typeof createRandom>): Sky => {
   return {
     hue,
     horizonHue: wrapHue(
-      hue + random.int(-SKY_HORIZON_HUE_DRIFT, SKY_HORIZON_HUE_DRIFT),
+      hue + random.rollInt(-SKY_HORIZON_HUE_DRIFT, SKY_HORIZON_HUE_DRIFT),
     ),
-    saturation: random.int(SKY_SATURATION_MIN, SKY_SATURATION_MAX),
-    topLightness: random.int(SKY_TOP_LIGHTNESS_MIN, SKY_TOP_LIGHTNESS_MAX),
+    saturation: random.rollInt(SKY_SATURATION_MIN, SKY_SATURATION_MAX),
+    topLightness: random.rollInt(SKY_TOP_LIGHTNESS_MIN, SKY_TOP_LIGHTNESS_MAX),
   };
 };
 
@@ -77,15 +77,15 @@ const rollGround = (random: ReturnType<typeof createRandom>): Ground => {
 
   return {
     hue,
-    saturation: random.int(GROUND_SATURATION_MIN, GROUND_SATURATION_MAX),
-    lightness: random.int(GROUND_LIGHTNESS_MIN, GROUND_LIGHTNESS_MAX),
-    capHue: awayFromEntityHue(wrapHue(random.pick(CAP_HUES))),
-    capSaturation: random.int(CAP_SATURATION_MIN, CAP_SATURATION_MAX),
-    capLightness: random.int(CAP_LIGHTNESS_MIN, CAP_LIGHTNESS_MAX),
+    saturation: random.rollInt(GROUND_SATURATION_MIN, GROUND_SATURATION_MAX),
+    lightness: random.rollInt(GROUND_LIGHTNESS_MIN, GROUND_LIGHTNESS_MAX),
+    capHue: pushAwayFromEntityHue(wrapHue(random.pick(CAP_HUES))),
+    capSaturation: random.rollInt(CAP_SATURATION_MIN, CAP_SATURATION_MAX),
+    capLightness: random.rollInt(CAP_LIGHTNESS_MIN, CAP_LIGHTNESS_MAX),
   };
 };
 
-const skyStops = (sky: Sky): readonly [Hsl, Hsl, Hsl] => [
+const getSkyStops = (sky: Sky): readonly [Hsl, Hsl, Hsl] => [
   { hue: sky.hue, saturation: sky.saturation, lightness: sky.topLightness },
   {
     hue: sky.hue,
@@ -99,7 +99,7 @@ const skyStops = (sky: Sky): readonly [Hsl, Hsl, Hsl] => [
   },
 ];
 
-const hillShades = (sky: Sky): readonly [Hsl, Hsl] => [
+const getHillShades = (sky: Sky): readonly [Hsl, Hsl] => [
   {
     hue: sky.hue,
     saturation: sky.saturation - HILL_SATURATION_DROP,
@@ -116,23 +116,23 @@ export const generatePalette = (seed: string): Palette => {
   const random = createRandom(seed);
   const sky = rollSky(random);
   const ground = rollGround(random);
-  const [top, middle, horizon] = skyStops(sky);
-  const [far, near] = hillShades(sky);
+  const [top, middle, horizon] = getSkyStops(sky);
+  const [far, near] = getHillShades(sky);
 
   return {
-    sky: [hslCss(top), hslCss(middle), hslCss(horizon)],
-    hills: [hslCss(far), hslCss(near)],
-    block: hslCss({
+    sky: [formatHslCss(top), formatHslCss(middle), formatHslCss(horizon)],
+    hills: [formatHslCss(far), formatHslCss(near)],
+    block: formatHslCss({
       hue: ground.hue,
       saturation: ground.saturation,
       lightness: ground.lightness,
     }),
-    blockCap: hslCss({
+    blockCap: formatHslCss({
       hue: ground.capHue,
       saturation: ground.capSaturation,
       lightness: ground.capLightness,
     }),
-    blockCapHighlight: hslCss({
+    blockCapHighlight: formatHslCss({
       hue: ground.capHue,
       saturation: ground.capSaturation + CAP_HIGHLIGHT_SATURATION_GAIN,
       lightness: ground.capLightness + CAP_HIGHLIGHT_LIGHTNESS_GAIN,

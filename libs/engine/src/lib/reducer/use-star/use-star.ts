@@ -7,7 +7,7 @@ import { STAR_INVINCIBLE_SECONDS } from '../player/consts';
 
 const { number } = P;
 
-const shielded = (player: Player): Player => ({
+const shieldPlayer = (player: Player): Player => ({
   ...player,
   timers: {
     ...player.timers,
@@ -22,7 +22,7 @@ const shielded = (player: Player): Player => ({
 const burnStar = (state: GameState): GameState => ({
   ...state,
   stars: state.stars - 1,
-  player: shielded(state.player),
+  player: shieldPlayer(state.player),
 });
 
 export const useStar = (state: GameState): GameState =>

@@ -21,7 +21,7 @@ const FIREBALL_TINT: MaterialTint = {
   lightness: -26,
 };
 
-export const materialTint = (tile: Tile): MaterialTint =>
+export const getMaterialTint = (tile: Tile): MaterialTint =>
   match(tile)
     .with(TILE_BRICK, () => BRICK_TINT)
     .with(TILE_STONE, () => STONE_TINT)

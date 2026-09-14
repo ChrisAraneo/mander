@@ -10,7 +10,7 @@ import { type Tile, TILE_AIR, TILE_DIRT, TILE_SPAWN } from '@mander/model';
 import { map, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { advanceGhosts, createGhosts, ghostStates } from './ghost-playback';
+import { advanceGhosts, createGhosts, getGhostStates } from './ghost-playback';
 
 const WIDTH = 20;
 const HEIGHT = 12;
@@ -118,7 +118,7 @@ describe('the ghosts running alongside a replay', () => {
       20,
     );
 
-    expect(ghostStates(ghosts, 0)).toHaveLength(1);
+    expect(getGhostStates(ghosts, 0)).toHaveLength(1);
   });
 
   it('draws a ghost part-way between the steps it took', () => {
@@ -126,9 +126,9 @@ describe('the ghosts running alongside a replay', () => {
       createGhosts([walkingRight(60)], initialState),
       30,
     );
-    const [back] = ghostStates(ghosts, 0);
-    const [middle] = ghostStates(ghosts, 0.5);
-    const [front] = ghostStates(ghosts, 1);
+    const [back] = getGhostStates(ghosts, 0);
+    const [middle] = getGhostStates(ghosts, 0.5);
+    const [front] = getGhostStates(ghosts, 1);
 
     expect(xOf(back)).toBeLessThan(xOf(middle));
     expect(xOf(middle)).toBeLessThan(xOf(front));
@@ -141,10 +141,10 @@ describe('the ghosts running alongside a replay', () => {
       600,
     );
 
-    expect(ghostStates(ghosts, 0)).toEqual([]);
+    expect(getGhostStates(ghosts, 0)).toEqual([]);
   });
 
   it('has no ghosts to run when the world has no other runs', () => {
-    expect(ghostStates(createGhosts([], initialState), 0)).toEqual([]);
+    expect(getGhostStates(createGhosts([], initialState), 0)).toEqual([]);
   });
 });

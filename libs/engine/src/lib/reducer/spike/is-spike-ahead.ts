@@ -1,8 +1,8 @@
 import { isSpike, type Level } from '@mander/model';
 import { some } from 'lodash-es';
 
-import { probeColumn } from '../enemy/probe-column';
-import { probeRows } from '../enemy/probe-rows';
+import { getProbeColumn } from '../enemy/get-probe-column';
+import { getProbeRows } from '../enemy/get-probe-rows';
 
 export const isSpikeAhead = (
   level: Level,
@@ -10,6 +10,6 @@ export const isSpikeAhead = (
   originY: number,
   facing: 1 | -1,
 ): boolean =>
-  some(probeRows(originY), (row) =>
-    isSpike(level, probeColumn(originX, facing), row),
+  some(getProbeRows(originY), (row) =>
+    isSpike(level, getProbeColumn(originX, facing), row),
   );

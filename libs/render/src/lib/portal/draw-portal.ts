@@ -2,28 +2,28 @@ import { chain } from '@mander/utils';
 import type { GameState } from '@mander/engine';
 import {
   findPortalTile,
+  getEntityRectangle,
   type Level,
   PORTAL_ENTITY_BOX,
-  toEntityRectangle,
 } from '@mander/model';
 import type { Rectangle } from '@mander/utils';
 import { constant, map, range } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import {
+  applyStyle,
+  applyStyleWith,
   beginPath,
   type CanvasStep,
   type ColorStop,
-  ellipse,
+  createRadialGradient,
   fill,
   paint,
-  radialGradient,
   restore,
   save,
   sequence,
   stroke,
-  styled,
-  styledWith,
+  traceEllipse,
 } from '../canvas';
 import { outline } from '../stroke';
 
@@ -39,7 +39,7 @@ const SWIRL_STOPS: readonly ColorStop[] = [
   [1, '#3C2470'],
 ];
 
-const coreStep = (
+const createCoreStep = (
   portal: Rectangle,
   centerX: number,
   centerY: number,
@@ -47,7 +47,7 @@ const coreStep = (
 ): CanvasStep =>
   sequence([
     beginPath,
-    ellipse(
+    traceEllipse(
       centerX,
       centerY,
       (portal.width / 2) * pulse,
@@ -57,8 +57,8 @@ const coreStep = (
       Math.PI * 2,
     ),
     outline(),
-    styledWith((context) => ({
-      fillStyle: radialGradient(
+    applyStyleWith((context) => ({
+      fillStyle: createRadialGradient(
         context,
         centerX,
         centerY,
@@ -72,7 +72,7 @@ const coreStep = (
     fill,
   ]);
 
-const ringStep = (
+const createRingStep = (
   portal: Rectangle,
   centerX: number,
   centerY: number,
@@ -81,7 +81,7 @@ const ringStep = (
 ): CanvasStep =>
   sequence([
     beginPath,
-    ellipse(
+    traceEllipse(
       centerX,
       centerY,
       (portal.width / 2 - 4) * pulse,
@@ -93,7 +93,7 @@ const ringStep = (
     stroke,
   ]);
 
-const ringsStep = (
+const createRingsStep = (
   portal: Rectangle,
   centerX: number,
   centerY: number,
@@ -101,10 +101,10 @@ const ringsStep = (
   time: number,
 ): CanvasStep =>
   sequence([
-    styled({ strokeStyle: RING_COLOR, lineWidth: 3 }),
+    applyStyle({ strokeStyle: RING_COLOR, lineWidth: 3 }),
     sequence(
       map(range(RING_COUNT), (ringIndex) =>
-        ringStep(
+        createRingStep(
           portal,
           centerX,
           centerY,
@@ -115,7 +115,7 @@ const ringsStep = (
     ),
   ]);
 
-const portalStep = (portal: Rectangle, state: GameState): CanvasStep =>
+const createPortalStep = (portal: Rectangle, state: GameState): CanvasStep =>
   chain({
     centerX: portal.x + portal.width / 2,
     centerY: portal.y + portal.height / 2,
@@ -124,32 +124,32 @@ const portalStep = (portal: Rectangle, state: GameState): CanvasStep =>
     .thru(({ centerX, centerY, pulse }) =>
       sequence([
         save,
-        styled({
+        applyStyle({
           shadowColor: GLOW,
           shadowBlur: match(state.isNearPortal)
             .with(true, () => 30)
             .otherwise(() => 14),
         }),
-        coreStep(portal, centerX, centerY, pulse),
-        ringsStep(portal, centerX, centerY, pulse, state.time),
+        createCoreStep(portal, centerX, centerY, pulse),
+        createRingsStep(portal, centerX, centerY, pulse, state.time),
         restore,
       ]),
     )
     .value();
 
-const portalRectangle = (level: Level): Rectangle | undefined =>
+const getPortalRectangle = (level: Level): Rectangle | undefined =>
   match(findPortalTile(level))
     .with(nullish, constant(undefined))
-    .otherwise((tile) => toEntityRectangle(tile, PORTAL_ENTITY_BOX));
+    .otherwise((tile) => getEntityRectangle(tile, PORTAL_ENTITY_BOX));
 
 export const drawPortal = (
   context: CanvasRenderingContext2D,
   state: GameState,
 ): void =>
-  chain(portalRectangle(state.level))
+  chain(getPortalRectangle(state.level))
     .thru((portal) =>
       match(portal)
         .with(nullish, constant(undefined))
-        .otherwise((box) => paint(context, portalStep(box, state))),
+        .otherwise((box) => paint(context, createPortalStep(box, state))),
     )
     .value();

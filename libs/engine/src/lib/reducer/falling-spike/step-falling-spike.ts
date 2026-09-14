@@ -17,7 +17,7 @@ import {
 import { hasLeftLevel } from './has-left-level';
 import { isPlayerInRange } from './is-player-in-range';
 
-const keptInLevel = (level: Level, spike: FallingSpike): FallingSpike | null =>
+const keepInLevel = (level: Level, spike: FallingSpike): FallingSpike | null =>
   match(hasLeftLevel(level, spike))
     .with(true, (): FallingSpike | null => null)
     .otherwise((): FallingSpike | null => spike);
@@ -48,7 +48,7 @@ const fall = (
       match(vertical.isBlocked)
         .with(true, (): FallingSpike | null => null)
         .otherwise((): FallingSpike | null =>
-          keptInLevel(level, {
+          keepInLevel(level, {
             position: { ...spike.position, y: vertical.position },
             velocity: { y: { ...spike.velocity.y, current: vy } },
             statuses: { isFalling: true },

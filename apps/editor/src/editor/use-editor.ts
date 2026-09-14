@@ -1,6 +1,6 @@
 import { type Layers, TILE_AIR } from '@mander/model';
 import { STRUCTURE_END, STRUCTURE_START } from '@mander/structures';
-import { chain, withEffect } from '@mander/utils';
+import { chain, tapEffect } from '@mander/utils';
 import { concat, includes, last, map, noop, size, slice } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { computed, ref, type Ref, watch } from 'vue';
@@ -8,11 +8,11 @@ import { computed, ref, type Ref, watch } from 'vue';
 import type { Brush, BrushLayer } from './brush';
 import { DEFAULT_BRUSH } from './brushes';
 import { cloneSketch } from './clone-grid';
-import { createSketch, heightOf } from './create-grid';
+import { createSketch, getHeight } from './create-grid';
 import { fillSketch } from './fill-sketch';
 import { formatStructure } from './format-structure';
 import { setRef } from './set-ref';
-import { structureIssues } from './structure-issues';
+import { findStructureIssues } from './find-structure-issues';
 import type { Pool } from './structure-entry';
 
 const { nullish } = P;
@@ -21,12 +21,12 @@ const HISTORY_LIMIT = 50;
 
 const MARKERS = [STRUCTURE_START, STRUCTURE_END];
 
-const gridOf = (sketch: Layers, layer: BrushLayer): number[][] =>
+const getGrid = (sketch: Layers, layer: BrushLayer): number[][] =>
   match(layer)
     .with('back', () => sketch.backTiles)
     .otherwise(() => sketch.tiles);
 
-const withoutMarker = (grid: number[][], marker: number): number[][] =>
+const removeMarker = (grid: number[][], marker: number): number[][] =>
   map(grid, (row) =>
     map(row, (cell) =>
       match(cell)
@@ -37,11 +37,11 @@ const withoutMarker = (grid: number[][], marker: number): number[][] =>
 
 // a sector is entered and left in one place, so painting a marker lifts the one
 // that was there before
-const cleared = (sketch: Layers, value: number): Layers =>
+const clearMarker = (sketch: Layers, value: number): Layers =>
   match(includes(MARKERS, value))
     .with(true, (): Layers => ({
       ...sketch,
-      tiles: withoutMarker(sketch.tiles, value),
+      tiles: removeMarker(sketch.tiles, value),
     }))
     .otherwise(() => sketch);
 
@@ -52,8 +52,8 @@ const applyPaint = (
   value: number,
   layer: BrushLayer,
 ): void =>
-  void chain(setRef(sketch, cleared(sketch.value, value)))
-    .thru((next) => (gridOf(next, layer)[row][column] = value))
+  void chain(setRef(sketch, clearMarker(sketch.value, value)))
+    .thru((next) => (getGrid(next, layer)[row][column] = value))
     .value();
 
 export const useEditor = (pool: Readonly<Ref<Pool>>) =>
@@ -64,7 +64,9 @@ export const useEditor = (pool: Readonly<Ref<Pool>>) =>
   })
     .thru((state) => ({
       ...state,
-      issues: computed(() => structureIssues(state.sketch.value, pool.value)),
+      issues: computed(() =>
+        findStructureIssues(state.sketch.value, pool.value),
+      ),
       remember: (): void =>
         void setRef(
           state.history,
@@ -82,7 +84,7 @@ export const useEditor = (pool: Readonly<Ref<Pool>>) =>
         value: number,
         layer: BrushLayer,
       ): void =>
-        chain(gridOf(state.sketch.value, layer)[row]?.[column])
+        chain(getGrid(state.sketch.value, layer)[row]?.[column])
           .thru((current) =>
             match(current)
               .with(nullish, noop)
@@ -93,7 +95,7 @@ export const useEditor = (pool: Readonly<Ref<Pool>>) =>
           )
           .value(),
       replace: (next: Layers): void =>
-        void chain(withEffect(next, () => state.remember()))
+        void chain(tapEffect(next, () => state.remember()))
           .thru((sketch) =>
             setRef(state.sketch, fillSketch(cloneSketch(sketch))),
           )
@@ -115,9 +117,9 @@ export const useEditor = (pool: Readonly<Ref<Pool>>) =>
           .value(),
     }))
     .thru((state) =>
-      withEffect(state, () =>
+      tapEffect(state, () =>
         watch(pool, (next) =>
-          match(size(state.sketch.value.tiles) === heightOf(next))
+          match(size(state.sketch.value.tiles) === getHeight(next))
             .with(true, noop)
             .otherwise(() => state.replace(createSketch(next))),
         ),

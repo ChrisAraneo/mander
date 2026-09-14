@@ -14,12 +14,12 @@ import {
   type Palette,
 } from '@mander/render';
 import { STRUCTURE_END, STRUCTURE_START } from '@mander/structures';
-import { chain, withEffect } from '@mander/utils';
+import { chain, tapEffect } from '@mander/utils';
 import { forEach, includes, map } from 'lodash-es';
 
 import { drawMarker } from './draw-marker';
 import { drawOrbit } from './draw-orbit';
-import { structureTileMap } from './structure-tile-map';
+import { createStructureTileMap } from './create-structure-tile-map';
 
 const NO_PALETTE: Palette = {
   sky: ['', '', ''],
@@ -37,7 +37,7 @@ interface MarkerCell {
   column: number;
 }
 
-const markerCells = (grid: number[][]): MarkerCell[] =>
+const findMarkerCells = (grid: number[][]): MarkerCell[] =>
   chain(grid)
     .flatMap((cells, row) =>
       map(cells, (cell, column): MarkerCell => ({ cell, row, column })),
@@ -49,19 +49,19 @@ export const drawStructure = (
   context: CanvasRenderingContext2D,
   sketch: Layers,
 ): void =>
-  void chain(structureTileMap(sketch))
+  void chain(createStructureTileMap(sketch))
     .thru((level) => ({
       level,
       width: level.width * TILE_SIZE,
       height: level.height * TILE_SIZE,
     }))
     .thru((scene) =>
-      withEffect(scene, () =>
+      tapEffect(scene, () =>
         context.clearRect(0, 0, scene.width, scene.height),
       ),
     )
     .thru((scene) =>
-      withEffect(scene, () =>
+      tapEffect(scene, () =>
         drawTiles(context, scene.level, NO_PALETTE, 0, 0, {
           width: scene.width,
           height: scene.height,
@@ -70,32 +70,32 @@ export const drawStructure = (
       ),
     )
     .thru((scene) =>
-      withEffect(scene, () =>
+      tapEffect(scene, () =>
         forEach(createCannons(scene.level), (cannon) =>
           drawCannon(context, cannon),
         ),
       ),
     )
     .thru((scene) =>
-      withEffect(scene, () =>
+      tapEffect(scene, () =>
         forEach(createEnemies(scene.level), (enemy) =>
           drawEnemy(context, enemy, 0),
         ),
       ),
     )
     .thru((scene) =>
-      withEffect(scene, () =>
+      tapEffect(scene, () =>
         forEach(createFallingSpikes(scene.level), (spike) =>
           drawFallingSpike(context, spike),
         ),
       ),
     )
     .thru((scene) =>
-      withEffect(scene, () =>
+      tapEffect(scene, () =>
         forEach(createFireballs(scene.level), (fireball) =>
           chain(fireball)
             .thru((orbiting) =>
-              withEffect(orbiting, () => drawOrbit(context, orbiting)),
+              tapEffect(orbiting, () => drawOrbit(context, orbiting)),
             )
             .thru((orbiting) => drawFireball(context, orbiting, 0))
             .value(),
@@ -103,7 +103,7 @@ export const drawStructure = (
       ),
     )
     .thru(() =>
-      forEach(markerCells(sketch.tiles), ({ cell, row, column }) =>
+      forEach(findMarkerCells(sketch.tiles), ({ cell, row, column }) =>
         drawMarker(context, cell, row, column),
       ),
     )

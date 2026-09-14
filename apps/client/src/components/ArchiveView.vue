@@ -2,7 +2,7 @@
 import { noop } from 'lodash-es';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { match } from 'ts-pattern';
-import { runLabel } from '../game/format';
+import { formatRunLabel } from '../game/format';
 import type { RunRecord } from '../game/storage';
 import { useArchive } from '../game/use-archive';
 import ReplayBar from './ReplayBar.vue';
@@ -25,14 +25,14 @@ const {
   durationSeconds,
 } = replay;
 
-const onKeyDown = (event: KeyboardEvent): void =>
+const handleKeyDown = (event: KeyboardEvent): void =>
   match({ repeat: event.repeat, code: event.code })
     .with({ repeat: false, code: 'Space' }, () => replay.togglePause())
     .with({ repeat: false, code: 'Escape' }, () => emit('exit'))
     .otherwise(noop);
 
-onMounted(() => window.addEventListener('keydown', onKeyDown));
-onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
+onMounted(() => window.addEventListener('keydown', handleKeyDown));
+onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
 </script>
 
 <template>
@@ -41,7 +41,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
 
     <ReplayBar
       :world-name="run.name"
-      :label="runLabel(run)"
+      :label="formatRunLabel(run)"
       :is-paused="isPaused"
       :is-finished="isFinished"
       :speed="speed"

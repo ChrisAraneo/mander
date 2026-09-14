@@ -4,7 +4,7 @@ import type { RenderedWorld } from '@mander/render';
 import { getStructureName, type Sector } from '@mander/structures';
 import { filter, floor, map, range, size, slice, take } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { paddingOf, padTiles } from './structures/add-padding';
+import { getPadding, padTiles } from './structures/add-padding';
 import { addStones } from './structures/add-stones';
 import { computeLevelSeeds } from './seed/compute-level-seeds';
 import { clearBeartraps } from './structures/clear-beartraps';
@@ -15,7 +15,7 @@ import { generateChestItems } from './items/generate-chest-items';
 import { generatePalette } from './palette/generate-palette';
 import { isMirrored } from './structures/is-mirrored';
 import { isVertical } from './structures/is-vertical';
-import { layoutFor } from './structures/layout';
+import { getLayout } from './structures/layout';
 import { mirrorTiles } from './structures/mirror-tiles';
 import { pickStructures, type Pool } from './structures/pick-structures';
 import { computeWorldName } from './seed/compute-world-name';
@@ -30,7 +30,7 @@ import {
 
 type Deal = Record<Pool, Sector[]>;
 
-const hornedEnemyChanceFor = (levelNumber: number): number =>
+const getHornedEnemyChance = (levelNumber: number): number =>
   match(levelNumber)
     .when(
       (number) => number >= FIRST_HORNED_ENEMY_LEVEL,
@@ -42,7 +42,7 @@ const hornedEnemyChanceFor = (levelNumber: number): number =>
     )
     .otherwise(() => NO_HORNED_ENEMIES);
 
-const poolFor = (levelNumber: number): Pool =>
+const getPool = (levelNumber: number): Pool =>
   match(levelNumber)
     .when(isVertical, (): Pool => 'vertical')
     .when(
@@ -51,16 +51,16 @@ const poolFor = (levelNumber: number): Pool =>
     )
     .otherwise((): Pool => 'normal');
 
-const levelPools = (levels: number): Pool[] =>
-  map(range(1, levels + 1), poolFor);
+const listLevelPools = (levels: number): Pool[] =>
+  map(range(1, levels + 1), getPool);
 
 const countIn = (pools: Pool[], pool: Pool): number =>
   size(filter(pools, (drawn) => drawn === pool));
 
-const rankIn = (pools: Pool[], index: number): number =>
+const getRank = (pools: Pool[], index: number): number =>
   countIn(take(pools, index), pools[index]);
 
-const dealFor = (worldName: string, pools: Pool[]): Deal => ({
+const dealStructures = (worldName: string, pools: Pool[]): Deal => ({
   normal: pickStructures(
     worldName,
     countIn(pools, 'normal') * STRUCTURES_PER_LEVEL,
@@ -88,7 +88,7 @@ const sliceForLevel = (
   return slice(dealt, index * perLevel, (index + 1) * perLevel);
 };
 
-const metaFor = (structures: Sector[]): LevelMeta => ({
+const getMeta = (structures: Sector[]): LevelMeta => ({
   structures: map(structures, getStructureName),
 });
 
@@ -97,12 +97,12 @@ const metaFor = (structures: Sector[]): LevelMeta => ({
 // back layer has something in as empty, so what is painted behind the level
 // stays behind it
 const buildLayers = (structures: Sector[], levelNumber: number): Layers => {
-  const layout = layoutFor(levelNumber);
+  const layout = getLayout(levelNumber);
   const { tiles: joined, backTiles } = layout.join(structures);
   const tiles = clearFireballs(clearCannons(joined, levelNumber), levelNumber);
   const withPlayer = layout.addSpawn(tiles);
   const withPortal = layout.addPortal(withPlayer);
-  const padding = paddingOf(withPortal);
+  const padding = getPadding(withPortal);
   const withPadding = padTiles(withPortal, padding);
   const withSpikes = clearSpikes(withPadding, levelNumber);
   const withBeartraps = clearBeartraps(withSpikes, levelNumber);
@@ -124,8 +124,8 @@ export const generate = (date: Date): RenderedWorld => {
   const worldName = computeWorldName(date);
   const seeds = computeLevelSeeds(date);
   const palette = generatePalette(worldName);
-  const pools = levelPools(size(seeds));
-  const deal = dealFor(worldName, pools);
+  const pools = listLevelPools(size(seeds));
+  const deal = dealStructures(worldName, pools);
 
   const levels: GameLevel[] = map(seeds, (seed, index) => {
     const levelNumber = index + 1;
@@ -133,7 +133,7 @@ export const generate = (date: Date): RenderedWorld => {
     const structures = sliceForLevel(
       deal[pool],
       countIn(pools, pool),
-      rankIn(pools, index),
+      getRank(pools, index),
     );
     const { tiles, backTiles } = buildLayers(structures, levelNumber);
 
@@ -144,9 +144,9 @@ export const generate = (date: Date): RenderedWorld => {
       tiles,
       backTiles,
       chestItems: generateChestItems(seed),
-      hornedEnemyChance: hornedEnemyChanceFor(levelNumber),
+      hornedEnemyChance: getHornedEnemyChance(levelNumber),
       isOpenSided: isVertical(levelNumber),
-      meta: metaFor(structures),
+      meta: getMeta(structures),
     };
 
     return level;

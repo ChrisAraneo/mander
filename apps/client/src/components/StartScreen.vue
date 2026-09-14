@@ -3,15 +3,15 @@ import { computed, ref } from 'vue';
 import { isFinite, size } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { computeWorldName } from '@mander/generator';
-import { formatClock, runLabel } from '../game/format';
+import { formatClock, formatRunLabel } from '../game/format';
 import {
+  listPlayableWorlds,
   loadSave,
   type PlayableWorld,
-  playableWorlds,
   type RunRecord,
 } from '../game/storage';
 import { useBackdrop } from '../game/use-backdrop';
-import { dailyDate } from '../game/use-game';
+import { getDailyDate } from '../game/use-game';
 
 const { nonNullable, when } = P;
 
@@ -20,7 +20,7 @@ const emit = defineEmits<{
   watch: [run: RunRecord];
 }>();
 
-const date = dailyDate();
+const date = getDailyDate();
 const worldName = computeWorldName(new Date(date));
 
 const canvas = ref<HTMLCanvasElement | null>(null);
@@ -33,11 +33,11 @@ const finishedToday = computed(() =>
   save.value.completedWorlds.find((world) => world.name === worldName),
 );
 
-const playedWorlds = computed(() => playableWorlds(save.value));
+const playedWorlds = computed(() => listPlayableWorlds(save.value));
 
 const opened = ref<string | null>(null);
 
-const pluralSuffix = (count: number): string =>
+const getPluralSuffix = (count: number): string =>
   match(count)
     .with(1, () => '')
     .otherwise(() => 's');
@@ -49,12 +49,12 @@ const formatDay = (day: string): string =>
     .with('', () => 'day unknown')
     .otherwise((known) => known);
 
-const scoreOf = (world: PlayableWorld): string =>
+const formatWorldScore = (world: PlayableWorld): string =>
   match(world.completed)
     .with(nonNullable, (run) => formatScore(run.score))
     .otherwise(() => '');
 
-const clockOf = (world: PlayableWorld): string =>
+const formatWorldClock = (world: PlayableWorld): string =>
   match(world.completed)
     .with(nonNullable, (run) => formatClock(run.seconds))
     .otherwise(() => '');
@@ -67,7 +67,7 @@ const toggleRuns = (world: PlayableWorld): void => {
     .otherwise(() => world.name);
 };
 
-const whenOf = (run: RunRecord): string =>
+const formatPlayedWhen = (run: RunRecord): string =>
   match(new Date(run.playedAt).getTime())
     .with(when(isFinite), (time) =>
       new Date(time).toLocaleString('en-US', {
@@ -103,7 +103,7 @@ const whenOf = (run: RunRecord): string =>
         <header class="save-head">
           <p>
             {{ playedWorlds.length }} world{{
-              pluralSuffix(playedWorlds.length)
+              getPluralSuffix(playedWorlds.length)
             }}
             played
           </p>
@@ -118,8 +118,8 @@ const whenOf = (run: RunRecord): string =>
             <div class="row-meta">
               <span class="row-day">{{ formatDay(world.day) }}</span>
               <template v-if="world.completed !== null">
-                <span class="row-score">★ {{ scoreOf(world) }}</span>
-                <span class="row-time">⏱ {{ clockOf(world) }}</span>
+                <span class="row-score">★ {{ formatWorldScore(world) }}</span>
+                <span class="row-time">⏱ {{ formatWorldClock(world) }}</span>
               </template>
               <span v-else class="row-open">unfinished</span>
               <span v-if="world.runs > 1" class="row-runs"
@@ -146,13 +146,13 @@ const whenOf = (run: RunRecord): string =>
             <ul v-if="isOpen(world)" class="run-list">
               <li v-for="run in world.replays" :key="run.id" class="run">
                 <span class="run-outcome" :class="run.outcome.toLowerCase()">{{
-                  runLabel(run)
+                  formatRunLabel(run)
                 }}</span>
 
                 <span class="run-meta">
                   <span class="run-score">★ {{ formatScore(run.score) }}</span>
                   <span class="run-time">⏱ {{ formatClock(run.seconds) }}</span>
-                  <span class="run-when">{{ whenOf(run) }}</span>
+                  <span class="run-when">{{ formatPlayedWhen(run) }}</span>
                 </span>
 
                 <button class="ghost" @click="emit('watch', run)">

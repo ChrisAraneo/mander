@@ -18,7 +18,7 @@ import { drawChest } from '../chest';
 import { drawGems } from '../gem';
 import { drawEnemy } from '../enemies';
 import { drawFireballs, drawPlayerFireballs } from '../fireball';
-import { type Focus, playerFocus } from '../focus';
+import { type Focus, getPlayerFocus } from '../focus';
 import { drawHillLayer, HILL_LAYERS } from '../hill';
 import { drawKey } from '../key';
 import type { Palette } from '../palette';
@@ -28,25 +28,25 @@ import { drawSky } from '../sky';
 import { drawFallingSpike } from '../spike';
 import { drawTiles } from '../tile';
 import type { Viewport } from '../viewport';
-import { cameraAxis } from './camera-axis';
+import { getCameraAxis } from './get-camera-axis';
 
 export const renderGame = (
   context: CanvasRenderingContext2D,
   state: GameState,
   palette: Palette,
   viewport: Viewport,
-  focus: Focus = playerFocus(state),
+  focus: Focus = getPlayerFocus(state),
   ghosts: Ghost[] = [],
 ): void =>
   chain(state.level)
     .thru((level) => ({
-      cameraX: cameraAxis(
+      cameraX: getCameraAxis(
         focus.x,
         viewport.width,
         level.width * TILE_SIZE,
         viewport.scale,
       ),
-      cameraY: cameraAxis(
+      cameraY: getCameraAxis(
         focus.y,
         viewport.height,
         level.height * TILE_SIZE,

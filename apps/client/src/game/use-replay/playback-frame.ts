@@ -16,7 +16,7 @@ export interface PlaybackFrame {
   playback: ReplayPlayback;
 }
 
-export const startFrame = (playback: ReplayPlayback): PlaybackFrame => ({
+export const createStartFrame = (playback: ReplayPlayback): PlaybackFrame => ({
   previous: playback.state,
   playback,
 });

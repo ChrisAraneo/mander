@@ -1,4 +1,4 @@
-import { chain, withEffect } from '@mander/utils';
+import { chain, tapEffect } from '@mander/utils';
 import { noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
@@ -14,7 +14,7 @@ const createBuffer = (): CanvasRenderingContext2D | null =>
 const isWebgl2Supported = (): boolean =>
   chain(document.createElement('canvas').getContext('webgl2'))
     .thru((gl) =>
-      withEffect(gl, () =>
+      tapEffect(gl, () =>
         match(gl?.getExtension('WEBGL_lose_context'))
           .with(nullish, noop)
           .otherwise((extension) => extension.loseContext()),

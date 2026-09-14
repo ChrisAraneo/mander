@@ -12,7 +12,7 @@ import {
 } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { patchTiles, type TilePatch } from './patch-tiles';
-import { tilesSeed } from './tiles-seed';
+import { formatTilesSeed } from './format-tiles-seed';
 
 const NOTHING_REMOVED = 0;
 
@@ -23,10 +23,10 @@ interface Cell {
   column: number;
 }
 
-const removedShareFor = (levelNumber: number): number =>
+const getRemovedShare = (levelNumber: number): number =>
   REMOVED_SHARE[levelNumber - 1] ?? NOTHING_REMOVED;
 
-const beartrapCells = (tiles: Tile[][]): Cell[] =>
+const findBeartrapCells = (tiles: Tile[][]): Cell[] =>
   flatMap(tiles, (cells, row) =>
     map(
       filter(range(size(cells)), (column) => cells[column] === TILE_BEARTRAP),
@@ -34,24 +34,26 @@ const beartrapCells = (tiles: Tile[][]): Cell[] =>
     ),
   );
 
-const toAir = ({ row, column }: Cell): TilePatch => ({
+const createAirPatch = ({ row, column }: Cell): TilePatch => ({
   row,
   column,
   tile: TILE_AIR,
 });
 
-const seedOf = (tiles: Tile[][], levelNumber: number): string =>
-  `beartrap#${levelNumber}#${tilesSeed(tiles)}`;
+const formatSeed = (tiles: Tile[][], levelNumber: number): string =>
+  `beartrap#${levelNumber}#${formatTilesSeed(tiles)}`;
 
 const springTraps = (
   tiles: Tile[][],
   levelNumber: number,
   share: number,
 ): Tile[][] =>
-  chain(createRandom(seedOf(tiles, levelNumber)))
-    .thru((random) => sortBy(beartrapCells(tiles), () => random.next()))
+  chain(createRandom(formatSeed(tiles, levelNumber)))
+    .thru((random) =>
+      sortBy(findBeartrapCells(tiles), () => random.rollFloat()),
+    )
     .thru((shuffled) => take(shuffled, round(size(shuffled) * share)))
-    .map(toAir)
+    .map(createAirPatch)
     .thru((patches) => patchTiles(tiles, patches))
     .value();
 
@@ -59,6 +61,6 @@ export const clearBeartraps = (
   tiles: Tile[][],
   levelNumber: number,
 ): Tile[][] =>
-  match(removedShareFor(levelNumber))
+  match(getRemovedShare(levelNumber))
     .with(NOTHING_REMOVED, () => map(tiles, (row) => [...row]))
     .otherwise((share) => springTraps(tiles, levelNumber, share));

@@ -1,17 +1,17 @@
 import { match } from 'ts-pattern';
 
 import { appendName, hasName } from './append-name.ts';
-import { type Pool, prefixOf } from './pool.ts';
+import { getPrefix, type Pool } from './pool.ts';
 
-const importOf = (pool: Pool): RegExp =>
+const createImportPattern = (pool: Pool): RegExp =>
   new RegExp(`import \\{([^}]*?)\\} from '\\./${pool}';`);
 
-const libraryOf = (pool: Pool): RegExp =>
+const createLibraryPattern = (pool: Pool): RegExp =>
   new RegExp(
-    `export const ${prefixOf(pool)}_LIBRARY = Object\\.freeze\\(\\{([^}]*?)\\}\\);`,
+    `export const ${getPrefix(pool)}_LIBRARY = Object\\.freeze\\(\\{([^}]*?)\\}\\);`,
   );
 
-const withName = (source: string, pattern: RegExp, name: string): string =>
+const insertName = (source: string, pattern: RegExp, name: string): string =>
   match(pattern.exec(source))
     .with(null, () => source)
     .otherwise(([statement, list]) =>
@@ -29,4 +29,8 @@ export const registerStructure = (
   name: string,
   pool: Pool,
 ): string =>
-  withName(withName(source, importOf(pool), name), libraryOf(pool), name);
+  insertName(
+    insertName(source, createImportPattern(pool), name),
+    createLibraryPattern(pool),
+    name,
+  );

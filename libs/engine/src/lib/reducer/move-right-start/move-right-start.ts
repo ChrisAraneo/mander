@@ -1,5 +1,5 @@
 import type { GameState } from '../../state/types/game-state';
-import { withInput } from '../../state/with-input';
+import { patchInput } from '../../state/patch-input';
 
 export const moveRightStart = (state: GameState): GameState =>
-  withInput(state, { isRight: true });
+  patchInput(state, { isRight: true });

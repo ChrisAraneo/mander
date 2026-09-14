@@ -13,37 +13,37 @@ interface Row {
   at: number;
 }
 
-const cellsOf = (row: string): number[] =>
+const parseCells = (row: string): number[] =>
   map(compact(map(split(row, ','), trim)), parseAlias);
 
-const rowsOf = (text: string): Row[] =>
+const parseRows = (text: string): Row[] =>
   map([...text.matchAll(ROW)], (match): Row => ({
-    cells: cellsOf(match[1]),
+    cells: parseCells(match[1]),
     at: match.index ?? 0,
   }));
 
 // the two layers are told apart by where the front one is closed off
-const boundaryOf = (text: string): number =>
+const findBoundary = (text: string): number =>
   chain(text.search(LAYER_END))
     .thru((at) => (at < 0 ? size(text) : at))
     .value();
 
-const before = (rows: Row[], boundary: number): number[][] =>
+const takeBefore = (rows: Row[], boundary: number): number[][] =>
   map(
     filter(rows, (row) => row.at < boundary),
     (row) => row.cells,
   );
 
-const after = (rows: Row[], boundary: number): number[][] =>
+const takeAfter = (rows: Row[], boundary: number): number[][] =>
   map(
     filter(rows, (row) => row.at > boundary),
     (row) => row.cells,
   );
 
 export const parseStructure = (text: string): Layers =>
-  chain({ rows: rowsOf(text), boundary: boundaryOf(text) })
+  chain({ rows: parseRows(text), boundary: findBoundary(text) })
     .thru(({ rows, boundary }): Layers => ({
-      tiles: before(rows, boundary),
-      backTiles: after(rows, boundary),
+      tiles: takeBefore(rows, boundary),
+      backTiles: takeAfter(rows, boundary),
     }))
     .value();

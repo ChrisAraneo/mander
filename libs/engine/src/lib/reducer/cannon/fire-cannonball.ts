@@ -3,7 +3,7 @@ import { match } from 'ts-pattern';
 
 import { CANNONBALL_SIZE, CANNONBALL_SPEED } from './consts';
 
-const facingOf = (cannon: Cannon): 1 | -1 =>
+const getFacing = (cannon: Cannon): 1 | -1 =>
   match(cannon.statuses.isFacingRight)
     .with(true, (): 1 | -1 => 1)
     .otherwise((): 1 | -1 => -1);
@@ -15,7 +15,7 @@ export const fireCannonball = (cannon: Cannon): Cannonball => ({
   },
   velocity: {
     x: {
-      current: facingOf(cannon) * CANNONBALL_SPEED,
+      current: getFacing(cannon) * CANNONBALL_SPEED,
       max: CANNONBALL_SPEED,
     },
   },

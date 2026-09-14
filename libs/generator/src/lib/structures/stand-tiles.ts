@@ -2,7 +2,7 @@ import type { Tile } from '@mander/model';
 import { map, range } from 'lodash-es';
 
 import type { TilePatch } from './patch-tiles';
-import type { Spot } from './standing-spots';
+import type { Spot } from './find-standing-spots';
 
 export const standTiles = (
   spot: Spot,

@@ -1,0 +1,111 @@
+import type { IncomingMessage, ServerResponse } from 'node:http';
+
+import { chain, tapEffect } from '@mander/utils';
+import { assign } from 'lodash-es';
+import { match, P } from 'ts-pattern';
+import type { Plugin } from 'vite';
+
+import { type Pool, getPool, isStructureName } from './pool.ts';
+import { isStructureText } from './is-structure-text.ts';
+import { readLibrary } from './read-library.ts';
+import { saveStructure } from './save-structure.ts';
+import {
+  resolveStructurePaths,
+  type StructurePaths,
+} from './resolve-structure-paths.ts';
+
+const { string } = P;
+
+export const STRUCTURE_ENDPOINT = '/api/structures';
+
+interface SaveRequest {
+  name: string;
+  pool: Pool;
+  text: string;
+}
+
+const send = (res: ServerResponse, status: number, body: unknown): void =>
+  void chain(assign(res, { statusCode: status }))
+    .thru((ready) =>
+      tapEffect(ready, () =>
+        ready.setHeader('content-type', 'application/json'),
+      ),
+    )
+    .thru((ready) => ready.end(JSON.stringify(body)))
+    .value();
+
+const readBody = (req: IncomingMessage): Promise<string> =>
+  new Promise((resolve, reject) =>
+    chain({ chunks: [] as Buffer[] })
+      .thru((cell) =>
+        tapEffect(cell, () =>
+          req.on('data', (chunk: Buffer) => cell.chunks.push(chunk)),
+        ),
+      )
+      .thru((cell) =>
+        tapEffect(cell, () =>
+          req.on('end', () =>
+            resolve(Buffer.concat(cell.chunks).toString('utf8')),
+          ),
+        ),
+      )
+      .thru(() => req.on('error', reject))
+      .value(),
+  );
+
+const parseRequest = (body: string): SaveRequest | null =>
+  match(JSON.parse(body) as unknown)
+    .with({ name: string, text: string }, ({ name, text }) =>
+      match(getPool(name))
+        .with(null, (): SaveRequest | null => null)
+        .otherwise((pool): SaveRequest | null =>
+          isStructureName(name)
+            ? { name, pool, text: text.replace(/\r\n/g, '\n') }
+            : null,
+        ),
+    )
+    .otherwise((): SaveRequest | null => null);
+
+const save = (
+  paths: StructurePaths,
+  res: ServerResponse,
+  body: string,
+): Promise<void> | void =>
+  match(parseRequest(body))
+    .with(null, () =>
+      send(res, 400, {
+        message: 'a structure needs a NORMAL_nnn or HARD_nnn name and a grid',
+      }),
+    )
+    .otherwise(({ name, pool, text }) =>
+      match(isStructureText(text))
+        .with(false, () =>
+          send(res, 400, { message: 'the grid is not a structure literal' }),
+        )
+        .otherwise(async () =>
+          send(res, 200, await saveStructure(paths, name, pool, text)),
+        ),
+    );
+
+const handle = async (
+  paths: StructurePaths,
+  req: IncomingMessage,
+  res: ServerResponse,
+): Promise<void> =>
+  match(req.method)
+    .with('GET', async () => send(res, 200, await readLibrary(paths)))
+    .with('POST', async () => save(paths, res, await readBody(req)))
+    .otherwise(() => send(res, 405, { message: 'GET or POST only' }));
+
+export const createStructureLibrary = (): Plugin => ({
+  name: 'mander:structure-library',
+  configureServer(server) {
+    const paths = resolveStructurePaths(server.config.root);
+
+    server.middlewares.use(STRUCTURE_ENDPOINT, (req, res) => {
+      handle(paths, req, res).catch((error: unknown) =>
+        send(res, 500, { message: String(error) }),
+      );
+    });
+  },
+});

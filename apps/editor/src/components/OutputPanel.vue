@@ -29,7 +29,7 @@ const toggleLabel = computed(() =>
 const toggle = (): void => void setRef(isShown, !isShown.value);
 
 // a blocked clipboard leaves the source as the only way out, so it is opened
-const blocked = (): void =>
+const showBlocked = (): void =>
   void chain(setRef(hasFailed, true))
     .thru(() => setRef(isShown, true))
     .value();
@@ -44,7 +44,7 @@ const copy = (): Promise<void> =>
               window.setTimeout(() => setRef(isCopied, false), COPIED_MS),
             )
             .value(),
-        () => blocked(),
+        () => showBlocked(),
       ),
     )
     .thru((settled) => settled.then(noop))

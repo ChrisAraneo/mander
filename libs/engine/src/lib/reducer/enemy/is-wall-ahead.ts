@@ -1,8 +1,8 @@
 import { isSolid, type Level } from '@mander/model';
 import { some } from 'lodash-es';
 
-import { probeColumn } from './probe-column';
-import { probeRows } from './probe-rows';
+import { getProbeColumn } from './get-probe-column';
+import { getProbeRows } from './get-probe-rows';
 
 export const isWallAhead = (
   level: Level,
@@ -10,6 +10,6 @@ export const isWallAhead = (
   originY: number,
   facing: 1 | -1,
 ): boolean =>
-  some(probeRows(originY), (row) =>
-    isSolid(level, probeColumn(originX, facing), row),
+  some(getProbeRows(originY), (row) =>
+    isSolid(level, getProbeColumn(originX, facing), row),
   );

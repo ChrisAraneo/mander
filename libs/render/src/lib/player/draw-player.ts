@@ -10,26 +10,26 @@ import { clamp } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
 import {
-  arc,
+  applyStyle,
+  applyStyleWith,
   beginPath,
   type CanvasStep,
   clip,
+  createRadialGradient,
   fill,
-  lineTo,
   moveTo,
   paint,
-  radialGradient,
-  rect,
   restore,
   rotate,
-  roundRect,
   save,
   scale,
   sequence,
   skip,
   stroke,
-  styled,
-  styledWith,
+  traceArc,
+  traceLineTo,
+  traceRect,
+  traceRoundRect,
   translate,
 } from '../canvas';
 import { outline } from '../stroke';
@@ -61,18 +61,18 @@ const LEG_HEIGHT = 18;
 const LEG_TOP = HALF_HEIGHT - LEG_HEIGHT;
 const DEATH_SPIN = Math.PI * 0.9;
 
-const groundedLegs = (swing: number): CanvasStep =>
+const createGroundedLegsStep = (swing: number): CanvasStep =>
   sequence([
-    rect(-7 + swing / 2, LEG_TOP, 5, LEG_HEIGHT),
-    rect(2 - swing / 2, LEG_TOP, 5, LEG_HEIGHT),
+    traceRect(-7 + swing / 2, LEG_TOP, 5, LEG_HEIGHT),
+    traceRect(2 - swing / 2, LEG_TOP, 5, LEG_HEIGHT),
   ]);
 
-const airborneLegs: CanvasStep = sequence([
-  rect(-7, LEG_TOP, 5, LEG_HEIGHT - 3),
-  rect(2, LEG_TOP + 3, 5, LEG_HEIGHT - 3),
+const drawAirborneLegs: CanvasStep = sequence([
+  traceRect(-7, LEG_TOP, 5, LEG_HEIGHT - 3),
+  traceRect(2, LEG_TOP + 3, 5, LEG_HEIGHT - 3),
 ]);
 
-const legsStep = (
+const createLegsStep = (
   isGrounded: boolean,
   swing: number,
   colors: PlayerColors,
@@ -80,64 +80,64 @@ const legsStep = (
   sequence([
     beginPath,
     match(isGrounded)
-      .with(true, () => groundedLegs(swing))
-      .otherwise(() => airborneLegs),
+      .with(true, () => createGroundedLegsStep(swing))
+      .otherwise(() => drawAirborneLegs),
     outline(),
-    styled({ fillStyle: colors.legs }),
+    applyStyle({ fillStyle: colors.legs }),
     fill,
   ]);
 
-const bodyStep = (swing: number, colors: PlayerColors): CanvasStep =>
+const createBodyStep = (swing: number, colors: PlayerColors): CanvasStep =>
   sequence([
     beginPath,
-    roundRect(-8, TORSO_TOP, 16, LEG_TOP - TORSO_TOP + 4, 5),
+    traceRoundRect(-8, TORSO_TOP, 16, LEG_TOP - TORSO_TOP + 4, 5),
     outline(),
-    styled({ fillStyle: colors.body }),
+    applyStyle({ fillStyle: colors.body }),
     fill,
-    styled({ fillStyle: colors.strap }),
+    applyStyle({ fillStyle: colors.strap }),
     beginPath,
-    roundRect(-2 - swing / 2, TORSO_TOP + 3, 4, 12, 2),
+    traceRoundRect(-2 - swing / 2, TORSO_TOP + 3, 4, 12, 2),
     fill,
   ]);
 
-const deadEyeStep = (colors: PlayerColors): CanvasStep =>
+const createDeadEyeStep = (colors: PlayerColors): CanvasStep =>
   sequence([
-    styled({ strokeStyle: colors.eye, lineWidth: 1.4 }),
+    applyStyle({ strokeStyle: colors.eye, lineWidth: 1.4 }),
     beginPath,
     moveTo(2.4, HEAD_CENTER_Y - 1.4),
-    lineTo(6, HEAD_CENTER_Y + 2.2),
+    traceLineTo(6, HEAD_CENTER_Y + 2.2),
     moveTo(6, HEAD_CENTER_Y - 1.4),
-    lineTo(2.4, HEAD_CENTER_Y + 2.2),
+    traceLineTo(2.4, HEAD_CENTER_Y + 2.2),
     stroke,
   ]);
 
-const livingEyeStep: CanvasStep = sequence([
+const drawLivingEye: CanvasStep = sequence([
   beginPath,
-  arc(4.2, HEAD_CENTER_Y + 0.4, 1.5, 0, Math.PI * 2),
+  traceArc(4.2, HEAD_CENTER_Y + 0.4, 1.5, 0, Math.PI * 2),
   fill,
 ]);
 
-const eyeStep = (isDying: boolean, colors: PlayerColors): CanvasStep =>
+const createEyeStep = (isDying: boolean, colors: PlayerColors): CanvasStep =>
   sequence([
-    styled({ fillStyle: colors.eye }),
+    applyStyle({ fillStyle: colors.eye }),
     match(isDying)
-      .with(true, () => deadEyeStep(colors))
-      .otherwise(() => livingEyeStep),
+      .with(true, () => createDeadEyeStep(colors))
+      .otherwise(() => drawLivingEye),
   ]);
 
 const traceSkull: CanvasStep = sequence([
   beginPath,
-  arc(1, HEAD_CENTER_Y, HEAD_RADIUS, 0, Math.PI * 2),
+  traceArc(1, HEAD_CENTER_Y, HEAD_RADIUS, 0, Math.PI * 2),
 ]);
 
-const hairStep = (colors: PlayerColors): CanvasStep =>
+const createHairStep = (colors: PlayerColors): CanvasStep =>
   sequence([
     save,
     traceSkull,
     clip,
-    styled({ fillStyle: colors.hair }),
+    applyStyle({ fillStyle: colors.hair }),
     beginPath,
-    arc(
+    traceArc(
       0.5,
       HEAD_CENTER_Y - 1.5,
       HEAD_RADIUS - 0.2,
@@ -148,17 +148,17 @@ const hairStep = (colors: PlayerColors): CanvasStep =>
     restore,
   ]);
 
-const headStep = (isDying: boolean, colors: PlayerColors): CanvasStep =>
+const createHeadStep = (isDying: boolean, colors: PlayerColors): CanvasStep =>
   sequence([
     traceSkull,
     outline(),
-    styled({ fillStyle: colors.skin }),
+    applyStyle({ fillStyle: colors.skin }),
     fill,
-    hairStep(colors),
-    eyeStep(isDying, colors),
+    createHairStep(colors),
+    createEyeStep(isDying, colors),
   ]);
 
-const deathProgress = (death: Player['timers']['death']): number =>
+const getDeathProgress = (death: Player['timers']['death']): number =>
   match(death)
     .with(number, (seconds) => clamp(seconds / PLAYER_DEATH_SECONDS, 0, 1))
     .otherwise(() => 0);
@@ -169,12 +169,12 @@ const isFlashing = (player: Player): boolean =>
 const isStarlit = (player: Player): boolean =>
   player.timers.star > 0 && isAlive(player);
 
-const bodyColors = (player: Player): PlayerColors =>
+const getBodyColors = (player: Player): PlayerColors =>
   match(isFlashing(player))
     .with(true, () => HURT_PLAYER_COLORS)
     .otherwise(() => PLAYER_COLORS);
 
-const invincibleAlpha = (player: Player, time: number): number =>
+const getInvincibleAlpha = (player: Player, time: number): number =>
   match({
     isFlashing: isFlashing(player),
     isBlinking: player.timers.invincibility > 0 && isAlive(player),
@@ -186,13 +186,13 @@ const invincibleAlpha = (player: Player, time: number): number =>
     )
     .otherwise(() => 1);
 
-const starGlowAlpha = (player: Player, time: number): number =>
+const getStarGlowAlpha = (player: Player, time: number): number =>
   clamp(player.timers.star / STAR_GLOW_FADE_SECONDS, 0, 1) *
   (STAR_GLOW_INNER_ALPHA +
     STAR_GLOW_PULSE_ALPHA *
       (0.5 + 0.5 * Math.sin(time * STAR_GLOW_PULSE_RATE)));
 
-const starGlowStep = (
+const createStarGlowStep = (
   player: Player,
   time: number,
   alpha: number,
@@ -201,16 +201,25 @@ const starGlowStep = (
     .with(true, () =>
       sequence([
         save,
-        styled({ globalAlpha: alpha * starGlowAlpha(player, time) }),
+        applyStyle({ globalAlpha: alpha * getStarGlowAlpha(player, time) }),
         scale(STAR_GLOW_SQUASH, 1),
         beginPath,
-        arc(0, 0, STAR_GLOW_RADIUS, 0, Math.PI * 2),
-        styledWith((context) => ({
-          fillStyle: radialGradient(context, 0, 0, 0, 0, 0, STAR_GLOW_RADIUS, [
-            [0, STAR_GLOW_CORE_COLOR],
-            [0.5, STAR_GLOW_COLOR],
-            [1, STAR_GLOW_FADE_COLOR],
-          ]),
+        traceArc(0, 0, STAR_GLOW_RADIUS, 0, Math.PI * 2),
+        applyStyleWith((context) => ({
+          fillStyle: createRadialGradient(
+            context,
+            0,
+            0,
+            0,
+            0,
+            0,
+            STAR_GLOW_RADIUS,
+            [
+              [0, STAR_GLOW_CORE_COLOR],
+              [0.5, STAR_GLOW_COLOR],
+              [1, STAR_GLOW_FADE_COLOR],
+            ],
+          ),
         })),
         fill,
         restore,
@@ -226,8 +235,8 @@ export const drawPlayer = (
 ): void =>
   chain({
     isDying: !isAlive(player),
-    colors: bodyColors(player),
-    progress: deathProgress(player.timers.death),
+    colors: getBodyColors(player),
+    progress: getDeathProgress(player.timers.death),
     facing: match(player.statuses.isFacingRight)
       .with(true, () => 1)
       .otherwise(() => -1),
@@ -245,16 +254,18 @@ export const drawPlayer = (
           player.position.x + HALF_WIDTH,
           player.position.y + HALF_HEIGHT,
         ),
-        styled({
+        applyStyle({
           globalAlpha:
-            alpha * (1 - progress * progress) * invincibleAlpha(player, time),
+            alpha *
+            (1 - progress * progress) *
+            getInvincibleAlpha(player, time),
         }),
-        starGlowStep(player, time, alpha),
+        createStarGlowStep(player, time, alpha),
         rotate(-facing * progress * DEATH_SPIN),
         scale(facing, 1),
-        legsStep(player.statuses.isGrounded, swing, colors),
-        bodyStep(swing, colors),
-        headStep(isDying, colors),
+        createLegsStep(player.statuses.isGrounded, swing, colors),
+        createBodyStep(swing, colors),
+        createHeadStep(isDying, colors),
         restore,
       ),
     )

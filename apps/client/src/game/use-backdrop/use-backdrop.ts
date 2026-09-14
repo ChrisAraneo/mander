@@ -7,12 +7,12 @@ import {
 import type { Level } from '@mander/model';
 import { generate } from '@mander/generator';
 import {
+  getMidLevelFocus,
   interpolateState,
-  midLevelFocus,
   renderGame,
   syncViewport,
 } from '@mander/render';
-import { chain, withEffect } from '@mander/utils';
+import { chain, tapEffect } from '@mander/utils';
 import { assign, clamp, noop } from 'lodash-es';
 import { scan, type Subscription } from 'rxjs';
 import { match, P } from 'ts-pattern';
@@ -22,10 +22,10 @@ import {
   type CanvasCell,
   closeCanvas,
   createCanvasCell,
+  drawWithCanvas,
   openCanvas,
-  withCanvas,
 } from '../canvas';
-import { fixedPulses, pulseTicks } from '../tick';
+import { createFixedPulses, createPulseTicks } from '../tick';
 import { BACKDROP_LEVEL } from './consts';
 
 const { nonNullable } = P;
@@ -40,10 +40,10 @@ interface BackdropCell extends CanvasCell {
   frame: BackdropFrame;
 }
 
-const levelIndexIn = (levels: Level[]): number =>
+const getLevelIndex = (levels: Level[]): number =>
   clamp(BACKDROP_LEVEL - 1, 0, levels.length - 1);
 
-const startFrame = (state: GameState): BackdropFrame => ({
+const createStartFrame = (state: GameState): BackdropFrame => ({
   previous: state,
   current: state,
 });
@@ -71,11 +71,11 @@ const startOnMount = (
     .with(
       nonNullable,
       () =>
-        void chain(fixedPulses())
+        void chain(createFixedPulses())
           .thru((pulses$) =>
             assign(cell, {
-              subscription: pulseTicks(pulses$)
-                .pipe(scan(advance(idle), startFrame(idle)))
+              subscription: createPulseTicks(pulses$)
+                .pipe(scan(advance(idle), createStartFrame(idle)))
                 .subscribe((frame) => void assign(cell, { frame }))
                 .add(
                   pulses$.subscribe((pulse) =>
@@ -101,26 +101,26 @@ export const useBackdrop = (
   chain(generate(new Date(day)))
     .thru(({ levels, palette }) => ({
       palette,
-      level: levels[levelIndexIn(levels)],
-      levelIndex: levelIndexIn(levels),
+      level: levels[getLevelIndex(levels)],
+      levelIndex: getLevelIndex(levels),
     }))
     .thru((world) => ({
       ...world,
       idle: createInitialState(world.level, world.levelIndex, []),
-      focus: midLevelFocus(world.level),
+      focus: getMidLevelFocus(world.level),
     }))
     .thru((world) => ({
       ...world,
       cell: {
         ...createCanvasCell(),
         subscription: null,
-        frame: startFrame(world.idle),
+        frame: createStartFrame(world.idle),
       } as BackdropCell,
     }))
     .thru((setup) => ({
       ...setup,
       renderState: (next: GameState): void =>
-        withCanvas(setup.cell, canvas, (context, element) =>
+        drawWithCanvas(setup.cell, canvas, (context, element) =>
           renderGame(
             context,
             next,
@@ -131,18 +131,18 @@ export const useBackdrop = (
         ),
     }))
     .thru((setup) =>
-      withEffect(setup, () =>
+      tapEffect(setup, () =>
         onMounted(() =>
           startOnMount(setup.cell, canvas, setup.idle, setup.renderState),
         ),
       ),
     )
     .thru((setup) =>
-      withEffect(setup, () =>
+      tapEffect(setup, () =>
         onUnmounted(() =>
           chain(setup.cell)
             .thru((cell) =>
-              withEffect(cell, () => cell.subscription?.unsubscribe()),
+              tapEffect(cell, () => cell.subscription?.unsubscribe()),
             )
             .thru((cell) => closeCanvas(cell))
             .value(),
