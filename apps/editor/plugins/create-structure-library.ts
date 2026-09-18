@@ -1,7 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-import { chain, tapEffect } from '@mander/utils';
-import { assign } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import type { Plugin } from 'vite';
 
@@ -24,34 +22,20 @@ interface SaveRequest {
   text: string;
 }
 
-const send = (res: ServerResponse, status: number, body: unknown): void =>
-  void chain(assign(res, { statusCode: status }))
-    .thru((ready) =>
-      tapEffect(ready, () =>
-        ready.setHeader('content-type', 'application/json'),
-      ),
-    )
-    .thru((ready) => ready.end(JSON.stringify(body)))
-    .value();
+const send = (res: ServerResponse, status: number, body: unknown): void => {
+  res.statusCode = status;
+  res.setHeader('content-type', 'application/json');
+  res.end(JSON.stringify(body));
+};
 
 const readBody = (req: IncomingMessage): Promise<string> =>
-  new Promise((resolve, reject) =>
-    chain({ chunks: [] as Buffer[] })
-      .thru((cell) =>
-        tapEffect(cell, () =>
-          req.on('data', (chunk: Buffer) => cell.chunks.push(chunk)),
-        ),
-      )
-      .thru((cell) =>
-        tapEffect(cell, () =>
-          req.on('end', () =>
-            resolve(Buffer.concat(cell.chunks).toString('utf8')),
-          ),
-        ),
-      )
-      .thru(() => req.on('error', reject))
-      .value(),
-  );
+  new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+
+    req.on('data', (chunk: Buffer) => chunks.push(chunk));
+    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    req.on('error', reject);
+  });
 
 const parseRequest = (body: string): SaveRequest | null =>
   match(JSON.parse(body) as unknown)
