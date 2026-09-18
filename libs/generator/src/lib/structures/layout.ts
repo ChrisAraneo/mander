@@ -5,7 +5,7 @@ import { match } from 'ts-pattern';
 import { addChest } from './add-chest';
 import { addGems } from './add-gems';
 import { addKey } from './add-key';
-import { addPlayerSpawn } from './add-player-spawn';
+import { addPlayerSpawn } from './player-spawn/add-player-spawn';
 import { addPortal } from './add-portal';
 import { addVerticalChest } from './add-vertical-chest';
 import { addVerticalGems } from './add-vertical-gems';
