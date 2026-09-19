@@ -5,12 +5,12 @@ import { match, P } from 'ts-pattern';
 import { patchTiles } from '../patch-tiles';
 import { sortColumnsByPriority } from './sort-columns-by-priority';
 import { findValidSpawnRows } from './find-valid-spawn-rows';
-import { createLevelColumns } from './create-level-columns';
+import { createColumnNumbers } from './create-column-numbers';
 
 const { nullish } = P;
 
 export const addPlayerSpawn = (tiles: Tile[][]): Tile[][] =>
-  chain(flow(createLevelColumns, sortColumnsByPriority)(tiles))
+  chain(flow(createColumnNumbers, sortColumnsByPriority)(tiles))
     .map((column) => ({ column, rows: findValidSpawnRows(tiles, column) }))
     .find(({ rows }) => !isEmpty(rows))
     .thru((found) =>

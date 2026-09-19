@@ -1,5 +1,5 @@
 import type { Tile } from '@mander/model';
 import { range, size } from 'lodash-es';
 
-export const createLevelColumns = (tiles: Tile[][]): number[] =>
+export const createColumnNumbers = (tiles: Tile[][]): number[] =>
   range(size(tiles[0]));
