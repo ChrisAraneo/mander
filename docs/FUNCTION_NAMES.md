@@ -231,6 +231,7 @@
 - `createPlayer`
 - `createPlayerFireballs`
 - `createPlayerFireballStep`
+- `createPlayerSpawnCandidates`
 - `createPortalStep`
 - `createProngStep`
 - `createPublisher`

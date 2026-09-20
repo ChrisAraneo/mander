@@ -1,9 +1,9 @@
 import { chain, indexOf, sortBy } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-const PREFERRED_SPAWN_COLUMNS = [1, 2, 3, 0];
+const PREFERRED_SPAWN_COLUMNS = [1, 2, 3, 0, 4, 5];
 
-export const sortColumnsByPriority = (columns: number[]): number[] =>
+export const sortColumnNumbersByPriority = (columns: number[]): number[] =>
   sortBy(columns, (column) =>
     chain(indexOf(PREFERRED_SPAWN_COLUMNS, column)).thru((priority) =>
       match(priority)

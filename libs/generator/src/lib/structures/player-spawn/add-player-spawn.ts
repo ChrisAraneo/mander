@@ -3,15 +3,15 @@ import { chain } from '@mander/utils';
 import { flow, map, isEmpty } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { patchTiles } from '../patch-tiles';
-import { sortColumnsByPriority } from './sort-columns-by-priority';
-import { findValidSpawnRows } from './find-valid-spawn-rows';
+import { sortColumnNumbersByPriority } from './sort-column-numbers-by-priority';
 import { createColumnNumbers } from './create-column-numbers';
+import { createPlayerSpawnCandidates } from './create-player-spawn-candidates';
 
 const { nullish } = P;
 
 export const addPlayerSpawn = (tiles: Tile[][]): Tile[][] =>
-  chain(flow(createColumnNumbers, sortColumnsByPriority)(tiles))
-    .map((column) => ({ column, rows: findValidSpawnRows(tiles, column) }))
+  chain(flow(createColumnNumbers, sortColumnNumbersByPriority)(tiles))
+    .thru((columns) => createPlayerSpawnCandidates(tiles, columns))
     .find(({ rows }) => !isEmpty(rows))
     .thru((found) =>
       match(found)
