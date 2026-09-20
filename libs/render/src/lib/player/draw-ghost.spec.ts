@@ -1,9 +1,8 @@
 import type { Player } from '@mander/model';
 import { chain } from '@mander/utils';
-import { filter, map, max, noop, size } from 'lodash-es';
+import { filter, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { GHOST_ALPHA } from './consts';
 import { drawGhost } from './draw-ghost';
 import { drawPlayer } from './draw-player';
 
@@ -31,35 +30,18 @@ const METHODS = [
 
 interface Recording {
   calls: Call[];
-  alphas: number[];
   context: CanvasRenderingContext2D;
 }
 
-// The canvas keeps its own globalAlpha, and `styled` writes through lodash
-// `assign`, which skips a write that matches what is already there. The stub
-// holds the value the same way so the recorded writes are the real ones.
 const recorder = (): Recording =>
-  chain({ calls: [] as Call[], alphas: [] as number[], alpha: 1 })
+  chain({ calls: [] as Call[] })
     .thru((taken) => ({
       ...taken,
-      context: Object.defineProperty(
-        {
-          ...Object.fromEntries(
-            map(METHODS, (name) => [
-              name,
-              (...args: number[]) => taken.calls.push({ name, args }),
-            ]),
-          ),
-          createRadialGradient: () => ({ addColorStop: noop }),
-        },
-        'globalAlpha',
-        {
-          set: (value: number) => {
-            taken.alpha = value;
-            taken.alphas.push(value);
-          },
-          get: () => taken.alpha,
-        },
+      context: Object.fromEntries(
+        map(METHODS, (name) => [
+          name,
+          (...args: number[]) => taken.calls.push({ name, args }),
+        ]),
       ) as unknown as CanvasRenderingContext2D,
     }))
     .value();
@@ -96,19 +78,10 @@ describe('drawGhost', () => {
     expect(map(ghostOf().calls, 'name')).toEqual(map(playerOf().calls, 'name'));
   });
 
-  it('draws it see-through, where the player is drawn solid', () => {
-    expect(max(ghostOf().alphas)).toBe(GHOST_ALPHA);
-    expect(filter(playerOf().alphas, (alpha) => alpha < 1)).toEqual([]);
-  });
-
-  it('never draws any part of a ghost more solid than a ghost', () => {
-    expect(
-      filter(ghostOf({ star: 5 }).alphas, (alpha) => alpha > GHOST_ALPHA),
-    ).toEqual([]);
-  });
-
-  it('keeps a fading ghost fainter still as its run ends', () => {
-    expect(max(ghostOf({ death: 0.5 }).alphas)).toBeLessThan(GHOST_ALPHA);
+  it('draws a starlit ghost the same way it draws any other', () => {
+    expect(map(ghostOf({ star: 5 }).calls, 'name')).toEqual(
+      map(ghostOf().calls, 'name'),
+    );
   });
 
   it('hands the canvas back as it found it', () => {

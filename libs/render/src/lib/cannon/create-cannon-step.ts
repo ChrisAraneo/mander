@@ -145,12 +145,7 @@ const drawTrunnion: CanvasStep = sequence([
 const createChargeStep = (charge: number): CanvasStep =>
   sequence([
     save,
-    applyStyle({
-      globalAlpha: charge,
-      fillStyle: CHARGE_COLOR,
-      shadowColor: CHARGE_COLOR,
-      shadowBlur: 10,
-    }),
+    applyStyle({ fillStyle: CHARGE_COLOR }),
     beginPath,
     traceArc(BARREL_LENGTH - 1, 0, CHARGE_RADIUS * charge, 0, Math.PI * 2),
     fill,

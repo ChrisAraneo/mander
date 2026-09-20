@@ -373,7 +373,6 @@ export const drawEnemy = (
           enemy.position.x + HALF_WIDTH,
           enemy.position.y + HALF_HEIGHT + wobble + HALF_HEIGHT * (1 - squash),
         ),
-        applyStyle({ globalAlpha: 1 - progress * progress }),
         scale(facing * (1 + progress * 0.35), squash),
         createFigureStep(enemy, palette, isDying, time),
         restore,

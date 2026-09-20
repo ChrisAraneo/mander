@@ -11,11 +11,10 @@ import {
   save,
   sequence,
   traceArc,
-  traceEllipse,
   traceRoundRect,
 } from '../canvas';
 import { outline } from '../stroke';
-import { GEAR_GLOW, TITANIUM, VISOR_DARK } from './consts';
+import { TITANIUM, VISOR_DARK } from './consts';
 
 const DOME_CENTER_Y = 0.52;
 const DOME_RADIUS = 0.31;
@@ -30,8 +29,6 @@ export const createHelmetStep = (
 
   return sequence([
     save,
-    applyStyle({ shadowColor: TITANIUM.glow, shadowBlur: GEAR_GLOW }),
-
     applyStyle({ fillStyle: TITANIUM.base }),
     beginPath,
     traceRoundRect(
@@ -106,20 +103,5 @@ export const createHelmetStep = (
     ),
     outline(),
     fill,
-
-    save,
-    applyStyle({ globalAlpha: 0.55, fillStyle: TITANIUM.light }),
-    beginPath,
-    traceEllipse(
-      projectX(0.38),
-      projectY(0.31),
-      size * 0.08,
-      size * 0.04,
-      -Math.PI / 6,
-      0,
-      Math.PI * 2,
-    ),
-    fill,
-    restore,
   ]);
 };

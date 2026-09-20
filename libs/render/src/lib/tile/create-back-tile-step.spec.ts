@@ -6,7 +6,7 @@ import {
   TILE_SIZE,
 } from '@mander/model';
 import { chain } from '@mander/utils';
-import { every, filter, first, last, map, some } from 'lodash-es';
+import { first, last, map, some } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { paint } from '../canvas';
@@ -17,7 +17,6 @@ import { isSolidAt } from './is-solid-at';
 
 interface Fill {
   style: string;
-  alpha: number;
   x: number;
   y: number;
   width: number;
@@ -31,7 +30,6 @@ interface Recorder {
 
 interface Saved {
   fillStyle: string;
-  globalAlpha: number;
 }
 
 interface Stub extends Saved {
@@ -41,22 +39,14 @@ interface Stub extends Saved {
 }
 
 // styled() writes straight onto the context, so the recorder reads the colour
-// and the alpha off itself as each rectangle lands
+// off itself as each rectangle lands
 const stub = (fills: Fill[], stack: Saved[]): Stub => ({
   fillStyle: '',
-  globalAlpha: 1,
   fillRect(x: number, y: number, width: number, height: number): void {
-    fills.push({
-      style: this.fillStyle,
-      alpha: this.globalAlpha,
-      x,
-      y,
-      width,
-      height,
-    });
+    fills.push({ style: this.fillStyle, x, y, width, height });
   },
   save(): void {
-    stack.push({ fillStyle: this.fillStyle, globalAlpha: this.globalAlpha });
+    stack.push({ fillStyle: this.fillStyle });
   },
   restore(): void {
     Object.assign(this, stack.pop());
@@ -102,7 +92,6 @@ describe('createBackTileStep', () => {
     const base = first(painted(TILE_BRICK));
 
     expect(base?.style).toBe(getMaterialStyle(TILE_BRICK).base);
-    expect(base?.alpha).toBe(1);
     expect(isCovering(base as Fill)).toBe(true);
   });
 
@@ -110,15 +99,7 @@ describe('createBackTileStep', () => {
     const shade = last(painted(TILE_BRICK));
 
     expect(shade?.style).toBe(BACK_SHADE);
-    expect(shade?.alpha).toBe(1);
     expect(isCovering(shade as Fill)).toBe(true);
-  });
-
-  it('should draw the detail faintly, so the material keeps its look at lower contrast', () => {
-    const detail = filter(painted(TILE_BRICK), (fill) => !isCovering(fill));
-
-    expect(detail).not.toEqual([]);
-    expect(every(detail, (fill) => fill.alpha < 1)).toBe(true);
   });
 
   it('should draw no border, which belongs to the blocks the player can touch', () => {

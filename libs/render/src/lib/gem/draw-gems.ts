@@ -11,7 +11,6 @@ const BOB_SPEED = 3;
 const BOB_HEIGHT = 3;
 const SPIN_SPEED = 2;
 const SPIN_FLAT = 0.4;
-const GLOW_BLUR = 12;
 
 const createGemStep = (tile: Point, time: number): CanvasStep =>
   chain({
@@ -39,7 +38,6 @@ const createGemStep = (tile: Point, time: number): CanvasStep =>
         halfWidth,
         halfHeight,
         CYAN_GEM_COLORS,
-        GLOW_BLUR,
       ),
     )
     .value();

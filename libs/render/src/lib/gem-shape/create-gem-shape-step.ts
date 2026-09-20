@@ -18,8 +18,6 @@ import type { GemColors } from './gem-colors';
 
 const CROWN = 0.25;
 
-const FACET_ALPHA = 0.45;
-
 const traceGemShape = (
   centerX: number,
   centerY: number,
@@ -30,20 +28,6 @@ const traceGemShape = (
     beginPath,
     moveTo(centerX, centerY - halfHeight),
     traceLineTo(centerX + halfWidth, centerY - halfHeight * CROWN),
-    traceLineTo(centerX, centerY + halfHeight),
-    traceLineTo(centerX - halfWidth, centerY - halfHeight * CROWN),
-    closePath,
-  ]);
-
-const traceFacet = (
-  centerX: number,
-  centerY: number,
-  halfWidth: number,
-  halfHeight: number,
-): CanvasStep =>
-  sequence([
-    beginPath,
-    moveTo(centerX, centerY - halfHeight),
     traceLineTo(centerX, centerY + halfHeight),
     traceLineTo(centerX - halfWidth, centerY - halfHeight * CROWN),
     closePath,
@@ -75,11 +59,9 @@ export const createGemShapeStep = (
   halfWidth: number,
   halfHeight: number,
   colors: GemColors,
-  glowBlur: number,
 ): CanvasStep =>
   sequence([
     save,
-    applyStyle({ shadowColor: colors.glow, shadowBlur: glowBlur }),
     traceGemShape(centerX, centerY, halfWidth, halfHeight),
     outline(),
     applyStyleWith((context) => ({
@@ -91,12 +73,6 @@ export const createGemShapeStep = (
         colors,
       ),
     })),
-    fill,
-    restore,
-    save,
-    applyStyle({ globalAlpha: FACET_ALPHA }),
-    traceFacet(centerX, centerY, halfWidth, halfHeight),
-    applyStyle({ fillStyle: colors.light }),
     fill,
     restore,
     applyStyle({ strokeStyle: colors.deep, lineWidth: 1 }),

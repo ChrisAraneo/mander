@@ -17,7 +17,7 @@ import {
   applyStyleWith,
 } from '../canvas';
 import { outline } from '../stroke';
-import { CLOUD_LEATHER, CLOUD_PUFF, CLOUD_SOLE, GEAR_GLOW } from './consts';
+import { CLOUD_LEATHER, CLOUD_PUFF, CLOUD_SOLE } from './consts';
 
 const SILHOUETTE: readonly { x: number; y: number }[] = [
   { x: 0.4, y: 0.14 },
@@ -47,8 +47,7 @@ export const createBootStep = (
 
   return sequence([
     save,
-    applyStyle({ shadowColor: CLOUD_LEATHER.glow, shadowBlur: GEAR_GLOW }),
-    applyStyle({ fillStyle: CLOUD_PUFF, globalAlpha: 0.85 }),
+    applyStyle({ fillStyle: CLOUD_PUFF }),
     beginPath,
     ...map(PUFFS, (puff) =>
       sequence([
@@ -68,7 +67,6 @@ export const createBootStep = (
     restore,
 
     save,
-    applyStyle({ shadowColor: CLOUD_LEATHER.glow, shadowBlur: GEAR_GLOW }),
     beginPath,
     ...map(SILHOUETTE, (point, index) =>
       index === 0

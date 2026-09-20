@@ -6,7 +6,6 @@ import {
   beginPath,
   type CanvasStep,
   closePath,
-  traceEllipse,
   fill,
   traceLineTo,
   createLinearGradient,
@@ -14,7 +13,6 @@ import {
   restore,
   save,
   sequence,
-  applyStyle,
   applyStyleWith,
 } from '../canvas';
 import { outline } from '../stroke';
@@ -23,8 +21,6 @@ import type { StarColors } from './star-colors';
 const ARMS = 5;
 const WAIST = 0.44;
 const FIRST_ARM = -Math.PI / 2;
-
-const SHEEN_ALPHA = 0.5;
 
 const getArmPoints = (
   centerX: number,
@@ -81,31 +77,14 @@ export const createStarStep = (
   centerY: number,
   radius: number,
   colors: StarColors,
-  glowBlur: number,
 ): CanvasStep =>
   sequence([
     save,
-    applyStyle({ shadowColor: colors.glow, shadowBlur: glowBlur }),
     traceStar(centerX, centerY, radius),
     outline(),
     applyStyleWith((context) => ({
       fillStyle: createStarFill(context, centerX, centerY, radius, colors),
     })),
-    fill,
-    restore,
-    save,
-    applyStyle({ globalAlpha: SHEEN_ALPHA }),
-    beginPath,
-    traceEllipse(
-      centerX - radius * 0.16,
-      centerY - radius * 0.28,
-      radius * 0.22,
-      radius * 0.12,
-      -Math.PI / 5,
-      0,
-      Math.PI * 2,
-    ),
-    applyStyle({ fillStyle: colors.light }),
     fill,
     restore,
   ]);

@@ -11,11 +11,9 @@ import { match, P } from 'ts-pattern';
 
 import {
   applyStyle,
-  applyStyleWith,
   beginPath,
   type CanvasStep,
   clip,
-  createRadialGradient,
   fill,
   moveTo,
   paint,
@@ -24,7 +22,6 @@ import {
   save,
   scale,
   sequence,
-  skip,
   stroke,
   traceArc,
   traceLineTo,
@@ -33,17 +30,6 @@ import {
   translate,
 } from '../canvas';
 import { outline } from '../stroke';
-import {
-  STAR_GLOW_COLOR,
-  STAR_GLOW_CORE_COLOR,
-  STAR_GLOW_FADE_COLOR,
-  STAR_GLOW_FADE_SECONDS,
-  STAR_GLOW_INNER_ALPHA,
-  STAR_GLOW_PULSE_ALPHA,
-  STAR_GLOW_PULSE_RATE,
-  STAR_GLOW_RADIUS,
-  STAR_GLOW_SQUASH,
-} from './consts';
 import {
   HURT_PLAYER_COLORS,
   PLAYER_COLORS,
@@ -166,72 +152,15 @@ const getDeathProgress = (death: Player['timers']['death']): number =>
 const isFlashing = (player: Player): boolean =>
   player.timers.hurt > 0 && isAlive(player);
 
-const isStarlit = (player: Player): boolean =>
-  player.timers.star > 0 && isAlive(player);
-
 const getBodyColors = (player: Player): PlayerColors =>
   match(isFlashing(player))
     .with(true, () => HURT_PLAYER_COLORS)
     .otherwise(() => PLAYER_COLORS);
 
-const getInvincibleAlpha = (player: Player, time: number): number =>
-  match({
-    isFlashing: isFlashing(player),
-    isBlinking: player.timers.invincibility > 0 && isAlive(player),
-  })
-    .with({ isFlashing: true }, () => 1)
-    .with(
-      { isBlinking: true },
-      () => 0.35 + 0.45 * (0.5 + 0.5 * Math.sin(time * 30)),
-    )
-    .otherwise(() => 1);
-
-const getStarGlowAlpha = (player: Player, time: number): number =>
-  clamp(player.timers.star / STAR_GLOW_FADE_SECONDS, 0, 1) *
-  (STAR_GLOW_INNER_ALPHA +
-    STAR_GLOW_PULSE_ALPHA *
-      (0.5 + 0.5 * Math.sin(time * STAR_GLOW_PULSE_RATE)));
-
-const createStarGlowStep = (
-  player: Player,
-  time: number,
-  alpha: number,
-): CanvasStep =>
-  match(isStarlit(player))
-    .with(true, () =>
-      sequence([
-        save,
-        applyStyle({ globalAlpha: alpha * getStarGlowAlpha(player, time) }),
-        scale(STAR_GLOW_SQUASH, 1),
-        beginPath,
-        traceArc(0, 0, STAR_GLOW_RADIUS, 0, Math.PI * 2),
-        applyStyleWith((context) => ({
-          fillStyle: createRadialGradient(
-            context,
-            0,
-            0,
-            0,
-            0,
-            0,
-            STAR_GLOW_RADIUS,
-            [
-              [0, STAR_GLOW_CORE_COLOR],
-              [0.5, STAR_GLOW_COLOR],
-              [1, STAR_GLOW_FADE_COLOR],
-            ],
-          ),
-        })),
-        fill,
-        restore,
-      ]),
-    )
-    .otherwise(() => skip);
-
 export const drawPlayer = (
   context: CanvasRenderingContext2D,
   player: Player,
   time: number,
-  alpha = 1,
 ): void =>
   chain({
     isDying: !isAlive(player),
@@ -254,13 +183,6 @@ export const drawPlayer = (
           player.position.x + HALF_WIDTH,
           player.position.y + HALF_HEIGHT,
         ),
-        applyStyle({
-          globalAlpha:
-            alpha *
-            (1 - progress * progress) *
-            getInvincibleAlpha(player, time),
-        }),
-        createStarGlowStep(player, time, alpha),
         rotate(-facing * progress * DEATH_SPIN),
         scale(facing, 1),
         createLegsStep(player.statuses.isGrounded, swing, colors),

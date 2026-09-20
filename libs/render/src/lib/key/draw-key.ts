@@ -63,12 +63,7 @@ const createKeyStep = (key: Rectangle, time: number): CanvasStep =>
       centerY: key.y + key.height / 2 + bob,
     }))
     .thru(({ centerX, centerY }) =>
-      sequence([
-        save,
-        applyStyle({ shadowColor: KEY_COLOR, shadowBlur: 14 }),
-        createKeyGlyphStep(centerX, centerY),
-        restore,
-      ]),
+      sequence([save, createKeyGlyphStep(centerX, centerY), restore]),
     )
     .value();
 

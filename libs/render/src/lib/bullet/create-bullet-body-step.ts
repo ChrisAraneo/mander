@@ -18,11 +18,9 @@ export const createBulletBodyStep = (
   centerY: number,
   radius: number,
   colors: BulletColors,
-  glowBlur: number,
 ): CanvasStep =>
   sequence([
     save,
-    applyStyle({ shadowColor: colors.glow, shadowBlur: glowBlur }),
     beginPath,
     traceArc(centerX, centerY, radius, 0, Math.PI * 2),
     outline(),

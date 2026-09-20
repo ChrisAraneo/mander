@@ -3,5 +3,4 @@ export interface BulletColors {
   deep: string;
   shine: string;
   trail: string;
-  glow: string;
 }

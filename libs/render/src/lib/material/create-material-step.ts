@@ -163,9 +163,8 @@ const createCeramicStep = (
     fillRect(pixelX + HALF_TILE + 3, pixelY + HALF_TILE + 3, HALF_TILE - 7, 1),
   ]);
 
-const EMBER_GLOW = '#FF7A2F';
+const EMBER_VEIN = '#FF7A2F';
 const EMBER_CORE = '#FFD166';
-const EMBER_BLUR = 8;
 const EMBER_RADIUS = 4;
 
 const VEINS: readonly number[][] = [
@@ -190,17 +189,13 @@ const createFireballTileStep = (
         fillRect(pixelX + offsetX, pixelY + offsetY + 1, width, height),
       ),
     ),
-    applyStyle({
-      fillStyle: EMBER_GLOW,
-      shadowColor: EMBER_GLOW,
-      shadowBlur: 4,
-    }),
+    applyStyle({ fillStyle: EMBER_VEIN }),
     sequence(
       map(VEINS, ([offsetX, offsetY, width, height]) =>
         fillRect(pixelX + offsetX, pixelY + offsetY, width, height),
       ),
     ),
-    applyStyle({ fillStyle: EMBER_CORE, shadowBlur: EMBER_BLUR }),
+    applyStyle({ fillStyle: EMBER_CORE }),
     beginPath,
     traceArc(
       pixelX + HALF_TILE,

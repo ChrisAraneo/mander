@@ -18,7 +18,6 @@ import {
   fillRect,
   paint,
   restore,
-  runWhen,
   save,
   sequence,
   traceRect,
@@ -27,7 +26,6 @@ import { outline } from '../stroke';
 
 const { nullish } = P;
 
-const GLOW = '#FFD166';
 const BODY_OPEN = '#7A5A30';
 const BODY_CLOSED = '#A97B34';
 const LID_OPEN = '#8A683A';
@@ -67,10 +65,6 @@ const createLidStep = (chest: Rectangle, isOpen: boolean): CanvasStep =>
 const createChestStep = (chest: Rectangle, state: GameState): CanvasStep =>
   sequence([
     save,
-    runWhen(
-      state.isNearChest,
-      applyStyle({ shadowColor: GLOW, shadowBlur: 20 }),
-    ),
     beginPath,
     traceRect(chest.x, chest.y + 6, chest.width, chest.height - 6),
     outline(),

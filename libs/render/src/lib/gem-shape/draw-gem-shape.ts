@@ -9,16 +9,8 @@ export const drawGemShape = (
   halfWidth: number,
   halfHeight: number,
   colors: GemColors,
-  glowBlur: number,
 ): void =>
   paint(
     context,
-    createGemShapeStep(
-      centerX,
-      centerY,
-      halfWidth,
-      halfHeight,
-      colors,
-      glowBlur,
-    ),
+    createGemShapeStep(centerX, centerY, halfWidth, halfHeight, colors),
   );

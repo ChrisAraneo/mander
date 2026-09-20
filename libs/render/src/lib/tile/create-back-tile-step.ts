@@ -11,7 +11,6 @@ import {
   sequence,
 } from '../canvas';
 import {
-  BACK_DETAIL_ALPHA,
   BACK_SHADE,
   createMaterialStep,
   type MaterialStyle,
@@ -37,7 +36,6 @@ export const createBackTileStep = (
         save,
         applyStyle({ fillStyle: style.base }),
         fillRect(pixelX, pixelY, TILE_SIZE, TILE_SIZE),
-        applyStyle({ globalAlpha: BACK_DETAIL_ALPHA }),
         createMaterialStep(tile, pixelX, pixelY, style),
         runWhen(
           !isCoveredAt(level, column, row - 1),

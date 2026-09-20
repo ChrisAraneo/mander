@@ -8,6 +8,4 @@ export const drawStar = (
   centerY: number,
   radius: number,
   colors: StarColors,
-  glowBlur: number,
-): void =>
-  paint(context, createStarStep(centerX, centerY, radius, colors, glowBlur));
+): void => paint(context, createStarStep(centerX, centerY, radius, colors));

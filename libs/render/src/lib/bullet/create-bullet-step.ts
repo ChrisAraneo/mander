@@ -15,7 +15,7 @@ import {
   translate,
 } from '../canvas';
 import { createBulletBodyStep } from './create-bullet-body-step';
-import { BULLET_GLOW_BLUR, ICE_BULLET } from './consts';
+import { ICE_BULLET } from './consts';
 
 const RADIUS = BULLET_SIZE / 2;
 
@@ -47,8 +47,7 @@ export const createBulletStep = (bullet: Bullet): CanvasStep =>
     save,
     translate(bullet.position.x + RADIUS, bullet.position.y + RADIUS),
     scale(getFacing(bullet), 1),
-    applyStyle({ shadowColor: ICE_BULLET.glow, shadowBlur: BULLET_GLOW_BLUR }),
     drawTrail,
-    createBulletBodyStep(0, 0, RADIUS, ICE_BULLET, BULLET_GLOW_BLUR),
+    createBulletBodyStep(0, 0, RADIUS, ICE_BULLET),
     restore,
   ]);

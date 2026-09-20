@@ -28,8 +28,6 @@ const TRAIL_HEIGHT = 3.2;
 const IRON_LIGHT = '#7C8496';
 const IRON_DARK = '#171C26';
 const TRAIL_COLOR = 'RGBA(255, 158, 61, 0.45)';
-const GLOW_COLOR = '#FF9E3D';
-const GLOW_BLUR = 10;
 const SHINE_COLOR = 'RGBA(255, 255, 255, 0.55)';
 
 const drawTrail: CanvasStep = sequence([
@@ -88,7 +86,6 @@ export const createCannonballStep = (cannonball: Cannonball): CanvasStep =>
           cannonball.position.y + RADIUS,
         ),
         scale(facing, 1),
-        applyStyle({ shadowColor: GLOW_COLOR, shadowBlur: GLOW_BLUR }),
         drawTrail,
         drawIron,
         restore,

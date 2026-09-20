@@ -29,7 +29,6 @@ import { outline } from '../stroke';
 
 const { nullish } = P;
 
-const GLOW = '#A678FF';
 const RING_COLOR = '#B98CFF';
 const RING_COUNT = 3;
 
@@ -124,12 +123,6 @@ const createPortalStep = (portal: Rectangle, state: GameState): CanvasStep =>
     .thru(({ centerX, centerY, pulse }) =>
       sequence([
         save,
-        applyStyle({
-          shadowColor: GLOW,
-          shadowBlur: match(state.isNearPortal)
-            .with(true, () => 30)
-            .otherwise(() => 14),
-        }),
         createCoreStep(portal, centerX, centerY, pulse),
         createRingsStep(portal, centerX, centerY, pulse, state.time),
         restore,

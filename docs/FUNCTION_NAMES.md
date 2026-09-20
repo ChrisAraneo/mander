@@ -60,16 +60,13 @@
 - `areStepsWithinReach`
 - `armed`
 - `armedAt`
-- `assemble`
 - `at`
 - `atPortal`
 - `atRange`
-- `attachScreen`
 - `bandRows`
 - `barsFor`
 - `base`
 - `blank`
-- `blit`
 - `blur`
 - `blurColumns`
 - `blurRows`
@@ -107,7 +104,6 @@
 - `colorsIn`
 - `columnsOf`
 - `company`
-- `compileShader`
 - `complete`
 - `completed`
 - `computeFallingSpikeTriangles`
@@ -147,13 +143,11 @@
 - `createBasePlayerVelocity`
 - `createBeartraps`
 - `createBeartrapStep`
-- `createBlitScreen`
 - `createBlockPattern`
 - `createBodyStep`
 - `createBootStep`
 - `createBrickStep`
 - `createBrowsStep`
-- `createBuffer`
 - `createBulletBodyStep`
 - `createBulletsArt`
 - `createBulletsStep`
@@ -200,7 +194,6 @@
 - `createGemShapeStep`
 - `createGemStep`
 - `createGhosts`
-- `createGlScreen`
 - `createGrid`
 - `createGroundedLegsStep`
 - `createGroundedPalette`
@@ -226,7 +219,6 @@
 - `createLibraryPattern`
 - `createLidStep`
 - `createLinearGradient`
-- `createLinkedProgram`
 - `createMaterialPalette`
 - `createMaterialStep`
 - `createMulberry32`
@@ -254,7 +246,6 @@
 - `createRunArchive`
 - `createRunId`
 - `createRunRecord`
-- `createScreen`
 - `createSizeRule`
 - `createSketch`
 - `createSolidTileStep`
@@ -262,7 +253,6 @@
 - `createSpringStep`
 - `createStandingPlayer`
 - `createStarFill`
-- `createStarGlowStep`
 - `createStarsArt`
 - `createStarsStep`
 - `createStarStep`
@@ -277,7 +267,6 @@
 - `createSuffix`
 - `createSwatch`
 - `createTailStep`
-- `createTexture`
 - `createTileEdgesStep`
 - `createTileStep`
 - `createToothStep`
@@ -295,7 +284,6 @@
 - `dealEpics`
 - `dealStructures`
 - `den`
-- `discard`
 - `dispatch`
 - `dispose`
 - `drawBullets`
@@ -306,7 +294,6 @@
 - `drawFallingSpike`
 - `drawFireball`
 - `drawFireballs`
-- `drawFrame`
 - `drawGems`
 - `drawGemShape`
 - `drawGhost`
@@ -328,7 +315,6 @@
 - `drawStructure`
 - `drawTiles`
 - `drawWithCanvas`
-- `dropShaders`
 - `dying`
 - `emberHeart`
 - `emplacement`
@@ -408,7 +394,6 @@
 - `firstOf`
 - `fit`
 - `fitCanvas`
-- `fitTo`
 - `flatGround`
 - `flipFacing`
 - `flipMoonMagnet`
@@ -419,8 +404,6 @@
 - `formatClock`
 - `formatDay`
 - `formatDeclaration`
-- `formatGlslFloat`
-- `formatGlslVec3`
 - `formatHslCss`
 - `formatLayer`
 - `formatPlayedWhen`
@@ -504,7 +487,6 @@
 - `getHorizontalDirection`
 - `getHornedEnemyChance`
 - `getInitialState`
-- `getInvincibleAlpha`
 - `getItem`
 - `getItemArt`
 - `getJawTilt`
@@ -562,7 +544,6 @@
 - `getSpin`
 - `getSpinDirection`
 - `getStarCluster`
-- `getStarGlowAlpha`
 - `getStarsAmount`
 - `getStart`
 - `getStartingAngle`
@@ -574,7 +555,6 @@
 - `getTop`
 - `getTrapIntent`
 - `getType`
-- `getUniforms`
 - `getViewportScale`
 - `getVisibleRange`
 - `getWholeTileScale`
@@ -693,7 +673,6 @@
 - `isSpikeTile`
 - `isSpikeWithOrientation`
 - `isStar`
-- `isStarlit`
 - `isStomping`
 - `isStompingEnemy`
 - `isStructureName`
@@ -714,7 +693,6 @@
 - `isWallAhead`
 - `isWalledIn`
 - `isWarded`
-- `isWebgl2Supported`
 - `isWithinRange`
 - `isWorthKeeping`
 - `item`
@@ -749,8 +727,6 @@
 - `levelWithAirborneEnemies`
 - `levelWithEnemies`
 - `lightnessOf`
-- `link`
-- `linkProgram`
 - `listLevelPools`
 - `listNamePairs`
 - `listNames`
@@ -835,7 +811,6 @@
 - `playToEnd`
 - `poolPrefixOf`
 - `postStructure`
-- `present`
 - `project`
 - `projectX`
 - `projectY`
@@ -857,7 +832,6 @@
 - `register`
 - `registerStructure`
 - `rejectFailure`
-- `releaseContext`
 - `reloadBarrage`
 - `remember`
 - `removeItem`
@@ -1004,7 +978,6 @@
 - `toTile`
 - `traceArc`
 - `traceEllipse`
-- `traceFacet`
 - `traceGemShape`
 - `traceHeart`
 - `traceKeyBow`
@@ -1035,7 +1008,6 @@
 - `unpackReplay`
 - `untilFired`
 - `untilStruck`
-- `uploadFrame`
 - `upsertStructure`
 - `useArchive`
 - `useBackdrop`

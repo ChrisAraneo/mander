@@ -24,8 +24,6 @@ const TAIL_HEIGHT = 4.5;
 const FLICKER_SPEED = 14;
 const FLICKER_DEPTH = 0.12;
 
-const GLOW_BLUR = 18;
-
 const createTailStep = (colors: FireballColors, length: number): CanvasStep =>
   sequence([
     applyStyle({ fillStyle: colors.tail }),
@@ -75,7 +73,6 @@ export const createFlameStep = (
     save,
     translate(centre.x, centre.y),
     rotate(heading),
-    applyStyle({ shadowColor: colors.glow, shadowBlur: GLOW_BLUR }),
     createTailStep(colors, tailLength),
     createBallStep(radius, colors),
     restore,

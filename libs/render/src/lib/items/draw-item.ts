@@ -33,9 +33,6 @@ interface StarCluster {
 
 const GEM_WIDTH = 0.34;
 const GEM_HEIGHT = 0.42;
-const GEM_GLOW = 18;
-
-const STAR_GLOW = 20;
 
 const STAR_CLUSTERS: Readonly<Record<number, StarCluster>> = Object.freeze({
   1: { radius: 0.42, spots: [{ x: 0.5, y: 0.52 }] },
@@ -58,7 +55,6 @@ const STAR_CLUSTERS: Readonly<Record<number, StarCluster>> = Object.freeze({
 
 const HEART_LOBE = 0.26;
 
-const BULLET_GLOW = 14;
 const BULLET_RAIN_FROM = 9;
 
 const ORBIT_RADIUS = 0.27;
@@ -194,7 +190,6 @@ const createBulletsStep = (count: number, size: number): CanvasStep => {
         size * spot.y,
         size * cluster.radius,
         ICE_BULLET,
-        BULLET_GLOW,
       ),
     ),
   );
@@ -214,7 +209,6 @@ const createStarsStep = (
         size * spot.y,
         size * cluster.radius,
         colors,
-        STAR_GLOW,
       ),
     ),
   );
@@ -252,7 +246,6 @@ const createArtStep = (art: ItemArt, size: number): CanvasStep =>
         size * GEM_WIDTH,
         size * GEM_HEIGHT,
         colors,
-        GEM_GLOW,
       ),
     )
     .with({ kind: 'STARS' }, ({ count, colors }) =>

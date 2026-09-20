@@ -1,5 +1,4 @@
 import {
-  applyStyle,
   applyStyleWith,
   beginPath,
   type CanvasStep,
@@ -10,7 +9,6 @@ import {
   save,
   sequence,
   traceArc,
-  traceEllipse,
   traceLineTo,
 } from '../canvas';
 import { outline } from '../stroke';
@@ -18,12 +16,9 @@ import { outline } from '../stroke';
 const HEART_LIGHT = '#FFC2CE';
 const HEART_BASE = '#FF5470';
 const HEART_DEEP = '#8E1B33';
-const HEART_GLOW = '#FF8FA3';
 
 const HEART_LIFT = 0.3;
 const HEART_TIP = 1.7;
-
-const SHEEN_ALPHA = 0.55;
 
 const traceHeart = (
   centerX: number,
@@ -67,27 +62,11 @@ export const createHeartStep = (
 ): CanvasStep =>
   sequence([
     save,
-    applyStyle({ shadowColor: HEART_GLOW, shadowBlur: 16 }),
     traceHeart(centerX, centerY, lobe),
     outline(),
     applyStyleWith((context) => ({
       fillStyle: createHeartFill(context, centerX, centerY, lobe),
     })),
-    fill,
-    restore,
-    save,
-    applyStyle({ globalAlpha: SHEEN_ALPHA }),
-    beginPath,
-    traceEllipse(
-      centerX - lobe * 0.85,
-      centerY - lobe * 0.75,
-      lobe * 0.34,
-      lobe * 0.22,
-      -Math.PI / 5,
-      0,
-      Math.PI * 2,
-    ),
-    applyStyle({ fillStyle: HEART_LIGHT }),
     fill,
     restore,
   ]);
