@@ -1,17 +1,14 @@
-import type { Tile } from '@mander/model';
 import { map } from 'lodash-es';
 import { findValidSpawnRows } from './find-valid-spawn-rows';
+import type { PlayerSpawnCandidates, PlayerSpawnColumns } from './interfaces';
 
-export interface PlayerSpawnCandidate {
-  column: number;
-  rows: number[];
-}
-
-export const createPlayerSpawnCandidates = (
-  tiles: Tile[][],
-  columns: number[],
-): PlayerSpawnCandidate[] =>
-  map(columns, (column) => ({
+export const createPlayerSpawnCandidates = ({
+  tiles,
+  columns,
+}: PlayerSpawnColumns): PlayerSpawnCandidates => ({
+  tiles,
+  candidates: map(columns, (column) => ({
     column,
     rows: findValidSpawnRows(tiles, column),
-  }));
+  })),
+});

@@ -5,7 +5,6 @@ import { match } from 'ts-pattern';
 import { addChest } from './add-chest';
 import { addGems } from './add-gems';
 import { addKey } from './add-key';
-import { addPlayerSpawn } from './player-spawn/add-player-spawn';
 import { addPortal } from './add-portal';
 import { addVerticalChest } from './add-vertical-chest';
 import { addVerticalGems } from './add-vertical-gems';
@@ -14,6 +13,7 @@ import { addVerticalPortal } from './add-vertical-portal';
 import { addVerticalSpawn } from './add-vertical-spawn';
 import { isVertical } from './is-vertical';
 import { joinStructures } from './join-structures';
+import { placePlayerSpawn } from './player-spawn/place-player-spawn';
 import { stackStructures } from './stack-structures';
 
 type Sow = (tiles: Tile[][]) => Tile[][];
@@ -29,7 +29,7 @@ export interface Layout {
 
 export const ACROSS: Layout = Object.freeze({
   join: joinStructures,
-  addSpawn: addPlayerSpawn,
+  addSpawn: placePlayerSpawn,
   addPortal,
   addKey,
   addChest,

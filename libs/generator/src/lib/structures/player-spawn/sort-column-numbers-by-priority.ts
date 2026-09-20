@@ -1,10 +1,15 @@
 import { chain, indexOf, sortBy } from 'lodash-es';
 import { match } from 'ts-pattern';
+import type { PlayerSpawnColumns } from './interfaces';
 
 const PREFERRED_SPAWN_COLUMNS = [1, 2, 3, 0, 4, 5];
 
-export const sortColumnNumbersByPriority = (columns: number[]): number[] =>
-  sortBy(columns, (column) =>
+export const sortColumnNumbersByPriority = ({
+  tiles,
+  columns,
+}: PlayerSpawnColumns): PlayerSpawnColumns => ({
+  tiles,
+  columns: sortBy(columns, (column) =>
     chain(indexOf(PREFERRED_SPAWN_COLUMNS, column)).thru((priority) =>
       match(priority)
         .when(
@@ -13,4 +18,5 @@ export const sortColumnNumbersByPriority = (columns: number[]): number[] =>
         )
         .otherwise(() => priority),
     ),
-  );
+  ),
+});

@@ -7,7 +7,6 @@
 - `addGems`
 - `addKey`
 - `addPadding`
-- `addPlayerSpawn`
 - `addPortal`
 - `addRun`
 - `addStones`
@@ -232,6 +231,7 @@
 - `createPlayerFireballs`
 - `createPlayerFireballStep`
 - `createPlayerSpawnCandidates`
+- `createPlayerSpawnPatches`
 - `createPortalStep`
 - `createProngStep`
 - `createPublisher`
@@ -370,6 +370,7 @@
 - `findMarker`
 - `findMarkerCells`
 - `findPlatformRows`
+- `findPlayerSpawnCandidate`
 - `findPoolIssues`
 - `findPortalBottomTile`
 - `findPortalTile`
@@ -792,6 +793,7 @@
 - `parseString`
 - `parseStructure`
 - `patchInput`
+- `patchPlayerSpawnTiles`
 - `patchTiles`
 - `patrol`
 - `persist`
@@ -802,6 +804,7 @@
 - `pitRow`
 - `place`
 - `placeAt`
+- `placePlayerSpawn`
 - `platformRow`
 - `played`
 - `player`
