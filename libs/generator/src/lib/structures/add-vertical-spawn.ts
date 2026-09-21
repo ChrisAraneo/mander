@@ -1,5 +1,5 @@
 import { PLAYER_HEIGHT_TILES } from '@mander/engine';
-import { type Tile, TILE_SPAWN } from '@mander/model';
+import { SPAWN_HEIGHT, type Tile, TILE_SPAWN } from '@mander/model';
 import { chain } from '@mander/utils';
 import { ceil, floor, size, sortBy } from 'lodash-es';
 import { match, P } from 'ts-pattern';
@@ -8,8 +8,6 @@ import { standTiles } from './stand-tiles';
 import { findStandingSpots, type Spot } from './find-standing-spots';
 
 const { nullish } = P;
-
-const SPAWN_HEIGHT = 2;
 
 const SPAWN_CLEARANCE = SPAWN_HEIGHT + ceil(PLAYER_HEIGHT_TILES);
 

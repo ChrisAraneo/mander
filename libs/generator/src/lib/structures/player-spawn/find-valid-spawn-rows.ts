@@ -1,8 +1,7 @@
-import { TILE_AIR, type Tile } from '@mander/model';
+import { SPAWN_HEIGHT, TILE_AIR, type Tile } from '@mander/model';
 import { chain } from '@mander/utils';
 import { every, size } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { SPAWN_HEIGHT } from './consts';
 import { findSurfaceRows } from './find-surface-rows';
 
 export const findValidSpawnRows = (tiles: Tile[][], column: number): number[] =>
