@@ -4,7 +4,7 @@ import { every, size } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { findSurfaceRows } from './find-surface-rows';
 
-export const findValidSpawnRows = (tiles: Tile[][], column: number): number[] =>
+export const findValidSpawnRows = (tiles: Tile[][], column: number) =>
   chain(findSurfaceRows(tiles, column))
     .thru((rows) =>
       match(rows)

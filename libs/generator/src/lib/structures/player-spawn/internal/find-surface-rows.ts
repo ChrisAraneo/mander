@@ -3,7 +3,7 @@ import { chain } from '@mander/utils';
 import { map, findIndex, range } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-export const findSurfaceRows = (tiles: Tile[][], column: number): number[] =>
+export const findSurfaceRows = (tiles: Tile[][], column: number) =>
   chain(findIndex(tiles, (row) => isSolidTile(row[column])))
     .thru((surface) =>
       match(surface)

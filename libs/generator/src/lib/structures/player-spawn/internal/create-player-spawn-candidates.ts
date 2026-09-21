@@ -1,11 +1,11 @@
 import { map } from 'lodash-es';
 import { findValidSpawnRows } from './find-valid-spawn-rows';
-import type { PlayerSpawnCandidates, PlayerSpawnColumns } from './interfaces';
+import type { sortColumnNumbersByPriority } from './sort-column-numbers-by-priority';
 
 export const createPlayerSpawnCandidates = ({
   tiles,
   columns,
-}: PlayerSpawnColumns): PlayerSpawnCandidates => ({
+}: ReturnType<typeof sortColumnNumbersByPriority>) => ({
   tiles,
   candidates: map(columns, (column) => ({
     column,
