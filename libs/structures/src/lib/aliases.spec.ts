@@ -24,7 +24,7 @@ import {
 const CELLS = [__, DR, EN, BT, SP, SC, SF, BR, ST, WD, CR, CN, FB, SS, EE];
 
 describe('getAlias', () => {
-  it('should name every cell the library writes', () => {
+  it('should name the cell when the library writes an alias for it', () => {
     expect(getAlias(TILE_AIR)).toBe('__');
     expect(getAlias(TILE_DIRT)).toBe('DR');
     expect(getAlias(TILE_CANNON)).toBe('CN');
@@ -37,7 +37,7 @@ describe('getAlias', () => {
 });
 
 describe('parseAlias', () => {
-  it('should read back every alias it writes', () => {
+  it('should read the cell back when it is given an alias it wrote', () => {
     expect(every(CELLS, (cell) => parseAlias(getAlias(cell)) === cell)).toBe(
       true,
     );

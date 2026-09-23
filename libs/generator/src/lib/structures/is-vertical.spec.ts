@@ -10,27 +10,27 @@ const LEVELS_A_DAY = 8;
 const levelNumbers = times(LEVELS_A_DAY, (index) => index + 1);
 
 describe('isVertical', () => {
-  it('should send the player up on the second and the fifth level', () => {
+  it('should send the player up when the level is the second or the fifth', () => {
     expect(VERTICAL_LEVELS).toEqual([2, 5]);
     expect(isVertical(2)).toBe(true);
     expect(isVertical(5)).toBe(true);
   });
 
-  it('should leave every other level of the day running sideways', () => {
+  it('should leave the level running sideways when it is any other of the day', () => {
     expect(filter(levelNumbers, isVertical)).toEqual([2, 5]);
   });
 
-  it('should never stand the level the player starts the day on up', () => {
+  it('should never stand the level up when it is the one the player starts the day on', () => {
     expect(isVertical(1)).toBe(false);
   });
 
-  it('should never turn a level it stands up around as well', () => {
+  it('should never turn the level around as well when it stands it up', () => {
     expect(
       filter(levelNumbers, (level) => isVertical(level) && isMirrored(level)),
     ).toEqual([]);
   });
 
-  it('should answer the same for a level number whatever the day', () => {
+  it('should answer the same for a level number when the day it falls on changes', () => {
     expect(map(levelNumbers, isVertical)).toEqual(
       map(levelNumbers, isVertical),
     );

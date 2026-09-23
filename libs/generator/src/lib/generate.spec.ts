@@ -45,7 +45,7 @@ import {
   STRUCTURES_PER_LEVEL,
   VERTICAL_LEVELS,
 } from './consts';
-import { FIRST_CANNON_LEVEL } from './structures/clear-cannons';
+import { FIRST_CANNON_LEVEL } from './consts';
 
 const LEVELS_A_DAY = 8;
 
@@ -88,7 +88,7 @@ const fingerprint = (tiles: number[][]): string =>
   );
 
 describe('generate', () => {
-  it('builds every level of a day out of its own structures', () => {
+  it('should build every level out of its own structures when it deals a day', () => {
     const sharing = filter(days, (date) => {
       const world = generate(date);
 
@@ -101,7 +101,7 @@ describe('generate', () => {
     expect(sharing).toEqual([]);
   });
 
-  it('leaves no level without structures to be built from', () => {
+  it('should leave no level without structures when it deals a day', () => {
     const world = generate(dayOf(0));
 
     expect(size(world.levels)).toBe(LEVELS_A_DAY);
@@ -110,7 +110,7 @@ describe('generate', () => {
     ).toBe(true);
   });
 
-  it('holds the horned enemies back until the third level', () => {
+  it('should hold the horned enemies back when the level is before the third', () => {
     const chances = map(days, (date) =>
       map(generate(date).levels, (level) => level.hornedEnemyChance),
     );
@@ -132,7 +132,7 @@ describe('generate', () => {
     ]);
   });
 
-  it('sends no horned enemy out on the first two levels of any day', () => {
+  it('should send no horned enemy out when the level is one of the first two of the day', () => {
     const early = flatMap(days, (date) => {
       const world = generate(date);
 
@@ -142,7 +142,7 @@ describe('generate', () => {
     expect(some(early, (enemy) => enemy.kind === 'HORNED')).toBe(false);
   });
 
-  it('sends no hopping enemy out on the last three levels of any day', () => {
+  it('should send no hopping enemy out when the level is one of the last three of the day', () => {
     const late = flatMap(days, (date) => {
       const world = generate(date);
 
@@ -154,7 +154,7 @@ describe('generate', () => {
     expect(some(late, (enemy) => enemy.kind === 'HOPPING')).toBe(false);
   });
 
-  it('lets flying enemies through at every step of the ramp', () => {
+  it('should let flying enemies through when the level sits at any step of the ramp', () => {
     const hasFlyingEnemiesOn = (indexes: number[]): boolean =>
       some(days, (date) =>
         some(indexes, (index) =>
@@ -172,7 +172,7 @@ describe('generate', () => {
     );
   });
 
-  it('holds the cannons back until the fifth level', () => {
+  it('should hold the cannons back when the level is before the fifth', () => {
     const early = flatMap(days, (date) => {
       const world = generate(date);
 
@@ -198,7 +198,7 @@ describe('generate', () => {
   const isTurned = (run: Run): boolean =>
     run.spawn !== null && run.portal !== null && run.spawn.x > run.portal.x;
 
-  it('lays down a way in and a way out on every level it builds', () => {
+  it('should lay down a way in and a way out when it builds a level', () => {
     const lost = filter(
       runs(),
       (run) => run.spawn === null || run.portal === null,
@@ -208,7 +208,7 @@ describe('generate', () => {
     expect(lost).toEqual([]);
   });
 
-  it('sends the player in from the right on the third and the sixth level', () => {
+  it('should send the player in from the right when the level is the third or the sixth', () => {
     const wrongWay = filter(
       crosswiseRuns(),
       (run) => includes(MIRRORED_LEVELS, run.levelNumber) && !isTurned(run),
@@ -217,7 +217,7 @@ describe('generate', () => {
     expect(wrongWay).toEqual([]);
   });
 
-  it('sends the player in from the left on every other level it lays out', () => {
+  it('should send the player in from the left when the level is any other it lays out', () => {
     const wrongWay = filter(
       crosswiseRuns(),
       (run) => !includes(MIRRORED_LEVELS, run.levelNumber) && isTurned(run),
@@ -226,13 +226,13 @@ describe('generate', () => {
     expect(wrongWay).toEqual([]);
   });
 
-  it('turns two levels of every day around, whatever the day', () => {
+  it('should turn two levels around when it deals any day', () => {
     expect(size(filter(crosswiseRuns(), isTurned))).toBe(
       size(days) * size(MIRRORED_LEVELS),
     );
   });
 
-  it('gives every level a back layer cut to the shape of its front', () => {
+  it('should cut the back layer to the shape of the front when it builds a level', () => {
     const ragged = filter(
       flatMap(days, (date) => generate(date).levels),
       (level) =>
@@ -243,7 +243,7 @@ describe('generate', () => {
     expect(ragged).toEqual([]);
   });
 
-  it('fills the back layer with blocks alone, never with what the level is played against', () => {
+  it('should fill the back layer with blocks alone when it builds a level', () => {
     const stray = filter(
       flatMap(days, (date) =>
         flatMap(generate(date).levels, (level) =>
@@ -256,7 +256,7 @@ describe('generate', () => {
     expect(uniq(stray)).toEqual([]);
   });
 
-  it('leaves a mirrored level as wide and as tall as it was built', () => {
+  it('should leave the level as wide and as tall as it was built when it is mirrored', () => {
     const ragged = filter(
       flatMap(days, (date) => generate(date).levels),
       (level) =>
@@ -272,7 +272,7 @@ describe('generate', () => {
   const isClimbed = (run: Run): boolean =>
     run.spawn !== null && run.portal !== null && run.spawn.y > run.portal.y;
 
-  it('stands the second and the fifth level up', () => {
+  it('should stand the level up when it is the second or the fifth', () => {
     const standing = flatMap(days, (date) =>
       map(
         filter(generate(date).levels, (_, index) =>
@@ -286,7 +286,7 @@ describe('generate', () => {
     expect(uniq(standing)).toEqual([STRUCTURE_WIDTH]);
   });
 
-  it('builds a level it stands up taller than it is wide', () => {
+  it('should build the level taller than it is wide when it stands one up', () => {
     const squat = filter(
       flatMap(days, (date) =>
         filter(generate(date).levels, (_, index) =>
@@ -299,14 +299,14 @@ describe('generate', () => {
     expect(squat).toEqual([]);
   });
 
-  it('sends the player up on every level it stands up', () => {
+  it('should send the player up when it stands a level up', () => {
     const wrongWay = filter(verticalRuns(), (run) => !isClimbed(run));
 
     expect(size(verticalRuns())).toBe(size(days) * size(VERTICAL_LEVELS));
     expect(wrongWay).toEqual([]);
   });
 
-  it('leaves a level it stands up something to be picked up on the way', () => {
+  it('should leave something to be picked up on the way when it stands a level up', () => {
     const empty = filter(
       flatMap(days, (date) =>
         filter(generate(date).levels, (_, index) =>
@@ -322,7 +322,7 @@ describe('generate', () => {
     expect(empty).toEqual([]);
   });
 
-  it('leaves the player room to stand where it sends them in', () => {
+  it('should leave the player room to stand when it sends them into a level', () => {
     const buried = flatMap(days, (date, day) =>
       filter(
         map(generate(date).levels, (level, index) => ({
@@ -337,7 +337,7 @@ describe('generate', () => {
     expect(buried).toEqual([]);
   });
 
-  it('leaves the sides of a level it stands up open, and walls every other level in', () => {
+  it('should leave the sides open when it stands a level up, and wall every other level in', () => {
     const openness = flatMap(days, (date) =>
       map(generate(date).levels, (level, index) => ({
         levelNumber: index + 1,
@@ -354,7 +354,7 @@ describe('generate', () => {
     ).toEqual([]);
   });
 
-  it('records every structure it built a level from', () => {
+  it('should record every structure when it builds a level from them', () => {
     const counts = flatMap(days, (date) =>
       map(generate(date).levels, (level) => size(level.meta?.structures)),
     );
@@ -363,7 +363,7 @@ describe('generate', () => {
     expect(uniq(counts)).toEqual([STRUCTURES_PER_LEVEL]);
   });
 
-  it('records the structures of the pool the level was dealt from', () => {
+  it('should record the structures of the pool when the level was dealt from it', () => {
     const strays = flatMap(days, (date) =>
       flatMap(generate(date).levels, (level, index) =>
         filter(
@@ -376,7 +376,7 @@ describe('generate', () => {
     expect(strays).toEqual([]);
   });
 
-  it('deals the same day the same way twice', () => {
+  it('should deal the day the same way twice when it is given the same day', () => {
     expect(
       map(generate(dayOf(0)).levels, (level) => fingerprint(level.tiles)),
     ).toEqual(

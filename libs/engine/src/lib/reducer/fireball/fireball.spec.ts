@@ -76,7 +76,7 @@ const turning = (spin: FireballSpin): Fireball => ({
 });
 
 describe('createFireballs', () => {
-  it('should hang one fireball on every fireball block', () => {
+  it('should hang one fireball on the block when the block is a fireball one', () => {
     expect(
       createFireballs(
         level([
@@ -87,7 +87,7 @@ describe('createFireballs', () => {
     ).toHaveLength(2);
   });
 
-  it('should hang the fireball off the middle of its block', () => {
+  it('should hang the fireball off the middle of its block when it creates one', () => {
     expect(
       createFireballs(
         level([
@@ -98,7 +98,7 @@ describe('createFireballs', () => {
     ).toEqual({ x: TILE_SIZE * 1.5, y: TILE_SIZE / 2 });
   });
 
-  it('should stagger neighbours so they do not fly in lockstep', () => {
+  it('should stagger the neighbours when fireball blocks stand side by side', () => {
     const fireballs = createFireballs(
       level([
         [TILE_FIREBALL, TILE_FIREBALL],
@@ -109,20 +109,20 @@ describe('createFireballs', () => {
     expect(fireballs[0].angle).not.toBe(fireballs[1].angle);
   });
 
-  it('should send some fireballs round one way and some the other', () => {
+  it('should send some fireballs round one way and some the other when it creates many', () => {
     expect(uniq(map(createFireballs(ROW_OF_BLOCKS), 'spin')).sort()).toEqual([
       'ANTICLOCKWISE',
       'CLOCKWISE',
     ]);
   });
 
-  it('should roll the same spins again for the same seed, so a respawn matches', () => {
+  it('should roll the same spins again when the seed is the same', () => {
     expect(map(createFireballs(ROW_OF_BLOCKS), 'spin')).toEqual(
       map(createFireballs(ROW_OF_BLOCKS), 'spin'),
     );
   });
 
-  it('should roll different spins for a different seed', () => {
+  it('should roll different spins when the seed differs', () => {
     expect(
       map(createFireballs({ ...ROW_OF_BLOCKS, seed: 'OTHER' }), 'spin'),
     ).not.toEqual(map(createFireballs(ROW_OF_BLOCKS), 'spin'));
@@ -130,7 +130,7 @@ describe('createFireballs', () => {
 });
 
 describe('stepFireball', () => {
-  it('should hold the fireball five blocks out however far it has flown', () => {
+  it('should hold the fireball five blocks out when it has flown a long way', () => {
     const [fireball] = createFireballs(level([[TILE_FIREBALL], [TILE_DIRT]]));
 
     expect(FIREBALL_ORBIT_RADIUS).toBe(FIREBALL_ORBIT_TILES * TILE_SIZE);
@@ -142,7 +142,7 @@ describe('stepFireball', () => {
     );
   });
 
-  it('should come back around to where it started after one orbit', () => {
+  it('should come back around to where it started when it has flown one orbit', () => {
     forEach(SPINS, (spin) => {
       const start = getFireballPosition(turning(spin));
       const round = getFireballPosition(
@@ -154,7 +154,7 @@ describe('stepFireball', () => {
     });
   });
 
-  it('should fly the same circle whether the ring is walled in or wide open', () => {
+  it('should fly the same circle when the ring is walled in as when it is wide open', () => {
     const walled = createFireballs(
       level([
         [TILE_DIRT, TILE_FIREBALL, TILE_DIRT],
@@ -177,19 +177,19 @@ describe('stepFireball', () => {
 describe('stepFireball spin', () => {
   const START = turning('CLOCKWISE').origin;
 
-  it('should carry the clockwise fireball downward off its three o clock start', () => {
+  it('should carry the fireball downward off its three o clock start when it turns clockwise', () => {
     expect(
       getFireballPosition(spun(turning('CLOCKWISE'), 0.2)).y,
     ).toBeGreaterThan(START.y);
   });
 
-  it('should carry the anticlockwise fireball upward off the same start', () => {
+  it('should carry the fireball upward off the same start when it turns anticlockwise', () => {
     expect(
       getFireballPosition(spun(turning('ANTICLOCKWISE'), 0.2)).y,
     ).toBeLessThan(START.y);
   });
 
-  it('should mirror the one spin against the other', () => {
+  it('should mirror the one spin against the other when both start from the same angle', () => {
     const clockwise = getFireballPosition(spun(turning('CLOCKWISE'), 0.7));
     const anticlockwise = getFireballPosition(
       spun(turning('ANTICLOCKWISE'), 0.7),
@@ -199,7 +199,7 @@ describe('stepFireball spin', () => {
     expect(anticlockwise.y - START.y).toBeCloseTo(START.y - clockwise.y, 6);
   });
 
-  it('should hold the anticlockwise fireball five blocks out as well', () => {
+  it('should hold the fireball five blocks out as well when it turns anticlockwise', () => {
     times(40, (step) =>
       expect(
         radiusOf(spun(turning('ANTICLOCKWISE'), step / 10)),
@@ -208,7 +208,7 @@ describe('stepFireball spin', () => {
     );
   });
 
-  it('should keep the anticlockwise angle inside a single turn', () => {
+  it('should keep the angle inside a single turn when the fireball turns anticlockwise', () => {
     times(20, (step) => {
       const { angle } = spun(turning('ANTICLOCKWISE'), step / 4);
 
@@ -221,7 +221,7 @@ describe('stepFireball spin', () => {
 describe('getFireballHeading', () => {
   const QUARTER_TURN = Math.PI / 2;
 
-  it('should point the clockwise fireball a quarter turn ahead', () => {
+  it('should point the fireball a quarter turn ahead when it turns clockwise', () => {
     const fireball = turning('CLOCKWISE');
 
     expect(getFireballHeading(fireball)).toBeCloseTo(
@@ -229,7 +229,7 @@ describe('getFireballHeading', () => {
     );
   });
 
-  it('should point the anticlockwise fireball a quarter turn the other way', () => {
+  it('should point the fireball a quarter turn the other way when it turns anticlockwise', () => {
     const fireball = turning('ANTICLOCKWISE');
 
     expect(getFireballHeading(fireball)).toBeCloseTo(
@@ -237,7 +237,7 @@ describe('getFireballHeading', () => {
     );
   });
 
-  it('should point each spin along the way it is really travelling', () => {
+  it('should point each spin along the way it is really travelling when it heads off', () => {
     forEach(SPINS, (spin) => {
       const fireball = spun(turning(spin), 0.4);
       const from = getFireballPosition(fireball);
@@ -257,7 +257,7 @@ describe('isBurning', () => {
 
   const at = getFireballPosition(fireball);
 
-  it('should scorch the player standing in the flame', () => {
+  it('should scorch the player when they stand in the flame', () => {
     expect(
       isBurning(player(at.x - PLAYER_WIDTH / 2, at.y - PLAYER_HEIGHT / 2), [
         fireball,
@@ -265,13 +265,13 @@ describe('isBurning', () => {
     ).toBe(true);
   });
 
-  it('should spare the player standing clear of it', () => {
+  it('should spare the player when they stand clear of the flame', () => {
     expect(isBurning(player(at.x + TILE_SIZE * 3, at.y), [fireball])).toBe(
       false,
     );
   });
 
-  it('should spare the player who is still invincible', () => {
+  it('should spare the player when they are still invincible', () => {
     expect(
       isBurning(
         player(at.x - PLAYER_WIDTH / 2, at.y - PLAYER_HEIGHT / 2, 1.5),

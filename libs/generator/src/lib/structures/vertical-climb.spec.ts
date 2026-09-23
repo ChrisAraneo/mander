@@ -50,7 +50,7 @@ const verticalLevels = (date: Date): Level[] =>
   );
 
 describe('the climb up a vertical level', () => {
-  it('carries the player from the ground of one sector out of the top of the next', () => {
+  it('should carry the player out of the top of the next sector when they start on the ground of one', () => {
     const stuck = filter(
       map(VERTICAL_STRUCTURES, (structure, index) => ({
         name: named(index),
@@ -67,7 +67,7 @@ describe('the climb up a vertical level', () => {
     ).toBe('');
   }, 120000);
 
-  it('reaches the portal of every level the generator stands up', () => {
+  it('should reach the portal when the generator stands a level up', () => {
     const lost = filter(
       map(verticalLevels(dayOf(0)), (level, index) => ({
         level: index,

@@ -57,7 +57,7 @@ describe('fireballs on the tick', () => {
     expect(createInitialState(testLevel(), 0, []).fireballs).toHaveLength(1);
   });
 
-  it('should keep the fireball circling its own block as the clock runs', () => {
+  it('should keep the fireball circling its own block when the clock runs on', () => {
     const state = createInitialState(testLevel(), 0, []);
     const turned = tick(state);
 
@@ -68,7 +68,7 @@ describe('fireballs on the tick', () => {
     });
   });
 
-  it('should burn a heart off the player it sweeps through', () => {
+  it('should burn a heart off the player when the fireball sweeps through them', () => {
     const state = tick(createInitialState(testLevel(), 0, []));
     const hearts = state.player.hearts.value;
     const burned = tick({ ...state, fireballs: [onTopOfPlayer(state)] });
@@ -76,7 +76,7 @@ describe('fireballs on the tick', () => {
     expect(burned.player.hearts.value).toBe(hearts - 1);
   });
 
-  it('should leave the player alone while it circles somewhere else', () => {
+  it('should leave the player alone when the fireball circles somewhere else', () => {
     const state = tick(createInitialState(testLevel(), 0, []));
 
     expect(tick(state).player.hearts.value).toBe(state.player.hearts.value);

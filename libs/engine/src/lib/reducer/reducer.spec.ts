@@ -165,7 +165,7 @@ const jumpApex = (start: GameState, holdTicks: number): number => {
 };
 
 describe('movement actions', () => {
-  it('applies gravity until the player lands', () => {
+  it('should apply gravity when the player is off the ground', () => {
     let state = createInitialState(testLevel(), 0, []);
     expect(state.player.statuses.isGrounded).toBe(false);
     state = tickN(state, 60);
@@ -174,7 +174,7 @@ describe('movement actions', () => {
     expect(state.player.velocity.y.current).toBe(0);
   });
 
-  it('moves with MOVE_RIGHT_START and stops with MOVE_RIGHT_STOP', () => {
+  it('should move the player and stop them again when right is pressed and released', () => {
     const start = settledAt(3 * TILE_SIZE);
     let state = act(start, { type: 'MOVE_RIGHT_START' });
     state = tickN(state, 10);
@@ -187,7 +187,7 @@ describe('movement actions', () => {
     expect(state.player.position.x).toBe(movedX);
   });
 
-  it('is stopped by walls when moving left', () => {
+  it('should stop the player when a wall stands to their left', () => {
     let state = settledAt(3 * TILE_SIZE);
     state = act(state, { type: 'MOVE_LEFT_START' });
     state = tickN(state, 600);
@@ -196,7 +196,7 @@ describe('movement actions', () => {
     expect(state.player.statuses.isFacingRight).toBe(false);
   });
 
-  it('is too tall to squeeze under a ceiling one tile above the ground', () => {
+  it('should hold the player back when the ceiling is one tile above the ground', () => {
     const level = testLevel();
     level.tiles[10][6] = TILE_DIRT;
     let state = createInitialState(level, 0, []);
@@ -214,7 +214,7 @@ describe('movement actions', () => {
     );
   });
 
-  it('respawns, counts a death, and spends a heart after falling into the pit', () => {
+  it('should respawn the player, count a death and spend a heart when they fall into the pit', () => {
     const start = settledAt(8 * TILE_SIZE);
     start.player.position.x = 10 * TILE_SIZE + 5;
     const state = tickN(start, 120);
@@ -228,7 +228,7 @@ describe('movement actions', () => {
     );
   });
 
-  it('RESPAWN resets the player position but keeps key and inventory', () => {
+  it('should reset the player position but keep the key and inventory when the player respawns', () => {
     let state = settledAt(15 * TILE_SIZE, [item('EXTRA')]);
     state = tickN(state, 2);
     expect(state.hasKey).toBe(true);
@@ -240,7 +240,7 @@ describe('movement actions', () => {
 });
 
 describe('jumping', () => {
-  it('jumps on JUMP_START only when grounded — there is no double jump', () => {
+  it('should jump only when the player is grounded', () => {
     let state = settledAt(3 * TILE_SIZE);
     state = act(state, { type: 'JUMP_START' });
     state = tick(state);
@@ -255,7 +255,7 @@ describe('jumping', () => {
     expect(state.player.velocity.y.current).toBeLessThan(0);
   });
 
-  it('ignores held-key repeats of JUMP_START', () => {
+  it('should ignore the jump when the key is only being held down', () => {
     let state = settledAt(3 * TILE_SIZE);
     state = act(state, { type: 'JUMP_START' });
     state = tick(state);
@@ -266,7 +266,7 @@ describe('jumping', () => {
     expect(state.player.velocity.y.current).toBeLessThan(0);
   });
 
-  it('re-jumps on landing while the jump button stays held', () => {
+  it('should jump again on landing when the jump button stays held', () => {
     let state = settledAt(3 * TILE_SIZE);
     state = act(state, { type: 'JUMP_START' });
     let hasLanded = false;
@@ -285,7 +285,7 @@ describe('jumping', () => {
     );
   });
 
-  it('makes short taps jump lower than held presses', () => {
+  it('should jump lower when the press is a short tap rather than a held one', () => {
     const start = settledAt(3 * TILE_SIZE);
     const tapApex = jumpApex(start, 3);
     const heldApex = jumpApex(start, 100);
@@ -295,7 +295,7 @@ describe('jumping', () => {
     expect(surfaceY - heldApex).toBeGreaterThan((surfaceY - tapApex) * 1.5);
   });
 
-  it('clears the tallest climb the generator hands out, and no more', () => {
+  it('should clear the tallest climb the generator hands out and no more when the player jumps', () => {
     const rise =
       SURFACE - PLAYER_HEIGHT - jumpApex(settledAt(3 * TILE_SIZE), 100);
     expect(rise).toBeGreaterThan((MAX_JUMP_TILES - 1) * TILE_SIZE);
@@ -304,7 +304,7 @@ describe('jumping', () => {
 });
 
 describe('key and chest', () => {
-  it('collects the key by walking over it', () => {
+  it('should collect the key when the player walks over it', () => {
     let state = settledAt(13 * TILE_SIZE);
     expect(state.hasKey).toBe(false);
     state = act(state, { type: 'MOVE_RIGHT_START' });
@@ -312,7 +312,7 @@ describe('key and chest', () => {
     expect(state.hasKey).toBe(true);
   });
 
-  it('keeps the chest locked without the key', () => {
+  it('should keep the chest locked when the player has no key', () => {
     let state = settledAt(20 * TILE_SIZE - 20);
     expect(state.isNearChest).toBe(true);
     expect(state.hasKey).toBe(false);
@@ -321,7 +321,7 @@ describe('key and chest', () => {
     expect(state.inventory).toHaveLength(0);
   });
 
-  it('opens the chest with the key, takes one card, then stays opened', () => {
+  it('should open the chest and take one card when the player has the key', () => {
     let state = settledAt(20 * TILE_SIZE - 20);
     state = { ...state, hasKey: true };
     state = act(state, { type: 'INTERACT' });
@@ -345,7 +345,7 @@ describe('key and chest', () => {
     expect(again.inventory).toHaveLength(1);
   });
 
-  it('INTERACT leaves the open chest alone so the pick stays deliberate', () => {
+  it('should leave the chest alone when the player interacts with it already open', () => {
     let state = settledAt(20 * TILE_SIZE - 20);
     state = { ...state, hasKey: true };
     state = act(state, { type: 'INTERACT' });
@@ -357,7 +357,7 @@ describe('key and chest', () => {
     expect(again.inventory).toHaveLength(0);
   });
 
-  it('takes only the card the player named, whichever it is', () => {
+  it('should take only the card the player named when several are offered', () => {
     let state = settledAt(20 * TILE_SIZE - 20);
     state = { ...state, hasKey: true };
     state = act(state, { type: 'INTERACT' });
@@ -367,7 +367,7 @@ describe('key and chest', () => {
     expect(chosen.inventory.map((i) => i.id)).toEqual(['CARD-2']);
   });
 
-  it('CLOSE leaves the chest unopened so it can be reopened later', () => {
+  it('should leave the chest unopened when the player closes it', () => {
     let state = settledAt(20 * TILE_SIZE - 20);
     state = { ...state, hasKey: true };
     state = act(state, { type: 'INTERACT' });
@@ -379,7 +379,7 @@ describe('key and chest', () => {
     expect(state.isNearChest).toBe(true);
   });
 
-  it('ignores CHOOSE_ITEM with an invalid index', () => {
+  it('should ignore the choice when the index is not one of the cards', () => {
     let state = settledAt(20 * TILE_SIZE - 20);
     state = { ...state, hasKey: true };
     state = act(state, { type: 'INTERACT' });
@@ -389,7 +389,7 @@ describe('key and chest', () => {
 });
 
 describe('portal and level loading', () => {
-  it('completes the level through the portal, even without the key', () => {
+  it('should complete the level when the player enters the portal without the key', () => {
     let state = settledAt(25 * TILE_SIZE - 10);
     expect(state.isNearPortal).toBe(true);
     state = act(state, { type: 'INTERACT' });
@@ -397,7 +397,7 @@ describe('portal and level loading', () => {
     expect(simulation(tick(state))).toEqual(simulation(state));
   });
 
-  it('LOAD_LEVEL starts fresh, winding back the clock but keeping the inventory', () => {
+  it('should wind the clock back but keep the inventory when the next level loads', () => {
     let state = settledAt(20 * TILE_SIZE - 20);
     state = { ...state, hasKey: true };
     state = act(state, { type: 'INTERACT' });
@@ -439,7 +439,7 @@ describe('enemies', () => {
   const withFlyingEnemy = (): GameState =>
     createInitialState(testLevel([flyingEnemySpawn]), 0, []);
 
-  it('paces back and forth, turning at walls and platform edges without falling', () => {
+  it('should turn the enemy back when it paces into a wall or a platform edge', () => {
     let state = withEnemy();
     const facings = new Set<boolean>();
     let minX = Infinity;
@@ -460,7 +460,7 @@ describe('enemies', () => {
     expect(maxX - minX, 'actually paced a distance').toBeGreaterThan(TILE_SIZE);
   });
 
-  it('hops when the player is overhead — and lower than the player jumps', () => {
+  it('should hop, and lower than the player jumps, when the player is overhead', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -486,7 +486,7 @@ describe('enemies', () => {
     expect(ENEMY_JUMP_VELOCITY).toBeLessThan(createBasePlayerVelocity().y.max);
   });
 
-  it('ignores the player alongside it, only reacting to one overhead', () => {
+  it('should ignore the player when they stand alongside it rather than overhead', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -508,7 +508,7 @@ describe('enemies', () => {
     ).toBe(true);
   });
 
-  it('is gone for good once it drops into the pit — enemies never respawn', () => {
+  it('should be gone for good when the enemy drops into the pit', () => {
     let state = withEnemy();
     state = tickN(state, 5);
     expect(
@@ -534,7 +534,7 @@ describe('enemies', () => {
     ).toHaveLength(0);
   });
 
-  it('resets every enemy back to its own spawn point when the player respawns', () => {
+  it('should reset every enemy to its own spawn point when the player respawns', () => {
     let state = withEnemy();
     const enemySpawnPos = state.enemies[0].spawn;
     state = tickN(state, 5);
@@ -554,7 +554,7 @@ describe('enemies', () => {
     ).toEqual(enemySpawnPos);
   });
 
-  it('respawns every enemy too when the player auto-respawns after a pit fall', () => {
+  it('should respawn every enemy too when the player auto-respawns after a pit fall', () => {
     let state = withEnemy();
     const enemySpawnPos = state.enemies[0].spawn;
     state = tickN(state, 5);
@@ -584,7 +584,7 @@ describe('enemies', () => {
     ).toEqual(enemySpawnPos);
   });
 
-  it('spawns the new levels enemies on LOAD_LEVEL', () => {
+  it('should spawn the enemies of the new level when the next level loads', () => {
     let state = withEnemy();
     expect(state.enemies).toHaveLength(1);
     state = act(state, {
@@ -601,7 +601,7 @@ describe('enemies', () => {
     return level;
   };
 
-  it('a spike costs a heart and grants invincibility instead of killing', () => {
+  it('should cost a heart and grant invincibility rather than kill when the player walks into a spike', () => {
     let state = createInitialState(withSpike(6), 0, []);
     state = {
       ...state,
@@ -628,7 +628,7 @@ describe('enemies', () => {
     expect(state.deaths, 'a survived hit is not a death').toBe(before);
   });
 
-  it('a spike on the last heart ends the run instead of respawning', () => {
+  it('should end the run rather than respawn when a spike takes the last heart', () => {
     let state = createInitialState(withSpike(6), 0, []);
     state = {
       ...state,
@@ -657,7 +657,7 @@ describe('enemies', () => {
     );
   });
 
-  it('ignores input while the player is dying from a pit fall', () => {
+  it('should ignore the input when the player is dying from a pit fall', () => {
     let state = settledAt(8 * TILE_SIZE);
     state = {
       ...state,
@@ -685,7 +685,7 @@ describe('enemies', () => {
     expect(state.player.statuses.isJumpQueued).toBe(false);
   });
 
-  it('turns enemies back at a spike and keeps them alive', () => {
+  it('should turn the enemy back and keep it alive when it paces into a spike', () => {
     const initial = createInitialState(withSpike(9, [enemySpawn]), 0, []);
     let state: GameState = {
       ...initial,
@@ -706,7 +706,7 @@ describe('enemies', () => {
     );
   });
 
-  it('kills an enemy that ends up on a spike, clearing it once it fades', () => {
+  it('should kill the enemy and clear it once it fades when it ends up on a spike', () => {
     let state = createInitialState(withSpike(5, [{ x: 7, y: 11 }]), 0, []);
     expect(state.enemies).toHaveLength(1);
     state = {
@@ -734,7 +734,7 @@ describe('enemies', () => {
     expect(state.enemies).toHaveLength(0);
   });
 
-  it('keeps a dying enemy falling instead of freezing wherever it died', () => {
+  it('should keep the enemy falling when it dies in mid-air', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -765,7 +765,7 @@ describe('enemies', () => {
     ).toBeGreaterThan(0);
   });
 
-  it('lets the player walk through a dying enemy unharmed', () => {
+  it('should let the player through unharmed when the enemy is dying', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -788,7 +788,7 @@ describe('enemies', () => {
     expect(state.player.timers.death).toBeNull();
   });
 
-  it('an enemy costs a heart and leaves the player standing but invincible', () => {
+  it('should cost a heart and leave the player standing but invincible when an enemy touches them', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -815,7 +815,7 @@ describe('enemies', () => {
     expect(state.deaths).toBe(before);
   });
 
-  it('an enemy taking the last heart ends the run', () => {
+  it('should end the run when an enemy takes the last heart', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -846,7 +846,7 @@ describe('enemies', () => {
     ).toEqual(simulation(state));
   });
 
-  it('does not kill a player kept apart by the pit', () => {
+  it('should leave the player unhurt when the pit keeps them apart from the enemy', () => {
     let state = withEnemy();
     state = {
       ...state,
@@ -860,7 +860,7 @@ describe('enemies', () => {
     expect(state.deaths).toBe(deaths);
   });
 
-  it('spares a player only grazing an enemy, when the drawn bodies never touch', () => {
+  it('should spare the player when they only graze the enemy and the drawn bodies never touch', () => {
     let state = withEnemy();
     const enemyFloorY = SURFACE - ENEMY_HEIGHT;
     const px = 6 * TILE_SIZE;
@@ -896,7 +896,7 @@ describe('enemies', () => {
     );
   });
 
-  it('kills an enemy the player lands on from above at terminal velocity, without costing a heart', () => {
+  it('should kill the enemy and cost no heart when the player lands on it from above at terminal velocity', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -930,7 +930,7 @@ describe('enemies', () => {
     expect(state.deaths).toBe(before);
   });
 
-  it('clears a stomped enemy from the array once its death fade finishes', () => {
+  it('should clear the stomped enemy away when its death fade finishes', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -955,7 +955,7 @@ describe('enemies', () => {
     expect(state.enemies, 'gone once fully faded').toHaveLength(0);
   });
 
-  it('stomping an enemy while holding jump launches a full jump instead of the small bounce', () => {
+  it('should launch a full jump rather than the small bounce when the player stomps an enemy with jump held', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -990,7 +990,7 @@ describe('enemies', () => {
     ).toBeGreaterThan(STOMP_BOUNCE_VELOCITY);
   });
 
-  it('kills an enemy that hops up into the falling player, sparing the heart', () => {
+  it('should kill the enemy and spare the heart when it hops up into the falling player', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -1033,7 +1033,7 @@ describe('enemies', () => {
     expect(state.deaths).toBe(before);
   });
 
-  it('kills an enemy the player only clips the edge of on the way down', () => {
+  it('should kill the enemy when the player only clips its edge on the way down', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -1062,7 +1062,7 @@ describe('enemies', () => {
     );
   });
 
-  it('an enemy landing on the player from above still costs a heart, not a stomp', () => {
+  it('should cost a heart rather than count as a stomp when the enemy lands on the player from above', () => {
     let state = withEnemy();
     const player = {
       ...state.player,
@@ -1100,7 +1100,7 @@ describe('enemies', () => {
     expect(state.deaths).toBe(before);
   });
 
-  it('a horned enemy dies and costs a heart when touched from the side', () => {
+  it('should die and cost a heart when the horned enemy is touched from the side', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -1125,7 +1125,7 @@ describe('enemies', () => {
     expect(state.deaths).toBe(before);
   });
 
-  it('a horned enemy dies and costs a heart even when stomped from above — never a free kill', () => {
+  it('should die and still cost a heart when the horned enemy is stomped from above', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -1158,7 +1158,7 @@ describe('enemies', () => {
     expect(state.deaths).toBe(before);
   });
 
-  it('spares a horned enemy the player is currently invincible to', () => {
+  it('should spare the horned enemy when the player is still invincible', () => {
     let state = withEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -1188,7 +1188,7 @@ describe('enemies', () => {
     );
   });
 
-  it('a horned enemy hops 30% lower than a hopping enemy', () => {
+  it('should hop 30% lower than a hopping enemy when the enemy is horned', () => {
     const hopVelocity = (kind: EnemyKind, jumpMax: number): number => {
       let state = withEnemy();
       for (let i = 0; i < 10; i++) state = tick(state);
@@ -1229,7 +1229,7 @@ describe('enemies', () => {
     ).toBeCloseTo(ENEMY_JUMP_VELOCITY - HORNED_ENEMY_JUMP_VELOCITY);
   });
 
-  it('a flying enemy holds its column and bounces exactly one block above and below spawn', () => {
+  it('should hold its column and bounce one block either side of its spawn when the enemy flies', () => {
     let state = withFlyingEnemy();
     expect(state.enemies[0].kind, 'nothing solid sits beneath this tile').toBe(
       'FLYING',
@@ -1257,7 +1257,7 @@ describe('enemies', () => {
     );
   });
 
-  it('a flying enemy can be stomped from above and killed, same as a hopping one', () => {
+  it('should die like a hopping one when the flying enemy is stomped from above', () => {
     let state = withFlyingEnemy();
     for (let i = 0; i < 10; i++) state = tick(state);
     const enemy = state.enemies[0];
@@ -1304,7 +1304,7 @@ describe('ceiling spikes', () => {
   const col = 6;
   const row = 9;
 
-  it('costs a heart when the player jumps up into the prongs', () => {
+  it('should cost a heart when the player jumps up into the prongs', () => {
     let state = createInitialState(ceilingSpikeLevel(col, row), 0, []);
     state = {
       ...state,
@@ -1330,7 +1330,7 @@ describe('ceiling spikes', () => {
     ).toBeNull();
   });
 
-  it('spares the player who stays under the prongs', () => {
+  it('should spare the player when they stay under the prongs', () => {
     let state = createInitialState(ceilingSpikeLevel(col, row), 0, []);
     state = {
       ...state,
@@ -1352,21 +1352,21 @@ describe('precise spike collision', () => {
   const col = 6;
   const left = col * TILE_SIZE;
 
-  it('is not triggered by the clear air above the prongs', () => {
+  it('should not be triggered when the box sits in the clear air above the prongs', () => {
     const level = spikeLevel(col);
     expect(isOverlappingSpike(level, left, 11 * TILE_SIZE, TILE_SIZE, 6)).toBe(
       false,
     );
   });
 
-  it('is triggered when the box reaches down into the prongs', () => {
+  it('should be triggered when the box reaches down into the prongs', () => {
     const level = spikeLevel(col);
     expect(
       isOverlappingSpike(level, left, 11 * TILE_SIZE + 23, TILE_SIZE, 6),
     ).toBe(true);
   });
 
-  it('is not triggered in the notch between two prongs', () => {
+  it('should not be triggered when the box sits in the notch between two prongs', () => {
     const level = spikeLevel(col);
     expect(isOverlappingSpike(level, left + 8, 11 * TILE_SIZE + 9, 5, 6)).toBe(
       false,
@@ -1386,23 +1386,23 @@ describe('lone spikes', () => {
       TILE_SIZE - 8,
     );
 
-  it('leaves the tile edges clear when nothing sits beside it', () => {
+  it('should leave the tile edges clear when nothing sits beside the spike', () => {
     expect(isEdgeTouchingSpike(spikeLevel(col), left)).toBe(false);
   });
 
-  it('still fills the tile when another spike sits beside it', () => {
+  it('should fill the tile out to its edge when another spike sits beside it', () => {
     const level = spikeLevel(col);
     level.tiles[11][col + 1] = TILE_SPIKE;
     expect(isEdgeTouchingSpike(level, left)).toBe(true);
   });
 
-  it('does not pair a floor spike with a ceiling spike beside it', () => {
+  it('should leave the tile edges clear when the spike beside it hangs from the ceiling', () => {
     const level = spikeLevel(col);
     level.tiles[11][col + 1] = TILE_SPIKE_CEILING;
     expect(isEdgeTouchingSpike(level, left)).toBe(false);
   });
 
-  it('is still lethal head on', () => {
+  it('should still be lethal when the player meets the spike head on', () => {
     expect(
       isOverlappingSpike(
         spikeLevel(col),
@@ -1470,21 +1470,21 @@ describe('cannons', () => {
     return state;
   };
 
-  it('mounts one cannon on every cannon tile, loaded and waiting', () => {
+  it('should mount one cannon, loaded and waiting, when a tile asks for one', () => {
     const state = withCannon();
     expect(state.cannons).toHaveLength(1);
     expect(state.cannons[0].position).toEqual({ x: cannonX, y: cannonY });
     expect(state.cannonballs).toEqual([]);
   });
 
-  it('is solid enough to stop a run dead', () => {
+  it('should stop the run dead when the player walks into it', () => {
     let state = withCannon(4 * TILE_SIZE);
     state = act(state, { type: 'MOVE_RIGHT_START' });
     state = tickN(state, ticksFor(1));
     expect(state.player.position.x + PLAYER_WIDTH).toBe(cannonX);
   });
 
-  it('holds the player up when they stand on it, and shoots below their feet', () => {
+  it('should hold the player up and shoot below their feet when they stand on it', () => {
     let state = withCannon();
     state = {
       ...state,
@@ -1502,7 +1502,7 @@ describe('cannons', () => {
     ).toBe(BASE_HEARTS);
   });
 
-  it('shoots a cannonball every three and a half seconds', () => {
+  it('should shoot a cannonball when three and a half seconds have passed', () => {
     let state = withCannon();
     let fired = 0;
     for (let i = 0; i < ticksFor(CANNON_RELOAD_SECONDS * 3 + 0.5); i++) {
@@ -1513,13 +1513,13 @@ describe('cannons', () => {
     expect(fired).toBe(3);
   });
 
-  it('holds its fire while the player keeps more than twenty blocks away', () => {
+  it('should hold its fire when the player keeps more than twenty blocks away', () => {
     let state = atRange(CANNON_RANGE_TILES + 2);
     state = tickN(state, ticksFor(CANNON_RELOAD_SECONDS * 2));
     expect(state.cannonballs, 'nothing to fear from that far off').toEqual([]);
   });
 
-  it('shoots the moment the player closes to twenty blocks', () => {
+  it('should shoot when the player closes to twenty blocks', () => {
     let state = atRange(CANNON_RANGE_TILES + 2);
     state = tickN(state, ticksFor(CANNON_RELOAD_SECONDS * 2));
     state = {
@@ -1536,14 +1536,14 @@ describe('cannons', () => {
     expect(state.cannonballs).toHaveLength(1);
   });
 
-  it('keeps its powder dry while out of range, spending no reload', () => {
+  it('should spend no reload when the player is out of range', () => {
     let state = atRange(CANNON_RANGE_TILES + 2);
     const loaded = state.cannons[0].timers.reload;
     state = tickN(state, ticksFor(CANNON_RELOAD_SECONDS));
     expect(state.cannons[0].timers.reload).toBe(loaded);
   });
 
-  it('turns to face the player, wherever they are standing', () => {
+  it('should turn to face the player when they cross to its other side', () => {
     let state = withCannon(2 * TILE_SIZE);
     expect(
       state.cannons[0].statuses.isFacingRight,
@@ -1561,7 +1561,7 @@ describe('cannons', () => {
     expect(state.cannons[0].statuses.isFacingRight).toBe(true);
   });
 
-  it('sends the shot the way the player went', () => {
+  it('should send the shot the way the player went when it fires', () => {
     expect(
       untilFired(withCannon(2 * TILE_SIZE)).cannonballs[0].velocity.x,
     ).toEqual({ current: -CANNONBALL_SPEED, max: CANNONBALL_SPEED });
@@ -1570,7 +1570,7 @@ describe('cannons', () => {
     ).toBe(CANNONBALL_SPEED);
   });
 
-  it('flies flat and fast, with gravity never touching it', () => {
+  it('should fly flat and fast when the cannonball is in the air', () => {
     let state = untilFired(withCannon(2 * TILE_SIZE));
     const start = state.cannonballs[0].position;
     state = tickN(state, 12);
@@ -1581,7 +1581,7 @@ describe('cannons', () => {
     );
   });
 
-  it('flies on through walls, keeping to a layer of its own', () => {
+  it('should fly on through, keeping to a layer of its own, when the cannonball meets a wall', () => {
     const level = cannonLevel();
     const wallX = 5 * TILE_SIZE;
     level.tiles[11][5] = TILE_DIRT;
@@ -1595,7 +1595,7 @@ describe('cannons', () => {
     expect(state.cannonballs[0].position.x).toBeLessThan(wallX);
   });
 
-  it('costs a heart when it catches the player, and is spent doing it', () => {
+  it('should cost a heart and be spent when the cannonball catches the player', () => {
     let state = untilFired(withCannon());
     expect(state.cannonballs).toHaveLength(1);
     state = untilStruck(state);
@@ -1607,7 +1607,7 @@ describe('cannons', () => {
     expect(state.cannonballs, 'the ball is spent on the hit').toEqual([]);
   });
 
-  it('ends the run when it takes the last heart', () => {
+  it('should end the run when the cannonball takes the last heart', () => {
     let state = withCannon();
     state = { ...state, player: { ...state.player, hearts: { value: 1 } } };
     state = untilStruck(untilFired(state));
@@ -1616,7 +1616,7 @@ describe('cannons', () => {
     expect(state.player.timers.death).not.toBeNull();
   });
 
-  it('flies straight through a player still glowing with invincibility', () => {
+  it('should fly straight through when the player is still glowing with invincibility', () => {
     let state = untilStruck(untilFired(withCannon()));
     const hearts = state.player.hearts.value;
     state = {
@@ -1638,7 +1638,7 @@ describe('cannons', () => {
     expect(state.cannonballs, 'and is not spent on the pass').toHaveLength(1);
   });
 
-  it('is swept away once it flies off the end of the level', () => {
+  it('should be swept away when the cannonball flies off the end of the level', () => {
     let state = withCannon();
     state = {
       ...state,
@@ -1655,7 +1655,7 @@ describe('cannons', () => {
     expect(state.cannonballs).toEqual([]);
   });
 
-  it('reloads every cannon and clears the air when the player respawns', () => {
+  it('should reload every cannon and clear the air when the player respawns', () => {
     let state = untilFired(withCannon());
     expect(state.cannonballs).toHaveLength(1);
     state = act(state, { type: 'RESPAWN' });
@@ -1663,7 +1663,7 @@ describe('cannons', () => {
     expect(state.cannons[0].timers.reload).toBe(CANNON_RELOAD_SECONDS);
   });
 
-  it('mounts the new levels cannons on LOAD_LEVEL', () => {
+  it('should mount the cannons of the new level when the next level loads', () => {
     let state = createInitialState(testLevel(), 0, []);
     expect(state.cannons).toEqual([]);
     state = act(state, {
@@ -1711,7 +1711,7 @@ describe('the gear that wards off spikes', () => {
   const jumpedIntoTheCeiling = (state: GameState): GameState =>
     tickN(act(tick(state), { type: 'JUMP_START' }), 20);
 
-  it('walks the player over floor spikes in the Boots of Clouds', () => {
+  it('should walk the player over the floor spikes when they wear the Boots of Clouds', () => {
     const state = tickN(standingOnSpikes(BOOTS_OF_CLOUDS), ticksFor(1));
 
     expect(state.player.hearts.value, 'not a scratch').toBe(BASE_HEARTS);
@@ -1719,13 +1719,13 @@ describe('the gear that wards off spikes', () => {
     expect(state.deaths).toBe(0);
   });
 
-  it('lets the floor spikes bite the player who has no boots', () => {
+  it('should let the floor spikes bite when the player has no boots', () => {
     const state = tick(standingOnSpikes());
 
     expect(state.player.hearts.value).toBe(BASE_HEARTS - 1);
   });
 
-  it('shrugs ceiling spikes off the Titanium Helmet', () => {
+  it('should shrug the ceiling spikes off when the player wears the Titanium Helmet', () => {
     const state = jumpedIntoTheCeiling(underCeilingSpikes(TITANIUM_HELMET));
 
     expect(state.player.hearts.value, 'the prongs glance off').toBe(
@@ -1734,25 +1734,25 @@ describe('the gear that wards off spikes', () => {
     expect(state.deaths).toBe(0);
   });
 
-  it('lets the ceiling spikes bite the bare head', () => {
+  it('should let the ceiling spikes bite when the player has no helmet', () => {
     const state = jumpedIntoTheCeiling(underCeilingSpikes());
 
     expect(state.player.hearts.value).toBe(BASE_HEARTS - 1);
   });
 
-  it('does not let the boots do the helmet’s job', () => {
+  it('should let the ceiling spikes bite when the player wears only the boots', () => {
     const state = jumpedIntoTheCeiling(underCeilingSpikes(BOOTS_OF_CLOUDS));
 
     expect(state.player.hearts.value).toBe(BASE_HEARTS - 1);
   });
 
-  it('does not let the helmet do the boots’ job', () => {
+  it('should let the floor spikes bite when the player wears only the helmet', () => {
     const state = tick(standingOnSpikes(TITANIUM_HELMET));
 
     expect(state.player.hearts.value).toBe(BASE_HEARTS - 1);
   });
 
-  it('keeps the gear on through the next level', () => {
+  it('should keep the gear on when the next level loads', () => {
     const state = act(standingOnSpikes(BOOTS_OF_CLOUDS), {
       type: 'LOAD_LEVEL',
       level: spikeLevel(spikeCol),
@@ -1774,7 +1774,7 @@ describe('the gear that wards off spikes', () => {
     ).toBe(BASE_HEARTS);
   });
 
-  it('spares nothing else — an enemy still hurts in full gear', () => {
+  it('should still cost a heart when an enemy touches a player in full gear', () => {
     const state = createInitialState(testLevel([{ x: 5, y: 11 }]), 0, [
       BOOTS_OF_CLOUDS,
       TITANIUM_HELMET,
@@ -1812,13 +1812,13 @@ describe('hearts', () => {
     },
   });
 
-  it('starts level one with a full complement of hearts', () => {
+  it('should hold a full complement of hearts when level one starts', () => {
     expect(createInitialState(testLevel(), 0, []).player.hearts.value).toBe(
       BASE_HEARTS,
     );
   });
 
-  it('collecting a chest heart adds a heart on the spot', () => {
+  it('should add a heart on the spot when the player takes one from the chest', () => {
     let state = createInitialState(testLevel(), 0, []);
     expect(state.player.hearts.value).toBe(BASE_HEARTS);
 
@@ -1835,7 +1835,7 @@ describe('hearts', () => {
     expect(state.inventory).toHaveLength(1);
   });
 
-  it('carries hearts to the next level without topping them back up', () => {
+  it('should carry the hearts over without topping them up when the next level loads', () => {
     let state = createInitialState(testLevel(), 0, [emberHeart()]);
     expect(state.player.hearts.value, 'base plus one collected').toBe(
       BASE_HEARTS + 1,
@@ -1853,7 +1853,7 @@ describe('hearts', () => {
     expect(state.player.hearts.value, 'the next level does not refill').toBe(1);
   });
 
-  it('spends one heart on a pit fall but respawns with the rest', () => {
+  it('should spend one heart and respawn with the rest when the player falls into the pit', () => {
     let state = createInitialState(testLevel(), 0, [
       emberHeart('H1'),
       emberHeart('H2'),
@@ -1875,7 +1875,7 @@ describe('hearts', () => {
     expect(state.deaths).toBe(1);
   });
 
-  it('shrugs off hits while invincible, then is vulnerable once it lapses', () => {
+  it('should shrug the hit off when the player is invincible and take it once that lapses', () => {
     let state = placeAt(
       createInitialState(spikeLevel(6), 0, [emberHeart()]),
       spikeX,
@@ -1915,7 +1915,7 @@ describe('hearts', () => {
     expect(state.player.timers.invincibility).toBeGreaterThan(0);
   });
 
-  it('lets a stockpile of hearts soak up several hits, the last one fatal', () => {
+  it('should soak up several hits and fall on the last when the player has a stockpile of hearts', () => {
     let state = placeAt(
       createInitialState(spikeLevel(6), 0, [
         emberHeart('H1'),
@@ -1947,7 +1947,7 @@ describe('hearts', () => {
     expect(state.deaths, 'and counts as a death').toBe(deaths + 1);
   });
 
-  it('a lost heart only shields the player for two seconds', () => {
+  it('should shield the player for two seconds only when a heart is lost', () => {
     const hurt = tick(
       placeAt(createInitialState(spikeLevel(6), 0, []), spikeX),
     );
@@ -1955,7 +1955,7 @@ describe('hearts', () => {
     expect(hurt.player.timers.invincibility).toBe(HURT_INVINCIBLE_SECONDS);
   });
 
-  it('a lost heart reddens the player for a split second', () => {
+  it('should redden the player for a split second when a heart is lost', () => {
     let state = tick(placeAt(createInitialState(spikeLevel(6), 0, []), spikeX));
 
     expect(state.player.timers.hurt).toBe(HURT_FLASH_SECONDS);
@@ -1972,7 +1972,7 @@ describe('hearts', () => {
     ).toBeGreaterThan(0);
   });
 
-  it('leaves the player his own colour when a hit glances off the i-frames', () => {
+  it('should leave the player their own colour when a hit glances off the invincibility', () => {
     let state = tick(placeAt(createInitialState(spikeLevel(6), 0, []), spikeX));
     state = tickN(placeAt(state, safeX), ticksFor(HURT_FLASH_SECONDS));
 
@@ -2001,31 +2001,31 @@ describe('the star', () => {
   const useStar = (state: GameState): GameState =>
     act(state, { type: 'USE_STAR' });
 
-  it('spends a star for three seconds of invincibility', () => {
+  it('should buy three seconds of invincibility when the player spends a star', () => {
     const state = useStar(carrying(star()));
 
     expect(state.player.timers.invincibility).toBe(STAR_INVINCIBLE_SECONDS);
     expect(state.stars, 'and the star is spent').toBe(0);
   });
 
-  it('burns through the pack one star at a time', () => {
+  it('should burn through the pack one star at a time when the player spends them', () => {
     const state = useStar(carrying(star('FIRST'), star('SECOND')));
 
     expect(state.stars).toBe(1);
     expect(useStar(state).stars, 'and then the last of them').toBe(0);
   });
 
-  it('counts what a card is worth, not how many cards there are', () => {
+  it('should count what the card is worth rather than how many cards there are when the pack is loaded', () => {
     expect(carrying(star('TWIN-STAR', 2)).stars).toBe(2);
   });
 
-  it('does nothing at all with an empty pack', () => {
+  it('should do nothing when the pack is empty', () => {
     const state = carrying();
 
     expect(simulation(useStar(state))).toEqual(simulation(state));
   });
 
-  it('keeps the cards taken on the record after they are spent', () => {
+  it('should keep the cards on the record when they have been spent', () => {
     const trinket = item('KEEPSAKE');
     const state = useStar(carrying(trinket, star()));
 
@@ -2033,7 +2033,7 @@ describe('the star', () => {
     expect(state.stars, 'though the star itself is gone').toBe(0);
   });
 
-  it('walks the player through spikes unharmed while it lasts', () => {
+  it('should walk the player through spikes unharmed when the star still lasts', () => {
     let state = useStar(carrying(star()));
     const hearts = state.player.hearts.value;
 
@@ -2042,7 +2042,7 @@ describe('the star', () => {
     expect(state.player.timers.death, 'and the player lives on').toBeNull();
   });
 
-  it('wears off after its three seconds, leaving the player mortal again', () => {
+  it('should leave the player mortal again when its three seconds have run out', () => {
     let state = useStar(carrying(star()));
     const hearts = state.player.hearts.value;
 
@@ -2055,7 +2055,7 @@ describe('the star', () => {
     );
   });
 
-  it('lights the player up for as long as the star shield holds', () => {
+  it('should light the player up when the star shield holds', () => {
     const state = useStar(carrying(star()));
 
     expect(state.player.timers.star).toBe(STAR_INVINCIBLE_SECONDS);
@@ -2065,7 +2065,7 @@ describe('the star', () => {
     ).toBe(0);
   });
 
-  it('leaves the player dark when a heart is merely lost', () => {
+  it('should leave the player dark when a heart is merely lost', () => {
     const hurt = tick(placeAt(carrying(star()), spikeX));
 
     expect(
@@ -2075,7 +2075,7 @@ describe('the star', () => {
     expect(hurt.player.timers.star, 'but nothing is glowing').toBe(0);
   });
 
-  it('tops a fading heart-loss shield back up to a full three seconds', () => {
+  it('should top the shield back up to a full three seconds when a star is spent on a fading one', () => {
     const hurt = tick(placeAt(carrying(star()), spikeX));
     expect(hurt.player.timers.invincibility).toBeLessThan(
       STAR_INVINCIBLE_SECONDS,
@@ -2086,13 +2086,13 @@ describe('the star', () => {
     );
   });
 
-  it('keeps the star unspent while the chest is still open', () => {
+  it('should keep the star unspent when the chest is still open', () => {
     const state: GameState = { ...carrying(star()), status: 'CHEST' };
 
     expect(useStar(state).stars).toBe(1);
   });
 
-  it('carries the stars left over into the next level', () => {
+  it('should carry the stars left over when the next level loads', () => {
     const state = act(useStar(carrying(star('TWIN-STAR', 2))), {
       type: 'LOAD_LEVEL',
       level: testLevel(),
@@ -2142,24 +2142,24 @@ describe('bullets', () => {
       3,
     );
 
-  it('loads a round for every bullet the pack holds', () => {
+  it('should load a round for every bullet when the pack holds them', () => {
     expect(armed(3).ammo).toBe(3);
   });
 
-  it('spends a round and puts a bullet in the air', () => {
+  it('should spend a round and put a bullet in the air when the player shoots', () => {
     const state = fire(armed(2));
 
     expect(state.ammo, 'one round lighter').toBe(1);
     expect(size(state.bullets), 'and one bullet away').toBe(1);
   });
 
-  it('does nothing at all with an empty gun', () => {
+  it('should do nothing when the gun is empty', () => {
     const state = armedAt(testLevel(), shooterX, 0);
 
     expect(simulation(fire(state))).toEqual(simulation(state));
   });
 
-  it('sends the bullet whichever way the player faces', () => {
+  it('should send the bullet the way the player faces when they shoot', () => {
     const rightward = fire(facing(armed(2), true));
     const leftward = fire(facing(armed(2), false));
 
@@ -2167,7 +2167,7 @@ describe('bullets', () => {
     expect(leftward.bullets[0].velocity.x.current).toBeLessThan(0);
   });
 
-  it('flies on through walls, then leaves the level behind', () => {
+  it('should fly on through walls and leave the level behind when the bullet is in the air', () => {
     let state = fire(facing(armed(1), false));
 
     state = tickN(state, ticksFor(0.2));
@@ -2177,7 +2177,7 @@ describe('bullets', () => {
     expect(state.bullets, 'and it is gone once past the wall').toEqual([]);
   });
 
-  it('shatters the floor spike it hits, and is spent on it', () => {
+  it('should shatter the floor spike and be spent on it when the bullet hits one', () => {
     let state = fire(facing(armedAt(spikeLevel(3), shooterX, 1), false));
 
     state = tickN(state, ticksFor(0.2));
@@ -2189,7 +2189,7 @@ describe('bullets', () => {
     ).toBe(false);
   });
 
-  it('shatters a ceiling spike hanging low enough to be hit', () => {
+  it('should shatter the ceiling spike when it hangs low enough to be hit', () => {
     let state = fire(
       facing(armedAt(ceilingSpikeLevel(3, 11), shooterX, 1), false),
     );
@@ -2199,14 +2199,14 @@ describe('bullets', () => {
     expect(state.bullets).toEqual([]);
   });
 
-  it('keeps the spikes it shattered gone after RESPAWN', () => {
+  it('should keep the shattered spikes gone when the player respawns', () => {
     let state = fire(facing(armedAt(spikeLevel(3), shooterX, 1), false));
 
     state = act(tickN(state, ticksFor(0.2)), { type: 'RESPAWN' });
     expect(state.level.tiles[11][3]).toBe(TILE_AIR);
   });
 
-  it('shoots down a spike hanging from above before it drops', () => {
+  it('should shoot the hanging spike down when it has not dropped yet', () => {
     const level = testLevel();
     level.tiles[11][3] = TILE_SPIKE_FALLING;
     let state = fire(facing(armedAt(level, 8 * TILE_SIZE, 1), false));
@@ -2217,7 +2217,7 @@ describe('bullets', () => {
     expect(state.bullets, 'and so is the bullet').toEqual([]);
   });
 
-  it('drops any enemy it hits, and is spent on the kill', () => {
+  it('should drop the enemy and be spent on the kill when the bullet hits one', () => {
     const kinds: EnemyKind[] = ['HOPPING', 'HORNED', 'FLYING'];
 
     for (const kind of kinds) {
@@ -2235,7 +2235,7 @@ describe('bullets', () => {
     }
   });
 
-  it('costs the player nothing to shoot an enemy down', () => {
+  it('should cost the player nothing when they shoot an enemy down', () => {
     const level = testLevel([enemySpawn]);
     let state = fire(armedAt(level, shooterX, 1, 'HORNED'));
 
@@ -2246,21 +2246,21 @@ describe('bullets', () => {
     expect(state.status).toBe('PLAYING');
   });
 
-  it('keeps the gun holstered while the chest is open', () => {
+  it('should keep the gun holstered when the chest is open', () => {
     const state: GameState = { ...armed(1), status: 'CHEST' };
 
     expect(fire(state).ammo).toBe(1);
     expect(fire(state).bullets).toEqual([]);
   });
 
-  it('clears the bullets in the air on RESPAWN but keeps the rounds left', () => {
+  it('should clear the bullets in the air but keep the rounds left when the player respawns', () => {
     const state = act(fire(armed(2)), { type: 'RESPAWN' });
 
     expect(state.bullets).toEqual([]);
     expect(state.ammo, 'the spent round stays spent').toBe(1);
   });
 
-  it('carries the rounds left over into the next level', () => {
+  it('should carry the rounds left over when the next level loads', () => {
     const state = act(fire(armed(3)), {
       type: 'LOAD_LEVEL',
       level: testLevel(),
@@ -2283,24 +2283,24 @@ describe('score', () => {
   const enterPortal = (state: GameState): GameState =>
     act(state, { type: 'INTERACT' });
 
-  it('starts a run with nothing scored', () => {
+  it('should have nothing scored when a run starts', () => {
     expect(createInitialState(testLevel(), 0, []).score).toBe(0);
   });
 
   const paidFor = (seconds: number): number =>
     LEVEL_SCORE_BASE - LEVEL_SCORE_PER_SECOND * seconds;
 
-  it('pays the base rate less a hundred for every second on the clock', () => {
+  it('should pay the base rate less a hundred for every second when the level is finished', () => {
     expect(enterPortal(atPortal(0)).score).toBe(LEVEL_SCORE_BASE);
     expect(enterPortal(atPortal(12)).score).toBe(paidFor(12));
   });
 
-  it('charges whole seconds only, rounding the clock before it bills', () => {
+  it('should charge whole seconds only when the clock stops part-way through one', () => {
     expect(enterPortal(atPortal(12.4)).score, 'rounds down').toBe(paidFor(12));
     expect(enterPortal(atPortal(12.6)).score, 'rounds up').toBe(paidFor(13));
   });
 
-  it('still pays a hundred for a level that took all day', () => {
+  it('should still pay a hundred when the level took all day', () => {
     const floorSeconds =
       (LEVEL_SCORE_BASE - LEVEL_SCORE_MIN) / LEVEL_SCORE_PER_SECOND;
 
@@ -2314,7 +2314,7 @@ describe('score', () => {
     );
   });
 
-  it('adds up over a run, each level billed against its own clock', () => {
+  it('should bill each level against its own clock when the score adds up over a run', () => {
     let state = enterPortal(atPortal(10));
     expect(state.score, 'the first level, taken in ten seconds').toBe(
       paidFor(10),
@@ -2332,7 +2332,7 @@ describe('score', () => {
     ).toBe(paidFor(10) + paidFor(30));
   });
 
-  it('keeps the seconds each level took, for a total at the end of the run', () => {
+  it('should keep the seconds each level took when the run moves on', () => {
     let state = enterPortal(atPortal(10));
     state = act(state, {
       type: 'LOAD_LEVEL',
@@ -2345,7 +2345,7 @@ describe('score', () => {
     expect(computeTotalTime(state.levelTimes)).toBe(40);
   });
 
-  it('pays out a red gem on the spot', () => {
+  it('should pay out on the spot when the player takes a red gem', () => {
     let state: GameState = {
       ...createInitialState(testLevel(), 0, []),
       status: 'CHEST',
@@ -2378,7 +2378,7 @@ describe('gems', () => {
     return state;
   };
 
-  it('sets out every gem the level was strewn with', () => {
+  it('should set out every gem when the level was strewn with them', () => {
     const state = createInitialState(
       strewnWith([LEFT_COLUMN, RIGHT_COLUMN]),
       0,
@@ -2391,7 +2391,7 @@ describe('gems', () => {
     ]);
   });
 
-  it('pays five hundred for one the player walks into', () => {
+  it('should pay five hundred when the player walks into a gem', () => {
     const state = tick(
       standingAt(strewnWith([LEFT_COLUMN, RIGHT_COLUMN]), LEFT_COLUMN),
     );
@@ -2402,7 +2402,7 @@ describe('gems', () => {
     ]);
   });
 
-  it('pays for it once, however long the player loiters', () => {
+  it('should pay for the gem once when the player loiters over it', () => {
     const state = tickN(
       standingAt(strewnWith([LEFT_COLUMN, RIGHT_COLUMN]), LEFT_COLUMN),
       120,
@@ -2411,7 +2411,7 @@ describe('gems', () => {
     expect(state.score).toBe(GEM_SCORE);
   });
 
-  it('collects them one after another as the player runs the level', () => {
+  it('should collect the gems one after another when the player runs the level', () => {
     let state = act(standingAt(strewnWith([LEFT_COLUMN, RIGHT_COLUMN]), 3), {
       type: 'MOVE_RIGHT_START',
     });
@@ -2421,7 +2421,7 @@ describe('gems', () => {
     expect(state.gems).toEqual([]);
   });
 
-  it('leaves the ones the player never came near', () => {
+  it('should leave the gem where it lies when the player never comes near it', () => {
     const state = tickN(
       standingAt(strewnWith([LEFT_COLUMN, RIGHT_COLUMN]), 3),
       120,
@@ -2431,7 +2431,7 @@ describe('gems', () => {
     expect(state.gems).toHaveLength(2);
   });
 
-  it('keeps the ones already pocketed after a death', () => {
+  it('should keep the gems already pocketed when the player dies', () => {
     let state = tick(
       standingAt(strewnWith([LEFT_COLUMN, RIGHT_COLUMN]), LEFT_COLUMN),
     );
@@ -2441,7 +2441,7 @@ describe('gems', () => {
     expect(state.score).toBe(GEM_SCORE);
   });
 
-  it('strews the next level afresh, keeping what the last one paid', () => {
+  it('should strew the next level afresh and keep what the last one paid when it loads', () => {
     let state = tick(
       standingAt(strewnWith([LEFT_COLUMN, RIGHT_COLUMN]), LEFT_COLUMN),
     );
@@ -2455,7 +2455,7 @@ describe('gems', () => {
     expect(state.score).toBe(GEM_SCORE);
   });
 
-  it('lets no dead player pocket one', () => {
+  it('should pocket no gem when the player is dead', () => {
     const level = strewnWith([LEFT_COLUMN]);
     let state = standingAt(level, LEFT_COLUMN);
     state = {
@@ -2482,35 +2482,35 @@ describe('items', () => {
     );
   };
 
-  it('a double heart is worth two hearts', () => {
+  it('should be worth two hearts when the card is a double heart', () => {
     expect(opened(DOUBLE_HEART).player.hearts.value).toBe(BASE_HEARTS + 2);
   });
 
-  it('a red gem is worth points, not hearts', () => {
+  it('should be worth points rather than hearts when the card is a red gem', () => {
     const state = opened(RED_GEM);
     expect(state.player.hearts.value).toBe(BASE_HEARTS);
     expect(state.score).toBe(1500);
   });
 
-  it('a star is one turn of invincibility, a double two, a triple three', () => {
+  it('should be worth a turn of invincibility for each star when the card is a single, double or triple', () => {
     expect(opened(STAR).stars).toBe(1);
     expect(opened(DOUBLE_STAR).stars).toBe(2);
     expect(opened(TRIPLE_STAR).stars).toBe(3);
   });
 
-  it('a pink gem is worth 2750 points', () => {
+  it('should be worth 2750 points when the card is a pink gem', () => {
     const state = opened(PINK_GEM);
 
     expect(state.score).toBe(2750);
     expect(state.player.hearts.value, 'and no hearts').toBe(BASE_HEARTS);
   });
 
-  it('the gear is kept rather than spent', () => {
+  it('should be kept rather than spent when the card is a piece of gear', () => {
     expect(opened(BOOTS_OF_CLOUDS).inventory).toEqual([BOOTS_OF_CLOUDS]);
     expect(opened(TITANIUM_HELMET).inventory).toEqual([TITANIUM_HELMET]);
   });
 
-  it('stacks a double star on top of the stars already carried', () => {
+  it('should stack on top of the stars already carried when the card is a double star', () => {
     const state = opened(STAR);
 
     expect(
@@ -2525,7 +2525,7 @@ describe('items', () => {
     ).toBe(3);
   });
 
-  it('the bullet cards each load what their name promises', () => {
+  it('should load what its name promises when the card is a bullet card', () => {
     expect(opened(BULLET).ammo).toBe(2);
     expect(opened(TWO_BULLETS).ammo).toBe(4);
     expect(opened(THREE_BULLETS).ammo).toBe(6);
@@ -2533,7 +2533,7 @@ describe('items', () => {
     expect(opened(VAMPIRE_SLAYER_BULLET_RAIN).ammo).toBe(9999);
   });
 
-  it('stacks a second bullet card on top of the rounds already carried', () => {
+  it('should stack on top of the rounds already carried when a second bullet card is taken', () => {
     const state = opened(TWO_BULLETS);
 
     expect(
@@ -2550,7 +2550,7 @@ describe('items', () => {
 });
 
 describe('restarting after a run ends', () => {
-  it('deals level one again, with hearts refilled and nothing scored', () => {
+  it('should deal level one again with hearts refilled and nothing scored when the run restarts', () => {
     let state = act(
       {
         ...createInitialState(testLevel(), 0, []),

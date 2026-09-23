@@ -57,32 +57,32 @@ const sector = (): Sector =>
 const joined = () => joinStructures([sector(), sector()]);
 
 describe('a sector painted in two layers', () => {
-  it('keeps a hazard and the wall behind it in the same cell', () => {
+  it('should keep the hazard and the wall behind it in the same cell when both are painted there', () => {
     expect(joined().tiles[LEDGE_ROW][TRAP_COLUMN]).toBe(TILE_BEARTRAP);
     expect(joined().backTiles[LEDGE_ROW][TRAP_COLUMN]).toBe(TILE_BRICK);
   });
 
-  it('holds a spike in front of the wall too', () => {
+  it('should keep the spike in front of the wall when both are painted in the same cell', () => {
     expect(joined().tiles[LEDGE_ROW][TRAP_COLUMN + 2]).toBe(TILE_SPIKE);
     expect(joined().backTiles[LEDGE_ROW][TRAP_COLUMN + 2]).toBe(TILE_BRICK);
   });
 
-  it('leaves the front layer empty where only the back was painted', () => {
+  it('should leave the front layer empty when only the back was painted', () => {
     expect(joined().tiles[0][TRAP_COLUMN]).toBe(TILE_AIR);
     expect(joined().backTiles[0][TRAP_COLUMN]).toBe(TILE_BRICK);
   });
 
-  it('leaves the back layer empty where only the front was painted', () => {
+  it('should leave the back layer empty when only the front was painted', () => {
     expect(joined().tiles[GROUND_ROW][TRAP_COLUMN]).toBe(TILE_DIRT);
     expect(joined().backTiles[GROUND_ROW][TRAP_COLUMN]).toBe(TILE_AIR);
   });
 
-  it('does not lay the start and end markers into either layer', () => {
+  it('should lay the markers into neither layer when the sector carries a start and an end', () => {
     expect(joined().tiles[LEDGE_ROW][0]).toBe(TILE_AIR);
     expect(joined().backTiles[LEDGE_ROW][0]).toBe(TILE_BRICK);
   });
 
-  it('joins both layers to the same shape', () => {
+  it('should join both layers to the same shape when it joins the sectors', () => {
     const { tiles, backTiles } = joined();
 
     expect(map(backTiles, (row) => row.length)).toEqual(
@@ -90,7 +90,7 @@ describe('a sector painted in two layers', () => {
     );
   });
 
-  it('carries both layers through the padding as one shape', () => {
+  it('should carry both layers through as one shape when the level is padded', () => {
     const { tiles, backTiles } = joined();
     const padding = getPadding(tiles);
 
@@ -99,7 +99,7 @@ describe('a sector painted in two layers', () => {
     );
   });
 
-  it('turns the back layer with the front when the level is mirrored', () => {
+  it('should turn the back layer with the front when the level is mirrored', () => {
     const { tiles, backTiles } = joined();
     const width = tiles[0].length;
 

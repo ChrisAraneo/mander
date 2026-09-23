@@ -39,7 +39,7 @@ const save = (patch: Partial<SaveData> = {}): SaveData => ({
 const idsOf = (runs: RunRecord[]): string[] => map(runs, 'id');
 
 describe('the runs that race alongside a replay as ghosts', () => {
-  it('offers the other runs of the same world', () => {
+  it('should offer the other runs when they belong to the same world', () => {
     const data = save({
       runs: [
         run({ id: 'RUN-1', playedAt: at(1) }),
@@ -50,7 +50,7 @@ describe('the runs that race alongside a replay as ghosts', () => {
     expect(idsOf(findGhostRuns(data, 'ABC', 'RUN-1'))).toEqual(['RUN-2']);
   });
 
-  it('leaves out the run being watched', () => {
+  it('should leave out the run when it is the one being watched', () => {
     const data = save({
       runs: [run({ id: 'RUN-1' }), run({ id: 'RUN-2', playedAt: at(2) })],
     });
@@ -58,7 +58,7 @@ describe('the runs that race alongside a replay as ghosts', () => {
     expect(idsOf(findGhostRuns(data, 'ABC', 'RUN-2'))).not.toContain('RUN-2');
   });
 
-  it('leaves out the runs of every other world', () => {
+  it('should leave out a run when it belongs to another world', () => {
     const data = save({
       runs: [
         run({ id: 'MINE', name: 'ABC' }),
@@ -69,7 +69,7 @@ describe('the runs that race alongside a replay as ghosts', () => {
     expect(idsOf(findGhostRuns(data, 'ABC', ''))).toEqual(['MINE']);
   });
 
-  it('shows the most recent runs and no more than the screen holds', () => {
+  it('should show the most recent runs and no more when more are kept than the screen holds', () => {
     const data = save({
       runs: times(GHOSTS_SHOWN + 3, (index) =>
         run({ id: `RUN-${index}`, playedAt: at(index) }),
@@ -81,7 +81,7 @@ describe('the runs that race alongside a replay as ghosts', () => {
     );
   });
 
-  it('races the kept best run even once its own record has aged out', () => {
+  it('should race the kept best run when its own record has aged out', () => {
     const data = save({
       completedWorlds: [
         {
@@ -102,11 +102,11 @@ describe('the runs that race alongside a replay as ghosts', () => {
     ]);
   });
 
-  it('finds nothing to race in a world that has never been played', () => {
+  it('should find nothing to race when the world has never been played', () => {
     expect(findGhostRuns(save(), 'ZZZ', '')).toEqual([]);
   });
 
-  it('skips runs whose world cannot be rebuilt', () => {
+  it('should skip the run when its world cannot be rebuilt', () => {
     const data = save({ runs: [run({ id: 'RUN-1', day: '' })] });
 
     expect(findGhostRuns(data, 'ABC', '')).toEqual([]);

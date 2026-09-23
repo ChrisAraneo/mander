@@ -88,21 +88,21 @@ const isCovering = (fill: Fill): boolean =>
   fill.height === TILE_SIZE;
 
 describe('createBackTileStep', () => {
-  it('should lay the material down solid, so the sky is not seen through the level', () => {
+  it('should lay the material down solid when it paints a background tile, so the sky is not seen through the level', () => {
     const base = first(painted(TILE_BRICK));
 
     expect(base?.style).toBe(getMaterialStyle(TILE_BRICK).base);
     expect(isCovering(base as Fill)).toBe(true);
   });
 
-  it('should shade the whole tile down last, which is what sends it to the back', () => {
+  it('should shade the whole tile down last when it paints a background tile, which is what sends it to the back', () => {
     const shade = last(painted(TILE_BRICK));
 
     expect(shade?.style).toBe(BACK_SHADE);
     expect(isCovering(shade as Fill)).toBe(true);
   });
 
-  it('should draw no border, which belongs to the blocks the player can touch', () => {
+  it('should draw no border when the tile belongs to the back layer', () => {
     expect(
       some(
         map([TILE_BRICK, TILE_DIRT], painted).flat(),
@@ -111,7 +111,7 @@ describe('createBackTileStep', () => {
     ).toBe(false);
   });
 
-  it('should cap a background block that nothing stands over', () => {
+  it('should cap the background block when nothing stands over it', () => {
     expect(
       some(
         painted(TILE_DIRT),
@@ -120,7 +120,7 @@ describe('createBackTileStep', () => {
     ).toBe(true);
   });
 
-  it('should leave the cap off where the front layer stands over it', () => {
+  it('should leave the cap off when the front layer stands over it', () => {
     const covered: Level = {
       seed: '',
       width: 1,

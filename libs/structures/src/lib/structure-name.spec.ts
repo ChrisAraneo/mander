@@ -20,19 +20,19 @@ const lastOf = (structures: readonly Sector[]): Sector =>
   last(structures) as Sector;
 
 describe('getStructureName', () => {
-  it('should name a structure after its pool and padded position', () => {
+  it('should name the structure after its pool and padded position when it is the first of one', () => {
     expect(getStructureName(firstOf(NORMAL_STRUCTURES))).toBe('NORMAL_001');
     expect(getStructureName(firstOf(HARD_STRUCTURES))).toBe('HARD_001');
     expect(getStructureName(firstOf(VERTICAL_STRUCTURES))).toBe('VERTICAL_001');
   });
 
-  it('should name the last structure of every pool', () => {
+  it('should name the structure after its pool and padded position when it is the last of one', () => {
     expect(getStructureName(lastOf(NORMAL_STRUCTURES))).toBe('NORMAL_205');
     expect(getStructureName(lastOf(HARD_STRUCTURES))).toBe('HARD_046');
     expect(getStructureName(lastOf(VERTICAL_STRUCTURES))).toBe('VERTICAL_022');
   });
 
-  it('should name a structure after the constant, not its position', () => {
+  it('should name the structure after the constant when its position does not match it', () => {
     expect(getStructureName(NORMAL_STRUCTURES[SKIPPED_INDEX])).toBe(
       SKIPPED_NAME,
     );

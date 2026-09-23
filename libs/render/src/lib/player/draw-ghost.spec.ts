@@ -74,17 +74,17 @@ const named = (calls: Call[], name: string): Call[] =>
   filter(calls, (call) => call.name === name);
 
 describe('drawGhost', () => {
-  it('draws the same figure the player is drawn with', () => {
+  it('should draw the same figure the player is drawn with when it draws a ghost', () => {
     expect(map(ghostOf().calls, 'name')).toEqual(map(playerOf().calls, 'name'));
   });
 
-  it('draws a starlit ghost the same way it draws any other', () => {
+  it('should draw the ghost the same way as any other when it is starlit', () => {
     expect(map(ghostOf({ star: 5 }).calls, 'name')).toEqual(
       map(ghostOf().calls, 'name'),
     );
   });
 
-  it('hands the canvas back as it found it', () => {
+  it('should hand the canvas back as it found it when it draws a ghost', () => {
     const { calls } = ghostOf({ star: 5 });
 
     expect(size(calls)).toBeGreaterThan(0);

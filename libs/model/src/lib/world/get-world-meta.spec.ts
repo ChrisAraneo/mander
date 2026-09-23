@@ -20,7 +20,7 @@ const worldOf = (levels: Level[]): World => ({
 });
 
 describe('getWorldMeta', () => {
-  it('should report the structures every level was built from', () => {
+  it('should report the structures a level was built from when it has meta', () => {
     expect(
       getWorldMeta(
         worldOf([
@@ -37,7 +37,7 @@ describe('getWorldMeta', () => {
     });
   });
 
-  it('should report no structures for a level without meta', () => {
+  it('should report no structures when the level has no meta', () => {
     expect(getWorldMeta(worldOf([levelOf('a')])).levels).toEqual([
       { level: 1, structures: [] },
     ]);

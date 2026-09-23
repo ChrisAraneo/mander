@@ -13,3 +13,9 @@ export const ONLY_HORNED_ENEMIES = 1;
 export const MIRRORED_LEVELS: readonly number[] = Object.freeze([3, 6]);
 
 export const VERTICAL_LEVELS: readonly number[] = Object.freeze([2, 5]);
+
+export const FIRST_CANNON_LEVEL = 5;
+
+export const FIRST_FIREBALL_LEVEL = 4;
+
+export const LAST_FIREBALL_LEVEL = 8;

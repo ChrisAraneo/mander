@@ -7,7 +7,7 @@ import type { Structure } from './structure';
 `;
 
 describe('mergeAliases', () => {
-  it('should import the aliases the new structure leans on', () => {
+  it('should import the aliases when the new structure leans on ones the file lacks', () => {
     expect(mergeAliases(source, '[\n  [CN, SS],\n]')).toBe(
       `import { DR, __, CN, SS } from './consts';
 import type { Structure } from './structure';
@@ -19,7 +19,7 @@ import type { Structure } from './structure';
     expect(mergeAliases(source, '[\n  [DR, __],\n]')).toBe(source);
   });
 
-  it('should keep a multi-line import list multi-line', () => {
+  it('should keep the import list multi-line when it already spans several lines', () => {
     const listed = `import {
   DR,
   __,
@@ -36,7 +36,7 @@ import type { Structure } from './structure';
     );
   });
 
-  it('should leave a file with no alias import untouched', () => {
+  it('should leave the file untouched when it has no alias import', () => {
     expect(mergeAliases('const nothing = 1;\n', '[\n  [CN],\n]')).toBe(
       'const nothing = 1;\n',
     );

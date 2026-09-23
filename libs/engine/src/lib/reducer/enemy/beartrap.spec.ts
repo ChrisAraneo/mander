@@ -126,7 +126,7 @@ const enemyAt = (kind: EnemyKind, x: number, y: number): Enemy => ({
 });
 
 describe('createEnemies', () => {
-  it('lays a beartrap on the solid block under every tile that asks for one', () => {
+  it('should lay a beartrap on the solid block beneath the tile when a tile asks for one', () => {
     expect(createEnemies(arena())).toEqual([
       {
         kind: 'BEARTRAP',
@@ -142,7 +142,7 @@ describe('createEnemies', () => {
     ]);
   });
 
-  it('lays nothing in a room without the tile', () => {
+  it('should lay nothing when the room holds no such tile', () => {
     const bare = arena();
     bare.tiles[TRAP_ROW][TRAP_COLUMN] = TILE_AIR;
 
@@ -151,7 +151,7 @@ describe('createEnemies', () => {
 });
 
 describe('isPlayerNearTrap', () => {
-  it('notices the player at two blocks, and at anything closer, from either side', () => {
+  it('should notice the player when they stand two blocks off or closer on either side', () => {
     times(4, (index) => {
       const gap = [-BEARTRAP_TRIGGER_RANGE, -1, 1, BEARTRAP_TRIGGER_RANGE][
         index
@@ -164,7 +164,7 @@ describe('isPlayerNearTrap', () => {
     });
   });
 
-  it('misses the player a pixel beyond two blocks, on either side', () => {
+  it('should miss the player when they stand a pixel beyond two blocks on either side', () => {
     times(2, (side) => {
       const gap = (side === 0 ? -1 : 1) * (BEARTRAP_TRIGGER_RANGE + 1);
 
@@ -175,14 +175,14 @@ describe('isPlayerNearTrap', () => {
     });
   });
 
-  it('notices the player sailing overhead within two blocks', () => {
+  it('should notice the player when they sail overhead within two blocks', () => {
     const leaping = eyeToEye(TILE_SIZE);
     leaping.position.y -= TILE_SIZE * 3;
 
     expect(isPlayerNearTrap(trapIn(room()), leaping)).toBe(true);
   });
 
-  it('ignores a player who is already dead', () => {
+  it('should ignore the player when they are already dead', () => {
     const fallen = eyeToEye(0);
     fallen.timers.death = 0;
 
@@ -194,27 +194,27 @@ describe('isBeartrapAhead', () => {
   const UP_TO_TRAP_FROM_LEFT = TRAP_COLUMN * TILE_SIZE - ENEMY_WIDTH;
   const UP_TO_TRAP_FROM_RIGHT = (TRAP_COLUMN + 1) * TILE_SIZE;
 
-  it('sees the trap the enemy walking right is about to step into', () => {
+  it('should see the trap when the enemy walking right is about to step into it', () => {
     expect(isBeartrapAhead(room(), UP_TO_TRAP_FROM_LEFT, TRAP_Y, 1)).toBe(true);
   });
 
-  it('sees the trap the enemy walking left is about to step into', () => {
+  it('should see the trap when the enemy walking left is about to step into it', () => {
     expect(isBeartrapAhead(room(), UP_TO_TRAP_FROM_RIGHT, TRAP_Y, -1)).toBe(
       true,
     );
   });
 
-  it('sees nothing behind the enemy walking away from the trap', () => {
+  it('should see nothing when the enemy is walking away from the trap', () => {
     expect(isBeartrapAhead(room(), UP_TO_TRAP_FROM_LEFT, TRAP_Y, -1)).toBe(
       false,
     );
   });
 
-  it('sees nothing on open floor across the room', () => {
+  it('should see nothing when the floor ahead is open across the room', () => {
     expect(isBeartrapAhead(room(), 0, TRAP_Y, 1)).toBe(false);
   });
 
-  it('sees nothing in a room without the tile', () => {
+  it('should see nothing when the room holds no such tile', () => {
     const bare = room();
     bare.tiles[TRAP_ROW][TRAP_COLUMN] = TILE_AIR;
 
@@ -223,7 +223,7 @@ describe('isBeartrapAhead', () => {
 });
 
 describe('stepBeartrap', () => {
-  it('lies still on its block while the player keeps further than two blocks off', () => {
+  it('should lie still on its block when the player keeps further than two blocks off', () => {
     const { trap } = watchedFor(120, standing(BEARTRAP_TRIGGER_RANGE * 4));
 
     expect(trap.position).toEqual({ x: TRAP_X, y: TRAP_Y });
@@ -231,14 +231,14 @@ describe('stepBeartrap', () => {
     expect(trap.velocity.y.current).toBe(0);
   });
 
-  it('springs as soon as the player steps within two blocks', () => {
+  it('should spring when the player steps within two blocks', () => {
     const { trap } = watchedFor(2, standing(0));
 
     expect(trap.position.y).toBeLessThan(TRAP_Y);
     expect(trap.statuses.isGrounded).toBe(false);
   });
 
-  it('jumps six blocks high', () => {
+  it('should jump six blocks high when it springs', () => {
     const { peak } = watchedFor(120, standing(0));
 
     expect(TRAP_Y - peak).toBeGreaterThan(
@@ -247,20 +247,20 @@ describe('stepBeartrap', () => {
     expect(TRAP_Y - peak).toBeLessThanOrEqual(BEARTRAP_JUMP_TILES * TILE_SIZE);
   });
 
-  it('comes down in the very place it left', () => {
+  it('should come down in the very place it left when it has sprung', () => {
     const trap = leapAndLand(standing(0));
 
     expect(trap.position).toEqual({ x: TRAP_X, y: TRAP_Y });
     expect(trap.statuses.isGrounded).toBe(true);
   });
 
-  it('never drifts sideways, however long it is left leaping', () => {
+  it('should never drift sideways when it is left leaping a long while', () => {
     const { trap } = watchedFor(600, standing(0));
 
     expect(trap.position.x).toBe(TRAP_X);
   });
 
-  it('goes off again once it has settled back down', () => {
+  it('should go off again when it has settled back down', () => {
     const level = room();
     let trap = trapIn(level);
     let launches = 0;
@@ -274,7 +274,7 @@ describe('stepBeartrap', () => {
     expect(launches).toBeGreaterThan(1);
   });
 
-  it('stays put once the player has walked back out of reach', () => {
+  it('should stay put when the player has walked back out of reach', () => {
     const { trap } = watchedFor(120, standing(BEARTRAP_TRIGGER_RANGE + 40));
 
     expect(trap.position).toEqual({ x: TRAP_X, y: TRAP_Y });
@@ -284,7 +284,7 @@ describe('stepBeartrap', () => {
 describe('crushEnemies', () => {
   const trap = enemyAt('BEARTRAP', TRAP_X, TRAP_Y);
 
-  it('kills the enemy it closes on', () => {
+  it('should kill the enemy when it closes on one', () => {
     const prey = enemyAt('HOPPING', TRAP_X, TRAP_Y);
     const [snapped, caught] = crushEnemies([trap, prey]);
 
@@ -292,7 +292,7 @@ describe('crushEnemies', () => {
     expect(snapped.timers.death).toBeNull();
   });
 
-  it('kills a horned enemy just the same', () => {
+  it('should kill the enemy when the one it closes on is horned', () => {
     const [, caught] = crushEnemies([
       trap,
       enemyAt('HORNED', TRAP_X + 4, TRAP_Y - 4),
@@ -301,26 +301,26 @@ describe('crushEnemies', () => {
     expect(caught.timers.death).toBe(0);
   });
 
-  it('leaves an enemy it is nowhere near alone', () => {
+  it('should leave the enemy alone when the trap is nowhere near it', () => {
     const prey = enemyAt('HOPPING', TRAP_X + TILE_SIZE * 3, TRAP_Y);
 
     expect(crushEnemies([trap, prey])).toEqual([trap, prey]);
   });
 
-  it('leaves another beartrap it is sitting on alone', () => {
+  it('should leave the other trap alone when it is sitting on one', () => {
     const other = enemyAt('BEARTRAP', TRAP_X, TRAP_Y);
 
     expect(crushEnemies([trap, other])).toEqual([trap, other]);
   });
 
-  it('leaves the enemies alone while it is dying itself', () => {
+  it('should leave the enemies alone when the trap is dying itself', () => {
     const dying = { ...trap, timers: { death: 0.1 } };
     const prey = enemyAt('HOPPING', TRAP_X, TRAP_Y);
 
     expect(crushEnemies([dying, prey])).toEqual([dying, prey]);
   });
 
-  it('leaves an already dying enemy where it lies', () => {
+  it('should leave the enemy where it lies when it is already dying', () => {
     const dying = {
       ...enemyAt('HOPPING', TRAP_X, TRAP_Y),
       timers: { death: 0.2 },
@@ -329,7 +329,7 @@ describe('crushEnemies', () => {
     expect(crushEnemies([trap, dying])).toEqual([trap, dying]);
   });
 
-  it('hands back a room of enemies untouched when no trap is laid', () => {
+  it('should hand the enemies back untouched when no trap is laid', () => {
     const crowd = [
       enemyAt('HOPPING', TRAP_X, TRAP_Y),
       enemyAt('HORNED', TRAP_X, TRAP_Y),
@@ -354,13 +354,13 @@ describe('a level being played', () => {
     return state;
   };
 
-  it('costs the player a heart when it snaps shut on them', () => {
+  it('should cost the player a heart when it snaps shut on them', () => {
     const bitten = played(withSpawn(TRAP_COLUMN, FLOOR_ROW - 5), 90);
 
     expect(bitten.player.hearts.value).toBe(BASE_HEARTS - 1);
   });
 
-  it('survives the player dropping onto it', () => {
+  it('should survive when the player drops onto it', () => {
     const jumped = played(withSpawn(TRAP_COLUMN, FLOOR_ROW - 5), 90);
 
     expect(size(jumped.enemies)).toBe(1);
@@ -368,7 +368,7 @@ describe('a level being played', () => {
     expect(jumped.enemies[0].timers.death).toBeNull();
   });
 
-  it('turns the walking enemy back before it steps into the trap', () => {
+  it('should turn the walking enemy back when it is about to step into the trap', () => {
     const level = withSpawn(WIDTH - 2, FLOOR_ROW - 1);
     level.tiles[TRAP_ROW][TRAP_COLUMN - 3] = TILE_ENEMY;
 
@@ -383,7 +383,7 @@ describe('a level being played', () => {
     expect(walker!.position.x + ENEMY_WIDTH).toBeLessThanOrEqual(TRAP_X);
   });
 
-  it('kills the flying enemy its leap carries it into', () => {
+  it('should kill the flying enemy when its leap carries it into one', () => {
     const level = withSpawn(TRAP_COLUMN + 1, FLOOR_ROW - 1);
     level.tiles[TRAP_ROW - 3][TRAP_COLUMN] = TILE_ENEMY;
 
@@ -393,13 +393,13 @@ describe('a level being played', () => {
     expect(cleared.enemies[0].kind).toBe('BEARTRAP');
   });
 
-  it('leaves the player alone across the room', () => {
+  it('should leave the player alone when they stay across the room', () => {
     const safe = played(withSpawn(TRAP_COLUMN + 8, FLOOR_ROW - 1), 90);
 
     expect(safe.player.hearts.value).toBe(BASE_HEARTS);
   });
 
-  it('springs at the player who tries to jump clean over it', () => {
+  it('should spring at the player when they try to jump clean over it', () => {
     const level = withSpawn(1, FLOOR_ROW - 1);
     let state = reduce(createInitialState(level, 0, []), {
       type: 'MOVE_RIGHT_START',
@@ -428,7 +428,7 @@ describe('a level being played', () => {
     expect(state.player.hearts.value, 'and caught them').toBe(BASE_HEARTS - 1);
   });
 
-  it('is laid again when the player respawns, as the enemies are', () => {
+  it('should be laid again when the player respawns', () => {
     const level = withSpawn(TRAP_COLUMN + 1, FLOOR_ROW - 1);
     const respawned = reduce(played(level, 90), { type: 'RESPAWN' });
 

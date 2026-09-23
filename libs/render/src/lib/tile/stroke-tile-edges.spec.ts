@@ -84,7 +84,7 @@ const isTopLeftSquare = (bar: Bar, column: number, row: number): boolean =>
   bar.y === row * TILE_SIZE;
 
 describe('strokeTileEdges', () => {
-  it('outlines a lone block on all four sides', () => {
+  it('should outline all four sides when the block stands alone', () => {
     const bars = barsFor(tileMap(['...', '.#.', '...']), 1, 1);
 
     expect(bars).toHaveLength(4);
@@ -94,13 +94,13 @@ describe('strokeTileEdges', () => {
     expect(some(bars, (bar) => isRight(bar, 1))).toBe(true);
   });
 
-  it('leaves the edges a block shares with its neighbours bare', () => {
+  it('should leave the edge bare when the block shares it with a neighbour', () => {
     const bars = barsFor(tileMap(['.#.', '###', '.#.']), 1, 1);
 
     expect(filter(bars, (bar) => !isCornerSquare(bar))).toHaveLength(0);
   });
 
-  it('draws only the sides of a wall that face open air', () => {
+  it('should draw only the sides that face open air when the block sits in a wall', () => {
     const bars = barsFor(tileMap(['...', '###', '...']), 1, 1);
 
     expect(bars).toHaveLength(2);
@@ -108,7 +108,7 @@ describe('strokeTileEdges', () => {
     expect(some(bars, (bar) => isBottom(bar, 1))).toBe(true);
   });
 
-  it('keeps every bar inside the tile it belongs to', () => {
+  it('should keep every bar inside the tile it belongs to when it outlines one', () => {
     const bars = barsFor(tileMap(['...', '.#.', '...']), 1, 1);
 
     expect(
@@ -123,13 +123,13 @@ describe('strokeTileEdges', () => {
     ).toHaveLength(4);
   });
 
-  it('outlines the edge a block shares with a spike', () => {
+  it('should outline the edge when the block shares it with a spike', () => {
     const bars = barsFor(tileMap(['.^.', '###', '###']), 1, 1);
 
     expect(some(bars, (bar) => isTop(bar, 1))).toBe(true);
   });
 
-  it('outlines the edges that face off the level', () => {
+  it('should outline the edges when they face off the level', () => {
     const bars = barsFor(tileMap(['##', '##']), 0, 0);
 
     expect(bars).toHaveLength(2);
@@ -137,27 +137,27 @@ describe('strokeTileEdges', () => {
     expect(some(bars, (bar) => isLeft(bar, 0))).toBe(true);
   });
 
-  it('fills the notch an inside corner leaves', () => {
+  it('should fill the notch when an inside corner leaves one', () => {
     const bars = barsFor(tileMap(['.#', '##']), 1, 1);
 
     expect(bars).toHaveLength(3);
     expect(some(bars, (bar) => isTopLeftSquare(bar, 1, 1))).toBe(true);
   });
 
-  it('leaves a corner alone when its own sides already face air', () => {
+  it('should leave the corner alone when its own sides already face air', () => {
     const bars = barsFor(tileMap(['..', '.#']), 1, 1);
 
     expect(bars).toHaveLength(4);
     expect(some(bars, isCornerSquare)).toBe(false);
   });
 
-  it('leaves a corner alone when the diagonal is filled in', () => {
+  it('should leave the corner alone when the diagonal is filled in', () => {
     expect(some(barsFor(tileMap(['##', '##']), 1, 1), isCornerSquare)).toBe(
       false,
     );
   });
 
-  it('fills all four notches when a block is nipped at every diagonal', () => {
+  it('should fill all four notches when the block is nipped at every diagonal', () => {
     const bars = barsFor(tileMap(['.#.', '###', '.#.']), 1, 1);
 
     expect(bars).toHaveLength(4);

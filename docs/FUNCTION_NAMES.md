@@ -62,6 +62,7 @@
 - `at`
 - `atPortal`
 - `atRange`
+- `averageNeighbourTile`
 - `bandRows`
 - `barsFor`
 - `base`
@@ -69,8 +70,7 @@
 - `blur`
 - `blurColumns`
 - `blurRows`
-- `borrowNeighbour`
-- `brickCannon`
+- `borrowNeighbourTile`
 - `buildLayers`
 - `burnEnemies`
 - `burnStar`
@@ -84,6 +84,7 @@
 - `cellsOf`
 - `census`
 - `centreView`
+- `checkFireballsLit`
 - `checkPlayerReach`
 - `chestLevel`
 - `chooseItem`
@@ -152,6 +153,7 @@
 - `createBulletsStep`
 - `createBulletStep`
 - `createCannonballStep`
+- `createCannonPatches`
 - `createCannons`
 - `createCannonStep`
 - `createCanvasCell`
@@ -180,6 +182,7 @@
 - `createFallingSpikeStep`
 - `createFigureStep`
 - `createFinishedRun`
+- `createFireballPatches`
 - `createFireballs`
 - `createFireballsArt`
 - `createFireballsStep`
@@ -351,6 +354,7 @@
 - `findBoundary`
 - `findBuried`
 - `findCandidates`
+- `findCannonCells`
 - `findCannonTiles`
 - `findCellAt`
 - `findCellIn`
@@ -359,6 +363,7 @@
 - `findEntryPlayer`
 - `findFallingSpike`
 - `findFallingSpikeTiles`
+- `findFireballCells`
 - `findFireballTiles`
 - `findFloorRow`
 - `findGemTiles`
@@ -369,6 +374,7 @@
 - `findLowestFilledRow`
 - `findMarker`
 - `findMarkerCells`
+- `findNeighbourTiles`
 - `findPlatformRows`
 - `findPlayerSpawnCandidate`
 - `findPoolIssues`
@@ -600,12 +606,13 @@
 - `isAlive`
 - `isApart`
 - `isArmedTrap`
+- `isAverageableTile`
 - `isBackAt`
 - `isBeartrap`
 - `isBeartrapAhead`
 - `isBesideLevel`
 - `isBlank`
-- `isBorrowable`
+- `isBorrowableTile`
 - `isBottom`
 - `isBoxHittingTriangle`
 - `isBurned`
@@ -742,6 +749,7 @@
 - `logWorldMeta`
 - `loseHeart`
 - `loseToThePit`
+- `markCannonsArmed`
 - `measureDepths`
 - `mergeAliases`
 - `mergeLandings`
@@ -792,6 +800,8 @@
 - `parseRuns`
 - `parseString`
 - `parseStructure`
+- `patchCannonTiles`
+- `patchFireballTiles`
 - `patchInput`
 - `patchPlayerSpawnTiles`
 - `patchTiles`
@@ -820,7 +830,6 @@
 - `projectY`
 - `pullSpikes`
 - `pushAwayFromEntityHue`
-- `quenchFireballs`
 - `radiusOf`
 - `readBody`
 - `readEntries`

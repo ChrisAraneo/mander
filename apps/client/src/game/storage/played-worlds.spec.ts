@@ -37,7 +37,7 @@ const savedBy = (earlier: unknown): void => {
 describe('the worlds a player has played', () => {
   beforeEach(() => store.clear());
 
-  it('remembers a world the first time it is played', () => {
+  it('should remember the world when it is played for the first time', () => {
     recordPlayedWorld({ name: 'ABC', day: '2026-08-16' }, at(0));
 
     expect(loadSave().playedWorlds).toEqual([
@@ -45,13 +45,13 @@ describe('the worlds a player has played', () => {
     ]);
   });
 
-  it('keeps the day, which is all it takes to build the world again', () => {
+  it('should keep the day the world was built from when it records a world', () => {
     recordPlayedWorld({ name: 'ABC', day: '2026-08-16' }, at(0));
 
     expect(listPlayableWorlds(loadSave())[0].day).toBe('2026-08-16');
   });
 
-  it('counts a second run rather than listing the world twice', () => {
+  it('should count a second run rather than list the world twice when the same world is played again', () => {
     recordPlayedWorld({ name: 'ABC', day: '2026-08-16' }, at(0));
     recordPlayedWorld({ name: 'ABC', day: '2026-08-16' }, at(5));
 
@@ -61,7 +61,7 @@ describe('the worlds a player has played', () => {
     expect(world.playedAt, 'and remembers the latest visit').toBe(at(5));
   });
 
-  it('puts the world played most recently at the top of the list', () => {
+  it('should put the world at the top of the list when it was played most recently', () => {
     recordPlayedWorld({ name: 'OLD', day: '2026-08-10' }, at(0));
     recordPlayedWorld({ name: 'NEW', day: '2026-08-11' }, at(5));
 
@@ -71,7 +71,7 @@ describe('the worlds a player has played', () => {
     ]);
   });
 
-  it('lets go of the oldest worlds once the shelf is full', () => {
+  it('should let go of the oldest worlds when the shelf is full', () => {
     for (let index = 0; index < PLAYED_WORLDS_KEPT + 10; index++) {
       recordPlayedWorld({ name: `W${index}`, day: '2026-08-16' }, at(index));
     }
@@ -81,7 +81,7 @@ describe('the worlds a player has played', () => {
     expect(played[0].name, 'the first ten dropped off').toBe('W10');
   });
 
-  it('shows a finished world once, with its score alongside', () => {
+  it('should show the world once with its score alongside when it has been finished', () => {
     savedBy({ score: 5, completedWorlds: [completed('ABC', '2026-08-16')] });
     recordPlayedWorld({ name: 'ABC', day: '2026-08-16' }, at(0));
 
@@ -90,7 +90,7 @@ describe('the worlds a player has played', () => {
     expect(worlds[0].completed?.score).toBe(100);
   });
 
-  it('takes worlds finished before it kept records as played too', () => {
+  it('should take the world as played too when it was finished before records were kept', () => {
     savedBy({ score: 5, completedWorlds: [completed('OLD', '2026-01-01')] });
 
     const [world] = listPlayableWorlds(loadSave());
@@ -99,7 +99,7 @@ describe('the worlds a player has played', () => {
     expect(world.completed).not.toBeNull();
   });
 
-  it('reads a save written before any of this existed', () => {
+  it('should come back with no played worlds when the save was written before they were kept', () => {
     savedBy({ score: 7 });
 
     expect(loadSave().playedWorlds).toEqual([]);

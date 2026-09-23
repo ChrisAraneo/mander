@@ -69,7 +69,7 @@ const recorded = (): Replay => ({
 });
 
 describe('packReplay', () => {
-  it('brings every action back the way it went in', () => {
+  it('should bring every action back the way it went in when the replay is unpacked', () => {
     const restored = unpackReplay(packReplay(recorded()), LEVELS);
 
     expect(restored.worldName).toBe('PACK-WORLD');
@@ -79,20 +79,20 @@ describe('packReplay', () => {
     );
   });
 
-  it('carries the step count, which is the whole of the run clock', () => {
+  it('should carry the step count through when the replay is unpacked', () => {
     expect(unpackReplay(packReplay(recorded()), LEVELS).steps).toBe(
       size(script) * 4,
     );
   });
 
-  it('leaves the level grids behind rather than writing them out again', () => {
+  it('should leave the level grids behind when it packs a replay', () => {
     const written = JSON.stringify(packReplay(recorded()));
 
     expect(written).not.toContain('"tiles"');
     expect(written).not.toContain('"chestItems"');
   });
 
-  it('costs nothing per step, however long the run ran', () => {
+  it('should cost nothing per step when the run ran long', () => {
     const long: Replay = {
       worldName: 'W',
       steps: 36_000,
@@ -105,7 +105,7 @@ describe('packReplay', () => {
     expect(size(JSON.stringify(packReplay(long)))).toBeLessThan(600);
   });
 
-  it('drops what it cannot seat rather than handing back a broken run', () => {
+  it('should drop the entry rather than hand back a broken run when it cannot be seated', () => {
     const packed = packReplay({
       worldName: 'W',
       steps: 2,
@@ -124,7 +124,7 @@ describe('packReplay', () => {
     expect(restored.entries[0].action).toEqual({ type: 'INTERACT' });
   });
 
-  it('shrugs off an entry whose action it has never heard of', () => {
+  it('should shrug the entry off when its action is one it has never heard of', () => {
     const restored = unpackReplay(
       {
         worldName: 'W',

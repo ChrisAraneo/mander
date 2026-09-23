@@ -225,14 +225,22 @@ watch(hover, repaint);
   <div class="grid-wrap">
     <div class="ruler">
       <span class="corner" />
-      <span v-for="column in columns" :key="column" class="tick">
+      <span
+        v-for="column in columns"
+        :key="column"
+        class="tick"
+      >
         {{ column }}
       </span>
     </div>
 
     <div class="body">
       <div class="rail">
-        <span v-for="row in rows" :key="row" class="tick row-tick">
+        <span
+          v-for="row in rows"
+          :key="row"
+          class="tick row-tick"
+        >
           {{ row }}
         </span>
       </div>
@@ -243,7 +251,8 @@ watch(hover, repaint);
         @contextmenu.prevent
         @pointerdown="start"
         @pointermove="move"
-        @pointerleave="leave" />
+        @pointerleave="leave"
+      />
     </div>
   </div>
 </template>

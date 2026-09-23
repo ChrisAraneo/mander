@@ -11,11 +11,11 @@ const row = (tile: number): number[] => times(4, () => tile);
 const ground = (): number[][] => [row(TILE_AIR), row(TILE_DIRT)];
 
 describe('getPadding', () => {
-  it('should reach for enough bedrock to bury the lowest filled row', () => {
+  it('should reach for enough bedrock to bury the lowest filled row when the level is shallow', () => {
     expect(getPadding(ground())).toEqual({ sky: SKY_HEIGHT, depth: 4 });
   });
 
-  it('should ask for no bedrock under a level that is already deep enough', () => {
+  it('should ask for no bedrock when the level is already deep enough', () => {
     expect(
       getPadding([
         row(TILE_DIRT),
@@ -27,7 +27,7 @@ describe('getPadding', () => {
 });
 
 describe('padTiles', () => {
-  it('should hang the sky above and the bedrock below', () => {
+  it('should hang the sky above and the bedrock below when it pads a grid', () => {
     const padded = padTiles(ground(), getPadding(ground()));
 
     expect(size(padded)).toBe(SKY_HEIGHT + 2 + 4);
@@ -39,7 +39,7 @@ describe('padTiles', () => {
     expect(last(padded)).toEqual(row(TILE_DIRT));
   });
 
-  it('should give a second layer the padding measured off the first, so the two stay the same shape', () => {
+  it('should measure the padding off the first layer when it pads a second, so the two stay the same shape', () => {
     const front = ground();
     const back = [row(TILE_DIRT), row(TILE_AIR)];
     const padding = getPadding(front);
@@ -50,13 +50,13 @@ describe('padTiles', () => {
     expect(size(padTiles(back, padding))).toBe(size(padTiles(front, padding)));
   });
 
-  it('should leave an empty grid empty', () => {
+  it('should leave the grid empty when there is nothing on it', () => {
     expect(padTiles([], getPadding([]))).toEqual([]);
   });
 });
 
 describe('addPadding', () => {
-  it('should pad a grid by its own measure', () => {
+  it('should pad the grid by its own measure when it is given one', () => {
     expect(addPadding(ground())).toEqual(
       padTiles(ground(), getPadding(ground())),
     );

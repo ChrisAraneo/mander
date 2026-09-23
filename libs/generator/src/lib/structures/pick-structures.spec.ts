@@ -20,7 +20,7 @@ const hasDuplicates = (picked: Sector[]): boolean =>
   size(uniq(picked)) !== size(picked);
 
 describe('pickStructures', () => {
-  it('never deals the same structure twice', () => {
+  it('should never deal the same structure twice when the pool can cover the hand', () => {
     const dealt = map(seeds, (seed) =>
       pickStructures(seed, size(NORMAL_STRUCTURES), 'normal'),
     );
@@ -28,22 +28,22 @@ describe('pickStructures', () => {
     expect(filter(dealt, hasDuplicates)).toEqual([]);
   });
 
-  it('never deals the same structure twice out of the hard pool', () => {
+  it('should never deal the same structure twice when it deals out of the hard pool', () => {
     const dealt = map(seeds, (seed) => pickStructures(seed, 14, 'hard'));
 
     expect(filter(dealt, hasDuplicates)).toEqual([]);
   });
 
-  it('deals as many as asked for while the pool can cover it', () => {
+  it('should deal as many as asked for when the pool can cover it', () => {
     expect(size(pickStructures(SEED, 7, 'normal'))).toBe(7);
   });
 
-  it('deals as many as asked for once the pool has run short', () => {
+  it('should deal as many as asked for when the pool has run short', () => {
     expect(size(pickStructures(SEED, OVER_NORMAL, 'normal'))).toBe(OVER_NORMAL);
     expect(size(pickStructures(SEED, OVER_HARD, 'hard'))).toBe(OVER_HARD);
   });
 
-  it('deals the whole pool out before it repeats any of it', () => {
+  it('should deal the whole pool out before it repeats any of it when it is asked for more', () => {
     const dealt = map(seeds, (seed) =>
       pickStructures(seed, OVER_NORMAL, 'normal'),
     );
@@ -55,7 +55,7 @@ describe('pickStructures', () => {
     ).toEqual([]);
   });
 
-  it('repeats no structure more often than the count forces it to', () => {
+  it('should repeat no structure more often than the count forces it to when the pool runs short', () => {
     const dealt = pickStructures(SEED, OVER_NORMAL, 'normal');
     const dealtEach = map(NORMAL_STRUCTURES, (structure) =>
       size(filter(dealt, (picked) => picked === structure)),
@@ -64,25 +64,25 @@ describe('pickStructures', () => {
     expect(max(dealtEach)).toBe(2);
   });
 
-  it('deals every structure in the pool when it is asked for them all', () => {
+  it('should deal every structure in the pool when it is asked for them all', () => {
     const picked = pickStructures(SEED, size(NORMAL_STRUCTURES), 'normal');
 
     expect(new Set(picked)).toEqual(new Set(NORMAL_STRUCTURES));
   });
 
-  it('deals the same hand from the same seed', () => {
+  it('should deal the same hand when the seed is the same', () => {
     expect(pickStructures(SEED, 42, 'normal')).toEqual(
       pickStructures(SEED, 42, 'normal'),
     );
   });
 
-  it('deals a different hand from a different seed', () => {
+  it('should deal a different hand when the seed differs', () => {
     expect(pickStructures(SEED, 42, 'normal')).not.toEqual(
       pickStructures('OTHER-SEED', 42, 'normal'),
     );
   });
 
-  it('does not deal the hard level the front of the normal one', () => {
+  it('should rarely open both hands on the same structure when the hard and normal pools are dealt from one seed', () => {
     const sameOpening = filter(seeds, (seed) => {
       const normal = pickStructures(seed, 42, 'normal');
       const hard = pickStructures(seed, 14, 'hard');

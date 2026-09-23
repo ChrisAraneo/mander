@@ -57,7 +57,7 @@ const walkingRight = (steps: number): Replay =>
 const xOf = (state: GameState): number => state.player.position.x;
 
 describe('the ghosts running alongside a replay', () => {
-  it('starts every ghost from its own copy of the opening state', () => {
+  it('should start every ghost from its own copy of the opening state when the ghosts are created', () => {
     const ghosts = createGhosts(
       [walkingRight(30), walkingRight(30)],
       initialState,
@@ -71,7 +71,7 @@ describe('the ghosts running alongside a replay', () => {
     ]);
   });
 
-  it('walks each ghost forward on its own recording', () => {
+  it('should walk the ghost forward when its own recording is stepped on', () => {
     const ghosts = advanceGhosts(
       createGhosts([walkingRight(60)], initialState),
       30,
@@ -80,7 +80,7 @@ describe('the ghosts running alongside a replay', () => {
     expect(xOf(ghosts[0].playback.state)).toBeGreaterThan(xOf(initialState()));
   });
 
-  it('keeps the state one step back to draw across', () => {
+  it('should keep the state one step back when it walks a ghost forward', () => {
     const ghosts = advanceGhosts(
       createGhosts([walkingRight(60)], initialState),
       30,
@@ -89,7 +89,7 @@ describe('the ghosts running alongside a replay', () => {
     expect(xOf(ghosts[0].previous)).toBeLessThan(xOf(ghosts[0].playback.state));
   });
 
-  it('lands on the same place whether the steps come in one batch or many', () => {
+  it('should land on the same place when the steps come one at a time rather than in one batch', () => {
     const [batched] = advanceGhosts(
       createGhosts([walkingRight(60)], initialState),
       40,
@@ -102,7 +102,7 @@ describe('the ghosts running alongside a replay', () => {
     expect(xOf(drip[0].playback.state)).toBe(xOf(batched.playback.state));
   });
 
-  it('holds a ghost still once its run has played out', () => {
+  it('should hold the ghost still when its run has played out', () => {
     const ghosts = advanceGhosts(
       createGhosts([walkingRight(10)], initialState),
       600,
@@ -112,7 +112,7 @@ describe('the ghosts running alongside a replay', () => {
     expect(settled[0]).toBe(ghosts[0]);
   });
 
-  it('shows only the ghosts whose run is still going', () => {
+  it('should show only the ghosts whose run is still going when another has played out', () => {
     const ghosts = advanceGhosts(
       createGhosts([walkingRight(10), walkingRight(600)], initialState),
       20,
@@ -121,7 +121,7 @@ describe('the ghosts running alongside a replay', () => {
     expect(getGhostStates(ghosts, 0)).toHaveLength(1);
   });
 
-  it('draws a ghost part-way between the steps it took', () => {
+  it('should draw the ghost part-way between its steps when it is asked for mid-step', () => {
     const ghosts = advanceGhosts(
       createGhosts([walkingRight(60)], initialState),
       30,
@@ -135,7 +135,7 @@ describe('the ghosts running alongside a replay', () => {
     expect(xOf(middle)).toBeCloseTo((xOf(back) + xOf(front)) / 2, 6);
   });
 
-  it('shows nothing once every run has played out', () => {
+  it('should show nothing when every run has played out', () => {
     const ghosts = advanceGhosts(
       createGhosts([walkingRight(10), walkingRight(20)], initialState),
       600,
@@ -144,7 +144,7 @@ describe('the ghosts running alongside a replay', () => {
     expect(getGhostStates(ghosts, 0)).toEqual([]);
   });
 
-  it('has no ghosts to run when the world has no other runs', () => {
+  it('should have no ghosts to run when the world has no other runs', () => {
     expect(getGhostStates(createGhosts([], initialState), 0)).toEqual([]);
   });
 });

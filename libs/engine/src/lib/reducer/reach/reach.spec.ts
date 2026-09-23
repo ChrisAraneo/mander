@@ -55,7 +55,7 @@ const SPIKE_RUN = tileMap({
 const FLOATING = tileMap({ 4: platformRow([8, 9, 10]) });
 
 describe('checkPlayerReach', () => {
-  it('marks the whole floor of a flat tile map as reachable', () => {
+  it('should mark the whole floor as reachable when the tile map is flat', () => {
     const reach = checkPlayerReach(FLAT);
 
     expect(
@@ -63,39 +63,39 @@ describe('checkPlayerReach', () => {
     ).toBe(true);
   });
 
-  it('shapes the map like the tiles it was given', () => {
+  it('should shape the map like the tiles when it is given a tile map', () => {
     const reach = checkPlayerReach(FLAT);
 
     expect(reach.length).toBe(HEIGHT);
     expect(every(reach, (cells) => cells.length === WIDTH)).toBe(true);
   });
 
-  it('reaches a perch three cells above the floor', () => {
+  it('should reach the perch when it stands three cells above the floor', () => {
     expect(isReachableCell(checkPlayerReach(PERCH), 4, 9)).toBe(true);
   });
 
-  it('leaves a platform six cells above the floor stranded', () => {
+  it('should leave the platform stranded when it stands six cells above the floor', () => {
     const reach = checkPlayerReach(TOWER);
 
     expect(isReachableCell(reach, 1, 9)).toBe(false);
     expect(isReachableCell(reach, 7, 9)).toBe(true);
   });
 
-  it('climbs a ledge four cells up but not five', () => {
+  it('should climb the ledge when it is four cells up but not when it is five', () => {
     expect(isReachableCell(checkPlayerReach(LEDGE_4), 3, 15)).toBe(true);
     expect(isReachableCell(checkPlayerReach(LEDGE_5), 2, 15)).toBe(false);
   });
 
-  it('jumps a five column pit but not a six column one', () => {
+  it('should jump the pit when it is five columns wide but not when it is six', () => {
     expect(isReachableCell(checkPlayerReach(PIT_5), 7, 15)).toBe(true);
     expect(isReachableCell(checkPlayerReach(PIT_6), 7, 15)).toBe(false);
   });
 
-  it('treats spikes as passable rather than as walls', () => {
+  it('should walk on when the way is barred by spikes rather than walls', () => {
     expect(isReachableCell(checkPlayerReach(SPIKE_RUN), 7, 15)).toBe(true);
   });
 
-  it('reaches nothing when the entry column has no floor', () => {
+  it('should reach nothing when the entry column has no floor', () => {
     const reach = checkPlayerReach(FLOATING);
 
     expect(
@@ -105,7 +105,7 @@ describe('checkPlayerReach', () => {
     ).toBe(true);
   });
 
-  it('never reports a cell outside the tile map as reachable', () => {
+  it('should call the cell unreachable when it lies outside the tile map', () => {
     const reach = checkPlayerReach(FLAT);
 
     expect(isReachableCell(reach, -1, 0)).toBe(false);

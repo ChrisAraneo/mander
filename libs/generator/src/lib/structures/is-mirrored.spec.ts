@@ -9,21 +9,21 @@ const LEVELS_A_DAY = 8;
 const levelNumbers = times(LEVELS_A_DAY, (index) => index + 1);
 
 describe('isMirrored', () => {
-  it('should turn the third and the sixth level around', () => {
+  it('should turn the level around when it is the third or the sixth', () => {
     expect(MIRRORED_LEVELS).toEqual([3, 6]);
     expect(isMirrored(3)).toBe(true);
     expect(isMirrored(6)).toBe(true);
   });
 
-  it('should leave every other level of the day running the way it was built', () => {
+  it('should leave the level running the way it was built when it is any other of the day', () => {
     expect(filter(levelNumbers, isMirrored)).toEqual([3, 6]);
   });
 
-  it('should never turn the level the player starts the day on', () => {
+  it('should never turn the level around when it is the one the player starts the day on', () => {
     expect(isMirrored(1)).toBe(false);
   });
 
-  it('should answer the same for a level number whatever the day', () => {
+  it('should answer the same for a level number when the day it falls on changes', () => {
     expect(map(levelNumbers, isMirrored)).toEqual(
       map(levelNumbers, isMirrored),
     );

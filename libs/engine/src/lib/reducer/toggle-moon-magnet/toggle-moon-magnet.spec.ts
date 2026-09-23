@@ -49,14 +49,14 @@ const toggle = (state: GameState): GameState =>
   reduce(state, { type: 'TOGGLE_MOON_MAGNET' });
 
 describe('calling the moons off with M', () => {
-  it('starts a run with the moons circling', () => {
+  it('should have the moons circling when a run starts with the magnet', () => {
     const state = carrying(MOON_MAGNET);
 
     expect(state.isMoonMagnetOn).toBe(true);
     expect(state.playerFireballs).toHaveLength(2);
   });
 
-  it('sends the moons away and brings them back', () => {
+  it('should send the moons away and bring them back when the toggle is flipped twice', () => {
     const off = toggle(carrying(MOON_MAGNET));
 
     expect(off.isMoonMagnetOn).toBe(false);
@@ -68,7 +68,7 @@ describe('calling the moons off with M', () => {
     expect(on.playerFireballs).toHaveLength(2);
   });
 
-  it('leaves a player who owns no magnet alone', () => {
+  it('should leave the player alone when they own no magnet', () => {
     const state = carrying(trinket('GEM'));
     const after = toggle(state);
 
@@ -76,14 +76,14 @@ describe('calling the moons off with M', () => {
     expect(after.playerFireballs).toEqual([]);
   });
 
-  it('keeps the moons away across a respawn', () => {
+  it('should keep the moons away when the player respawns', () => {
     const after = reduce(toggle(carrying(MOON_MAGNET)), { type: 'RESPAWN' });
 
     expect(after.isMoonMagnetOn).toBe(false);
     expect(after.playerFireballs).toEqual([]);
   });
 
-  it('keeps the moons away across the next level', () => {
+  it('should keep the moons away when the next level loads', () => {
     const after = reduce(toggle(carrying(MOON_MAGNET)), {
       type: 'LOAD_LEVEL',
       level: groundLevel(),
@@ -94,7 +94,7 @@ describe('calling the moons off with M', () => {
     expect(after.playerFireballs).toEqual([]);
   });
 
-  it('lights the moons a chest hands over only while the toggle is on', () => {
+  it('should leave the moons a chest hands over dark when the toggle is off', () => {
     const off = toggle(carrying(MOON_MAGNET));
     const picked = reduce(
       {
@@ -109,7 +109,7 @@ describe('calling the moons off with M', () => {
     expect(picked.playerFireballs).toEqual([]);
   });
 
-  it('gives a fresh run its moons back', () => {
+  it('should give the moons back when a fresh run starts', () => {
     const after = reduce(toggle(carrying(MOON_MAGNET)), {
       type: 'RESTART',
       level: groundLevel(),
@@ -118,7 +118,7 @@ describe('calling the moons off with M', () => {
     expect(after.isMoonMagnetOn).toBe(true);
   });
 
-  it('appends its code so older replays keep their meaning', () => {
+  it('should sit last among the action codes when a new action is added, so older replays keep their meaning', () => {
     expect(ACTION_CODES.indexOf('TOGGLE_MOON_MAGNET')).toBe(
       ACTION_CODES.length - 1,
     );

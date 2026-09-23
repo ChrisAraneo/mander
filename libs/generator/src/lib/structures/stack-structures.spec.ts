@@ -65,15 +65,15 @@ const drawn = (cells: readonly number[]): number[] =>
   );
 
 describe('stackStructures', () => {
-  it('gives back nothing when it is given nothing to stack', () => {
+  it('should give back nothing when it is given nothing to stack', () => {
     expect(stackStructures([])).toEqual({ tiles: [], backTiles: [] });
   });
 
-  it('keeps the level as wide as a single sector', () => {
+  it('should keep the level as wide as a single sector when it stacks them', () => {
     expect(every(stacked, (row) => size(row) === STRUCTURE_WIDTH)).toBe(true);
   });
 
-  it('makes the level as tall as the sectors it overlaps and the ground', () => {
+  it('should make the level as tall as the sectors it overlaps and the ground when it stacks them', () => {
     expect(size(stacked)).toBe(
       (size(sectors) - 1) * VERTICAL_BAND_HEIGHT +
         VERTICAL_HEIGHT +
@@ -81,19 +81,19 @@ describe('stackStructures', () => {
     );
   });
 
-  it('stands the first sector at the bottom of the climb', () => {
+  it('should stand the sector at the bottom of the climb when it is the first', () => {
     expect(map(bandRows(0), (row) => stacked[row])).toEqual(
       map(BAND_ROWS, (row) => drawn(getFront(sectors[0])[row])),
     );
   });
 
-  it('stands the last sector at the top of the climb', () => {
+  it('should stand the sector at the top of the climb when it is the last', () => {
     expect(map(bandRows(size(sectors) - 1), (row) => stacked[row])).toEqual(
       map(BAND_ROWS, (row) => drawn(getFront(sectors[size(sectors) - 1])[row])),
     );
   });
 
-  it('leaves what is drawn below the band of a sector out of the climb', () => {
+  it('should leave the drawing out of the climb when it sits below the band of a sector', () => {
     const scribbled = [
       map(getFront(sectors[0]), (cells, row) =>
         includes(VERTICAL_IGNORED_ROWS, row)
@@ -108,7 +108,7 @@ describe('stackStructures', () => {
     );
   });
 
-  it('leaves no start or end marker in the tiles it lays', () => {
+  it('should leave no start or end marker behind when it lays the tiles', () => {
     const markers = [STRUCTURE_START, STRUCTURE_END];
 
     expect(every(flatten(stacked), (tile) => !includes(markers, tile))).toBe(
@@ -116,7 +116,7 @@ describe('stackStructures', () => {
     );
   });
 
-  it('lays the ground the sector at the bottom stands on', () => {
+  it('should lay the ground when the sector at the bottom stands on it', () => {
     const ground = takeRight(stacked, GROUND_DEPTH);
 
     expect(ground).toEqual(
@@ -126,13 +126,13 @@ describe('stackStructures', () => {
     );
   });
 
-  it('joins the sectors no further apart than the player can jump', () => {
+  it('should join the sectors no further apart than the player can jump when it stacks them', () => {
     const climb = stackStructures([...VERTICAL_STRUCTURES]).tiles;
 
     expect(max(airRuns(climb))).toBeLessThanOrEqual(VERTICAL_AIR_GAP);
   });
 
-  it('lays the block a sector ends in where the next one starts', () => {
+  it('should lay the block a sector ends in where the next one starts when it seams them together', () => {
     const seams = map(range(size(sectors) - 1), (band) => ({
       end: topRow(band) + VERTICAL_END_ROW,
       start: topRow(band + 1) + VERTICAL_START_ROW,
@@ -146,7 +146,7 @@ describe('stackStructures', () => {
     ).toEqual(map(seams, () => TILE_AIR));
   });
 
-  it('leaves the hall every sector is entered through open', () => {
+  it('should leave the hall open when a sector is entered through it', () => {
     const halls = map(range(size(sectors)), (band) =>
       every(VERTICAL_ARRIVAL_ROWS, (row) =>
         every(stacked[topRow(band) + row], (tile) => tile === TILE_AIR),

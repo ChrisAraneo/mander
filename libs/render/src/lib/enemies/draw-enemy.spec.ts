@@ -63,14 +63,14 @@ const jawTilts = (calls: Call[]): number[] =>
   map(named(calls, 'rotate'), (call) => call.args[0]);
 
 describe('drawEnemy', () => {
-  it('draws a beartrap and hands the canvas back as it found it', () => {
+  it('should draw the trap and hand the canvas back as it found it when the enemy is a beartrap', () => {
     const calls = drawn('BEARTRAP', true);
 
     expect(size(calls)).toBeGreaterThan(0);
     expect(size(named(calls, 'save'))).toBe(size(named(calls, 'restore')));
   });
 
-  it('gapes the jaws of a resting trap and shuts them once it leaps', () => {
+  it('should gape the jaws when the trap is resting and shut them when it leaps', () => {
     const resting = jawTilts(drawn('BEARTRAP', true));
     const leaping = jawTilts(drawn('BEARTRAP', false));
 
@@ -80,7 +80,7 @@ describe('drawEnemy', () => {
     expect(every(leaping, (tilt) => tilt > 0)).toBe(true);
   });
 
-  it('leaves the other enemies drawn as they always were', () => {
+  it('should draw the enemy as it always was when it is not a beartrap', () => {
     expect(size(jawTilts(drawn('HOPPING', true)))).toBe(0);
     expect(size(named(drawn('HOPPING', true), 'save'))).toBe(
       size(named(drawn('HOPPING', true), 'restore')),

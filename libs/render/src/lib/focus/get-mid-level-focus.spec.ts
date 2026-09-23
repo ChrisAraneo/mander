@@ -43,19 +43,19 @@ const LEVEL = tileMap([
 const FLOOR_ROW = 5;
 
 describe('getMidLevelFocus', () => {
-  it('looks at the horizontal middle of the level', () => {
+  it('should look at the horizontal middle when it focuses on a level', () => {
     expect(getMidLevelFocus(LEVEL).x).toBe((10 * TILE_SIZE) / 2);
   });
 
-  it('looks at the floor the level is built on', () => {
+  it('should look at the floor when the level is built on one', () => {
     expect(getMidLevelFocus(LEVEL).y).toBe(FLOOR_ROW * TILE_SIZE);
   });
 
-  it('is not fooled upwards by platforms floating above the floor', () => {
+  it('should not be fooled upwards when platforms float above the floor', () => {
     expect(getMidLevelFocus(LEVEL).y).toBeGreaterThan(TILE_SIZE);
   });
 
-  it('settles halfway down a level that has no floor to find', () => {
+  it('should settle halfway down when the level has no floor to find', () => {
     const empty = tileMap(['....', '....', '....', '....']);
 
     expect(getMidLevelFocus(empty).y).toBe((4 / 2) * TILE_SIZE);

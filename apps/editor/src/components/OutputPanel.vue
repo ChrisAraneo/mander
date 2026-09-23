@@ -56,15 +56,26 @@ const copy = (): Promise<void> =>
     <header>
       <h2>Structure source</h2>
       <div class="buttons">
-        <button class="ghost" type="button" @click="copy">
+        <button
+          class="ghost"
+          type="button"
+          @click="copy"
+        >
           {{ label }}
         </button>
-        <button class="ghost" type="button" @click="toggle()">
+        <button
+          class="ghost"
+          type="button"
+          @click="toggle()"
+        >
           {{ toggleLabel }}
         </button>
       </div>
     </header>
-    <p v-if="hasFailed" class="failed">
+    <p
+      v-if="hasFailed"
+      class="failed"
+    >
       Clipboard blocked — select the text below and copy manually.
     </p>
     <pre v-if="isShown">{{ text }}</pre>

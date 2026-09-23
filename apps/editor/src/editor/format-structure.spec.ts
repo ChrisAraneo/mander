@@ -37,7 +37,7 @@ const BARE = sketch(
 );
 
 describe('formatStructure', () => {
-  it('should write the two layers of a sector one after the other', () => {
+  it('should write the two layers one after the other when the sector is painted in both', () => {
     expect(formatStructure(TRAP)).toBe(
       `[
   [
@@ -52,7 +52,7 @@ describe('formatStructure', () => {
     );
   });
 
-  it('should write a layer with nothing on it as an empty one', () => {
+  it('should write the layer as an empty one when nothing is painted on it', () => {
     expect(formatStructure(BARE)).toBe(
       `[
   [
@@ -66,18 +66,18 @@ describe('formatStructure', () => {
 });
 
 describe('parseStructure', () => {
-  it('should read back a sector painted in both layers', () => {
+  it('should read the sector back whole when it was painted in both layers', () => {
     expect(parseStructure(formatStructure(TRAP))).toEqual(TRAP);
   });
 
-  it('should keep a hazard and the block behind it apart', () => {
+  it('should keep the hazard and the block behind it apart when both sit on the same tile', () => {
     const read = parseStructure(formatStructure(TRAP));
 
     expect(read.tiles[0][1]).toBe(TILE_BEARTRAP);
     expect(read.backTiles[0][1]).toBe(TILE_BRICK);
   });
 
-  it('should read a sector with nothing behind it as an empty back layer', () => {
+  it('should read the back layer as empty when nothing is painted behind the sector', () => {
     expect(parseStructure(formatStructure(BARE))).toEqual({
       tiles: BARE.tiles,
       backTiles: [],

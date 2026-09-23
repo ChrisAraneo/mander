@@ -66,7 +66,7 @@ const fingerprint = (tiles: Tile[][]): string =>
   );
 
 describe('addGems', () => {
-  it('strews five gems over every structure the level is built from', () => {
+  it('should strew five gems over the structure when a level is built from them', () => {
     const strewn = addGems(flatGround());
 
     expect(size(gemsIn(strewn))).toBe(
@@ -74,7 +74,7 @@ describe('addGems', () => {
     );
   });
 
-  it('shares them out evenly, structure by structure', () => {
+  it('should share the gems out evenly when the level holds several structures', () => {
     const strewn = addGems(flatGround());
     const perStructure = countBy(gemsIn(strewn), ({ column }) =>
       Math.floor(column / STRUCTURE_WIDTH),
@@ -85,7 +85,7 @@ describe('addGems', () => {
     );
   });
 
-  it('rests each one two blocks over the ground it sits above', () => {
+  it('should rest the gem two blocks over the ground when it sits above one', () => {
     const strewn = addGems(flatGround());
     const gems = gemsIn(strewn);
 
@@ -100,7 +100,7 @@ describe('addGems', () => {
     ).toBe(true);
   });
 
-  it('leaves a block of air over every one of them', () => {
+  it('should leave a block of air over the gem when it lays one', () => {
     const strewn = addGems(flatGround());
 
     expect(
@@ -111,7 +111,7 @@ describe('addGems', () => {
     ).toBe(true);
   });
 
-  it('never sets two of them shoulder to shoulder', () => {
+  it('should never set two gems shoulder to shoulder when it strews them', () => {
     const columns = map(gemsIn(addGems(flatGround())), 'column');
 
     expect(
@@ -121,7 +121,7 @@ describe('addGems', () => {
     ).toEqual([]);
   });
 
-  it('perches none of them over a bed of spikes', () => {
+  it('should perch no gem over the ground when it is a bed of spikes', () => {
     const tiles = flatGround();
     const teeth = [4, 5, 6, 7];
     forEach(teeth, (column) => {
@@ -135,14 +135,14 @@ describe('addGems', () => {
     ).toEqual([]);
   });
 
-  it('lays none where the ground leaves no room over its head', () => {
+  it('should lay no gem when the ground leaves no room over its head', () => {
     const tiles = blank();
     tiles[1] = times(WIDTH, () => TILE_DIRT);
 
     expect(gemsIn(addGems(tiles))).toEqual([]);
   });
 
-  it('leaves the ground it was given untouched', () => {
+  it('should leave the ground it was given untouched when it strews gems', () => {
     const tiles = flatGround();
     const before = fingerprint(tiles);
 
@@ -151,13 +151,13 @@ describe('addGems', () => {
     expect(fingerprint(tiles)).toBe(before);
   });
 
-  it('strews the same ground the same way twice', () => {
+  it('should strew the ground the same way twice when it is given the same ground', () => {
     expect(fingerprint(addGems(flatGround()))).toBe(
       fingerprint(addGems(flatGround())),
     );
   });
 
-  it('hands every level of a dealt day its gems', () => {
+  it('should hand every level its gems when a day is dealt', () => {
     const bare = filter(
       flatten(
         map(

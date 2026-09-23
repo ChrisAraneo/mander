@@ -104,11 +104,11 @@ const playToEnd = (replay: Replay, stepsPerCall: number): GameState => {
 };
 
 describe('getReplayDuration', () => {
-  it('is zero for an empty replay', () => {
+  it('should be zero when the replay is empty', () => {
     expect(getReplayDuration(createEmptyReplay('TEST-WORLD'))).toBe(0);
   });
 
-  it('is one step length for every step the run took', () => {
+  it('should be one step length for every step when the run was recorded', () => {
     const { replay } = runScript();
     expect(replay.steps).toBe(260);
     expect(getReplayDuration(replay)).toBeCloseTo(260 * FIXED_STEP_MS, 6);
@@ -116,19 +116,19 @@ describe('getReplayDuration', () => {
 });
 
 describe('advancePlayback', () => {
-  it('reproduces the recorded run exactly', () => {
+  it('should reproduce the recorded run exactly when it plays to the end', () => {
     const { state, replay } = runScript();
     expect(simulation(playToEnd(replay, 1))).toEqual(simulation(state));
   });
 
-  it('reproduces the same run however many steps a frame takes at once', () => {
+  it('should reproduce the same run when a frame takes several steps at once', () => {
     const { state, replay } = runScript();
     expect(simulation(playToEnd(replay, 4))).toEqual(simulation(state));
     expect(simulation(playToEnd(replay, 7))).toEqual(simulation(state));
     expect(simulation(playToEnd(replay, 260))).toEqual(simulation(state));
   });
 
-  it('applies an input on the step it was recorded on', () => {
+  it('should apply the input when the step it was recorded on comes round', () => {
     const { replay } = runScript();
     const before = advancePlayback(replay, createPlayback(initialState()), 60);
     const after = advancePlayback(replay, before, 1);
@@ -139,7 +139,7 @@ describe('advancePlayback', () => {
     expect(after.state.input.isRight).toBe(true);
   });
 
-  it('counts a step for every step it takes', () => {
+  it('should count a step for every step when it takes them', () => {
     const { replay } = runScript();
     const playback = advancePlayback(
       replay,
@@ -151,7 +151,7 @@ describe('advancePlayback', () => {
     expect(playback.state.time).toBeCloseTo(11 * FIXED_STEP_SECONDS, 6);
   });
 
-  it('holds the state still when no step is taken', () => {
+  it('should hold the state still when no step is taken', () => {
     const { replay } = runScript();
     const start = advancePlayback(replay, createPlayback(initialState()), 5);
     const playback = advancePlayback(replay, start, 0);
@@ -160,7 +160,7 @@ describe('advancePlayback', () => {
     expect(playback.state).toBe(start.state);
   });
 
-  it('never rewinds on a negative count', () => {
+  it('should hold the playback where it is when the count is negative', () => {
     const { replay } = runScript();
     const start = advancePlayback(replay, createPlayback(initialState()), 30);
     const next = advancePlayback(replay, start, -30);
@@ -169,7 +169,7 @@ describe('advancePlayback', () => {
     expect(next.index).toBe(start.index);
   });
 
-  it('stops at the end of the run rather than stepping past it', () => {
+  it('should stop at the end of the run when it is asked for more steps than are left', () => {
     const { replay } = runScript();
     const end = advancePlayback(
       replay,
@@ -183,7 +183,7 @@ describe('advancePlayback', () => {
 });
 
 describe('getReplayProgress', () => {
-  it('walks from zero to one across the run', () => {
+  it('should walk from zero to one when the run plays through', () => {
     const { replay } = runScript();
     const start = createPlayback(initialState());
     expect(getReplayProgress(replay, start)).toBe(0);
@@ -196,7 +196,7 @@ describe('getReplayProgress', () => {
     expect(isReplayFinished(replay, end)).toBe(true);
   });
 
-  it('reports an empty replay as complete', () => {
+  it('should report the replay as complete when it is empty', () => {
     const replay = createEmptyReplay('TEST-WORLD');
     const playback = createPlayback(initialState());
 

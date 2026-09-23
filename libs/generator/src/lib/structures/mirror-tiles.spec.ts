@@ -27,11 +27,11 @@ const census = (tiles: Tile[][]): Tile[] =>
   sortBy(flatMap(tiles, (row) => row));
 
 describe('mirrorTiles', () => {
-  it('should turn each row back to front', () => {
+  it('should turn each row back to front when it mirrors a grid', () => {
     expect(mirrorTiles([[1, 2, 3] as Tile[]])).toEqual([[3, 2, 1]]);
   });
 
-  it('should send the player in from the other end', () => {
+  it('should send the player in from the other end when the level is mirrored', () => {
     const mirrored = mirrorTiles(LEVEL);
 
     expect(columnsOf(LEVEL, TILE_SPAWN)).toEqual([0]);
@@ -39,18 +39,18 @@ describe('mirrorTiles', () => {
     expect(columnsOf(mirrored, TILE_PORTAL)).toEqual([0]);
   });
 
-  it('should leave every block standing, just somewhere else', () => {
+  it('should leave every block standing, just somewhere else, when the level is mirrored', () => {
     expect(census(mirrorTiles(LEVEL))).toEqual(census(LEVEL));
   });
 
-  it('should keep the floor spikes down and the ceiling spikes up', () => {
+  it('should keep the floor spikes down and the ceiling spikes up when the level is mirrored', () => {
     const mirrored = mirrorTiles(LEVEL);
 
     expect(mirrored[0][3]).toBe(TILE_SPIKE_CEILING);
     expect(mirrored[2][2]).toBe(TILE_SPIKE);
   });
 
-  it('should keep the level the same shape', () => {
+  it('should keep the level the same shape when it is mirrored', () => {
     const mirrored = mirrorTiles(LEVEL);
 
     expect(size(mirrored)).toBe(size(LEVEL));
@@ -61,7 +61,7 @@ describe('mirrorTiles', () => {
     expect(mirrorTiles(mirrorTiles(LEVEL))).toEqual(LEVEL);
   });
 
-  it('should leave the level it was handed untouched', () => {
+  it('should leave the level it was handed untouched when it mirrors one', () => {
     const before = census(LEVEL);
 
     mirrorTiles(LEVEL);

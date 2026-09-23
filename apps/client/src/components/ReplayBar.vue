@@ -33,24 +33,54 @@ const toggleLabel = computed(() =>
     <header class="replay-head">
       <span class="badge">● REPLAY</span>
       <span class="chip">World {{ worldName }}</span>
-      <span v-if="label" class="chip run">{{ label }}</span>
-      <span v-if="isFinished" class="chip done">Finished</span>
-      <span v-else-if="isPaused" class="chip">Paused</span>
+      <span
+        v-if="label"
+        class="chip run"
+      >{{ label }}</span>
+      <span
+        v-if="isFinished"
+        class="chip done"
+      >Finished</span>
+      <span
+        v-else-if="isPaused"
+        class="chip"
+      >Paused</span>
     </header>
 
     <footer class="replay-foot">
       <div class="track">
-        <div class="fill" :style="{ width: percent }" />
+        <div
+          class="fill"
+          :style="{ width: percent }"
+        />
       </div>
 
       <div class="controls">
         <span class="clock">{{ elapsed }} / {{ duration }}</span>
-        <button class="ghost" @click="$emit('toggle')">
+        <button
+          class="ghost"
+          @click="$emit('toggle')"
+        >
           {{ toggleLabel }}
         </button>
-        <button class="ghost" @click="$emit('speed')">{{ speed }}×</button>
-        <button class="ghost" @click="$emit('restart')">↺ Restart</button>
-        <button class="primary" @click="$emit('close')">Close</button>
+        <button
+          class="ghost"
+          @click="$emit('speed')"
+        >
+          {{ speed }}×
+        </button>
+        <button
+          class="ghost"
+          @click="$emit('restart')"
+        >
+          ↺ Restart
+        </button>
+        <button
+          class="primary"
+          @click="$emit('close')"
+        >
+          Close
+        </button>
         <span class="keys">Space · Esc</span>
       </div>
     </footer>

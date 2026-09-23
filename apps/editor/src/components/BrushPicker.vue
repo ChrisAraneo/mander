@@ -10,8 +10,16 @@ const emit = defineEmits<{ pick: [brush: Brush] }>();
 
 <template>
   <div class="rows">
-    <div v-for="row in BRUSH_ROWS" :key="row[0].name" class="row">
-      <div v-for="group in row" :key="group.name" class="group">
+    <div
+      v-for="row in BRUSH_ROWS"
+      :key="row[0].name"
+      class="row"
+    >
+      <div
+        v-for="group in row"
+        :key="group.name"
+        class="group"
+      >
         <h3>{{ group.name }}</h3>
         <button
           v-for="option in group.brushes"
@@ -19,8 +27,12 @@ const emit = defineEmits<{ pick: [brush: Brush] }>();
           type="button"
           class="brush"
           :class="{ active: option === brush }"
-          @click="emit('pick', option)">
-          <CellSwatch :value="option.value" :layer="option.layer" />
+          @click="emit('pick', option)"
+        >
+          <CellSwatch
+            :value="option.value"
+            :layer="option.layer"
+          />
           <span class="label">{{ option.label }}</span>
           <kbd>{{ option.shortcut }}</kbd>
         </button>

@@ -116,7 +116,7 @@ describe('chooseItem', () => {
     expect(chooseItem(openChest([RED_GEM]), 0).playerFireballs).toEqual([]);
   });
 
-  it('should keep a card of one kind from wiping out what another kind gave', () => {
+  it('should keep what another kind gave when a card of one kind is taken', () => {
     const state = chooseItem(
       openChest([STAR], [TWO_BULLETS, DOUBLE_HEART, MOON_MAGNET]),
       0,
@@ -131,7 +131,7 @@ describe('chooseItem', () => {
     ).toHaveLength(2);
   });
 
-  it('should stack every kind the player picks up, one chest after another', () => {
+  it('should stack every kind the player picks up when one chest follows another', () => {
     const bullets = chooseItem(openChest([TWO_BULLETS]), 0);
     const stars = chooseItem(
       { ...bullets, status: 'CHEST', level: chestLevel([STAR]) },

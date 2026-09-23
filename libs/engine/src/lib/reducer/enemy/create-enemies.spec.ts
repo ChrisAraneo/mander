@@ -59,14 +59,14 @@ const levelWithAirborneEnemies = (
 };
 
 describe('createEnemies', () => {
-  it('is deterministic — the same level rolls the same kinds every time', () => {
+  it('should roll the same kinds every time when the level is the same', () => {
     const level = levelWithEnemies('SEED-A', 40);
     const first = createEnemies(level).map((enemy) => enemy.kind);
     const second = createEnemies(level).map((enemy) => enemy.kind);
     expect(second).toEqual(first);
   });
 
-  it('splits roughly 50/50 between hopping and horned enemies over many spawns', () => {
+  it('should split roughly half and half between hopping and horned when the level spawns many', () => {
     const level = levelWithEnemies('SEED-B', 200);
     const enemies = createEnemies(level);
     const hornedCount = enemies.filter(
@@ -77,21 +77,21 @@ describe('createEnemies', () => {
     expect(hornedCount, 'not suspiciously common').toBeLessThan(140);
   });
 
-  it('hatches nothing but hopping enemies on a level that asks for no horned ones', () => {
+  it('should hatch nothing but hopping enemies when the level asks for no horned ones', () => {
     const level = levelWithEnemies('SEED-HOPPING-ONLY', 200, 0);
     const enemies = createEnemies(level);
     expect(enemies).toHaveLength(200);
     expect(enemies.every((enemy) => enemy.kind === 'HOPPING')).toBe(true);
   });
 
-  it('hatches nothing but horned enemies on a level that asks for them alone', () => {
+  it('should hatch nothing but horned enemies when the level asks for them alone', () => {
     const level = levelWithEnemies('SEED-HORNED-ONLY', 200, 1);
     const enemies = createEnemies(level);
     expect(enemies).toHaveLength(200);
     expect(enemies.every((enemy) => enemy.kind === 'HORNED')).toBe(true);
   });
 
-  it('still spawns flying enemies in the air whatever the level asks of the ground', () => {
+  it('should still spawn flying enemies in the air when the level asks something else of the ground', () => {
     const grounded = createEnemies(levelWithAirborneEnemies('SEED-AIR', 40, 0));
     const horned = createEnemies(levelWithAirborneEnemies('SEED-AIR', 40, 1));
 
@@ -99,7 +99,7 @@ describe('createEnemies', () => {
     expect(horned.every((enemy) => enemy.kind === 'FLYING')).toBe(true);
   });
 
-  it('a different level seed can roll a different split', () => {
+  it('should roll a different split when the level seed differs', () => {
     const a = createEnemies(levelWithEnemies('SEED-C', 40)).map(
       (enemy) => enemy.kind,
     );
@@ -109,7 +109,7 @@ describe('createEnemies', () => {
     expect(a).not.toEqual(b);
   });
 
-  it('gives horned enemies a 30% lower jump than hopping enemies', () => {
+  it('should give the enemy a jump 30% lower than a hopping one when it is horned', () => {
     const level = levelWithEnemies('SEED-E', 60);
     const enemies = createEnemies(level);
     const hopping = enemies.find((enemy) => enemy.kind === 'HOPPING');
@@ -120,20 +120,20 @@ describe('createEnemies', () => {
     expect(horned?.velocity.y.max).toBeCloseTo(ENEMY_JUMP_VELOCITY * 0.7);
   });
 
-  it('spawns flying enemies on tiles with nothing solid beneath them', () => {
+  it('should spawn a flying enemy when nothing solid lies beneath its tile', () => {
     const level = levelWithAirborneEnemies('SEED-FLY', 40);
     const enemies = createEnemies(level);
     expect(enemies).toHaveLength(40);
     expect(enemies.every((enemy) => enemy.kind === 'FLYING')).toBe(true);
   });
 
-  it('never rolls a flying enemy on a tile with solid ground beneath it', () => {
+  it('should never roll a flying enemy when solid ground lies beneath its tile', () => {
     const level = levelWithEnemies('SEED-GROUND', 40);
     const enemies = createEnemies(level);
     expect(enemies.some((enemy) => enemy.kind === 'FLYING')).toBe(false);
   });
 
-  it('gives flying enemies a vertical patrol speed instead of a jump velocity', () => {
+  it('should give the enemy a vertical patrol speed rather than a jump when it flies', () => {
     const level = levelWithAirborneEnemies('SEED-FLY-2', 5);
     const enemies = createEnemies(level);
     expect(
@@ -144,7 +144,7 @@ describe('createEnemies', () => {
     expect(FLYING_ENEMY_MOVE_SPEED).toBeCloseTo(ENEMY_MOVE_SPEED * 0.75);
   });
 
-  it('gives flying enemies no horizontal speed — they never move sideways', () => {
+  it('should give the enemy no horizontal speed when it flies', () => {
     const level = levelWithAirborneEnemies('SEED-FLY-3', 5);
     const enemies = createEnemies(level);
     expect(enemies.every((enemy) => enemy.velocity.x.max === 0)).toBe(true);

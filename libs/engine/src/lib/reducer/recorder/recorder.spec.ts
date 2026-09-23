@@ -18,7 +18,7 @@ const script: Action[] = [
 ];
 
 describe('createRecorder', () => {
-  it('marks each input with the step the run had reached', () => {
+  it('should mark each input with the step the run had reached when it records one', () => {
     const recorder = createRecorder('TEST-WORLD');
     recorder.record({ type: 'TICK' });
     recorder.record({ type: 'TICK' });
@@ -35,7 +35,7 @@ describe('createRecorder', () => {
     ]);
   });
 
-  it('keeps the inputs and counts the steps rather than storing them', () => {
+  it('should count the steps rather than store them when the run is long', () => {
     const recorder = createRecorder('TEST-WORLD');
     script.forEach((action) => recorder.record(action));
 
@@ -44,7 +44,7 @@ describe('createRecorder', () => {
     expect(entries).toHaveLength(4);
   });
 
-  it('starts an input on step zero when nothing has stepped yet', () => {
+  it('should start an input on step zero when nothing has stepped yet', () => {
     const recorder = createRecorder('TEST-WORLD');
     recorder.record({ type: 'JUMP_START' });
 
@@ -53,7 +53,7 @@ describe('createRecorder', () => {
     ]);
   });
 
-  it('ignores actions once stopped', () => {
+  it('should ignore the action when the recorder has stopped', () => {
     const recorder = createRecorder('TEST-WORLD');
     recorder.record({ type: 'JUMP_START' });
     recorder.stop();
@@ -62,7 +62,7 @@ describe('createRecorder', () => {
     expect(recorder.snapshot().entries).toHaveLength(1);
   });
 
-  it('stops counting steps once stopped', () => {
+  it('should stop counting steps when the recorder has stopped', () => {
     const recorder = createRecorder('TEST-WORLD');
     recorder.record({ type: 'TICK' });
     recorder.stop();
@@ -71,7 +71,7 @@ describe('createRecorder', () => {
     expect(recorder.snapshot().steps).toBe(1);
   });
 
-  it('starts a fresh recording after reset', () => {
+  it('should start a fresh recording when the recorder is reset', () => {
     const recorder = createRecorder('TEST-WORLD');
     recorder.record({ type: 'TICK' });
     recorder.record({ type: 'JUMP_START' });
@@ -84,7 +84,7 @@ describe('createRecorder', () => {
     expect(entries).toEqual([{ atStep: 0, action: { type: 'INTERACT' } }]);
   });
 
-  it('returns a snapshot detached from later recording', () => {
+  it('should hand back a snapshot of its own when recording goes on afterwards', () => {
     const recorder = createRecorder('TEST-WORLD');
     recorder.record({ type: 'JUMP_START' });
     const snapshot = recorder.snapshot();

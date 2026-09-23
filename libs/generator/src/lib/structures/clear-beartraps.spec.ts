@@ -26,7 +26,7 @@ const leftOn = (levelNumber: number): number =>
   trapsIn(clearBeartraps(trapline(), levelNumber));
 
 describe('clearBeartraps', () => {
-  it('sets no jaws of its own, on any level', () => {
+  it('should set no jaws of its own when it thins any level', () => {
     times(8, (index) => {
       const level = index + 1;
 
@@ -37,13 +37,13 @@ describe('clearBeartraps', () => {
     });
   });
 
-  it('pulls the share each level was promised', () => {
+  it('should pull the share the level was promised when it thins one', () => {
     expect(leftOn(1)).toBe(JAWS * 0.5);
     expect(leftOn(2)).toBe(JAWS * 0.65);
     expect(leftOn(3)).toBe(JAWS * 0.8);
   });
 
-  it('leaves every trap set from the fourth level on', () => {
+  it('should leave every trap set when the level is the fourth or later', () => {
     times(4, (index) => {
       const level = FIRST_UNTOUCHED_LEVEL + index;
 
@@ -52,7 +52,7 @@ describe('clearBeartraps', () => {
     });
   });
 
-  it('thins a level the same way however often it is dealt', () => {
+  it('should thin the level the same way when it is dealt again', () => {
     times(3, (index) => {
       const level = index + 1;
 
@@ -62,7 +62,7 @@ describe('clearBeartraps', () => {
     });
   });
 
-  it('leaves air where it lifted a trap, and nothing else touched', () => {
+  it('should leave air behind and nothing else touched when it lifts a trap', () => {
     const lifted = clearBeartraps(den(), 1);
 
     expect(map(lifted[0], (tile) => tile === TILE_DIRT)).toEqual([
@@ -80,7 +80,7 @@ describe('clearBeartraps', () => {
     ).toEqual(times(trapsIn(lifted), (): Tile => TILE_BEARTRAP));
   });
 
-  it('hands back a grid of its own rather than the one it was given', () => {
+  it('should hand back a grid of its own when it is given one to thin', () => {
     const tiles = den();
 
     clearBeartraps(tiles, 1);

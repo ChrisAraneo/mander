@@ -25,7 +25,7 @@ const OPEN = [
 ];
 
 describe('isBackAt', () => {
-  it('should find the background blocks the back layer holds', () => {
+  it('should find the background block when the back layer holds one', () => {
     expect(
       isBackAt(
         level(OPEN, [
@@ -38,15 +38,15 @@ describe('isBackAt', () => {
     ).toBe(true);
   });
 
-  it('should return false where the back layer is empty', () => {
+  it('should return false when the back layer is empty', () => {
     expect(isBackAt(level(OPEN, OPEN), 0, 0)).toBe(false);
   });
 
-  it('should return false for a level built without a back layer', () => {
+  it('should return false when the level was built without a back layer', () => {
     expect(isBackAt(level(OPEN), 0, 0)).toBe(false);
   });
 
-  it('should return false outside the level, which has no back layer to read', () => {
+  it('should return false when the coordinates lie outside the level', () => {
     expect(
       isBackAt(
         level(OPEN, [
@@ -61,7 +61,7 @@ describe('isBackAt', () => {
 });
 
 describe('isCoveredAt', () => {
-  it('should count a block in either layer as cover', () => {
+  it('should count the tile as covered when a block stands in either layer', () => {
     expect(
       isCoveredAt(
         level([

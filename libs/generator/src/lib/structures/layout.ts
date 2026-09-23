@@ -20,7 +20,7 @@ type Sow = (tiles: Tile[][]) => Tile[][];
 
 export interface Layout {
   join: (structures: Sector[]) => Layers;
-  addSpawn: Sow;
+  placePlayerSpawn: Sow;
   addPortal: Sow;
   addKey: Sow;
   addChest: Sow;
@@ -29,7 +29,7 @@ export interface Layout {
 
 export const ACROSS: Layout = Object.freeze({
   join: joinStructures,
-  addSpawn: placePlayerSpawn,
+  placePlayerSpawn,
   addPortal,
   addKey,
   addChest,
@@ -38,7 +38,7 @@ export const ACROSS: Layout = Object.freeze({
 
 export const UPWARD: Layout = Object.freeze({
   join: stackStructures,
-  addSpawn: addVerticalSpawn,
+  placePlayerSpawn: addVerticalSpawn,
   addPortal: addVerticalPortal,
   addKey: addVerticalKey,
   addChest: addVerticalChest,

@@ -15,11 +15,11 @@ const countOf = (structure: VerticalStructure, tile: number): number =>
   size(filter(flatten(getFront(structure)), (cell) => cell === tile));
 
 describe('VERTICAL_STRUCTURES', () => {
-  it('gives the generator sectors to stack', () => {
+  it('should give the generator sectors to stack when the library is read', () => {
     expect(size(VERTICAL_STRUCTURES)).toBeGreaterThan(0);
   });
 
-  it('holds every sector to the shape the stack is joined by', () => {
+  it('should hold the sector to the shape the stack is joined by when it holds every one', () => {
     const broken = flatten(
       map(VERTICAL_STRUCTURES, (structure, index) =>
         map(
@@ -32,7 +32,7 @@ describe('VERTICAL_STRUCTURES', () => {
     expect(broken).toEqual([]);
   });
 
-  it('cuts every sector to the size of a vertical structure', () => {
+  it('should cut the sector to the size of a vertical structure when it holds every one', () => {
     const ragged = filter(
       map(VERTICAL_STRUCTURES, (structure, index) => ({
         name: named(index),
@@ -46,7 +46,7 @@ describe('VERTICAL_STRUCTURES', () => {
     expect(map(ragged, ({ name }) => name)).toEqual([]);
   });
 
-  it('marks where the player comes in and where it leaves', () => {
+  it('should mark where the player comes in and where they leave when it holds a sector', () => {
     const unmarked = filter(
       map(VERTICAL_STRUCTURES, (structure, index) => ({
         name: named(index),
@@ -60,7 +60,7 @@ describe('VERTICAL_STRUCTURES', () => {
     expect(map(unmarked, ({ name }) => name)).toEqual([]);
   });
 
-  it('builds no two sectors the same', () => {
+  it('should build no two sectors the same when it holds every one', () => {
     const prints = map(VERTICAL_STRUCTURES, (structure) =>
       JSON.stringify(structure),
     );

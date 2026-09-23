@@ -84,7 +84,7 @@ const fallFor = (seconds: number, watcher: Player) => {
 };
 
 describe('createFallingSpikes', () => {
-  it('hangs one spike, unmoving, on every tile that asks for it', () => {
+  it('should hang one unmoving spike when a tile asks for it', () => {
     expect(createFallingSpikes(room())).toEqual([
       {
         position: {
@@ -97,7 +97,7 @@ describe('createFallingSpikes', () => {
     ]);
   });
 
-  it('finds nothing to hang in a room without the tile', () => {
+  it('should find nothing to hang when the room holds no such tile', () => {
     const bare = room();
     bare.tiles[CEILING_ROW][SPIKE_COLUMN] = TILE_AIR;
 
@@ -106,7 +106,7 @@ describe('createFallingSpikes', () => {
 });
 
 describe('stepFallingSpike', () => {
-  it('holds on while the player is further off than two blocks', () => {
+  it('should hold on when the player is further off than two blocks', () => {
     const level = room();
 
     times(2, (side) => {
@@ -122,7 +122,7 @@ describe('stepFallingSpike', () => {
     });
   });
 
-  it('lets go at two blocks, and at anything closer, from either side', () => {
+  it('should let go when the player comes within two blocks on either side', () => {
     const level = room();
 
     times(4, (index) => {
@@ -139,7 +139,7 @@ describe('stepFallingSpike', () => {
     });
   });
 
-  it('falls at the speed of gravity', () => {
+  it('should fall at the speed of gravity when it lets go', () => {
     const level = room();
     const dropped = stepFallingSpike(
       level,
@@ -155,7 +155,7 @@ describe('stepFallingSpike', () => {
     );
   });
 
-  it('keeps falling after the player has walked back out of reach', () => {
+  it('should keep falling when the player has walked back out of reach', () => {
     const level = room();
     const dropped = stepFallingSpike(
       level,
@@ -173,15 +173,15 @@ describe('stepFallingSpike', () => {
     expect(further?.position.y).toBeGreaterThan(dropped!.position.y);
   });
 
-  it('is destroyed by the solid it lands on', () => {
+  it('should be destroyed when it lands on a solid', () => {
     expect(fallFor(3, playerAt(0))).toEqual([]);
   });
 
-  it('never reaches the floor it was never released over', () => {
+  it('should never reach the floor when it was never released', () => {
     expect(size(fallFor(3, playerAt(TRIGGER_RANGE * 3)))).toBe(1);
   });
 
-  it('is destroyed rather than left falling below a level without a floor', () => {
+  it('should be destroyed rather than left falling when the level has no floor', () => {
     const level = room();
     for (let column = 0; column < WIDTH; column++)
       level.tiles[FLOOR_ROW][column] = TILE_AIR;
@@ -193,7 +193,7 @@ describe('stepFallingSpike', () => {
     expect(spikes).toEqual([]);
   });
 
-  it('lands tip-first on the block it strikes, whatever the frame length', () => {
+  it('should land tip-first on the block it strikes when the frames run long', () => {
     const level = room();
     let spikes = createFallingSpikes(level);
     let lowest = spikes[0].position.y;
@@ -215,14 +215,14 @@ describe('isTouchingFallingSpike', () => {
     return standing;
   };
 
-  it('bites the player the prong has reached', () => {
+  it('should bite the player when the prong has reached them', () => {
     const level = room();
     const spike = spikeIn(level);
 
     expect(isTouchingFallingSpike(under(spike.position.y), spike)).toBe(true);
   });
 
-  it('leaves alone a player standing clear of the prong', () => {
+  it('should leave the player alone when they stand clear of the prong', () => {
     const level = room();
     const spike = spikeIn(level);
     const aside = under(spike.position.y);
@@ -246,18 +246,18 @@ describe('a level being played', () => {
     return state;
   };
 
-  it('costs a heart to the player it lands on, and shatters on the floor', () => {
+  it('should cost the player a heart and shatter on the floor when it lands on them', () => {
     const struck = played([], 60);
 
     expect(struck.player.hearts.value).toBe(BASE_HEARTS - 1);
     expect(struck.fallingSpikes).toEqual([]);
   });
 
-  it('glances off the helmet that turns the ceiling spikes it left', () => {
+  it('should glance off when the player wears the helmet that turns ceiling spikes', () => {
     expect(played([TITANIUM_HELMET], 60).player.hearts.value).toBe(BASE_HEARTS);
   });
 
-  it('hangs again when the player respawns, as the enemies do', () => {
+  it('should hang again when the player respawns', () => {
     const struck = played([], 60);
     const respawned = reduce(struck, { type: 'RESPAWN' });
 

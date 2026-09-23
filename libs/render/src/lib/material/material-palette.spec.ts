@@ -38,14 +38,14 @@ const lightnessOf = (color: string): number =>
     .otherwise((hsl) => hsl.lightness);
 
 describe('createMaterialPalette', () => {
-  it('paints dirt in the colours the level rolled', () => {
+  it('should paint the dirt in the colours the level rolled when it builds a palette', () => {
     const dirt = createMaterialPalette(BROWN)(TILE_DIRT);
     expect(dirt.base).toBe(BROWN.block);
     expect(dirt.cap, 'the grass is the palette cap').toBe(BROWN.blockCap);
     expect(dirt.capHighlight).toBe(BROWN.blockCapHighlight);
   });
 
-  it('steps the other materials away from that ground colour', () => {
+  it('should step the other materials away from the ground colour when it builds a palette', () => {
     const styles = createMaterialPalette(BROWN);
     expect(styles(TILE_BRICK).base).toBe('HSL(10, 27%, 43%)');
     expect(styles(TILE_STONE).base).toBe('HSL(213, 3%, 46%)');
@@ -53,7 +53,7 @@ describe('createMaterialPalette', () => {
     expect(styles(TILE_CERAMIC).base).toBe('HSL(295, 17%, 51%)');
   });
 
-  it('gives ceramic a hue of its own rather than a paler stone', () => {
+  it('should give ceramic a hue of its own rather than a paler stone when it builds a palette', () => {
     const styles = createMaterialPalette(BROWN);
     const ceramic = parseHsl(styles(TILE_CERAMIC).base);
     const stone = parseHsl(styles(TILE_STONE).base);
@@ -72,13 +72,13 @@ describe('createMaterialPalette', () => {
     expect(get(ceramic, 'lightness', 0)).toBeLessThan(65);
   });
 
-  it('follows the ground round the colour wheel', () => {
+  it('should follow the ground round the colour wheel when the rolled hue runs off the end', () => {
     const rolled = createMaterialPalette(palette('HSL(300, 25%, 27%)'));
     expect(rolled(TILE_DIRT).base).toBe('HSL(300, 25%, 27%)');
     expect(rolled(TILE_STONE).base, 'the hue wraps').toBe('HSL(123, 3%, 46%)');
   });
 
-  it('caps every material lighter than its own body', () => {
+  it('should cap the material lighter than its own body when it builds a palette', () => {
     const styles = createMaterialPalette(BROWN);
     forEach(SOLID_TILES, (tile) =>
       chain(styles(tile))
@@ -95,7 +95,7 @@ describe('createMaterialPalette', () => {
     );
   });
 
-  it('keeps the hand-picked styles when there is no ground colour', () => {
+  it('should keep the hand-picked styles when there is no ground colour', () => {
     const styles = createMaterialPalette(palette(''));
     expect(styles(TILE_DIRT)).toEqual(DIRT_STYLE);
     expect(styles(TILE_STONE)).toEqual(STONE_STYLE);
@@ -104,7 +104,7 @@ describe('createMaterialPalette', () => {
 });
 
 describe('hsl maths', () => {
-  it('reads the colours the palette is written in', () => {
+  it('should read the colour back when it is written the way the palette writes it', () => {
     expect(parseHsl('HSL(210, 34%, 21%)')).toEqual({
       hue: 210,
       saturation: 34,
@@ -114,7 +114,7 @@ describe('hsl maths', () => {
     expect(parseHsl('')).toBeUndefined();
   });
 
-  it('wraps hues and stops saturation and lightness at the ends', () => {
+  it('should wrap the hue and stop saturation and lightness at the ends when a shift runs past them', () => {
     const color = { hue: 350, saturation: 90, lightness: 10 };
     expect(shiftHsl(color, { hue: 30 })).toEqual(
       assign({}, color, { hue: 20 }),

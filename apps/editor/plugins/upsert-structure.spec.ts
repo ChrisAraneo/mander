@@ -22,7 +22,7 @@ export const NORMAL_002: Structure = ${OTHER};
 `;
 
 describe('upsertStructure', () => {
-  it('should rewrite the structure that is already there', () => {
+  it('should rewrite the structure when it is already there', () => {
     const { source: written, isCreated } = upsertStructure(
       source,
       'NORMAL_001',
@@ -50,7 +50,7 @@ export const NORMAL_002: Structure = ${TEXT};
     );
   });
 
-  it('should add a structure the file has never seen, after the last one', () => {
+  it('should add the structure after the last one when the file has never seen it', () => {
     const { source: written, isCreated } = upsertStructure(
       source,
       'NORMAL_003',
@@ -64,7 +64,7 @@ export const NORMAL_002: Structure = ${TEXT};
     expect(readStructures(written)).toHaveLength(3);
   });
 
-  it('should keep one blank line between the structures it adds', () => {
+  it('should keep one blank line between the structures when it adds a second one', () => {
     const once = upsertStructure(source, 'NORMAL_003', TEXT).source;
     const twice = upsertStructure(once, 'NORMAL_004', TEXT).source;
 

@@ -84,7 +84,7 @@ const circling = (): Fireball[] =>
   createPlayerFireballs([MOON_MAGNET], STANDING);
 
 describe('createPlayerFireballStep', () => {
-  it('paints the fireball white rather than in embers', () => {
+  it('should paint the fireball white rather than in embers when it circles the player', () => {
     const colors = colorsIn(
       painted(createPlayerFireballStep(circling()[0], 0)),
     );
@@ -97,7 +97,7 @@ describe('createPlayerFireballStep', () => {
     expect(some(colors, (color) => color === EMBER_FIREBALL.flame)).toBe(false);
   });
 
-  it('paints it where it orbits the player', () => {
+  it('should paint the fireball where it orbits when it circles the player', () => {
     const [fireball] = circling();
     const at = getPlayerFireballPosition(fireball);
 
@@ -106,7 +106,7 @@ describe('createPlayerFireballStep', () => {
     ).toEqual([at.x, at.y]);
   });
 
-  it('paints the two of them apart from one another', () => {
+  it('should paint the two of them apart when both circle the player', () => {
     const [first, second] = circling();
 
     expect(
@@ -122,7 +122,7 @@ describe('createFireballStep', () => {
     angle: 0,
   };
 
-  it('keeps the fireballs in the level burning in embers', () => {
+  it('should keep the fireball burning in embers when it is bolted to the level', () => {
     expect(colorsIn(painted(createFireballStep(bolted, 0)))).toEqual([
       EMBER_FIREBALL.core,
       EMBER_FIREBALL.flame,
@@ -130,7 +130,7 @@ describe('createFireballStep', () => {
     ]);
   });
 
-  it('keeps them out at the orbit their own block gives them', () => {
+  it('should keep the fireball out at its own orbit when it is bolted to the level', () => {
     const [circlingPlayer] = circling();
 
     expect(movedTo(painted(createFireballStep(bolted, 0)))?.args).not.toEqual(

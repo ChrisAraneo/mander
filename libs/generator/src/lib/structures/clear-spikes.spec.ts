@@ -45,7 +45,7 @@ const leftOn = (levelNumber: number): number =>
   size(spikesIn(clearSpikes(toothyFloor(), levelNumber)));
 
 describe('clearSpikes', () => {
-  it('sows nothing of its own, on any level', () => {
+  it('should sow no teeth of its own when it thins any level', () => {
     const planted = spikeKeys(den());
 
     times(8, (index) => {
@@ -59,18 +59,18 @@ describe('clearSpikes', () => {
     });
   });
 
-  it('sends the first level out bare, hanging teeth and all', () => {
+  it('should send the level out bare, hanging teeth and all, when it is the first', () => {
     expect(spikesIn(clearSpikes(den(), 1))).toEqual([]);
   });
 
-  it('pulls the share each level was promised', () => {
+  it('should pull the share the level was promised when it thins one', () => {
     expect(leftOn(1)).toBe(0);
     expect(leftOn(2)).toBe(TEETH * 0.2);
     expect(leftOn(3)).toBe(TEETH * 0.4);
     expect(leftOn(4)).toBe(TEETH * 0.7);
   });
 
-  it('leaves every tooth standing from the fifth level on', () => {
+  it('should leave every tooth standing when the level is the fifth or later', () => {
     times(4, (index) => {
       const level = FIRST_UNTOUCHED_LEVEL + index;
 
@@ -79,7 +79,7 @@ describe('clearSpikes', () => {
     });
   });
 
-  it('thins a level the same way however often it is dealt', () => {
+  it('should thin the level the same way when it is dealt again', () => {
     times(4, (index) => {
       const level = index + 1;
 
@@ -89,7 +89,7 @@ describe('clearSpikes', () => {
     });
   });
 
-  it('leaves an air tile where it pulled a tooth, and nothing else touched', () => {
+  it('should leave an air tile behind and nothing else touched when it pulls a tooth', () => {
     const thinned = clearSpikes(den(), 1);
 
     expect(every(flatten(thinned), (tile) => !isSpikeTile(tile))).toBe(true);
@@ -98,7 +98,7 @@ describe('clearSpikes', () => {
     expect(thinned[0]).toEqual([TILE_AIR, TILE_AIR, TILE_AIR, TILE_AIR]);
   });
 
-  it('hands back a grid of its own rather than the one it was given', () => {
+  it('should hand back a grid of its own when it is given one to thin', () => {
     const tiles = den();
 
     clearSpikes(tiles, 1);
@@ -107,7 +107,7 @@ describe('clearSpikes', () => {
     expect(tiles).toEqual(den());
   });
 
-  it('sends the first level of a dealt day out bare', () => {
+  it('should send the level out bare when it is the first of a dealt day', () => {
     const world = generate(new Date(Date.UTC(2026, 7, 2)));
 
     expect(spikesIn(world.levels[0].tiles)).toEqual([]);

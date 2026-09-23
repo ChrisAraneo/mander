@@ -30,7 +30,7 @@ export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze(
 `;
 
 describe('registerStructure', () => {
-  it('should import a new structure and deal it into its own pool', () => {
+  it('should import the structure and deal it into its own pool when the file has never seen it', () => {
     const written = registerStructure(library, 'NORMAL_003', 'normal');
 
     expect(written).toContain("  NORMAL_003,\n} from './normal';");
@@ -38,7 +38,7 @@ describe('registerStructure', () => {
     expect(written).not.toContain('  HARD_001,\n  NORMAL_003,\n});');
   });
 
-  it('should reach the hard pool through the hard file', () => {
+  it('should reach the hard pool through the hard file when the structure is a hard one', () => {
     const written = registerStructure(library, 'HARD_002', 'hard');
 
     expect(written).toContain("import { HARD_001, HARD_002 } from './hard';");
@@ -49,11 +49,11 @@ describe('registerStructure', () => {
     expect(registerStructure(library, 'NORMAL_002', 'normal')).toBe(library);
   });
 
-  it('should read only its own import, not the ones above it', () => {
+  it('should read only its own import when other imports sit above it', () => {
     expect(registerStructure(library, 'NORMAL_001', 'normal')).toBe(library);
   });
 
-  it('should deal a structure that is imported but commented out of the pool', () => {
+  it('should deal the structure into the pool when it is imported but commented out of it', () => {
     const parked = library.replace(
       '  NORMAL_002,\n});',
       '  // NORMAL_002,\n});',
