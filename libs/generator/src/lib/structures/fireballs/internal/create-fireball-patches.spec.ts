@@ -15,7 +15,7 @@ const LEVEL: Tile[][] = [
 ];
 
 describe('createFireballPatches', () => {
-  it('should mark the spot with a neighbouring block when one stands near', () => {
+  it('should mark the spot with the blocks around it when it gets spots', () => {
     expect(
       createFireballPatches({ tiles: LEVEL, cells: [{ row: 1, column: 1 }] })
         .patches,

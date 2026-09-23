@@ -46,11 +46,24 @@ describe('clearFireballs', () => {
     ).toBe(false);
   });
 
-  it('should hand the fireball spot over to a block when one stands beside it', () => {
+  it('should hand the fireball spot over to the blocks when they stand around it', () => {
     expect(clearFireballs(forge(), 1)).toEqual([
       [TILE_AIR, TILE_STONE, TILE_AIR, TILE_SPIKE],
       [TILE_DIRT, TILE_STONE, TILE_WOOD, TILE_DIRT],
     ]);
+  });
+
+  it('should take the block that shows up most often when several stand around the spot', () => {
+    expect(
+      clearFireballs(
+        [
+          [TILE_AIR, TILE_STONE, TILE_AIR],
+          [TILE_DIRT, TILE_FIREBALL, TILE_DIRT],
+          [TILE_AIR, TILE_DIRT, TILE_AIR],
+        ],
+        1,
+      )[1][1],
+    ).toBe(TILE_DIRT);
   });
 
   it('should look sideways when no block sits above or below', () => {
@@ -66,7 +79,7 @@ describe('clearFireballs', () => {
     ).toBe(TILE_WOOD);
   });
 
-  it('should never borrow from a fireball when one stands next door', () => {
+  it('should never hand the spot over to a fireball when one stands next door', () => {
     expect(
       clearFireballs(
         [

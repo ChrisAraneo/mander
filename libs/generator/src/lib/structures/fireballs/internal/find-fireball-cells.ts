@@ -1,12 +1,12 @@
 import { TILE_FIREBALL } from '@mander/model';
 import { filter, flatMap, map, range, size } from 'lodash-es';
 import { match } from 'ts-pattern';
-import type { checkFireballsLit } from './check-fireballs-lit';
+import type { markFireballsLit } from './mark-fireballs-lit';
 
 export const findFireballCells = ({
   tiles,
   lit,
-}: ReturnType<typeof checkFireballsLit>) => ({
+}: ReturnType<typeof markFireballsLit>) => ({
   tiles,
   cells: match(lit)
     .with(true, () => [])

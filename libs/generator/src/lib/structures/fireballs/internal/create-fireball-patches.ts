@@ -1,5 +1,5 @@
 import { map } from 'lodash-es';
-import { borrowNeighbourTile } from './borrow-neighbour-tile';
+import { computeAverageNeighbourTile } from './compute-average-neighbour-tile';
 import type { findFireballCells } from './find-fireball-cells';
 
 export const createFireballPatches = ({
@@ -10,6 +10,6 @@ export const createFireballPatches = ({
   patches: map(cells, ({ row, column }) => ({
     row,
     column,
-    tile: borrowNeighbourTile(tiles, row, column),
+    tile: computeAverageNeighbourTile(tiles, row, column),
   })),
 });

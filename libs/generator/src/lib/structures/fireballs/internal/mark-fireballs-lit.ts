@@ -1,7 +1,7 @@
 import type { Tile } from '@mander/model';
 import { FIRST_FIREBALL_LEVEL, LAST_FIREBALL_LEVEL } from '../../../consts';
 
-export const checkFireballsLit = ({
+export const markFireballsLit = ({
   tiles,
   levelNumber,
 }: {
