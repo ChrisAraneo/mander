@@ -1,9 +1,9 @@
-import { TILE_AIR, TILE_BRICK, TILE_CANNON, type Tile } from '@mander/model';
+import { TILE_AIR, TILE_BRICK, TILE_CANNON } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
 import { patchCannonTiles } from './patch-cannon-tiles';
 
-const level = (): Tile[][] => [
+const level = () => [
   [TILE_AIR, TILE_CANNON],
   [TILE_CANNON, TILE_AIR],
 ];

@@ -1,5 +1,5 @@
 import { map } from 'lodash-es';
-import { averageNeighbourTile } from './average-neighbour-tile';
+import { computeAverageNeighbourTile } from './compute-average-neighbour-tile';
 import type { findCannonCells } from './find-cannon-cells';
 
 export const createCannonPatches = ({
@@ -10,6 +10,6 @@ export const createCannonPatches = ({
   patches: map(cells, ({ row, column }) => ({
     row,
     column,
-    tile: averageNeighbourTile(tiles, row, column),
+    tile: computeAverageNeighbourTile(tiles, row, column),
   })),
 });

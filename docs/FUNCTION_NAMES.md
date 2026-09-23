@@ -62,7 +62,6 @@
 - `at`
 - `atPortal`
 - `atRange`
-- `averageNeighbourTile`
 - `bandRows`
 - `barsFor`
 - `base`
@@ -106,6 +105,7 @@
 - `company`
 - `complete`
 - `completed`
+- `computeAverageNeighbourTile`
 - `computeFallingSpikeTriangles`
 - `computeLevelScore`
 - `computeLevelSeeds`

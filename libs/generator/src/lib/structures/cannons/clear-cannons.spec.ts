@@ -1,5 +1,4 @@
 import {
-  type Tile,
   TILE_AIR,
   TILE_BRICK,
   TILE_CANNON,
@@ -12,7 +11,7 @@ import { describe, expect, it } from 'vitest';
 import { FIRST_CANNON_LEVEL } from '../../consts';
 import { clearCannons } from './clear-cannons';
 
-const emplacement = (): Tile[][] => [
+const emplacement = () => [
   [TILE_AIR, TILE_CANNON, TILE_AIR, TILE_SPIKE],
   [TILE_DIRT, TILE_DIRT, TILE_CANNON, TILE_DIRT],
 ];

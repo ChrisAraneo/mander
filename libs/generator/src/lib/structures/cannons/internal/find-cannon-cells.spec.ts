@@ -1,9 +1,9 @@
-import { TILE_AIR, TILE_CANNON, TILE_DIRT, type Tile } from '@mander/model';
+import { TILE_AIR, TILE_CANNON, TILE_DIRT } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
 import { findCannonCells } from './find-cannon-cells';
 
-const LEVEL: Tile[][] = [
+const LEVEL = [
   [TILE_AIR, TILE_CANNON],
   [TILE_CANNON, TILE_DIRT],
 ];

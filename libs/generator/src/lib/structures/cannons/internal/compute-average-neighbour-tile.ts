@@ -7,7 +7,7 @@ import { isAverageableTile } from './is-averageable-tile';
 const countOf = (neighbours: (Tile | undefined)[], tile: Tile | undefined) =>
   size(filter(neighbours, (other) => other === tile));
 
-export const averageNeighbourTile = (
+export const computeAverageNeighbourTile = (
   tiles: Tile[][],
   row: number,
   column: number,

@@ -1,10 +1,10 @@
-import { TILE_CANNON, type Tile } from '@mander/model';
+import { TILE_CANNON } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
 import { FIRST_CANNON_LEVEL } from '../../../consts';
 import { markCannonsArmed } from './mark-cannons-armed';
 
-const LEVEL: Tile[][] = [[TILE_CANNON]];
+const LEVEL = [[TILE_CANNON]];
 
 describe('markCannonsArmed', () => {
   it('should call the cannons armed when the level is the fifth', () => {

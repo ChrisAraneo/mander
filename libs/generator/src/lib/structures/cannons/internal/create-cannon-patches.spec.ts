@@ -1,15 +1,9 @@
-import {
-  TILE_AIR,
-  TILE_BRICK,
-  TILE_CANNON,
-  TILE_STONE,
-  type Tile,
-} from '@mander/model';
+import { TILE_AIR, TILE_BRICK, TILE_CANNON, TILE_STONE } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
 import { createCannonPatches } from './create-cannon-patches';
 
-const LEVEL: Tile[][] = [
+const LEVEL = [
   [TILE_AIR, TILE_STONE, TILE_AIR],
   [TILE_AIR, TILE_CANNON, TILE_AIR],
   [TILE_AIR, TILE_STONE, TILE_AIR],
