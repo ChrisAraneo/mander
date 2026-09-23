@@ -50,10 +50,7 @@ watch(() => [props.value, props.layer], repaint);
 </script>
 
 <template>
-  <canvas
-    ref="canvas"
-    class="swatch"
-  />
+  <canvas ref="canvas" class="swatch" />
 </template>
 
 <style scoped>

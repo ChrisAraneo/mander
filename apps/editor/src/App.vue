@@ -114,8 +114,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
           <h2>Brush</h2>
           <BrushPicker
             :brush="editor.brush.value"
-            @pick="editor.brush.value = $event"
-          />
+            @pick="editor.brush.value = $event" />
         </div>
       </aside>
 
@@ -124,33 +123,25 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
           :sketch="editor.sketch.value"
           :brush="editor.brush.value"
           @stroke-start="editor.remember()"
-          @paint="editor.paint"
-        />
+          @paint="editor.paint" />
       </section>
 
       <aside class="side">
         <IssuePanel
           :issues="editor.issues.value"
-          :is-valid="editor.isValid.value"
-        />
+          :is-valid="editor.isValid.value" />
         <OutputPanel :text="editor.output.value" />
 
         <section class="library">
           <div class="group">
             <h2>Start from</h2>
-            <select
-              v-model="loaded"
-              @change="loadStructure(loaded)"
-            >
-              <option value="">
-                Blank grid
-              </option>
+            <select v-model="loaded" @change="loadStructure(loaded)">
+              <option value="">Blank grid</option>
               <optgroup label="Normal">
                 <option
                   v-for="entry in normalEntries"
                   :key="entry.name"
-                  :value="entry.name"
-                >
+                  :value="entry.name">
                   {{ entry.name }}
                 </option>
               </optgroup>
@@ -158,8 +149,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
                 <option
                   v-for="entry in hardEntries"
                   :key="entry.name"
-                  :value="entry.name"
-                >
+                  :value="entry.name">
                   {{ entry.name }}
                 </option>
               </optgroup>
@@ -167,8 +157,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
                 <option
                   v-for="entry in verticalEntries"
                   :key="entry.name"
-                  :value="entry.name"
-                >
+                  :value="entry.name">
                   {{ entry.name }}
                 </option>
               </optgroup>
@@ -177,44 +166,27 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
 
           <div class="group">
             <h2>Save to library</h2>
-            <select
-              v-model="pool"
-              @change="suggestName()"
-            >
-              <option value="normal">
-                Normal
-              </option>
-              <option value="hard">
-                Hard
-              </option>
-              <option value="vertical">
-                Vertical
-              </option>
+            <select v-model="pool" @change="suggestName()">
+              <option value="normal">Normal</option>
+              <option value="hard">Hard</option>
+              <option value="vertical">Vertical</option>
             </select>
             <input
               v-model="name"
               class="name"
               spellcheck="false"
-              placeholder="NORMAL_001"
-            >
+              placeholder="NORMAL_001" />
             <button
               class="primary"
               type="button"
               :disabled="!canSave"
-              @click="save()"
-            >
+              @click="save()">
               Write to {{ target }}
             </button>
-            <p
-              v-if="library.status.value"
-              class="status"
-            >
+            <p v-if="library.status.value" class="status">
               {{ library.status.value }}
             </p>
-            <p
-              v-else-if="!editor.isValid.value"
-              class="status"
-            >
+            <p v-else-if="!editor.isValid.value" class="status">
               Settle the issues before writing to the library.
             </p>
           </div>
@@ -224,15 +196,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
               class="ghost"
               type="button"
               :disabled="!editor.canUndo.value"
-              @click="editor.undo()"
-            >
+              @click="editor.undo()">
               Undo
             </button>
-            <button
-              class="ghost"
-              type="button"
-              @click="editor.clear()"
-            >
+            <button class="ghost" type="button" @click="editor.clear()">
               Clear
             </button>
           </div>

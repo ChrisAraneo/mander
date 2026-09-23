@@ -44,8 +44,7 @@ const leaveLabel = computed(() =>
           :key="index"
           class="card"
           :class="item.rarity.toLowerCase()"
-          @click="$emit('choose', index)"
-        >
+          @click="$emit('choose', index)">
           <span class="slot">{{ index + 1 }}</span>
           <ItemArt :item="item" />
           <span class="rarity">{{ item.rarity }}</span>
@@ -54,10 +53,7 @@ const leaveLabel = computed(() =>
         </button>
       </div>
 
-      <button
-        class="ghost"
-        @click="$emit('close')"
-      >
+      <button class="ghost" @click="$emit('close')">
         {{ leaveLabel }}
       </button>
     </div>

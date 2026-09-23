@@ -81,82 +81,73 @@ const isDebugShown = isDebug();
   <header class="hud">
     <div class="group">
       <span class="logo">MANDER</span>
-      <span
-        class="chip"
-        :title="`${day} · level seed ${state.level.seed}`"
-      >World {{ worldName }}</span>
-      <span class="chip">Level {{ state.levelIndex + 1 }}/{{ levelCount }}</span>
-      <span class="chip">{{ time }}</span>
-      <span
-        class="chip score"
-        title="Score"
-      >★ {{ score }}</span>
-      <span
-        class="chip hearts"
-        title="Hearts"
+      <span class="chip" :title="`${day} · level seed ${state.level.seed}`"
+        >World {{ worldName }}</span
       >
+      <span class="chip"
+        >Level {{ state.levelIndex + 1 }}/{{ levelCount }}</span
+      >
+      <span class="chip">{{ time }}</span>
+      <span class="chip score" title="Score">★ {{ score }}</span>
+      <span class="chip hearts" title="Hearts">
         <span
           v-for="(isFilled, index) in hearts"
           :key="index"
           class="pip"
           :class="{ filled: isFilled }"
-        >♥</span>
+          >♥</span
+        >
       </span>
       <span
         v-if="stars > 0"
         class="chip stars"
         title="Press Space, Z or . to spend a star on 3s of invincibility"
-      >★ {{ stars }} · Space</span>
+        >★ {{ stars }} · Space</span
+      >
       <span
         v-if="ammo > 0"
         class="chip ammo"
         title="Press X or / to fire a bullet at the enemies"
-      >● {{ ammo }} · X</span>
+        >● {{ ammo }} · X</span
+      >
       <span
         v-if="hasBoots"
         class="chip gear"
         title="Boots of Clouds — floor spikes cannot bite"
-      >☁ Boots</span>
+        >☁ Boots</span
+      >
       <span
         v-if="hasHelmet"
         class="chip gear"
         title="Titanium Helmet — ceiling spikes cannot bite"
-      >⛑ Helmet</span>
+        >⛑ Helmet</span
+      >
       <span
         v-if="hasMoons"
         class="chip gear"
         :class="{ muted: !areMoonsOn }"
         :title="moonsTitle"
-      >{{ moonsLabel }}</span>
+        >{{ moonsLabel }}</span
+      >
       <span
         v-if="shieldSeconds > 0"
         class="chip shield"
         title="Invincible right now"
-      >🛡 {{ shieldSeconds.toFixed(1) }}s</span>
-      <span
-        v-if="state.deaths > 0"
-        class="chip deaths"
-      >✕ {{ state.deaths }}</span>
-      <span
-        class="chip key"
-        :class="{ found: state.hasKey }"
+        >🛡 {{ shieldSeconds.toFixed(1) }}s</span
       >
+      <span v-if="state.deaths > 0" class="chip deaths"
+        >✕ {{ state.deaths }}</span
+      >
+      <span class="chip key" :class="{ found: state.hasKey }">
         {{ keyLabel }}
       </span>
-      <span
-        v-if="isDebugShown"
-        class=""
-        title="Update Time"
-      >⏱ {{ (1000.0 / state.updateTime).toFixed(2) }} ms</span>
+      <span v-if="isDebugShown" class="" title="Update Time"
+        >⏱ {{ (1000.0 / state.updateTime).toFixed(2) }} ms</span
+      >
     </div>
 
     <div class="group">
-      <button
-        class="ghost"
-        @click="$emit('exit')"
-      >
-        Exit
-      </button>
+      <button class="ghost" @click="$emit('exit')">Exit</button>
     </div>
   </header>
 </template>

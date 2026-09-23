@@ -37,10 +37,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
 
 <template>
   <div class="archive-view">
-    <canvas
-      ref="canvas"
-      class="stage"
-    />
+    <canvas ref="canvas" class="stage" />
 
     <ReplayBar
       :world-name="run.name"
@@ -54,8 +51,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
       @toggle="replay.togglePause()"
       @speed="replay.cycleSpeed()"
       @restart="replay.play()"
-      @close="emit('exit')"
-    />
+      @close="emit('exit')" />
   </div>
 </template>
 

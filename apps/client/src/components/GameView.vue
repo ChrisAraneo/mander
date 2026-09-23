@@ -131,28 +131,18 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
 
 <template>
   <div class="game-view">
-    <canvas
-      ref="canvas"
-      class="stage"
-    />
+    <canvas ref="canvas" class="stage" />
 
-    <div
-      v-if="!isReplayActive"
-      class="hud-layer"
-    >
+    <div v-if="!isReplayActive" class="hud-layer">
       <HudBar
         :state="state"
         :day="day"
         :world-name="worldName"
         :level-count="levelCount"
-        @exit="$emit('exit')"
-      />
+        @exit="$emit('exit')" />
 
       <div class="foot">
-        <p
-          v-if="hint"
-          class="hint"
-        >
+        <p v-if="hint" class="hint">
           {{ hint }}
         </p>
 
@@ -167,93 +157,48 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
       v-if="!isReplayActive && state.status === 'CHEST'"
       :items="state.level.chestItems"
       @choose="(index) => dispatch({ type: 'CHOOSE_ITEM', index })"
-      @close="dispatch({ type: 'CLOSE' })"
-    />
+      @close="dispatch({ type: 'CLOSE' })" />
 
-    <div
-      v-if="!isReplayActive && state.status === 'COMPLETE'"
-      class="overlay"
-    >
-      <div
-        v-if="isRunFinished"
-        class="panel"
-      >
+    <div v-if="!isReplayActive && state.status === 'COMPLETE'" class="overlay">
+      <div v-if="isRunFinished" class="panel">
         <h2>Run complete!</h2>
         <p>
           All {{ levelCount }} levels of World {{ worldName }} are behind you.
         </p>
-        <p class="score">
-          ★ {{ score }}
-        </p>
-        <p class="tally">
-          Total time {{ runClock }}
-        </p>
-        <button
-          class="primary"
-          @click="$emit('exit')"
-        >
+        <p class="score">★ {{ score }}</p>
+        <p class="tally">Total time {{ runClock }}</p>
+        <button class="primary" @click="$emit('exit')">
           Back to the start
         </button>
-        <button
-          class="ghost"
-          @click="replay.play()"
-        >
-          ▶ Watch replay
-        </button>
+        <button class="ghost" @click="replay.play()">▶ Watch replay</button>
       </div>
-      <div
-        v-else
-        class="panel"
-      >
+      <div v-else class="panel">
         <h2>Level {{ state.levelIndex + 1 }} complete!</h2>
         <p>The portal hums and pulls you onward.</p>
-        <p class="score">
-          ★ {{ score }}
-        </p>
+        <p class="score">★ {{ score }}</p>
         <p class="tally">
           Cleared in {{ levelClock }} · +{{ levelGain }} · run so far
           {{ runClock }}
         </p>
-        <button
-          class="primary"
-          @click="startNextLevel"
-        >
+        <button class="primary" @click="startNextLevel">
           Enter level {{ state.levelIndex + 2 }}
         </button>
       </div>
     </div>
 
-    <div
-      v-if="!isReplayActive && state.status === 'GAME_OVER'"
-      class="overlay"
-    >
+    <div v-if="!isReplayActive && state.status === 'GAME_OVER'" class="overlay">
       <div class="panel">
         <h2>Out of hearts</h2>
         <p>
           World {{ worldName }} took the last of them on level
           {{ state.levelIndex + 1 }}. The run ends here.
         </p>
-        <p class="score">
-          ★ {{ score }}
-        </p>
-        <button
-          class="primary"
-          @click="restart"
-        >
+        <p class="score">★ {{ score }}</p>
+        <button class="primary" @click="restart">
           Start again from level 1
         </button>
-        <button
-          class="ghost"
-          @click="replay.play()"
-        >
-          ▶ Watch replay
-        </button>
-        <button
-          class="ghost"
-          @click="$emit('exit')"
-        >
-          Back to the start
-        </button>
+        <button class="ghost" @click="replay.play()">▶ Watch replay</button>
+        <button class="ghost" @click="$emit('exit')">Back to the start</button>
       </div>
     </div>
 
@@ -269,8 +214,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
       @toggle="replay.togglePause()"
       @speed="replay.cycleSpeed()"
       @restart="replay.play()"
-      @close="replay.stop()"
-    />
+      @close="replay.stop()" />
   </div>
 </template>
 

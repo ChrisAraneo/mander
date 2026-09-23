@@ -13,26 +13,17 @@ const headline = computed(() =>
 </script>
 
 <template>
-  <section
-    class="issues"
-    :class="{ ok: isValid }"
-  >
+  <section class="issues" :class="{ ok: isValid }">
     <h2>
       <span class="dot" />
       {{ headline }}
     </h2>
-    <p
-      v-if="isValid"
-      class="hint"
-    >
+    <p v-if="isValid" class="hint">
       The generator will accept this. Copy it into
       <code>libs/generator/src/lib/structures/library.ts</code>.
     </p>
     <ul v-else>
-      <li
-        v-for="issue in issues"
-        :key="issue"
-      >
+      <li v-for="issue in issues" :key="issue">
         {{ issue }}
       </li>
     </ul>

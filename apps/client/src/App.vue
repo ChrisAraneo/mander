@@ -15,19 +15,13 @@ const watched = ref<RunRecord | null>(null);
       v-if="watched"
       :key="watched.id"
       :run="watched"
-      @exit="watched = null"
-    />
+      @exit="watched = null" />
     <GameView
       v-else-if="activeDay !== null"
       :key="activeDay"
       :day="activeDay"
-      @exit="activeDay = null"
-    />
-    <StartScreen
-      v-else
-      @start="activeDay = $event"
-      @watch="watched = $event"
-    />
+      @exit="activeDay = null" />
+    <StartScreen v-else @start="activeDay = $event" @watch="watched = $event" />
   </main>
 </template>
 

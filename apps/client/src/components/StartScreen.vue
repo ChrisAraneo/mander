@@ -81,11 +81,7 @@ const formatPlayedWhen = (run: RunRecord): string =>
 </script>
 
 <template>
-  <canvas
-    ref="canvas"
-    class="backdrop"
-    aria-hidden="true"
-  />
+  <canvas ref="canvas" class="backdrop" aria-hidden="true" />
 
   <div class="overlay veil">
     <div class="start">
@@ -95,22 +91,15 @@ const formatPlayedWhen = (run: RunRecord): string =>
         <span class="label">Today's world</span>
         <span class="world">World {{ worldName }}</span>
         <span class="hash">{{ date }}</span>
-        <span
-          v-if="finishedToday"
-          class="finished"
-        >✓ Finished · ★ {{ formatScore(finishedToday.score) }}</span>
-        <button
-          class="primary"
-          @click="emit('start', date)"
+        <span v-if="finishedToday" class="finished"
+          >✓ Finished · ★ {{ formatScore(finishedToday.score) }}</span
         >
+        <button class="primary" @click="emit('start', date)">
           Start today's run
         </button>
       </div>
 
-      <div
-        v-if="playedWorlds.length"
-        class="save-info"
-      >
+      <div v-if="playedWorlds.length" class="save-info">
         <header class="save-head">
           <p>
             {{ playedWorlds.length }} world{{
@@ -121,15 +110,10 @@ const formatPlayedWhen = (run: RunRecord): string =>
         </header>
 
         <ul class="world-list">
-          <li
-            v-for="world in playedWorlds"
-            :key="world.name"
-            class="row"
-          >
-            <span
-              class="row-name"
-              :title="world.name"
-            >World {{ world.name }}</span>
+          <li v-for="world in playedWorlds" :key="world.name" class="row">
+            <span class="row-name" :title="world.name"
+              >World {{ world.name }}</span
+            >
 
             <div class="row-meta">
               <span class="row-day">{{ formatDay(world.day) }}</span>
@@ -137,47 +121,31 @@ const formatPlayedWhen = (run: RunRecord): string =>
                 <span class="row-score">★ {{ formatWorldScore(world) }}</span>
                 <span class="row-time">⏱ {{ formatWorldClock(world) }}</span>
               </template>
-              <span
-                v-else
-                class="row-open"
-              >unfinished</span>
-              <span
-                v-if="world.runs > 1"
-                class="row-runs"
-              >×{{ world.runs }}</span>
+              <span v-else class="row-open">unfinished</span>
+              <span v-if="world.runs > 1" class="row-runs"
+                >×{{ world.runs }}</span
+              >
             </div>
 
             <div class="row-actions">
               <button
                 v-if="world.day"
                 class="ghost"
-                @click="emit('start', world.day)"
-              >
+                @click="emit('start', world.day)">
                 ▶ Play
               </button>
               <button
                 v-if="world.replays.length"
                 class="ghost"
                 :aria-expanded="isOpen(world)"
-                @click="toggleRuns(world)"
-              >
+                @click="toggleRuns(world)">
                 ⟲ Replays ({{ size(world.replays) }})
               </button>
             </div>
 
-            <ul
-              v-if="isOpen(world)"
-              class="run-list"
-            >
-              <li
-                v-for="run in world.replays"
-                :key="run.id"
-                class="run"
-              >
-                <span
-                  class="run-outcome"
-                  :class="run.outcome.toLowerCase()"
-                >{{
+            <ul v-if="isOpen(world)" class="run-list">
+              <li v-for="run in world.replays" :key="run.id" class="run">
+                <span class="run-outcome" :class="run.outcome.toLowerCase()">{{
                   formatRunLabel(run)
                 }}</span>
 
@@ -187,10 +155,7 @@ const formatPlayedWhen = (run: RunRecord): string =>
                   <span class="run-when">{{ formatPlayedWhen(run) }}</span>
                 </span>
 
-                <button
-                  class="ghost"
-                  @click="emit('watch', run)"
-                >
+                <button class="ghost" @click="emit('watch', run)">
                   ▶ Watch
                 </button>
               </li>

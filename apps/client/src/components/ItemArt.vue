@@ -58,8 +58,7 @@ watch(() => [props.item, props.size], paint);
   <canvas
     ref="canvas"
     class="art"
-    :style="{ width: `${size}px`, height: `${size}px` }"
-  />
+    :style="{ width: `${size}px`, height: `${size}px` }" />
 </template>
 
 <style scoped>
