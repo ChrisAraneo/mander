@@ -235,6 +235,8 @@
 - `createPlayerFireballStep`
 - `createPlayerSpawnCandidates`
 - `createPlayerSpawnPatches`
+- `createPortalCandidates`
+- `createPortalPatches`
 - `createPortalStep`
 - `createProngStep`
 - `createPublisher`
@@ -379,6 +381,7 @@
 - `findPlayerSpawnCandidate`
 - `findPoolIssues`
 - `findPortalBottomTile`
+- `findPortalCandidate`
 - `findPortalTile`
 - `findReplays`
 - `findRoomySpots`
@@ -393,6 +396,7 @@
 - `findTile`
 - `findTiles`
 - `findTypesHolding`
+- `findValidPortalRows`
 - `findVerticalIssues`
 - `findVictim`
 - `fingerprint`
@@ -804,6 +808,7 @@
 - `patchFireballTiles`
 - `patchInput`
 - `patchPlayerSpawnTiles`
+- `patchPortalTiles`
 - `patchTiles`
 - `patrol`
 - `persist`
