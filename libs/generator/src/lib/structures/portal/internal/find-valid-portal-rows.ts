@@ -1,8 +1,7 @@
-import { type Tile, TILE_AIR } from '@mander/model';
+import { PORTAL_HEIGHT, type Tile, TILE_AIR } from '@mander/model';
 import { chain } from '@mander/utils';
 import { every, size } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { PORTAL_HEIGHT } from './consts';
 import { findSurfaceRows } from './find-surface-rows';
 
 export const findValidPortalRows = (tiles: Tile[][], column: number) =>

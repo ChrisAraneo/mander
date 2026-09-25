@@ -1,8 +1,7 @@
-import { isSolidTile, type Tile } from '@mander/model';
+import { isSolidTile, PORTAL_HEIGHT, type Tile } from '@mander/model';
 import { chain } from '@mander/utils';
 import { findIndex, map, range } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { PORTAL_HEIGHT } from './consts';
 
 export const findSurfaceRows = (tiles: Tile[][], column: number) =>
   chain(findIndex(tiles, (row) => isSolidTile(row[column])))

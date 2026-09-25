@@ -1,4 +1,4 @@
-import { type Tile, TILE_PORTAL } from '@mander/model';
+import { PORTAL_HEIGHT, type Tile, TILE_PORTAL } from '@mander/model';
 import { chain } from '@mander/utils';
 import { floor, size, sortBy } from 'lodash-es';
 import { match, P } from 'ts-pattern';
@@ -7,8 +7,6 @@ import { standTiles } from './stand-tiles';
 import { findStandingSpots, type Spot } from './find-standing-spots';
 
 const { nullish } = P;
-
-const PORTAL_HEIGHT = 2;
 
 const getMiddleColumn = (tiles: Tile[][]): number =>
   floor(size(tiles[0] ?? []) / 2);

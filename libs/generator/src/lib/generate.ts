@@ -101,7 +101,7 @@ const buildLayers = (structures: Sector[], levelNumber: number): Layers => {
   const { tiles: joined, backTiles } = layout.join(structures);
   const tiles = clearFireballs(clearCannons(joined, levelNumber), levelNumber);
   const withPlayer = layout.placePlayerSpawn(tiles);
-  const withPortal = layout.addPortal(withPlayer);
+  const withPortal = layout.placePortal(withPlayer);
   const padding = getPadding(withPortal);
   const withPadding = padTiles(withPortal, padding);
   const withSpikes = clearSpikes(withPadding, levelNumber);

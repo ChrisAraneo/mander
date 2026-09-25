@@ -7,7 +7,6 @@
 - `addGems`
 - `addKey`
 - `addPadding`
-- `addPortal`
 - `addRun`
 - `addStones`
 - `addStops`
@@ -820,6 +819,7 @@
 - `place`
 - `placeAt`
 - `placePlayerSpawn`
+- `placePortal`
 - `platformRow`
 - `played`
 - `player`

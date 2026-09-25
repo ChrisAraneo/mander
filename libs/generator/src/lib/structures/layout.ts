@@ -13,7 +13,7 @@ import { addVerticalSpawn } from './add-vertical-spawn';
 import { isVertical } from './is-vertical';
 import { joinStructures } from './join-structures';
 import { placePlayerSpawn } from './player-spawn/place-player-spawn';
-import { addPortal } from './portal/add-portal';
+import { placePortal } from './portal/place-portal';
 import { stackStructures } from './stack-structures';
 
 type Sow = (tiles: Tile[][]) => Tile[][];
@@ -21,7 +21,7 @@ type Sow = (tiles: Tile[][]) => Tile[][];
 export interface Layout {
   join: (structures: Sector[]) => Layers;
   placePlayerSpawn: Sow;
-  addPortal: Sow;
+  placePortal: Sow;
   addKey: Sow;
   addChest: Sow;
   addGems: Sow;
@@ -30,7 +30,7 @@ export interface Layout {
 export const ACROSS: Layout = Object.freeze({
   join: joinStructures,
   placePlayerSpawn,
-  addPortal,
+  placePortal,
   addKey,
   addChest,
   addGems,
@@ -39,7 +39,7 @@ export const ACROSS: Layout = Object.freeze({
 export const UPWARD: Layout = Object.freeze({
   join: stackStructures,
   placePlayerSpawn: addVerticalSpawn,
-  addPortal: addVerticalPortal,
+  placePortal: addVerticalPortal,
   addKey: addVerticalKey,
   addChest: addVerticalChest,
   addGems: addVerticalGems,

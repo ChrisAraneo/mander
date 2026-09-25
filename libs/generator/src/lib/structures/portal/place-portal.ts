@@ -7,7 +7,7 @@ import { findPortalCandidate } from './internal/find-portal-candidate';
 import { patchPortalTiles } from './internal/patch-portal-tiles';
 import { sortColumnNumbersByPriority } from './internal/sort-column-numbers-by-priority';
 
-export const addPortal = (tiles: Tile[][]) =>
+export const placePortal = (tiles: Tile[][]) =>
   flow(
     createColumnNumbers,
     sortColumnNumbersByPriority,
