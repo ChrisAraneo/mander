@@ -11,7 +11,7 @@ import { VERTICAL_LEVELS } from '../consts';
 import { generate } from '../generate';
 import { addPadding } from './padding/add-padding';
 import { addVerticalPortal } from './add-vertical-portal';
-import { addVerticalSpawn } from './add-vertical-spawn';
+import { placeVerticalPlayerSpawn } from './player-spawn/vertical/place-vertical-player-spawn';
 import { stackStructures } from './stack-structures';
 
 const SECTORS = 2;
@@ -24,7 +24,9 @@ const named = (index: number): string =>
 const twoUp = (structure: VerticalStructure): Level => {
   const tiles = addPadding(
     addVerticalPortal(
-      addVerticalSpawn(stackStructures(times(SECTORS, () => structure)).tiles),
+      placeVerticalPlayerSpawn(
+        stackStructures(times(SECTORS, () => structure)).tiles,
+      ),
     ),
   );
 
