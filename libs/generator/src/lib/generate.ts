@@ -4,7 +4,7 @@ import type { RenderedWorld } from '@mander/render';
 import { getStructureName, type Sector } from '@mander/structures';
 import { filter, floor, map, range, size, slice, take } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { getPadding, padTiles } from './structures/add-padding';
+import { addPadding } from './structures/padding/add-padding';
 import { addStones } from './structures/add-stones';
 import { computeLevelSeeds } from './seed/compute-level-seeds';
 import { clearBeartraps } from './structures/clear-beartraps';
@@ -102,15 +102,14 @@ const buildLayers = (structures: Sector[], levelNumber: number): Layers => {
   const tiles = clearFireballs(clearCannons(joined, levelNumber), levelNumber);
   const withPlayer = layout.placePlayerSpawn(tiles);
   const withPortal = layout.placePortal(withPlayer);
-  const padding = getPadding(withPortal);
-  const withPadding = padTiles(withPortal, padding);
+  const withPadding = addPadding(withPortal);
   const withSpikes = clearSpikes(withPadding, levelNumber);
   const withBeartraps = clearBeartraps(withSpikes, levelNumber);
   const withKey = layout.addKey(withBeartraps);
   const withChest = layout.addChest(withKey);
   const withGems = layout.addGems(withChest);
   const withStones = addStones(withGems);
-  const paddedBack = padTiles(backTiles, padding);
+  const paddedBack = addPadding(backTiles, withPortal);
 
   return match(isMirrored(levelNumber))
     .with(true, (): Layers => ({

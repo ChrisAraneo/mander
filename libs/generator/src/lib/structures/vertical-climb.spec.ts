@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 
 import { VERTICAL_LEVELS } from '../consts';
 import { generate } from '../generate';
-import { addPadding } from './add-padding';
+import { addPadding } from './padding/add-padding';
 import { addVerticalPortal } from './add-vertical-portal';
 import { addVerticalSpawn } from './add-vertical-spawn';
 import { stackStructures } from './stack-structures';

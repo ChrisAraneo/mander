@@ -142,6 +142,7 @@
 - `createBasePlayerVelocity`
 - `createBeartraps`
 - `createBeartrapStep`
+- `createBedrockRows`
 - `createBlockPattern`
 - `createBodyStep`
 - `createBootStep`
@@ -224,6 +225,7 @@
 - `createMaterialStep`
 - `createMulberry32`
 - `createNextStructureName`
+- `createPadding`
 - `createPatrols`
 - `createPlankStep`
 - `createPlay`
@@ -253,6 +255,7 @@
 - `createRunRecord`
 - `createSizeRule`
 - `createSketch`
+- `createSkyRows`
 - `createSolidTileStep`
 - `createSpikeStep`
 - `createSpringStep`
@@ -523,7 +526,6 @@
 - `getMoveSpeed`
 - `getNodeKey`
 - `getPackedReplay`
-- `getPadding`
 - `getPalette`
 - `getPlanInput`
 - `getPlayerCentre`
@@ -780,7 +782,6 @@
 - `packAction`
 - `packReplay`
 - `pad2`
-- `padTiles`
 - `paidFor`
 - `paint`
 - `paintBand`
@@ -935,6 +936,7 @@
 - `spread`
 - `springTraps`
 - `spun`
+- `stackPaddingRows`
 - `stackRows`
 - `stackStructures`
 - `stackTiles`
