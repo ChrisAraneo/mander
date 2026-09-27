@@ -1,7 +1,6 @@
 # Function Names
 
 - `act`
-- `addChest`
 - `addCompletedWorld`
 - `addCompletion`
 - `addGems`
@@ -9,7 +8,6 @@
 - `addRun`
 - `addStones`
 - `addStops`
-- `addVerticalChest`
 - `addVerticalGems`
 - `advance`
 - `advanceBarrage`
@@ -156,6 +154,7 @@
 - `createCell`
 - `createCeramicStep`
 - `createChargeStep`
+- `createChestPatches`
 - `createChestStep`
 - `createController`
 - `createCoreStep`
@@ -342,8 +341,10 @@
 - `fillRect`
 - `fillSketch`
 - `filterBelowPortal`
+- `filterChestCandidates`
 - `filterLandings`
 - `filterLeftBehind`
+- `filterLeftOfPortal`
 - `filterSlotSpots`
 - `findAliases`
 - `findAnchorColumn`
@@ -358,6 +359,7 @@
 - `findCannonTiles`
 - `findCellAt`
 - `findCellIn`
+- `findChestCandidates`
 - `findChestTile`
 - `findEnemyTiles`
 - `findEntryPlayer`
@@ -460,7 +462,6 @@
 - `getCharge`
 - `getChestRectangle`
 - `getChestType`
-- `getColumnOrder`
 - `getColumnPriority`
 - `getDailyDate`
 - `getDeathProgress`
@@ -808,6 +809,7 @@
 - `parseStructure`
 - `patchBeartrapTiles`
 - `patchCannonTiles`
+- `patchChestTiles`
 - `patchFireballTiles`
 - `patchInput`
 - `patchKeyTiles`
@@ -821,6 +823,7 @@
 - `pick`
 - `pickBeartrapCells`
 - `pickBest`
+- `pickChestCandidate`
 - `pickKeyCandidate`
 - `pickPlayerSpawnCandidate`
 - `pickPortalCandidate`
@@ -829,6 +832,7 @@
 - `pitRow`
 - `place`
 - `placeAt`
+- `placeChest`
 - `placeKey`
 - `placePlayerSpawn`
 - `placePortal`
@@ -935,6 +939,7 @@
 - `snapShut`
 - `snapToDevicePixel`
 - `soften`
+- `sortChestCandidates`
 - `sortKeyCandidates`
 - `sortPlayerSpawnCandidates`
 - `sortPortalCandidates`

@@ -29,3 +29,7 @@ export const BEARTRAP_REMOVAL_RATES: readonly number[] = Object.freeze([
 ]);
 
 export const KEY_HEIGHT = 1;
+
+export const CHEST_HEIGHT = 1;
+
+export const CHEST_PORTAL_GAP = 2;
