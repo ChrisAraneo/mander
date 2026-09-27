@@ -19,3 +19,7 @@ export const FIRST_CANNON_LEVEL = 5;
 export const FIRST_FIREBALL_LEVEL = 4;
 
 export const LAST_FIREBALL_LEVEL = 8;
+
+export const SPIKE_REMOVAL_RATES: readonly number[] = Object.freeze([
+  1, 0.8, 0.6, 0.3,
+]);

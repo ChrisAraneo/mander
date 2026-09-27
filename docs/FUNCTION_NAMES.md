@@ -253,6 +253,7 @@
 - `createSketch`
 - `createSkyRows`
 - `createSolidTileStep`
+- `createSpikePatches`
 - `createSpikeStep`
 - `createSpringStep`
 - `createStandingPlayer`
@@ -552,6 +553,7 @@
 - `getSpawnX`
 - `getSpawnY`
 - `getSpikeOrientation`
+- `getSpikeRemovalRate`
 - `getSpikeShape`
 - `getSpin`
 - `getSpinDirection`
@@ -623,6 +625,7 @@
 - `isBurning`
 - `isCaught`
 - `isClear`
+- `isClearableSpikeTile`
 - `isClimbed`
 - `isColliding`
 - `isCompletedWorld`
@@ -691,7 +694,6 @@
 - `isStructureName`
 - `isStructureText`
 - `isSurface`
-- `isThinnable`
 - `isTop`
 - `isTopLeftSquare`
 - `isTouchingAnyFallingSpike`
@@ -809,6 +811,7 @@
 - `patchInput`
 - `patchPlayerSpawnTiles`
 - `patchPortalTiles`
+- `patchSpikeTiles`
 - `patchTiles`
 - `patrol`
 - `persist`
@@ -817,6 +820,7 @@
 - `pickBest`
 - `pickPlayerSpawnCandidate`
 - `pickPortalCandidate`
+- `pickSpikeCells`
 - `pickStructures`
 - `pitRow`
 - `place`
@@ -836,7 +840,6 @@
 - `project`
 - `projectX`
 - `projectY`
-- `pullSpikes`
 - `pushAwayFromEntityHue`
 - `radiusOf`
 - `readBody`
@@ -915,6 +918,7 @@
 - `shoot`
 - `shootDown`
 - `showBlocked`
+- `shuffleSpikeCells`
 - `simulateFlights`
 - `simulatePlan`
 - `simulation`

@@ -10,7 +10,7 @@ import { computeLevelSeeds } from './seed/compute-level-seeds';
 import { clearBeartraps } from './structures/clear-beartraps';
 import { clearCannons } from './structures/cannons/clear-cannons';
 import { clearFireballs } from './structures/fireballs/clear-fireballs';
-import { clearSpikes } from './structures/clear-spikes';
+import { clearSpikes } from './structures/spikes/clear-spikes';
 import { generateChestItems } from './items/generate-chest-items';
 import { generatePalette } from './palette/generate-palette';
 import { getLevelType } from './structures/get-level-type';

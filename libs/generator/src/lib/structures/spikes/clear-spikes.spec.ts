@@ -9,7 +9,7 @@ import {
 import { every, filter, flatten, map, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { generate } from '../generate';
+import { generate } from '../../generate';
 import { clearSpikes } from './clear-spikes';
 
 const TEETH = 300;
