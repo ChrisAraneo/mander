@@ -1,4 +1,6 @@
 import {
+  FIXED_STEP_MS,
+  FIXED_STEP_SECONDS,
   type Item,
   type Tile,
   TILE_AIR,
@@ -19,11 +21,11 @@ import type { GameState } from '../../state/types/game-state';
 import { advancePlayback } from './advance-playback';
 import { createPlayback } from './create-playback';
 import { createRecorder } from '../recorder/create-recorder';
-import { emptyReplay } from '../recorder/empty-replay';
+import { createEmptyReplay } from '../recorder/create-empty-replay';
 import { isReplayFinished } from './is-replay-finished';
 import type { Replay } from '../recorder/types/replay';
-import { replayDuration } from './replay-duration';
-import { replayProgress } from './replay-progress';
+import { getReplayDuration } from './get-replay-duration';
+import { getReplayProgress } from './get-replay-progress';
 
 const simulation = (state: GameState): Omit<GameState, 'updateTime'> =>
   omit(state, 'updateTime');
@@ -31,8 +33,6 @@ const simulation = (state: GameState): Omit<GameState, 'updateTime'> =>
 const WIDTH = 30;
 const HEIGHT = 15;
 const GROUND_ROW = 12;
-const DELTA_SECONDS = 1 / 60;
-const FRAME_MS = 1000 / 60;
 
 const item = (id: string): Item => ({
   id,
@@ -70,7 +70,7 @@ const testLevel = (): GameLevel => {
 
 const initialState = (): GameState => createInitialState(testLevel(), 0, []);
 
-const tickAction: Action = { type: 'TICK', deltaSeconds: DELTA_SECONDS };
+const tickAction: Action = { type: 'TICK' };
 
 const runScript = (): { state: GameState; replay: Replay } => {
   const recorder = createRecorder('TEST-WORLD');
@@ -87,101 +87,120 @@ const runScript = (): { state: GameState; replay: Replay } => {
   ];
 
   let state = initialState();
-  script.forEach((action, index) => {
-    recorder.record(action, 5_000 + index * FRAME_MS);
+  script.forEach((action) => {
+    recorder.record(action);
     state = reduce(state, action);
   });
 
   return { state, replay: recorder.snapshot() };
 };
 
-const playToEnd = (replay: Replay, stepMs: number): GameState => {
+const playToEnd = (replay: Replay, stepsPerCall: number): GameState => {
   let playback = createPlayback(initialState());
   while (!isReplayFinished(replay, playback)) {
-    playback = advancePlayback(replay, playback, stepMs);
+    playback = advancePlayback(replay, playback, stepsPerCall);
   }
   return playback.state;
 };
 
-describe('replayDuration', () => {
-  it('is zero for an empty replay', () => {
-    expect(replayDuration(emptyReplay('TEST-WORLD'))).toBe(0);
+describe('getReplayDuration', () => {
+  it('should be zero when the replay is empty', () => {
+    expect(getReplayDuration(createEmptyReplay('TEST-WORLD'))).toBe(0);
   });
 
-  it('is the timestamp of the last entry', () => {
+  it('should be one step length for every step when the run was recorded', () => {
     const { replay } = runScript();
-    expect(replayDuration(replay)).toBeCloseTo(263 * FRAME_MS, 6);
+    expect(replay.steps).toBe(260);
+    expect(getReplayDuration(replay)).toBeCloseTo(260 * FIXED_STEP_MS, 6);
   });
 });
 
 describe('advancePlayback', () => {
-  it('reproduces the recorded run exactly', () => {
+  it('should reproduce the recorded run exactly when it plays to the end', () => {
     const { state, replay } = runScript();
-    expect(simulation(playToEnd(replay, FRAME_MS))).toEqual(simulation(state));
-  });
-
-  it('reproduces the same run whatever the frame pacing', () => {
-    const { state, replay } = runScript();
-    expect(simulation(playToEnd(replay, FRAME_MS * 4))).toEqual(
-      simulation(state),
-    );
     expect(simulation(playToEnd(replay, 1))).toEqual(simulation(state));
   });
 
-  it('releases only the actions that are due', () => {
+  it('should reproduce the same run when a frame takes several steps at once', () => {
+    const { state, replay } = runScript();
+    expect(simulation(playToEnd(replay, 4))).toEqual(simulation(state));
+    expect(simulation(playToEnd(replay, 7))).toEqual(simulation(state));
+    expect(simulation(playToEnd(replay, 260))).toEqual(simulation(state));
+  });
+
+  it('should apply the input when the step it was recorded on comes round', () => {
+    const { replay } = runScript();
+    const before = advancePlayback(replay, createPlayback(initialState()), 60);
+    const after = advancePlayback(replay, before, 1);
+
+    expect(before.index).toBe(0);
+    expect(before.state.input.isRight).toBe(false);
+    expect(after.index).toBe(1);
+    expect(after.state.input.isRight).toBe(true);
+  });
+
+  it('should count a step for every step when it takes them', () => {
     const { replay } = runScript();
     const playback = advancePlayback(
       replay,
       createPlayback(initialState()),
-      FRAME_MS * 10 + 1,
+      11,
     );
 
-    expect(playback.index).toBe(11);
-    expect(playback.state.time).toBeCloseTo(11 * DELTA_SECONDS, 6);
+    expect(playback.step).toBe(11);
+    expect(playback.state.time).toBeCloseTo(11 * FIXED_STEP_SECONDS, 6);
   });
 
-  it('holds the state still when no time passes', () => {
+  it('should hold the state still when no step is taken', () => {
     const { replay } = runScript();
-    const start = createPlayback(initialState());
-    const playback = advancePlayback(
-      replay,
-      advancePlayback(replay, start, 0),
-      0,
-    );
+    const start = advancePlayback(replay, createPlayback(initialState()), 5);
+    const playback = advancePlayback(replay, start, 0);
 
-    expect(playback.index).toBe(1);
-    expect(playback.elapsedMs).toBe(0);
+    expect(playback.step).toBe(start.step);
+    expect(playback.state).toBe(start.state);
   });
 
-  it('never rewinds on a negative delta', () => {
+  it('should hold the playback where it is when the count is negative', () => {
     const { replay } = runScript();
-    const start = advancePlayback(replay, createPlayback(initialState()), 500);
-    const next = advancePlayback(replay, start, -500);
+    const start = advancePlayback(replay, createPlayback(initialState()), 30);
+    const next = advancePlayback(replay, start, -30);
 
-    expect(next.elapsedMs).toBe(start.elapsedMs);
+    expect(next.step).toBe(start.step);
     expect(next.index).toBe(start.index);
+  });
+
+  it('should stop at the end of the run when it is asked for more steps than are left', () => {
+    const { replay } = runScript();
+    const end = advancePlayback(
+      replay,
+      createPlayback(initialState()),
+      replay.steps * 3,
+    );
+
+    expect(end.step).toBe(replay.steps);
+    expect(isReplayFinished(replay, end)).toBe(true);
   });
 });
 
-describe('replayProgress', () => {
-  it('walks from zero to one across the run', () => {
+describe('getReplayProgress', () => {
+  it('should walk from zero to one when the run plays through', () => {
     const { replay } = runScript();
     const start = createPlayback(initialState());
-    expect(replayProgress(replay, start)).toBe(0);
+    expect(getReplayProgress(replay, start)).toBe(0);
 
-    const half = advancePlayback(replay, start, replayDuration(replay) / 2);
-    expect(replayProgress(replay, half)).toBeCloseTo(0.5, 6);
+    const half = advancePlayback(replay, start, replay.steps / 2);
+    expect(getReplayProgress(replay, half)).toBeCloseTo(0.5, 6);
 
-    const end = advancePlayback(replay, start, replayDuration(replay) * 2);
-    expect(replayProgress(replay, end)).toBe(1);
+    const end = advancePlayback(replay, start, replay.steps * 2);
+    expect(getReplayProgress(replay, end)).toBe(1);
     expect(isReplayFinished(replay, end)).toBe(true);
   });
 
-  it('reports an empty replay as complete', () => {
-    const replay = emptyReplay('TEST-WORLD');
+  it('should report the replay as complete when it is empty', () => {
+    const replay = createEmptyReplay('TEST-WORLD');
     const playback = createPlayback(initialState());
 
-    expect(replayProgress(replay, playback)).toBe(1);
+    expect(getReplayProgress(replay, playback)).toBe(1);
     expect(isReplayFinished(replay, playback)).toBe(true);
   });
 });

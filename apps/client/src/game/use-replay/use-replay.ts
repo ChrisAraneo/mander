@@ -1,105 +1,219 @@
 import {
-  advancePlayback,
+  createEmptyReplay,
   createPlayback,
-  emptyReplay,
+  getReplayDuration,
+  getReplayProgress,
   isReplayFinished,
   type Replay,
-  replayDuration,
-  type ReplayPlayback,
-  replayProgress,
 } from '@mander/engine';
-import { indexOf } from 'lodash-es';
-import { animationFrames, map, type Observable, pairwise } from 'rxjs';
+import { FIXED_STEP_SECONDS } from '@mander/model';
+import { interpolateState } from '@mander/render';
+import { chain, tapEffect } from '@mander/utils';
+import { assign, indexOf, noop, size } from 'lodash-es';
 import type { Subscription } from 'rxjs';
 import { match, P } from 'ts-pattern';
-import { onUnmounted, ref } from 'vue';
+import { onUnmounted, ref, type Ref } from 'vue';
 
+import { setRef } from '../canvas';
+import { createFixedPulses, type Pulse } from '../tick';
 import { REPLAY_SPEEDS } from './consts';
+import {
+  advanceGhosts,
+  createGhosts,
+  getGhostStates,
+  type GhostPlayback,
+} from './ghost-playback';
+import {
+  advanceFrames,
+  createStartFrame,
+  type PlaybackFrame,
+} from './playback-frame';
 import type { ReplayController } from './replay-controller';
 import type { ReplaySource } from './replay-source';
 
-const frameDeltas = (): Observable<number> =>
-  animationFrames().pipe(
-    pairwise(),
-    map(([previous, current]) => current.timestamp - previous.timestamp),
-  );
+const { nonNullable } = P;
 
-export const useReplay = (source: ReplaySource): ReplayController => {
-  const isActive = ref(false);
-  const isPaused = ref(false);
-  const isFinished = ref(false);
-  const speed = ref(REPLAY_SPEEDS[0]);
-  const progress = ref(0);
-  const elapsedSeconds = ref(0);
-  const durationSeconds = ref(0);
+interface ReplayCell {
+  recording: Replay;
+  frame: PlaybackFrame | null;
+  ghosts: GhostPlayback[];
+  subscription: Subscription | null;
+}
 
-  let recording: Replay = emptyReplay('');
-  let playback: ReplayPlayback | null = null;
-  let subscription: Subscription | null = null;
+interface ReplayStep {
+  frame: PlaybackFrame;
+  ghosts: GhostPlayback[];
+  alpha: number;
+}
 
-  const publish = (next: ReplayPlayback): void => {
-    playback = next;
-    progress.value = replayProgress(recording, next);
-    elapsedSeconds.value = next.elapsedMs / 1000;
-    isFinished.value = isReplayFinished(recording, next);
-    source.render(next.state);
-  };
+interface ReplayRefs {
+  isActive: Ref<boolean>;
+  isPaused: Ref<boolean>;
+  isFinished: Ref<boolean>;
+  speed: Ref<number>;
+  progress: Ref<number>;
+  elapsedSeconds: Ref<number>;
+  durationSeconds: Ref<number>;
+}
 
-  const onFrame = (deltaMs: number): void =>
+const createRefs = (): ReplayRefs => ({
+  isActive: ref(false),
+  isPaused: ref(false),
+  isFinished: ref(false),
+  speed: ref(REPLAY_SPEEDS[0]),
+  progress: ref(0),
+  elapsedSeconds: ref(0),
+  durationSeconds: ref(0),
+});
+
+const createCell = (): ReplayCell => ({
+  recording: createEmptyReplay(''),
+  frame: null,
+  ghosts: [],
+  subscription: null,
+});
+
+const createPublisher =
+  (cell: ReplayCell, refs: ReplayRefs, source: ReplaySource) =>
+  (next: ReplayStep): void =>
+    chain(assign(cell, { frame: next.frame, ghosts: next.ghosts }))
+      .thru((current) =>
+        setRef(
+          refs.progress,
+          getReplayProgress(current.recording, next.frame.playback),
+        ),
+      )
+      .thru(() =>
+        setRef(
+          refs.elapsedSeconds,
+          next.frame.playback.step * FIXED_STEP_SECONDS,
+        ),
+      )
+      .thru(() =>
+        setRef(
+          refs.isFinished,
+          isReplayFinished(cell.recording, next.frame.playback),
+        ),
+      )
+      .thru(() =>
+        source.render(
+          interpolateState(
+            next.frame.previous,
+            next.frame.playback.state,
+            next.alpha,
+          ),
+          getGhostStates(next.ghosts, next.alpha),
+        ),
+      )
+      .value();
+
+const createFramer =
+  (cell: ReplayCell, refs: ReplayRefs, publish: (next: ReplayStep) => void) =>
+  (pulse: Pulse): void =>
     match({
-      playback,
-      paused: isPaused.value,
-      finished: isFinished.value,
+      frame: cell.frame,
+      isPaused: refs.isPaused.value,
+      isFinished: refs.isFinished.value,
     })
       .with(
-        { playback: P.nonNullable, paused: false, finished: false },
-        ({ playback: current }) =>
-          publish(advancePlayback(recording, current, deltaMs * speed.value)),
+        { frame: nonNullable, isPaused: false, isFinished: false },
+        ({ frame: current }) =>
+          chain(pulse.steps * refs.speed.value)
+            .thru((steps) => ({
+              frame: advanceFrames(cell.recording, current, steps),
+              ghosts: advanceGhosts(cell.ghosts, steps),
+              alpha: pulse.alpha,
+            }))
+            .thru(publish)
+            .value(),
       )
-      .otherwise(() => undefined);
+      .otherwise(noop);
 
-  const play = (): void => {
-    subscription?.unsubscribe();
-    recording = source.replay();
-    durationSeconds.value = replayDuration(recording) / 1000;
-    speed.value = REPLAY_SPEEDS[0];
-    isPaused.value = false;
-    isActive.value = true;
-    publish(createPlayback(source.initialState()));
-    subscription = frameDeltas().subscribe(onFrame);
-  };
-
-  const stop = (): void => {
-    subscription?.unsubscribe();
-    subscription = null;
-    playback = null;
-    isActive.value = false;
-    source.onStop();
-  };
-
-  onUnmounted(() => subscription?.unsubscribe());
-
-  return {
-    isActive,
-    isPaused,
-    isFinished,
-    speed,
-    progress,
-    elapsedSeconds,
-    durationSeconds,
-    play,
-    stop,
-    togglePause: () =>
-      match(isFinished.value)
-        .with(true, () => play())
-        .otherwise(() => {
-          isPaused.value = !isPaused.value;
+const createPlay =
+  (
+    cell: ReplayCell,
+    refs: ReplayRefs,
+    source: ReplaySource,
+    publish: (next: ReplayStep) => void,
+    onPulse: (pulse: Pulse) => void,
+  ) =>
+  (): void =>
+    chain(tapEffect(cell, (current) => current.subscription?.unsubscribe()))
+      .thru((current) => assign(current, { recording: source.getReplay() }))
+      .thru((current) =>
+        setRef(
+          refs.durationSeconds,
+          getReplayDuration(current.recording) / 1000,
+        ),
+      )
+      .thru(() => setRef(refs.speed, REPLAY_SPEEDS[0]))
+      .thru(() => setRef(refs.isPaused, false))
+      .thru(() => setRef(refs.isActive, true))
+      .thru(() =>
+        publish({
+          frame: createStartFrame(createPlayback(source.getInitialState())),
+          ghosts: createGhosts(source.getGhosts(), source.getInitialState),
+          alpha: 0,
         }),
-    cycleSpeed: () => {
-      speed.value =
-        REPLAY_SPEEDS[
-          (indexOf(REPLAY_SPEEDS, speed.value) + 1) % REPLAY_SPEEDS.length
-        ];
-    },
-  };
-};
+      )
+      .thru(() =>
+        assign(cell, {
+          subscription: createFixedPulses().subscribe(onPulse),
+        }),
+      )
+      .thru(noop)
+      .value();
+
+const createStop =
+  (cell: ReplayCell, refs: ReplayRefs, source: ReplaySource) => (): void =>
+    chain(tapEffect(cell, (current) => current.subscription?.unsubscribe()))
+      .thru((current) =>
+        assign(current, { subscription: null, frame: null, ghosts: [] }),
+      )
+      .thru(() => setRef(refs.isActive, false))
+      .thru(() => source.handleStop())
+      .value();
+
+const createController = (
+  refs: ReplayRefs,
+  play: () => void,
+  stop: () => void,
+): ReplayController => ({
+  ...refs,
+  play,
+  stop,
+  togglePause: (): void =>
+    void match(refs.isFinished.value)
+      .with(true, () => play())
+      .otherwise(() => setRef(refs.isPaused, !refs.isPaused.value)),
+  cycleSpeed: () =>
+    setRef(
+      refs.speed,
+      REPLAY_SPEEDS[
+        (indexOf(REPLAY_SPEEDS, refs.speed.value) + 1) % size(REPLAY_SPEEDS)
+      ],
+    ),
+});
+
+export const useReplay = (source: ReplaySource): ReplayController =>
+  chain({ refs: createRefs(), cell: createCell() })
+    .thru((ctx) => ({
+      ...ctx,
+      publish: createPublisher(ctx.cell, ctx.refs, source),
+    }))
+    .thru((ctx) => ({
+      ...ctx,
+      onPulse: createFramer(ctx.cell, ctx.refs, ctx.publish),
+    }))
+    .thru((ctx) => ({
+      ...ctx,
+      play: createPlay(ctx.cell, ctx.refs, source, ctx.publish, ctx.onPulse),
+      stop: createStop(ctx.cell, ctx.refs, source),
+    }))
+    .thru((ctx) =>
+      tapEffect(ctx, () =>
+        onUnmounted(() => ctx.cell.subscription?.unsubscribe()),
+      ),
+    )
+    .thru((ctx) => createController(ctx.refs, ctx.play, ctx.stop))
+    .value();

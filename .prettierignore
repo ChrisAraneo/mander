@@ -5,3 +5,4 @@ package-lock.json
 *.local
 libs/structures/src/lib/normal.ts
 libs/structures/src/lib/hard.ts
+libs/structures/src/lib/vertical.ts

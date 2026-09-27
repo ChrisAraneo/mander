@@ -1,0 +1,20 @@
+import type { Bullet, FallingSpike } from '@mander/model';
+
+import {
+  FALLING_SPIKE_HEIGHT,
+  FALLING_SPIKE_INSET_X,
+  FALLING_SPIKE_WIDTH,
+} from '../falling-spike/consts';
+import { getBulletBox } from './get-bullet-box';
+import { isOverlappingBox } from './is-overlapping-box';
+
+export const isHittingFallingSpike = (
+  bullet: Bullet,
+  spike: FallingSpike,
+): boolean =>
+  isOverlappingBox(getBulletBox(bullet), {
+    x: spike.position.x + FALLING_SPIKE_INSET_X,
+    y: spike.position.y,
+    width: FALLING_SPIKE_WIDTH,
+    height: FALLING_SPIKE_HEIGHT,
+  });

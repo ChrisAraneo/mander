@@ -1,0 +1,85 @@
+import { checkPlayerReach, isReachableCell } from '@mander/engine';
+import { findTile, type Level, TILE_PORTAL } from '@mander/model';
+import {
+  type VerticalStructure,
+  VERTICAL_STRUCTURES,
+} from '@mander/structures';
+import { filter, includes, join, map, size, times } from 'lodash-es';
+import { describe, expect, it } from 'vitest';
+
+import { VERTICAL_LEVELS } from '../consts';
+import { generate } from '../generate';
+import { addPadding } from './padding/add-padding';
+import { placePlayerSpawn } from './player-spawn/place-player-spawn';
+import { placePortal } from './portal/place-portal';
+import { stackStructures } from './stack-structures';
+
+const SECTORS = 2;
+
+const dayOf = (day: number): Date => new Date(Date.UTC(2026, 0, 1 + day));
+
+const named = (index: number): string =>
+  `VERTICAL_${String(index + 1).padStart(3, '0')}`;
+
+const twoUp = (structure: VerticalStructure): Level => {
+  const tiles = addPadding(
+    placePortal(
+      placePlayerSpawn(
+        stackStructures(times(SECTORS, () => structure)).tiles,
+        'VERTICAL',
+      ),
+      'VERTICAL',
+    ),
+  );
+
+  return {
+    seed: 'CLIMB',
+    width: size(tiles[0]),
+    height: size(tiles),
+    tiles,
+    chestItems: [],
+  };
+};
+
+const isPortalReached = (level: Level): boolean => {
+  const portal = findTile(level, TILE_PORTAL);
+  const reach = checkPlayerReach(level);
+
+  return portal !== null && isReachableCell(reach, portal.y + 1, portal.x);
+};
+
+const verticalLevels = (date: Date): Level[] =>
+  filter(generate(date).levels, (_, index) =>
+    includes(VERTICAL_LEVELS, index + 1),
+  );
+
+describe('the climb up a vertical level', () => {
+  it('should carry the player out of the top of the next sector when they start on the ground of one', () => {
+    const stuck = filter(
+      map(VERTICAL_STRUCTURES, (structure, index) => ({
+        name: named(index),
+        isClimbed: isPortalReached(twoUp(structure)),
+      })),
+      ({ isClimbed }) => !isClimbed,
+    );
+
+    expect(
+      join(
+        map(stuck, ({ name }) => name),
+        ', ',
+      ),
+    ).toBe('');
+  }, 120000);
+
+  it('should reach the portal when the generator stands a level up', () => {
+    const lost = filter(
+      map(verticalLevels(dayOf(0)), (level, index) => ({
+        level: index,
+        isReached: isPortalReached(level),
+      })),
+      ({ isReached }) => !isReached,
+    );
+
+    expect(map(lost, ({ level }) => level)).toEqual([]);
+  }, 120000);
+});

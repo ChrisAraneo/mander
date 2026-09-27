@@ -1,36 +1,48 @@
+import { chain } from '@mander/utils';
+import { assign, noop } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import type { Action } from '../../actions/actions';
 import type { RecordedAction } from './types/recorded-action';
 import type { Recorder } from './types/recorder';
 
-export const createRecorder = (worldName: string): Recorder => {
-  let entries: RecordedAction[] = [];
-  let startedAtMs = 0;
-  let isRecording = true;
+interface RecorderState {
+  entries: RecordedAction[];
+  step: number;
+  isRecording: boolean;
+}
 
-  const append = (action: Action, timestampMs: number): void => {
-    match(entries.length)
-      .with(0, () => {
-        startedAtMs = timestampMs;
-      })
-      .otherwise(() => undefined);
-    entries.push({ atMs: timestampMs - startedAtMs, action });
-  };
+const createEmptyState = (): RecorderState => ({
+  entries: [],
+  step: 0,
+  isRecording: true,
+});
 
-  return {
-    record: (action, timestampMs) =>
-      match(isRecording)
-        .with(true, () => append(action, timestampMs))
-        .otherwise(() => undefined),
-    stop: () => {
-      isRecording = false;
-    },
-    reset: () => {
-      entries = [];
-      startedAtMs = 0;
-      isRecording = true;
-    },
-    snapshot: () => ({ worldName, startedAtMs, entries: [...entries] }),
-  };
-};
+const mutate = (state: RecorderState, patch: Partial<RecorderState>): void =>
+  void assign(state, patch);
+
+const append = (state: RecorderState, action: Action): void =>
+  match(action)
+    .with({ type: 'TICK' }, () => mutate(state, { step: state.step + 1 }))
+    .otherwise((input) =>
+      mutate(state, {
+        entries: [...state.entries, { atStep: state.step, action: input }],
+      }),
+    );
+
+export const createRecorder = (worldName: string): Recorder =>
+  chain(createEmptyState())
+    .thru((state): Recorder => ({
+      record: (action) =>
+        match(state.isRecording)
+          .with(true, () => append(state, action))
+          .otherwise(noop),
+      stop: () => mutate(state, { isRecording: false }),
+      reset: () => mutate(state, createEmptyState()),
+      snapshot: () => ({
+        worldName,
+        steps: state.step,
+        entries: [...state.entries],
+      }),
+    }))
+    .value();

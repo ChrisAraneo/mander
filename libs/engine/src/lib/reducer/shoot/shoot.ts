@@ -5,14 +5,16 @@ import type { GameState } from '../../state/types/game-state';
 import { fireBullet } from '../bullet/fire-bullet';
 import { isAlive } from '../player/is-alive';
 
+const { number } = P;
+
 export const shoot = (state: GameState): GameState =>
   match({
     status: state.status,
-    alive: isAlive(state.player),
+    isAlive: isAlive(state.player),
     ammo: state.ammo,
   })
     .with(
-      { status: 'PLAYING', alive: true, ammo: P.number.gte(1) },
+      { status: 'PLAYING', isAlive: true, ammo: number.gte(1) },
       (): GameState => ({
         ...state,
         ammo: state.ammo - 1,

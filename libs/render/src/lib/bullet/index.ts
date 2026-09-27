@@ -1,5 +1,5 @@
-export * from './bullet-body-step';
 export * from './bullet-colors';
-export * from './bullet-step';
 export * from './consts';
+export * from './create-bullet-body-step';
+export * from './create-bullet-step';
 export * from './draw-bullets';

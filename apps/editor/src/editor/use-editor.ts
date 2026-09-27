@@ -1,70 +1,140 @@
-import { TILE_AIR, TILE_DIRT } from '@mander/model';
+import { type Layers, TILE_AIR } from '@mander/model';
 import { STRUCTURE_END, STRUCTURE_START } from '@mander/structures';
-import { computed, ref } from 'vue';
+import { chain, tapEffect } from '@mander/utils';
+import { concat, includes, last, map, noop, size, slice } from 'lodash-es';
+import { match, P } from 'ts-pattern';
+import { computed, ref, type Ref, watch } from 'vue';
 
-import { cloneGrid } from './clone-grid';
-import { createGrid } from './create-grid';
+import type { Brush, BrushLayer } from './brush';
+import { DEFAULT_BRUSH } from './brushes';
+import { cloneSketch } from './clone-grid';
+import { createSketch, getHeight } from './create-grid';
+import { fillSketch } from './fill-sketch';
 import { formatStructure } from './format-structure';
-import { structureIssues } from './structure-issues';
+import { setRef } from './set-ref';
+import { findStructureIssues } from './find-structure-issues';
+import type { Pool } from './structure-entry';
+
+const { nullish } = P;
 
 const HISTORY_LIMIT = 50;
 
-export const useEditor = () => {
-  const grid = ref<number[][]>(createGrid());
-  const brush = ref<number>(TILE_DIRT);
-  const history = ref<number[][][]>([]);
+const MARKERS = [STRUCTURE_START, STRUCTURE_END];
 
-  const issues = computed(() => structureIssues(grid.value));
-  const isValid = computed(() => issues.value.length === 0);
-  const output = computed(() => formatStructure(grid.value));
-  const canUndo = computed(() => history.value.length > 0);
+const getGrid = (sketch: Layers, layer: BrushLayer): number[][] =>
+  match(layer)
+    .with('back', () => sketch.backTiles)
+    .otherwise(() => sketch.tiles);
 
-  const remember = (): void => {
-    history.value = [...history.value, cloneGrid(grid.value)].slice(
-      -HISTORY_LIMIT,
-    );
-  };
+const removeMarker = (grid: number[][], marker: number): number[][] =>
+  map(grid, (row) =>
+    map(row, (cell) =>
+      match(cell)
+        .with(marker, () => TILE_AIR)
+        .otherwise(() => cell),
+    ),
+  );
 
-  const clearMarker = (marker: number): void => {
-    grid.value = cloneGrid(grid.value).map((row) =>
-      row.map((cell) => (cell === marker ? TILE_AIR : cell)),
-    );
-  };
+const clearMarker = (sketch: Layers, value: number): Layers =>
+  match(includes(MARKERS, value))
+    .with(true, (): Layers => ({
+      ...sketch,
+      tiles: removeMarker(sketch.tiles, value),
+    }))
+    .otherwise(() => sketch);
 
-  const paint = (row: number, column: number, value: number): void => {
-    const current = grid.value[row]?.[column];
-    if (current === undefined || current === value) return;
-    if (value === STRUCTURE_START || value === STRUCTURE_END)
-      clearMarker(value);
-    grid.value[row][column] = value;
-  };
+const applyPaint = (
+  sketch: Ref<Layers>,
+  row: number,
+  column: number,
+  value: number,
+  layer: BrushLayer,
+): void =>
+  void chain(setRef(sketch, clearMarker(sketch.value, value)))
+    .thru((next) => (getGrid(next, layer)[row][column] = value))
+    .value();
 
-  const replace = (next: number[][]): void => {
-    remember();
-    grid.value = cloneGrid(next);
-  };
-
-  const clear = (): void => replace(createGrid());
-
-  const undo = (): void => {
-    const previous = history.value.at(-1);
-    if (previous === undefined) return;
-    grid.value = previous;
-    history.value = history.value.slice(0, -1);
-  };
-
-  return {
-    brush,
-    canUndo,
-    clear,
-    eraseValue: TILE_AIR,
-    grid,
-    issues,
-    isValid,
-    output,
-    paint,
-    remember,
-    replace,
-    undo,
-  };
-};
+export const useEditor = (pool: Readonly<Ref<Pool>>) =>
+  chain({
+    sketch: ref<Layers>(createSketch(pool.value)),
+    brush: ref<Brush>(DEFAULT_BRUSH),
+    history: ref<Layers[]>([]),
+  })
+    .thru((state) => ({
+      ...state,
+      issues: computed(() =>
+        findStructureIssues(state.sketch.value, pool.value),
+      ),
+      remember: (): void =>
+        void setRef(
+          state.history,
+          slice(
+            concat(state.history.value, [cloneSketch(state.sketch.value)]),
+            -HISTORY_LIMIT,
+          ),
+        ),
+    }))
+    .thru((state) => ({
+      ...state,
+      paint: (
+        row: number,
+        column: number,
+        value: number,
+        layer: BrushLayer,
+      ): void =>
+        chain(getGrid(state.sketch.value, layer)[row]?.[column])
+          .thru((current) =>
+            match(current)
+              .with(nullish, noop)
+              .with(value, noop)
+              .otherwise(() =>
+                applyPaint(state.sketch, row, column, value, layer),
+              ),
+          )
+          .value(),
+      replace: (next: Layers): void =>
+        void chain(tapEffect(next, () => state.remember()))
+          .thru((sketch) =>
+            setRef(state.sketch, fillSketch(cloneSketch(sketch))),
+          )
+          .value(),
+      undo: (): void =>
+        void chain(last(state.history.value))
+          .thru((previous) =>
+            match(previous)
+              .with(nullish, noop)
+              .otherwise((restored) =>
+                chain(restored)
+                  .thru((sketch) => setRef(state.sketch, sketch))
+                  .thru(() =>
+                    setRef(state.history, slice(state.history.value, 0, -1)),
+                  )
+                  .value(),
+              ),
+          )
+          .value(),
+    }))
+    .thru((state) =>
+      tapEffect(state, () =>
+        watch(pool, (next) =>
+          match(size(state.sketch.value.tiles) === getHeight(next))
+            .with(true, noop)
+            .otherwise(() => state.replace(createSketch(next))),
+        ),
+      ),
+    )
+    .thru((state) => ({
+      brush: state.brush,
+      canUndo: computed(() => size(state.history.value) > 0),
+      clear: (): void => state.replace(createSketch(pool.value)),
+      eraseValue: TILE_AIR,
+      sketch: state.sketch,
+      issues: state.issues,
+      isValid: computed(() => size(state.issues.value) === 0),
+      output: computed(() => formatStructure(state.sketch.value)),
+      paint: state.paint,
+      remember: state.remember,
+      replace: state.replace,
+      undo: state.undo,
+    }))
+    .value();

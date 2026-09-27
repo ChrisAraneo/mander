@@ -1,0 +1,20 @@
+import { type Layers, TILE_AIR } from '@mander/model';
+import { chain } from '@mander/utils';
+import { head, map, range, size, times } from 'lodash-es';
+
+const fillGrid = (
+  grid: number[][],
+  height: number,
+  width: number,
+): number[][] =>
+  map(range(height), (row) =>
+    times(width, (column) => grid[row]?.[column] ?? TILE_AIR),
+  );
+
+export const fillSketch = (sketch: Layers): Layers =>
+  chain({ height: size(sketch.tiles), width: size(head(sketch.tiles)) })
+    .thru(({ height, width }): Layers => ({
+      tiles: fillGrid(sketch.tiles, height, width),
+      backTiles: fillGrid(sketch.backTiles, height, width),
+    }))
+    .value();

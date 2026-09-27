@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { readStructures } from './read-structures';
-import { upsertStructure } from './upsert-structure';
+import { readStructures } from './read-structures.ts';
+import { upsertStructure } from './upsert-structure.ts';
 
 const TEXT = `[
   [__, DR],
@@ -22,14 +22,14 @@ export const NORMAL_002: Structure = ${OTHER};
 `;
 
 describe('upsertStructure', () => {
-  it('should rewrite the structure that is already there', () => {
-    const { source: written, created } = upsertStructure(
+  it('should rewrite the structure when it is already there', () => {
+    const { source: written, isCreated } = upsertStructure(
       source,
       'NORMAL_001',
       OTHER,
     );
 
-    expect(created).toBe(false);
+    expect(isCreated).toBe(false);
     expect(readStructures(written)).toEqual([
       { name: 'NORMAL_001', text: OTHER },
       { name: 'NORMAL_002', text: OTHER },
@@ -50,21 +50,21 @@ export const NORMAL_002: Structure = ${TEXT};
     );
   });
 
-  it('should add a structure the file has never seen, after the last one', () => {
-    const { source: written, created } = upsertStructure(
+  it('should add the structure after the last one when the file has never seen it', () => {
+    const { source: written, isCreated } = upsertStructure(
       source,
       'NORMAL_003',
       TEXT,
     );
 
-    expect(created).toBe(true);
+    expect(isCreated).toBe(true);
     expect(
       written.endsWith(`export const NORMAL_003: Structure = ${TEXT};\n`),
     ).toBe(true);
     expect(readStructures(written)).toHaveLength(3);
   });
 
-  it('should keep one blank line between the structures it adds', () => {
+  it('should keep one blank line between the structures when it adds a second one', () => {
     const once = upsertStructure(source, 'NORMAL_003', TEXT).source;
     const twice = upsertStructure(once, 'NORMAL_004', TEXT).source;
 

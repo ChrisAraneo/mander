@@ -1,7 +1,8 @@
-import type { Action } from '../../actions/actions';
+import { indexOf } from 'lodash-es';
 
-export const ACTION_CODES: readonly Action['type'][] = Object.freeze([
-  'TICK',
+import type { RecordableAction } from '../../actions/actions';
+
+export const ACTION_CODES: readonly RecordableAction['type'][] = Object.freeze([
   'MOVE_LEFT_START',
   'MOVE_LEFT_STOP',
   'MOVE_RIGHT_START',
@@ -16,7 +17,8 @@ export const ACTION_CODES: readonly Action['type'][] = Object.freeze([
   'RESTART',
   'USE_STAR',
   'SHOOT',
+  'TOGGLE_MOON_MAGNET',
 ]);
 
-export const codeOf = (type: Action['type']): number =>
-  ACTION_CODES.indexOf(type);
+export const getActionCode = (type: RecordableAction['type']): number =>
+  indexOf(ACTION_CODES, type);

@@ -19,6 +19,8 @@ export interface Player {
   timers: {
     death: number | null;
     invincibility: number;
+    star: number;
+    hurt: number;
   };
   statuses: {
     isFacingRight: boolean;

@@ -1,6 +1,5 @@
-import { createRandom } from '@mander/utils';
+import { includes } from 'lodash-es';
+import { MIRRORED_LEVELS } from '../consts';
 
-export const MIRROR_CHANCE = 0.3;
-
-export const isMirrored = (seed: string): boolean =>
-  createRandom(`${seed}#mirror`).chance(MIRROR_CHANCE);
+export const isMirrored = (levelNumber: number): boolean =>
+  includes(MIRRORED_LEVELS, levelNumber);

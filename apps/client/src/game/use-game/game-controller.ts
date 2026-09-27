@@ -9,6 +9,6 @@ export interface GameController {
   levelCount: number;
   replay: ReplayController;
   dispatch(action: Action): void;
-  nextLevel(): void;
+  startNextLevel(): void;
   restart(): void;
 }

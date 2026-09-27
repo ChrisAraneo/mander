@@ -6,173 +6,373 @@ import {
   type GameWorld,
   type PackedReplay,
   packReplay,
+  type Recorder,
   reduce,
-  totalTime,
+  type Replay,
+  unpackReplay,
 } from '@mander/engine';
 import { generate } from '@mander/generator';
-import { renderGame, syncViewport } from '@mander/render';
 import {
-  map,
-  merge,
-  scan,
-  Subject,
-  type Subscription,
-  tap,
-  timestamp,
-} from 'rxjs';
+  getPlayerFocus,
+  interpolateState,
+  renderGame,
+  syncViewport,
+} from '@mander/render';
+import { chain, tapEffect } from '@mander/utils';
+import { assign, noop, size } from 'lodash-es';
+import { merge, scan, Subject, type Subscription, tap } from 'rxjs';
 import { match, P } from 'ts-pattern';
-import { onMounted, onUnmounted, type Ref, shallowRef } from 'vue';
+import {
+  onMounted,
+  onUnmounted,
+  type Ref,
+  type ShallowRef,
+  shallowRef,
+} from 'vue';
 
+import {
+  type CanvasCell,
+  closeCanvas,
+  createCanvasCell,
+  drawWithCanvas,
+  openCanvas,
+  setRef,
+} from '../canvas';
+import { logWorldMeta } from '../debug';
 import { createKeyboard, type Keyboard } from '../input';
-import { completeWorld, saveScore } from '../storage';
-import { tickStream } from '../tick';
-import { useReplay } from '../use-replay';
+import {
+  findGhostRuns,
+  loadSave,
+  recordPlayedWorld,
+  type RunOutcome,
+  saveScore,
+} from '../storage';
+import { createFixedPulses, createPulseTicks } from '../tick';
+import {
+  getLevelGhosts,
+  useReplay,
+  type ReplayController,
+} from '../use-replay';
 import type { GameController } from './game-controller';
+import { createRunArchive, type RunArchive } from './run-archive';
 
-const startState = (world: GameWorld): GameState =>
+const { nonNullable } = P;
+
+interface GameFrame {
+  previous: GameState;
+  current: GameState;
+}
+
+interface GameCell extends CanvasCell {
+  keyboard: Keyboard | null;
+  subscription: Subscription | null;
+  frame: GameFrame;
+}
+
+const createStartState = (world: GameWorld): GameState =>
   createInitialState(world.levels[0], 0, [], world.score);
+
+const createStartFrame = (state: GameState): GameFrame => ({
+  previous: state,
+  current: state,
+});
+
+const advanceFrame = (frame: GameFrame, action: Action): GameFrame =>
+  match(action)
+    .with({ type: 'TICK' }, (): GameFrame => ({
+      previous: frame.current,
+      current: reduce(frame.current, action),
+    }))
+    .otherwise((): GameFrame => ({
+      previous: frame.previous,
+      current: reduce(frame.current, action),
+    }));
 
 const syncDebugGlobals = (
   next: GameState,
   dispatch: (action: Action) => void,
 ): void =>
   match(import.meta.env.DEV)
-    .with(true, () => {
-      Object.assign(window, { manderState: next, manderDispatch: dispatch });
-    })
-    .otherwise(() => undefined);
+    .with(
+      true,
+      () =>
+        void assign(window, {
+          manderState: next,
+          manderDispatch: dispatch,
+        }),
+    )
+    .otherwise(noop);
 
 const isRunOver = (world: GameWorld, state: GameState): boolean =>
   state.status === 'GAME_OVER' ||
-  (state.status === 'COMPLETE' && state.levelIndex >= world.levels.length - 1);
+  (state.status === 'COMPLETE' && state.levelIndex >= size(world.levels) - 1);
 
-interface Run {
-  world: GameWorld;
-  day: string;
-  replay: () => PackedReplay;
-}
+const getEndOutcome = (state: GameState): RunOutcome =>
+  match(state.status)
+    .with('GAME_OVER', (): RunOutcome => 'GAME_OVER')
+    .otherwise((): RunOutcome => 'COMPLETE');
 
 const persistProgress = (
-  run: Run,
+  world: GameWorld,
   previous: GameState,
   next: GameState,
 ): void =>
-  match(next.status === 'COMPLETE' && previous.status !== 'COMPLETE')
+  match(
+    next.status === 'COMPLETE' &&
+      previous.status !== 'COMPLETE' &&
+      next.levelIndex < size(world.levels) - 1,
+  )
+    .with(true, () => saveScore(next.score))
+    .otherwise(noop);
+
+const endRun = (
+  world: GameWorld,
+  recorder: Recorder,
+  archive: RunArchive,
+  next: GameState,
+): void =>
+  match(isRunOver(world, next))
     .with(true, () =>
-      match(next.levelIndex >= run.world.levels.length - 1)
-        .with(true, () =>
-          completeWorld({
-            name: run.world.name,
-            day: run.day,
-            score: next.score,
-            seconds: totalTime(next.levelTimes),
-            replay: run.replay(),
+      archive.keep(
+        tapEffect(next, () => recorder.stop()),
+        getEndOutcome(next),
+      ),
+    )
+    .otherwise(noop);
+
+const restartRun = (
+  recorder: Recorder,
+  archive: RunArchive,
+  state: GameState,
+): void =>
+  chain(state)
+    .thru((current) =>
+      tapEffect(current, () => archive.keep(current, 'ABANDONED')),
+    )
+    .thru((current) => tapEffect(current, () => recorder.reset()))
+    .thru(() => archive.reset())
+    .value();
+
+const capture = (
+  recorder: Recorder,
+  archive: RunArchive,
+  state: ShallowRef<GameState>,
+  action: Action,
+): void =>
+  chain(action.type)
+    .thru((type) =>
+      match(type)
+        .with('RESTART', () => restartRun(recorder, archive, state.value))
+        .otherwise(noop),
+    )
+    .thru(() => recorder.record(action))
+    .value();
+
+const createStateHandler =
+  (
+    cell: GameCell,
+    state: ShallowRef<GameState>,
+    world: GameWorld,
+    recorder: Recorder,
+    archive: RunArchive,
+    dispatch: (action: Action) => void,
+  ) =>
+  (frame: GameFrame): void =>
+    void chain({ previous: state.value, next: frame.current })
+      .thru((step) => tapEffect(step, () => assign(cell, { frame })))
+      .thru((step) => tapEffect(step, () => setRef(state, step.next)))
+      .thru((step) =>
+        tapEffect(step, () => syncDebugGlobals(step.next, dispatch)),
+      )
+      .thru((step) =>
+        tapEffect(step, () => persistProgress(world, step.previous, step.next)),
+      )
+      .thru((step) =>
+        tapEffect(step, () => endRun(world, recorder, archive, step.next)),
+      )
+      .value();
+
+const createDrawHandler =
+  (
+    cell: GameCell,
+    replay: ReplayController,
+    render: (next: GameState) => void,
+  ) =>
+  (alpha: number): void =>
+    match(replay.isActive.value)
+      .with(true, noop)
+      .otherwise(() =>
+        render(
+          interpolateState(cell.frame.previous, cell.frame.current, alpha),
+        ),
+      );
+
+const startOnMount = (
+  cell: GameCell,
+  canvas: Ref<HTMLCanvasElement | null>,
+  world: GameWorld,
+  day: string,
+  initial: GameState,
+  actions: Subject<Action>,
+  onCapture: (action: Action) => void,
+  onNext: (frame: GameFrame) => void,
+  onFrame: (alpha: number) => void,
+): void =>
+  match(openCanvas(cell, canvas))
+    .with(nonNullable, () =>
+      chain(tapEffect(cell, () => saveScore(initial.score)))
+        .thru((current) =>
+          tapEffect(current, () =>
+            recordPlayedWorld({ name: world.name, day }),
+          ),
+        )
+        .thru((current) => assign(current, { keyboard: createKeyboard() }))
+        .thru((current) => ({ current, pulses$: createFixedPulses() }))
+        .thru(({ current, pulses$ }) =>
+          assign(current, {
+            subscription: merge(
+              createPulseTicks(pulses$),
+              current.keyboard.actions$,
+              actions,
+            )
+              .pipe(
+                tap(onCapture),
+                scan(advanceFrame, createStartFrame(initial)),
+              )
+              .subscribe(onNext)
+              .add(pulses$.subscribe((pulse) => onFrame(pulse.alpha))),
           }),
         )
-        .otherwise(() => saveScore(next.score)),
+        .thru(noop)
+        .value(),
     )
-    .otherwise(() => undefined);
+    .otherwise(noop);
 
 export const useGame = (
   day: string,
   canvas: Ref<HTMLCanvasElement | null>,
-): GameController => {
-  const world = generate(new Date(day));
-  const { name, levels, palette } = world;
-  const initial = startState(world);
-
-  const state = shallowRef(initial);
-  const actions$ = new Subject<Action>();
-  const recorder = createRecorder(name);
-  const run: Run = {
-    world,
-    day,
-    replay: () => packReplay(recorder.snapshot()),
-  };
-  let keyboard: Keyboard | null = null;
-  let subscription: Subscription | null = null;
-  let context: CanvasRenderingContext2D | null = null;
-
-  const renderState = (next: GameState): void =>
-    match({ element: canvas.value, context })
-      .with(
-        { element: P.nonNullable, context: P.nonNullable },
-        ({ element, context }) =>
-          renderGame(context, next, palette, syncViewport(element)),
-      )
-      .otherwise(() => undefined);
-
-  const replay = useReplay({
-    replay: () => recorder.snapshot(),
-    initialState: () => startState(world),
-    render: renderState,
-    onStop: () => renderState(state.value),
-  });
-
-  const capture = (action: Action, timestampMs: number): void => {
-    match(action.type)
-      .with('RESTART', () => recorder.reset())
-      .otherwise(() => undefined);
-    recorder.record(action, timestampMs);
-  };
-
-  onMounted(() => {
-    const element = canvas.value;
-    context = element?.getContext('2d') ?? null;
-    match({ element, context })
-      .with({ element: P.nonNullable, context: P.nonNullable }, () => {
-        saveScore(initial.score);
-        keyboard = createKeyboard();
-
-        subscription = merge(tickStream(), keyboard.actions$, actions$)
-          .pipe(
-            timestamp(),
-            tap(({ value, timestamp: at }) => capture(value, at)),
-            map(({ value }) => value),
-            scan(reduce, initial),
+): GameController =>
+  chain(generate(new Date(day)))
+    .thru((world) => tapEffect(world, () => logWorldMeta(world)))
+    .thru((world) => ({ world, initial: createStartState(world) }))
+    .thru((setup) => ({
+      ...setup,
+      cell: {
+        ...createCanvasCell(),
+        keyboard: null,
+        subscription: null,
+        frame: createStartFrame(setup.initial),
+      } as GameCell,
+      actions$: new Subject<Action>(),
+      recorder: createRecorder(setup.world.name),
+      rivals: findGhostRuns(loadSave(), setup.world.name, ''),
+    }))
+    .thru((setup) => ({
+      ...setup,
+      state: shallowRef(setup.initial),
+      dispatch: (action: Action): void => setup.actions$.next(action),
+      getPackedReplay: (): PackedReplay =>
+        packReplay(setup.recorder.snapshot()),
+    }))
+    .thru((setup) => ({
+      ...setup,
+      archive: createRunArchive({
+        name: setup.world.name,
+        day,
+        getReplay: setup.getPackedReplay,
+      }),
+      renderState: (next: GameState, ghosts: GameState[] = []): void =>
+        drawWithCanvas(setup.cell, canvas, (context, element) =>
+          renderGame(
+            context,
+            next,
+            setup.world.palette,
+            syncViewport(element),
+            getPlayerFocus(next),
+            getLevelGhosts(next, ghosts),
+          ),
+        ),
+    }))
+    .thru((setup) => ({
+      ...setup,
+      replay: useReplay({
+        getReplay: () => setup.recorder.snapshot(),
+        getGhosts: (): Replay[] =>
+          setup.rivals.map((run) =>
+            unpackReplay(run.replay, setup.world.levels),
+          ),
+        getInitialState: () => createStartState(setup.world),
+        render: setup.renderState,
+        handleStop: () => setup.renderState(setup.state.value),
+      }),
+    }))
+    .thru((setup) =>
+      tapEffect(setup, () =>
+        onMounted(() =>
+          startOnMount(
+            setup.cell,
+            canvas,
+            setup.world,
+            day,
+            setup.initial,
+            setup.actions$,
+            (action) =>
+              capture(setup.recorder, setup.archive, setup.state, action),
+            createStateHandler(
+              setup.cell,
+              setup.state,
+              setup.world,
+              setup.recorder,
+              setup.archive,
+              setup.dispatch,
+            ),
+            createDrawHandler(setup.cell, setup.replay, setup.renderState),
+          ),
+        ),
+      ),
+    )
+    .thru((setup) =>
+      tapEffect(setup, () =>
+        onUnmounted(() =>
+          chain(setup.cell)
+            .thru((cell) =>
+              tapEffect(cell, () =>
+                setup.archive.keep(setup.state.value, 'ABANDONED'),
+              ),
+            )
+            .thru((cell) =>
+              tapEffect(cell, () => cell.subscription?.unsubscribe()),
+            )
+            .thru((cell) => tapEffect(cell, () => cell.keyboard?.dispose()))
+            .thru((cell) => closeCanvas(cell))
+            .value(),
+        ),
+      ),
+    )
+    .thru((setup): GameController => ({
+      state: setup.state,
+      worldName: setup.world.name,
+      levelCount: size(setup.world.levels),
+      replay: setup.replay,
+      dispatch: setup.dispatch,
+      startNextLevel: () =>
+        chain(setup.state.value.levelIndex + 1)
+          .thru((index) =>
+            match(index >= size(setup.world.levels))
+              .with(true, noop)
+              .otherwise(() =>
+                setup.actions$.next({
+                  type: 'LOAD_LEVEL',
+                  level: setup.world.levels[index],
+                  levelIndex: index,
+                }),
+              ),
           )
-          .subscribe((next) => {
-            const previous = state.value;
-            state.value = next;
-            syncDebugGlobals(next, (action) => actions$.next(action));
-            persistProgress(run, previous, next);
-            match(isRunOver(world, next))
-              .with(true, () => recorder.stop())
-              .otherwise(() => undefined);
-            match(replay.isActive.value)
-              .with(true, () => undefined)
-              .otherwise(() => renderState(next));
-          });
-      })
-      .otherwise(() => undefined);
-  });
-
-  onUnmounted(() => {
-    subscription?.unsubscribe();
-    keyboard?.dispose();
-  });
-
-  return {
-    state,
-    worldName: name,
-    levelCount: levels.length,
-    replay,
-    dispatch: (action) => actions$.next(action),
-    nextLevel: () => {
-      const index = state.value.levelIndex + 1;
-      match(index >= levels.length)
-        .with(true, () => undefined)
-        .otherwise(() =>
-          actions$.next({
-            type: 'LOAD_LEVEL',
-            level: levels[index],
-            levelIndex: index,
-          }),
-        );
-    },
-    restart: () => {
-      saveScore(0);
-      actions$.next({ type: 'RESTART', level: levels[0] });
-    },
-  };
-};
+          .value(),
+      restart: () =>
+        chain(setup.world.levels[0])
+          .thru((level) => tapEffect(level, () => saveScore(0)))
+          .thru((level) => setup.actions$.next({ type: 'RESTART', level }))
+          .value(),
+    }))
+    .value();

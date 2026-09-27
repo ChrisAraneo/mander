@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
-import { last } from 'lodash-es';
+import { last, noop } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { type GameState, levelScore, totalTime } from '@mander/engine';
+import {
+  computeLevelScore,
+  computeTotalTime,
+  type GameState,
+} from '@mander/engine';
 import { formatClock } from '../game/format';
 import { useGame } from '../game/use-game';
 import ChestModal from './ChestModal.vue';
@@ -13,8 +17,15 @@ const props = defineProps<{ day: string }>();
 const emit = defineEmits<{ exit: [] }>();
 
 const canvas = ref<HTMLCanvasElement | null>(null);
-const { state, dispatch, nextLevel, restart, levelCount, worldName, replay } =
-  useGame(props.day, canvas);
+const {
+  state,
+  dispatch,
+  startNextLevel,
+  restart,
+  levelCount,
+  worldName,
+  replay,
+} = useGame(props.day, canvas);
 
 const {
   isActive: isReplayActive,
@@ -39,10 +50,12 @@ const levelSeconds = computed(() => last(state.value.levelTimes) ?? 0);
 const levelClock = computed(() => formatClock(levelSeconds.value));
 
 const levelGain = computed(() =>
-  levelScore(levelSeconds.value).toLocaleString('en-US'),
+  computeLevelScore(levelSeconds.value).toLocaleString('en-US'),
 );
 
-const runClock = computed(() => formatClock(totalTime(state.value.levelTimes)));
+const runClock = computed(() =>
+  formatClock(computeTotalTime(state.value.levelTimes)),
+);
 
 const hint = computed(() =>
   match(state.value.status)
@@ -65,7 +78,7 @@ const hint = computed(() =>
 const confirmComplete = (): void =>
   match(isRunFinished.value)
     .with(true, () => emit('exit'))
-    .otherwise(() => nextLevel());
+    .otherwise(() => startNextLevel());
 
 const confirm = (): void =>
   match(state.value.status)
@@ -75,45 +88,45 @@ const confirm = (): void =>
 const isModalStatus = (status: GameState['status']): boolean =>
   status === 'COMPLETE' || status === 'GAME_OVER';
 
-const modalReady = ref(false);
+const isModalReady = ref(false);
 
 watch(
   () => state.value.status,
   (status) => {
-    modalReady.value = false;
+    isModalReady.value = false;
     match(isModalStatus(status))
       .with(true, () =>
         requestAnimationFrame(() => {
-          modalReady.value = isModalStatus(state.value.status);
+          isModalReady.value = isModalStatus(state.value.status);
         }),
       )
-      .otherwise(() => undefined);
+      .otherwise(noop);
   },
 );
 
-const onModalKey = (event: KeyboardEvent): void =>
+const handleModalKey = (event: KeyboardEvent): void =>
   match({
-    active: modalReady.value && isModalStatus(state.value.status),
+    active: isModalReady.value && isModalStatus(state.value.status),
     repeat: event.repeat,
     code: event.code,
   })
     .with({ active: true, repeat: false, code: 'Enter' }, () => confirm())
     .with({ active: true, repeat: false, code: 'Escape' }, () => emit('exit'))
-    .otherwise(() => undefined);
+    .otherwise(noop);
 
-const onReplayKey = (event: KeyboardEvent): void =>
+const handleReplayKey = (event: KeyboardEvent): void =>
   match({ repeat: event.repeat, code: event.code })
     .with({ repeat: false, code: 'Space' }, () => replay.togglePause())
     .with({ repeat: false, code: 'Escape' }, () => replay.stop())
-    .otherwise(() => undefined);
+    .otherwise(noop);
 
-const onKeyDown = (event: KeyboardEvent): void =>
+const handleKeyDown = (event: KeyboardEvent): void =>
   match(isReplayActive.value)
-    .with(true, () => onReplayKey(event))
-    .otherwise(() => onModalKey(event));
+    .with(true, () => handleReplayKey(event))
+    .otherwise(() => handleModalKey(event));
 
-onMounted(() => window.addEventListener('keydown', onKeyDown));
-onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
+onMounted(() => window.addEventListener('keydown', handleKeyDown));
+onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
 </script>
 
 <template>
@@ -135,7 +148,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
 
         <p class="controls">
           A / D or ◀ ▶ move · W / ▲ jump · E interact · Space / Z / . star · X /
-          / shoot · Enter confirm · Esc close · R respawn
+          / shoot · Enter confirm · Esc close · Backspace respawn · M moons
         </p>
       </div>
     </div>
@@ -167,7 +180,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
           Cleared in {{ levelClock }} · +{{ levelGain }} · run so far
           {{ runClock }}
         </p>
-        <button class="primary" @click="nextLevel">
+        <button class="primary" @click="startNextLevel">
           Enter level {{ state.levelIndex + 2 }}
         </button>
       </div>

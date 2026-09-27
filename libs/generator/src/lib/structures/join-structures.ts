@@ -1,14 +1,18 @@
-import { isSolidTile, TILE_AIR, type Tile } from '@mander/model';
+import { type Layers, isSolidTile, TILE_AIR, type Tile } from '@mander/model';
 import {
+  getBack,
+  getFront,
+  type Layer,
   STRUCTURE_WIDTH,
   STRUCTURE_END,
   STRUCTURE_HEIGHT,
   STRUCTURE_START,
-  type Structure,
+  type Sector,
 } from '@mander/structures';
+import { chain } from '@mander/utils';
 import {
   find,
-  forEach,
+  flatMap,
   indexOf,
   last,
   map,
@@ -18,6 +22,10 @@ import {
   reduce,
   times,
 } from 'lodash-es';
+import { match, P } from 'ts-pattern';
+import { patchTiles, type TilePatch } from './patch-tiles';
+
+const { nullish } = P;
 
 interface Cell {
   row: number;
@@ -25,7 +33,7 @@ interface Cell {
 }
 
 interface Placement {
-  structure: Structure;
+  structure: Sector;
   row: number;
   column: number;
 }
@@ -36,94 +44,139 @@ const DEFAULT_END: Cell = {
   column: STRUCTURE_WIDTH - 1,
 };
 
-const findMarker = (structure: Structure, marker: number): Cell | undefined =>
+const findMarker = (structure: Sector, marker: number): Cell | undefined =>
   find(
-    map(structure, (cells, row): Cell => ({
+    map(getFront(structure), (cells, row): Cell => ({
       row,
       column: indexOf(cells, marker),
     })),
     (cell) => cell.column >= 0,
   );
 
-const startOf = (structure: Structure): Cell =>
+const getStart = (structure: Sector): Cell =>
   findMarker(structure, STRUCTURE_START) ?? DEFAULT_START;
 
-const endOf = (structure: Structure): Cell =>
+const getEnd = (structure: Sector): Cell =>
   findMarker(structure, STRUCTURE_END) ?? DEFAULT_END;
 
-const place = (structures: Structure[]): Placement[] =>
+const place = (structures: Sector[]): Placement[] =>
   reduce(
     structures,
-    (placed: Placement[], structure): Placement[] => {
-      const previous = last(placed);
-      if (previous === undefined) return [{ structure, row: 0, column: 0 }];
-
-      const exit = endOf(previous.structure);
-      const entry = startOf(structure);
-
-      return [
-        ...placed,
-        {
-          structure,
-          row: previous.row + exit.row - entry.row,
-          column: previous.column + exit.column + 1 - entry.column,
-        },
-      ];
-    },
+    (placed: Placement[], structure): Placement[] =>
+      match(last(placed))
+        .with(nullish, () => [{ structure, row: 0, column: 0 }])
+        .otherwise((previous) =>
+          chain({
+            exit: getEnd(previous.structure),
+            entry: getStart(structure),
+          })
+            .thru(({ exit, entry }) => [
+              ...placed,
+              {
+                structure,
+                row: previous.row + exit.row - entry.row,
+                column: previous.column + exit.column + 1 - entry.column,
+              },
+            ])
+            .value(),
+        ),
     [],
   );
 
-const normalise = (placements: Placement[]): Placement[] => {
-  const topRow = min(map(placements, (placement) => placement.row)) ?? 0;
-  const leftColumn = min(map(placements, (placement) => placement.column)) ?? 0;
+const normalise = (placements: Placement[]): Placement[] =>
+  chain({
+    topRow: min(map(placements, (placement) => placement.row)) ?? 0,
+    leftColumn: min(map(placements, (placement) => placement.column)) ?? 0,
+  })
+    .thru(({ topRow, leftColumn }) =>
+      map(placements, (placement) => ({
+        ...placement,
+        row: placement.row - topRow,
+        column: placement.column - leftColumn,
+      })),
+    )
+    .value();
 
-  return map(placements, (placement) => ({
-    ...placement,
-    row: placement.row - topRow,
-    column: placement.column - leftColumn,
-  }));
-};
-
-const heightOf = (placements: Placement[]): number =>
+const getHeight = (placements: Placement[]): number =>
   max(map(placements, (placement) => placement.row + STRUCTURE_HEIGHT)) ?? 0;
 
-const widthOf = (placements: Placement[]): number =>
+const getWidth = (placements: Placement[]): number =>
   max(map(placements, (placement) => placement.column + STRUCTURE_WIDTH)) ?? 0;
 
 const isDrawn = (cell: number): boolean =>
   cell !== TILE_AIR && cell !== STRUCTURE_START && cell !== STRUCTURE_END;
 
-const paint = (tiles: number[][], placement: Placement): void => {
-  forEach(placement.structure, (cells, row) =>
-    forEach(cells, (cell, column) => {
-      if (!isDrawn(cell)) return;
-      tiles[placement.row + row][placement.column + column] = cell;
-    }),
-  );
-};
+const layOut = (placement: Placement, layer: Layer): TilePatch[] =>
+  chain(layer)
+    .flatMap((cells, row) =>
+      map(cells, (cell, column) => ({
+        tile: cell,
+        row: placement.row + row,
+        column: placement.column + column,
+      })),
+    )
+    .filter(({ tile }) => isDrawn(tile))
+    .value();
 
 const underpin = (
-  tiles: number[][],
+  tiles: Tile[][],
   placement: Placement,
   height: number,
-): void => {
-  forEach(placement.structure[STRUCTURE_HEIGHT - 1], (cell, column) => {
-    if (!isSolidTile(cell)) return;
-    forEach(range(placement.row + STRUCTURE_HEIGHT, height), (row) => {
-      if (tiles[row][placement.column + column] !== TILE_AIR) return;
-      tiles[row][placement.column + column] = cell;
-    });
-  });
-};
+  layer: Layer,
+): TilePatch[] =>
+  chain(layer[STRUCTURE_HEIGHT - 1] ?? [])
+    .map((tile, column) => ({ tile, column }))
+    .filter(({ tile }) => isSolidTile(tile))
+    .flatMap(({ tile, column }) =>
+      map(range(placement.row + STRUCTURE_HEIGHT, height), (row) => ({
+        tile,
+        row,
+        column: placement.column + column,
+      })),
+    )
+    .filter(({ row, column }) => tiles[row][column] === TILE_AIR)
+    .value();
 
-export const joinStructures = (structures: Structure[]): Tile[][] => {
-  const placements = normalise(place(structures));
-  const height = heightOf(placements);
-  const width = widthOf(placements);
-  const tiles = times(height, () => times(width, (): number => TILE_AIR));
+type LayerOf = (placement: Placement) => Layer;
 
-  forEach(placements, (placement) => paint(tiles, placement));
-  forEach(placements, (placement) => underpin(tiles, placement, height));
+const getFrontLayer: LayerOf = (placement) => getFront(placement.structure);
 
-  return tiles;
-};
+const getBackLayer: LayerOf = (placement) => getBack(placement.structure);
+
+const layTiles = (
+  placements: Placement[],
+  height: number,
+  width: number,
+  layerOf: LayerOf,
+): Tile[][] =>
+  chain(
+    patchTiles(
+      times(height, () => times(width, (): Tile => TILE_AIR)),
+      flatMap(placements, (placement) => layOut(placement, layerOf(placement))),
+    ),
+  )
+    .thru((tiles) =>
+      reduce(
+        placements,
+        (grid: Tile[][], placement) =>
+          patchTiles(
+            grid,
+            underpin(grid, placement, height, layerOf(placement)),
+          ),
+        tiles,
+      ),
+    )
+    .value();
+
+export const joinStructures = (structures: Sector[]): Layers =>
+  chain(normalise(place(structures)))
+    .thru((placements) => ({
+      placements,
+      height: getHeight(placements),
+      width: getWidth(placements),
+    }))
+    .thru(({ placements, height, width }): Layers => ({
+      tiles: layTiles(placements, height, width, getFrontLayer),
+      backTiles: layTiles(placements, height, width, getBackLayer),
+    }))
+    .value();

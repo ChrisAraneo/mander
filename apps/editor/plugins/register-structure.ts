@@ -1,17 +1,17 @@
 import { match } from 'ts-pattern';
 
-import { appendName, hasName } from './append-name';
-import { type Difficulty, prefixOf } from './difficulty';
+import { appendName, hasName } from './append-name.ts';
+import { getPrefix, type Pool } from './pool.ts';
 
-const importOf = (difficulty: Difficulty): RegExp =>
-  new RegExp(`import \\{([\\s\\S]*?)\\} from '\\./${difficulty}';`);
+const createImportPattern = (pool: Pool): RegExp =>
+  new RegExp(`import \\{([^}]*?)\\} from '\\./${pool}';`);
 
-const arrayOf = (difficulty: Difficulty): RegExp =>
+const createLibraryPattern = (pool: Pool): RegExp =>
   new RegExp(
-    `export const ${prefixOf(difficulty)}_STRUCTURES: readonly Structure\\[\\] = Object\\.freeze\\(\\[([\\s\\S]*?)\\]\\);`,
+    `export const ${getPrefix(pool)}_LIBRARY = Object\\.freeze\\(\\{([^}]*?)\\}\\);`,
   );
 
-const withName = (source: string, pattern: RegExp, name: string): string =>
+const insertName = (source: string, pattern: RegExp, name: string): string =>
   match(pattern.exec(source))
     .with(null, () => source)
     .otherwise(([statement, list]) =>
@@ -27,10 +27,10 @@ const withName = (source: string, pattern: RegExp, name: string): string =>
 export const registerStructure = (
   source: string,
   name: string,
-  difficulty: Difficulty,
+  pool: Pool,
 ): string =>
-  withName(
-    withName(source, importOf(difficulty), name),
-    arrayOf(difficulty),
+  insertName(
+    insertName(source, createImportPattern(pool), name),
+    createLibraryPattern(pool),
     name,
   );

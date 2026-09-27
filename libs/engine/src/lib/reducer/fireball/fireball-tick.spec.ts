@@ -22,8 +22,6 @@ const WIDTH = 20;
 const HEIGHT = 14;
 const GROUND_ROW = 10;
 
-const DELTA_SECONDS = 1 / 60;
-
 const testLevel = (): GameLevel => {
   const tiles: Tile[][] = times(HEIGHT, (row) =>
     times(WIDTH, (): Tile => (row >= GROUND_ROW ? TILE_DIRT : TILE_AIR)),
@@ -43,8 +41,7 @@ const testLevel = (): GameLevel => {
   };
 };
 
-const tick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK', deltaSeconds: DELTA_SECONDS });
+const tick = (state: GameState): GameState => reduce(state, { type: 'TICK' });
 
 const onTopOfPlayer = (state: GameState): Fireball => ({
   spin: 'CLOCKWISE',
@@ -60,7 +57,7 @@ describe('fireballs on the tick', () => {
     expect(createInitialState(testLevel(), 0, []).fireballs).toHaveLength(1);
   });
 
-  it('should keep the fireball circling its own block as the clock runs', () => {
+  it('should keep the fireball circling its own block when the clock runs on', () => {
     const state = createInitialState(testLevel(), 0, []);
     const turned = tick(state);
 
@@ -71,7 +68,7 @@ describe('fireballs on the tick', () => {
     });
   });
 
-  it('should burn a heart off the player it sweeps through', () => {
+  it('should burn a heart off the player when the fireball sweeps through them', () => {
     const state = tick(createInitialState(testLevel(), 0, []));
     const hearts = state.player.hearts.value;
     const burned = tick({ ...state, fireballs: [onTopOfPlayer(state)] });
@@ -79,7 +76,7 @@ describe('fireballs on the tick', () => {
     expect(burned.player.hearts.value).toBe(hearts - 1);
   });
 
-  it('should leave the player alone while it circles somewhere else', () => {
+  it('should leave the player alone when the fireball circles somewhere else', () => {
     const state = tick(createInitialState(testLevel(), 0, []));
 
     expect(tick(state).player.hearts.value).toBe(state.player.hearts.value);

@@ -1,7 +1,9 @@
-export type Difficulty = 'normal' | 'hard';
+import type { Layers } from '@mander/model';
+
+export type Pool = 'normal' | 'hard' | 'vertical';
 
 export interface StructureEntry {
   name: string;
-  difficulty: Difficulty;
-  grid: number[][];
+  pool: Pool;
+  sketch: Layers;
 }

@@ -1,36 +1,73 @@
+import type { Layers } from '@mander/model';
+import { chain } from '@mander/utils';
+import { noop } from 'lodash-es';
+import { match, P } from 'ts-pattern';
 import { ref } from 'vue';
 
 import { formatStructure } from './format-structure';
 import { fetchLibrary, postStructure } from './library-api';
+import { setRef } from './set-ref';
 import type { StructureEntry } from './structure-entry';
 
-const messageOf = (error: unknown): string =>
-  error instanceof Error ? error.message : String(error);
+const { instanceOf } = P;
 
-export const useLibrary = () => {
-  const entries = ref<StructureEntry[]>([]);
-  const status = ref('');
-  const isReady = ref(false);
+const getMessage = (error: unknown): string =>
+  match(error)
+    .with(instanceOf(Error), (thrown) => thrown.message)
+    .otherwise((thrown) => String(thrown));
 
-  const load = async (): Promise<void> => {
-    try {
-      entries.value = await fetchLibrary();
-      isReady.value = true;
-    } catch (error) {
-      isReady.value = false;
-      status.value = `The library is out of reach — ${messageOf(error)}`;
-    }
-  };
-
-  const save = async (name: string, grid: number[][]): Promise<void> => {
-    try {
-      const saved = await postStructure(name, formatStructure(grid));
-      status.value = `${saved.created ? 'Wrote' : 'Updated'} ${saved.name} in ${saved.difficulty}.ts`;
-      await load();
-    } catch (error) {
-      status.value = `Nothing saved — ${messageOf(error)}`;
-    }
-  };
-
-  return { entries, isReady, load, save, status };
-};
+export const useLibrary = () =>
+  chain({
+    entries: ref<StructureEntry[]>([]),
+    status: ref(''),
+    isReady: ref(false),
+  })
+    .thru((state) => ({
+      ...state,
+      load: (): Promise<void> =>
+        fetchLibrary()
+          .then(
+            (loaded) =>
+              chain(setRef(state.entries, loaded))
+                .thru(() => setRef(state.isReady, true))
+                .value(),
+            (error: unknown) =>
+              chain(setRef(state.isReady, false))
+                .thru(() =>
+                  setRef(
+                    state.status,
+                    `The library is out of reach — ${getMessage(error)}`,
+                  ),
+                )
+                .value(),
+          )
+          .then(noop),
+    }))
+    .thru((state) => ({
+      entries: state.entries,
+      isReady: state.isReady,
+      status: state.status,
+      load: state.load,
+      save: (name: string, sketch: Layers): Promise<void> =>
+        postStructure(name, formatStructure(sketch))
+          .then(
+            (saved) =>
+              chain(
+                match(saved.isCreated)
+                  .with(true, () => 'Wrote')
+                  .otherwise(() => 'Updated'),
+              )
+                .thru((verb) =>
+                  setRef(
+                    state.status,
+                    `${verb} ${saved.name} in ${saved.pool}.ts`,
+                  ),
+                )
+                .thru(() => state.load())
+                .value(),
+            (error: unknown) =>
+              setRef(state.status, `Nothing saved — ${getMessage(error)}`),
+          )
+          .then(noop),
+    }))
+    .value();

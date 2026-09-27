@@ -1,16 +1,19 @@
 import vue from '@vitejs/plugin-vue';
+import { map } from 'lodash-es';
 import { defineConfig } from 'vite';
 
-import { structureLibrary } from './plugins/structure-library';
+import { POOLS } from './plugins/pool.ts';
+import { createStructureLibrary } from './plugins/create-structure-library.ts';
 
-const LIBRARY_FILES = [
-  '**/libs/structures/src/lib/normal.ts',
-  '**/libs/structures/src/lib/hard.ts',
-  '**/libs/structures/src/lib/library.ts',
-];
+const LIBRARY_DIR = '**/libs/structures/src/lib';
+
+const LIBRARY_FILES = map(
+  [...POOLS, 'library'],
+  (file) => `${LIBRARY_DIR}/${file}.ts`,
+);
 
 export default defineConfig({
-  plugins: [vue(), structureLibrary()],
+  plugins: [vue(), createStructureLibrary()],
   server: {
     port: 4201,
     watch: {

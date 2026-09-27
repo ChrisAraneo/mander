@@ -1,30 +1,38 @@
 <script setup lang="ts">
-import { TILE_SIZE } from '@mander/model';
-import { STRUCTURE_WIDTH, STRUCTURE_HEIGHT } from '@mander/structures';
-import { forEach, range } from 'lodash-es';
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { type Layers, TILE_AIR, TILE_SIZE } from '@mander/model';
+import { STRUCTURE_WIDTH } from '@mander/structures';
+import { chain, tapEffect } from '@mander/utils';
+import { forEach, noop, range, size } from 'lodash-es';
+import { match, P } from 'ts-pattern';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
-import { drawStructure, fitCanvas } from '../editor';
+import type { Brush, BrushLayer } from '../editor';
+import { drawStructure, fitCanvas, setRef } from '../editor';
+
+const { nonNullable, nullish } = P;
 
 const props = defineProps<{
-  grid: number[][];
-  brush: number;
-  eraseValue: number;
+  sketch: Layers;
+  brush: Brush;
 }>();
 
 const emit = defineEmits<{
   strokeStart: [];
-  paint: [row: number, column: number, value: number];
+  paint: [row: number, column: number, value: number, layer: BrushLayer];
 }>();
 
 const WIDTH = STRUCTURE_WIDTH * TILE_SIZE;
-const HEIGHT = STRUCTURE_HEIGHT * TILE_SIZE;
+
+const tall = computed(() => size(props.sketch.tiles));
+const height = computed(() => tall.value * TILE_SIZE);
 
 const GRID_LINE = 'rgba(159, 176, 195, 0.13)';
 const HOVER_LINE = '#f4762c';
 
+const RIGHT_BUTTON = 2;
+
 const columns = range(STRUCTURE_WIDTH);
-const rows = range(STRUCTURE_HEIGHT);
+const rows = computed(() => range(tall.value));
 
 interface Cell {
   row: number;
@@ -35,98 +43,181 @@ const canvas = ref<HTMLCanvasElement | null>(null);
 const context = ref<CanvasRenderingContext2D | null>(null);
 const hover = ref<Cell | null>(null);
 const isPainting = ref(false);
-const strokeValue = ref(props.brush);
+const strokeValue = ref(props.brush.value);
+const strokeLayer = ref<BrushLayer>(props.brush.layer);
 
-function drawGridLines(target: CanvasRenderingContext2D): void {
-  target.strokeStyle = GRID_LINE;
-  target.lineWidth = 1;
-  forEach(range(STRUCTURE_WIDTH + 1), (column) => {
-    target.beginPath();
-    target.moveTo(column * TILE_SIZE + 0.5, 0);
-    target.lineTo(column * TILE_SIZE + 0.5, HEIGHT);
-    target.stroke();
-  });
-  forEach(range(STRUCTURE_HEIGHT + 1), (row) => {
-    target.beginPath();
-    target.moveTo(0, row * TILE_SIZE + 0.5);
-    target.lineTo(WIDTH, row * TILE_SIZE + 0.5);
-    target.stroke();
-  });
-}
+const strokeLine = (
+  target: CanvasRenderingContext2D,
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+): void =>
+  chain(target)
+    .thru((ready) => tapEffect(ready, () => ready.beginPath()))
+    .thru((ready) => tapEffect(ready, () => ready.moveTo(fromX, fromY)))
+    .thru((ready) => tapEffect(ready, () => ready.lineTo(toX, toY)))
+    .thru((ready) => ready.stroke())
+    .value();
 
-function drawHover(target: CanvasRenderingContext2D): void {
-  const cell = hover.value;
-  if (cell === null) return;
-  target.strokeStyle = HOVER_LINE;
-  target.lineWidth = 2;
-  target.strokeRect(
-    cell.column * TILE_SIZE + 1,
-    cell.row * TILE_SIZE + 1,
-    TILE_SIZE - 2,
-    TILE_SIZE - 2,
-  );
-}
+const drawGridLines = (target: CanvasRenderingContext2D): void =>
+  void chain(target)
+    .thru((ready) =>
+      tapEffect(ready, () =>
+        Object.assign(ready, { strokeStyle: GRID_LINE, lineWidth: 1 }),
+      ),
+    )
+    .thru((ready) =>
+      tapEffect(ready, () =>
+        forEach(range(STRUCTURE_WIDTH + 1), (column) =>
+          strokeLine(
+            ready,
+            column * TILE_SIZE + 0.5,
+            0,
+            column * TILE_SIZE + 0.5,
+            height.value,
+          ),
+        ),
+      ),
+    )
+    .thru((ready) =>
+      forEach(range(tall.value + 1), (row) =>
+        strokeLine(
+          ready,
+          0,
+          row * TILE_SIZE + 0.5,
+          WIDTH,
+          row * TILE_SIZE + 0.5,
+        ),
+      ),
+    )
+    .value();
 
-function repaint(): void {
-  const target = context.value;
-  if (target === null) return;
-  drawStructure(target, props.grid);
-  drawGridLines(target);
-  drawHover(target);
-}
+const drawHover = (target: CanvasRenderingContext2D): void =>
+  match(hover.value)
+    .with(nullish, noop)
+    .otherwise((cell) =>
+      chain(target)
+        .thru((ready) =>
+          tapEffect(ready, () =>
+            Object.assign(ready, { strokeStyle: HOVER_LINE, lineWidth: 2 }),
+          ),
+        )
+        .thru((ready) =>
+          ready.strokeRect(
+            cell.column * TILE_SIZE + 1,
+            cell.row * TILE_SIZE + 1,
+            TILE_SIZE - 2,
+            TILE_SIZE - 2,
+          ),
+        )
+        .value(),
+    );
 
-function cellAt(event: PointerEvent): Cell | null {
-  const element = canvas.value;
-  if (element === null) return null;
-  const box = element.getBoundingClientRect();
-  const column = Math.floor(
-    ((event.clientX - box.left) / box.width) * STRUCTURE_WIDTH,
-  );
-  const row = Math.floor(
-    ((event.clientY - box.top) / box.height) * STRUCTURE_HEIGHT,
-  );
-  const isInside =
-    column >= 0 &&
-    column < STRUCTURE_WIDTH &&
-    row >= 0 &&
-    row < STRUCTURE_HEIGHT;
-  return isInside ? { row, column } : null;
-}
+const repaint = (): void =>
+  match(context.value)
+    .with(nullish, noop)
+    .otherwise((target) =>
+      chain(target)
+        .thru((ready) =>
+          tapEffect(ready, () => drawStructure(ready, props.sketch)),
+        )
+        .thru((ready) => tapEffect(ready, () => drawGridLines(ready)))
+        .thru((ready) => drawHover(ready))
+        .value(),
+    );
 
-function start(event: PointerEvent): void {
-  const cell = cellAt(event);
-  if (cell === null) return;
-  strokeValue.value = event.button === 2 ? props.eraseValue : props.brush;
-  isPainting.value = true;
-  emit('strokeStart');
-  emit('paint', cell.row, cell.column, strokeValue.value);
-}
+const findCellIn = (
+  element: HTMLCanvasElement,
+  event: PointerEvent,
+): Cell | null =>
+  chain(element.getBoundingClientRect())
+    .thru((box) => ({
+      column: Math.floor(
+        ((event.clientX - box.left) / box.width) * STRUCTURE_WIDTH,
+      ),
+      row: Math.floor(((event.clientY - box.top) / box.height) * tall.value),
+    }))
+    .thru(({ row, column }) =>
+      match(
+        column >= 0 && column < STRUCTURE_WIDTH && row >= 0 && row < tall.value,
+      )
+        .with(true, (): Cell | null => ({ row, column }))
+        .otherwise((): Cell | null => null),
+    )
+    .value();
 
-function move(event: PointerEvent): void {
-  const cell = cellAt(event);
-  hover.value = cell;
-  if (!isPainting.value || cell === null) return;
-  emit('paint', cell.row, cell.column, strokeValue.value);
-}
+const findCellAt = (event: PointerEvent): Cell | null =>
+  match(canvas.value)
+    .with(nullish, (): Cell | null => null)
+    .otherwise((element) => findCellIn(element, event));
 
-function leave(): void {
-  hover.value = null;
-}
+// the right button erases the layer the brush belongs to, so a background
+// brush rubs out background and leaves the level in front of it alone
+const start = (event: PointerEvent): void =>
+  match(findCellAt(event))
+    .with(nullish, noop)
+    .otherwise((cell) =>
+      chain(
+        match(event.button)
+          .with(RIGHT_BUTTON, () => TILE_AIR)
+          .otherwise(() => props.brush.value),
+      )
+        .thru((value) => setRef(strokeValue, value))
+        .thru((value) =>
+          tapEffect(value, () => setRef(strokeLayer, props.brush.layer)),
+        )
+        .thru((value) => tapEffect(value, () => setRef(isPainting, true)))
+        .thru((value) => tapEffect(value, () => emit('strokeStart')))
+        .thru((value) =>
+          emit('paint', cell.row, cell.column, value, strokeLayer.value),
+        )
+        .value(),
+    );
 
-function stop(): void {
-  isPainting.value = false;
-}
+const move = (event: PointerEvent): void =>
+  chain(setRef(hover, findCellAt(event)))
+    .thru((cell) =>
+      match({ painting: isPainting.value, cell })
+        .with({ painting: true, cell: nonNullable }, ({ cell: target }) =>
+          emit(
+            'paint',
+            target.row,
+            target.column,
+            strokeValue.value,
+            strokeLayer.value,
+          ),
+        )
+        .otherwise(noop),
+    )
+    .value();
 
-onMounted(() => {
-  const element = canvas.value;
-  if (element !== null) context.value = fitCanvas(element, WIDTH, HEIGHT);
-  repaint();
-  window.addEventListener('pointerup', stop);
-});
+const leave = (): void => void setRef(hover, null);
+
+const stop = (): void => void setRef(isPainting, false);
+
+const refit = (): void =>
+  match(canvas.value)
+    .with(nullish, noop)
+    .otherwise(
+      (target) => void setRef(context, fitCanvas(target, WIDTH, height.value)),
+    );
+
+onMounted(() =>
+  chain(refit())
+    .thru(() => repaint())
+    .thru(() => window.addEventListener('pointerup', stop))
+    .value(),
+);
 
 onBeforeUnmount(() => window.removeEventListener('pointerup', stop));
 
-watch(() => props.grid, repaint, { deep: true });
+watch(() => props.sketch, repaint, { deep: true });
+watch(tall, () =>
+  chain(refit())
+    .thru(() => repaint())
+    .value(),
+);
 watch(hover, repaint);
 </script>
 

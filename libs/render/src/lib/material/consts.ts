@@ -53,3 +53,5 @@ export const FIREBALL_STYLE: MaterialStyle = {
 };
 
 export const CAP_LIGHTNESS_GAIN = 7;
+
+export const BACK_SHADE = 'RGBA(15, 13, 22, 0.46)';

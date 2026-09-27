@@ -1,47 +1,56 @@
 import { compact, map } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import type { Action } from '../../actions/actions';
+import type { RecordableAction } from '../../actions/actions';
 import type { GameLevel } from '../../types/game-level';
 import { ACTION_CODES } from './action-codes';
 import type { PackedEntry, PackedReplay } from './types/packed-replay';
 import type { RecordedAction } from '../recorder/types/recorded-action';
 import type { Replay } from '../recorder/types/replay';
 
-const levelAt = (levels: GameLevel[], index: number): GameLevel | undefined =>
-  levels[index];
+const { nonNullable, nullish } = P;
 
-const unpackAction = (entry: PackedEntry, levels: GameLevel[]): Action | null =>
+const getLevelAt = (
+  levels: GameLevel[],
+  index: number,
+): GameLevel | undefined => levels[index];
+
+const unpackAction = (
+  entry: PackedEntry,
+  levels: GameLevel[],
+): RecordableAction | null =>
   match(ACTION_CODES[entry[1]])
-    .with('TICK', (): Action => ({ type: 'TICK', deltaSeconds: entry[2] }))
-    .with('CHOOSE_ITEM', (): Action => ({
+    .with('CHOOSE_ITEM', (): RecordableAction => ({
       type: 'CHOOSE_ITEM',
       index: entry[2],
     }))
-    .with('LOAD_LEVEL', (): Action | null =>
-      match(levelAt(levels, entry[2]))
-        .with(P.nonNullable, (level): Action => ({
+    .with('LOAD_LEVEL', (): RecordableAction | null =>
+      match(getLevelAt(levels, entry[2]))
+        .with(nonNullable, (level): RecordableAction => ({
           type: 'LOAD_LEVEL',
           level,
           levelIndex: entry[2],
         }))
         .otherwise(() => null),
     )
-    .with('RESTART', (): Action | null =>
-      match(levelAt(levels, 0))
-        .with(P.nonNullable, (level): Action => ({ type: 'RESTART', level }))
+    .with('RESTART', (): RecordableAction | null =>
+      match(getLevelAt(levels, 0))
+        .with(nonNullable, (level): RecordableAction => ({
+          type: 'RESTART',
+          level,
+        }))
         .otherwise(() => null),
     )
-    .with(P.nullish, () => null)
-    .otherwise((type): Action => ({ type }) as Action);
+    .with(nullish, () => null)
+    .otherwise((type): RecordableAction => ({ type }) as RecordableAction);
 
 const unpackEntry = (
   entry: PackedEntry,
   levels: GameLevel[],
 ): RecordedAction | null =>
   match(unpackAction(entry, levels))
-    .with(P.nonNullable, (action): RecordedAction => ({
-      atMs: entry[0],
+    .with(nonNullable, (action): RecordedAction => ({
+      atStep: entry[0],
       action,
     }))
     .otherwise(() => null);
@@ -51,6 +60,6 @@ export const unpackReplay = (
   levels: GameLevel[],
 ): Replay => ({
   worldName: packed.worldName,
-  startedAtMs: 0,
+  steps: packed.steps,
   entries: compact(map(packed.entries, (entry) => unpackEntry(entry, levels))),
 });

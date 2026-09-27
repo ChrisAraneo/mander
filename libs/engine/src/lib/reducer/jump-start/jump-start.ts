@@ -1,13 +1,13 @@
 import { match } from 'ts-pattern';
 
 import type { GameState } from '../../state/types/game-state';
-import { withInput } from '../../state/with-input';
+import { patchInput } from '../../state/patch-input';
 
 export const jumpStart = (state: GameState): GameState =>
   match(state.input.isJump)
     .with(true, (): GameState => state)
     .otherwise((): GameState => ({
-      ...withInput(state, { isJump: true }),
+      ...patchInput(state, { isJump: true }),
       player: match({
         status: state.status,
         death: state.player.timers.death,

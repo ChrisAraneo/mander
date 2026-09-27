@@ -1,10 +1,17 @@
-import { find, map, range, size } from 'lodash-es';
+import { find, map, range, size, takeRight } from 'lodash-es';
 import { tryCatch } from 'ramda';
 
-import { REPLAYS_KEPT, STORAGE_KEY } from './consts';
+import { REPLAYS_KEPT, RUNS_KEPT, STORAGE_KEY } from './consts';
 import type { SaveData } from './save-data';
 
-const withReplaysKept = (save: SaveData, keep: number): SaveData => ({
+type Rung = [runs: number, worlds: number];
+
+const keepRuns = (save: SaveData, keep: number): SaveData => ({
+  ...save,
+  runs: takeRight(save.runs, keep),
+});
+
+const keepReplays = (save: SaveData, keep: number): SaveData => ({
   ...save,
   completedWorlds: map(save.completedWorlds, (world, index) =>
     index >= size(save.completedWorlds) - keep
@@ -13,7 +20,15 @@ const withReplaysKept = (save: SaveData, keep: number): SaveData => ({
   ),
 });
 
-const write: (save: SaveData) => boolean = tryCatch(
+const trimSave = (save: SaveData, [runs, worlds]: Rung): SaveData =>
+  keepReplays(keepRuns(save, runs), worlds);
+
+const listRungs = (): Rung[] => [
+  ...map(range(RUNS_KEPT, -1, -1), (runs): Rung => [runs, REPLAYS_KEPT]),
+  ...map(range(REPLAYS_KEPT - 1, -1, -1), (worlds): Rung => [0, worlds]),
+];
+
+const isWritten: (save: SaveData) => boolean = tryCatch(
   (save: SaveData) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(save));
 
@@ -24,7 +39,7 @@ const write: (save: SaveData) => boolean = tryCatch(
 
 export const persist = (save: SaveData): void => {
   find(
-    map(range(REPLAYS_KEPT, -1, -1), (keep) => withReplaysKept(save, keep)),
-    write,
+    map(listRungs(), (rung) => trimSave(save, rung)),
+    isWritten,
   );
 };

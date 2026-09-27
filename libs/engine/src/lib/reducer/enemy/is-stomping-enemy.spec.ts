@@ -34,7 +34,7 @@ const playerWithFeetAt = (feetY: number, x = ENEMY_X, vy = 400): Player => ({
     y: { current: vy, max: 520 },
   },
   hearts: { value: 5 },
-  timers: { death: null, invincibility: 0 },
+  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
   statuses: {
     isFacingRight: true,
     isGrounded: false,
@@ -42,7 +42,7 @@ const playerWithFeetAt = (feetY: number, x = ENEMY_X, vy = 400): Player => ({
   },
 });
 
-const stomps = (previous: Player, player: Player, enemy: Enemy): boolean =>
+const isStomping = (previous: Player, player: Player, enemy: Enemy): boolean =>
   isStompingEnemy(previous, player, enemy, DELTA_SECONDS);
 
 describe('isStompingEnemy', () => {
@@ -50,9 +50,9 @@ describe('isStompingEnemy', () => {
   const belly = ENEMY_Y + ENEMY_HEIGHT / 2;
   const floor = ENEMY_Y + ENEMY_HEIGHT;
 
-  it('kills an enemy the falling player lands on', () => {
+  it('should kill the enemy when the falling player lands on it', () => {
     expect(
-      stomps(
+      isStomping(
         playerWithFeetAt(head - 10),
         playerWithFeetAt(head + 4),
         enemyAt(),
@@ -60,9 +60,9 @@ describe('isStompingEnemy', () => {
     ).toBe(true);
   });
 
-  it('kills an enemy the player fell straight past in a single tick', () => {
+  it('should kill the enemy when the player falls straight past it in a single tick', () => {
     expect(
-      stomps(
+      isStomping(
         playerWithFeetAt(head - 20),
         playerWithFeetAt(floor + 20, ENEMY_X, 1150),
         enemyAt(),
@@ -70,16 +70,20 @@ describe('isStompingEnemy', () => {
     ).toBe(true);
   });
 
-  it('kills an enemy the player met a little way into its head', () => {
+  it('should kill the enemy when the player meets it a little way into its head', () => {
     expect(
-      stomps(playerWithFeetAt(belly), playerWithFeetAt(belly + 8), enemyAt()),
+      isStomping(
+        playerWithFeetAt(belly),
+        playerWithFeetAt(belly + 8),
+        enemyAt(),
+      ),
     ).toBe(true);
   });
 
-  it('kills an enemy that hopped up into the falling player', () => {
+  it('should kill the enemy when it hops up into the falling player', () => {
     const risen = ENEMY_JUMP_VELOCITY * DELTA_SECONDS;
     expect(
-      stomps(
+      isStomping(
         playerWithFeetAt(head + 6),
         playerWithFeetAt(head + 13),
         enemyAt(ENEMY_Y - risen, -ENEMY_JUMP_VELOCITY),
@@ -87,9 +91,9 @@ describe('isStompingEnemy', () => {
     ).toBe(true);
   });
 
-  it('kills an enemy clipped by the very edge of the player', () => {
+  it('should kill the enemy when the very edge of the player clips it', () => {
     expect(
-      stomps(
+      isStomping(
         playerWithFeetAt(head - 6, ENEMY_X - 17),
         playerWithFeetAt(head + 2, ENEMY_X - 17),
         enemyAt(),
@@ -97,9 +101,9 @@ describe('isStompingEnemy', () => {
     ).toBe(true);
   });
 
-  it('spares an enemy the player only walks into, standing on the same floor', () => {
+  it('should spare the enemy when the player only walks into it from the same floor', () => {
     expect(
-      stomps(
+      isStomping(
         playerWithFeetAt(floor, ENEMY_X - 12, 0),
         playerWithFeetAt(floor, ENEMY_X - 10, 0),
         enemyAt(),
@@ -107,15 +111,19 @@ describe('isStompingEnemy', () => {
     ).toBe(false);
   });
 
-  it('spares an enemy struck side-on by a player already sunk past its belly', () => {
+  it('should spare the enemy when a player already sunk past its belly strikes it side-on', () => {
     expect(
-      stomps(playerWithFeetAt(floor), playerWithFeetAt(floor + 6), enemyAt()),
+      isStomping(
+        playerWithFeetAt(floor),
+        playerWithFeetAt(floor + 6),
+        enemyAt(),
+      ),
     ).toBe(false);
   });
 
-  it('spares an enemy the player is rising into from below', () => {
+  it('should spare the enemy when the player is rising into it from below', () => {
     expect(
-      stomps(
+      isStomping(
         playerWithFeetAt(head + 6, ENEMY_X, -400),
         playerWithFeetAt(head - 2, ENEMY_X, -400),
         enemyAt(),
@@ -123,9 +131,9 @@ describe('isStompingEnemy', () => {
     ).toBe(false);
   });
 
-  it('spares an enemy dropping onto the player from above', () => {
+  it('should spare the enemy when it drops onto the player from above', () => {
     expect(
-      stomps(
+      isStomping(
         playerWithFeetAt(floor + 4),
         playerWithFeetAt(floor + 11),
         enemyAt(ENEMY_Y, 400),
@@ -133,9 +141,9 @@ describe('isStompingEnemy', () => {
     ).toBe(false);
   });
 
-  it('spares an enemy standing clear of the falling player', () => {
+  it('should spare the enemy when it stands clear of the falling player', () => {
     expect(
-      stomps(
+      isStomping(
         playerWithFeetAt(head - 10, ENEMY_X - ENEMY_WIDTH * 2),
         playerWithFeetAt(head + 4, ENEMY_X - ENEMY_WIDTH * 2),
         enemyAt(),
@@ -143,9 +151,9 @@ describe('isStompingEnemy', () => {
     ).toBe(false);
   });
 
-  it('spares an enemy the player has not reached yet', () => {
+  it('should spare the enemy when the player has not reached it yet', () => {
     expect(
-      stomps(
+      isStomping(
         playerWithFeetAt(head - 40),
         playerWithFeetAt(head - 10),
         enemyAt(),

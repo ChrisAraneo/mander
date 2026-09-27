@@ -1,35 +1,38 @@
+import { chain } from '@mander/utils';
 import {
+  getBackTileAt,
   isSolidTile,
   isSpikeTile,
   type Level,
   TILE_CANNON,
   TILE_SIZE,
 } from '@mander/model';
-import { ceil, chain, flatMap, floor, map, range } from 'lodash-es';
+import { ceil, flatMap, floor, map, range } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import {
+  applyStyle,
   type CanvasStep,
   fillRect,
   paint,
+  runWhen,
   sequence,
   skip,
-  styled,
-  when,
 } from '../canvas';
 import {
+  createMaterialPalette,
+  createMaterialStep,
   type MaterialPalette,
-  materialPalette,
-  materialStep,
   type MaterialStyle,
 } from '../material';
 import type { Palette } from '../palette';
-import { spikeStep } from '../spike';
+import { createSpikeStep } from '../spike';
 import type { Viewport } from '../viewport';
-import { solidAt } from './solid-at';
-import { tileEdgesStep } from './tile-edges-step';
+import { createBackTileStep } from './create-back-tile-step';
+import { isSolidAt } from './is-solid-at';
+import { createTileEdgesStep } from './create-tile-edges-step';
 
-const solidTileStep = (
+const createSolidTileStep = (
   level: Level,
   column: number,
   row: number,
@@ -43,22 +46,22 @@ const solidTileStep = (
     }))
     .thru(({ pixelX, pixelY, tile }) =>
       sequence([
-        styled({ fillStyle: style.base }),
+        applyStyle({ fillStyle: style.base }),
         fillRect(pixelX, pixelY, TILE_SIZE, TILE_SIZE),
-        materialStep(tile, pixelX, pixelY, style),
-        when(
-          !solidAt(level, column, row - 1),
-          styled({ fillStyle: style.cap }),
+        createMaterialStep(tile, pixelX, pixelY, style),
+        runWhen(
+          !isSolidAt(level, column, row - 1),
+          applyStyle({ fillStyle: style.cap }),
           fillRect(pixelX, pixelY, TILE_SIZE, 7),
-          styled({ fillStyle: style.capHighlight }),
+          applyStyle({ fillStyle: style.capHighlight }),
           fillRect(pixelX, pixelY, TILE_SIZE, 3),
         ),
-        tileEdgesStep(level, column, row),
+        createTileEdgesStep(level, column, row),
       ]),
     )
     .value();
 
-const tileStep = (
+const createTileStep = (
   level: Level,
   column: number,
   row: number,
@@ -74,15 +77,31 @@ const tileStep = (
     .thru(({ tile, isSpike, isSolid, isCannon }) =>
       match({ isSpike, isSolid, isCannon })
         .with({ isCannon: true }, () => skip)
-        .with({ isSpike: true }, () => spikeStep(level, column, row))
+        .with({ isSpike: true }, () => createSpikeStep(level, column, row))
         .with({ isSolid: true }, () =>
-          solidTileStep(level, column, row, materials(tile)),
+          createSolidTileStep(level, column, row, materials(tile)),
         )
         .otherwise(() => skip),
     )
     .value();
 
-const visibleRange = (
+const createBackStep = (
+  level: Level,
+  column: number,
+  row: number,
+  materials: MaterialPalette,
+): CanvasStep =>
+  chain(getBackTileAt(level, column, row))
+    .thru((tile) =>
+      match(isSolidTile(tile))
+        .with(true, () =>
+          createBackTileStep(level, column, row, materials(tile)),
+        )
+        .otherwise(() => skip),
+    )
+    .value();
+
+const getVisibleRange = (
   camera: number,
   view: number,
   lastIndex: number,
@@ -101,14 +120,17 @@ export const drawTiles = (
   viewport: Viewport,
 ): void =>
   chain({
-    materials: materialPalette(palette),
-    columns: visibleRange(cameraX, viewport.width, level.width - 1),
-    rows: visibleRange(cameraY, viewport.height, level.height - 1),
+    materials: createMaterialPalette(palette),
+    columns: getVisibleRange(cameraX, viewport.width, level.width - 1),
+    rows: getVisibleRange(cameraY, viewport.height, level.height - 1),
   })
-    .thru(({ materials, columns, rows }) =>
-      flatMap(columns, (column) =>
-        map(rows, (row) => tileStep(level, column, row, materials)),
+    .thru(({ materials, columns, rows }) => [
+      ...flatMap(columns, (column) =>
+        map(rows, (row) => createBackStep(level, column, row, materials)),
       ),
-    )
+      ...flatMap(columns, (column) =>
+        map(rows, (row) => createTileStep(level, column, row, materials)),
+      ),
+    ])
     .thru((steps) => paint(context, ...steps))
     .value();

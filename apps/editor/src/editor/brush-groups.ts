@@ -1,14 +1,31 @@
-import { groupBy, map, toPairs } from 'lodash-es';
+import { filter, map } from 'lodash-es';
 
 import type { Brush } from './brush';
-import { BRUSHES } from './brushes';
+import {
+  BACKGROUND,
+  BLOCKS,
+  BRUSHES,
+  EMPTY,
+  HAZARDS,
+  MARKERS,
+} from './brushes';
 
 export interface BrushGroup {
   name: string;
   brushes: Brush[];
 }
 
-export const BRUSH_GROUPS: BrushGroup[] = map(
-  toPairs(groupBy(BRUSHES, (brush) => brush.group)),
-  ([name, brushes]): BrushGroup => ({ name, brushes }),
+const ROWS: readonly (readonly string[])[] = Object.freeze([
+  Object.freeze([EMPTY]),
+  Object.freeze([BLOCKS, BACKGROUND]),
+  Object.freeze([HAZARDS, MARKERS]),
+]);
+
+const createGroup = (name: string): BrushGroup => ({
+  name,
+  brushes: filter(BRUSHES, (brush) => brush.group === name),
+});
+
+export const BRUSH_ROWS: BrushGroup[][] = map(ROWS, (names) =>
+  map(names, createGroup),
 );

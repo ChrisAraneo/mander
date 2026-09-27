@@ -2,12 +2,12 @@ import { concat } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import type { GameState } from '../../state/types/game-state';
-import { levelScore } from '../score/level-score';
+import { computeLevelScore } from '../score/compute-level-score';
 
 const complete = (state: GameState): GameState => ({
   ...state,
   status: 'COMPLETE',
-  score: state.score + levelScore(state.time),
+  score: state.score + computeLevelScore(state.time),
   levelTimes: concat(state.levelTimes, state.time),
 });
 

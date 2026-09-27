@@ -1,19 +1,26 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { orderBy } from 'lodash-es';
-import { match } from 'ts-pattern';
+import { isFinite, size } from 'lodash-es';
+import { match, P } from 'ts-pattern';
 import { computeWorldName } from '@mander/generator';
-import { formatClock } from '../game/format';
-import { clearSave, type CompletedWorld, loadSave } from '../game/storage';
+import { formatClock, formatRunLabel } from '../game/format';
+import {
+  listPlayableWorlds,
+  loadSave,
+  type PlayableWorld,
+  type RunRecord,
+} from '../game/storage';
 import { useBackdrop } from '../game/use-backdrop';
-import { dailyDate } from '../game/use-game';
+import { getDailyDate } from '../game/use-game';
+
+const { nonNullable, when } = P;
 
 const emit = defineEmits<{
   start: [day: string];
-  watch: [world: CompletedWorld];
+  watch: [run: RunRecord];
 }>();
 
-const date = dailyDate();
+const date = getDailyDate();
 const worldName = computeWorldName(new Date(date));
 
 const canvas = ref<HTMLCanvasElement | null>(null);
@@ -26,11 +33,11 @@ const finishedToday = computed(() =>
   save.value.completedWorlds.find((world) => world.name === worldName),
 );
 
-const finishedWorlds = computed(() =>
-  orderBy(save.value.completedWorlds, ['day', 'name'], ['desc', 'asc']),
-);
+const playedWorlds = computed(() => listPlayableWorlds(save.value));
 
-const pluralSuffix = (count: number): string =>
+const opened = ref<string | null>(null);
+
+const getPluralSuffix = (count: number): string =>
   match(count)
     .with(1, () => '')
     .otherwise(() => 's');
@@ -42,10 +49,35 @@ const formatDay = (day: string): string =>
     .with('', () => 'day unknown')
     .otherwise((known) => known);
 
-function resetSave(): void {
-  clearSave();
-  save.value = loadSave();
-}
+const formatWorldScore = (world: PlayableWorld): string =>
+  match(world.completed)
+    .with(nonNullable, (run) => formatScore(run.score))
+    .otherwise(() => '');
+
+const formatWorldClock = (world: PlayableWorld): string =>
+  match(world.completed)
+    .with(nonNullable, (run) => formatClock(run.seconds))
+    .otherwise(() => '');
+
+const isOpen = (world: PlayableWorld): boolean => opened.value === world.name;
+
+const toggleRuns = (world: PlayableWorld): void => {
+  opened.value = match(isOpen(world))
+    .with(true, (): string | null => null)
+    .otherwise(() => world.name);
+};
+
+const formatPlayedWhen = (run: RunRecord): string =>
+  match(new Date(run.playedAt).getTime())
+    .with(when(isFinite), (time) =>
+      new Date(time).toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+      }),
+    )
+    .otherwise(() => 'best run');
 </script>
 
 <template>
@@ -67,37 +99,74 @@ function resetSave(): void {
         </button>
       </div>
 
-      <div v-if="finishedWorlds.length" class="save-info">
+      <div v-if="playedWorlds.length" class="save-info">
         <header class="save-head">
           <p>
-            {{ finishedWorlds.length }} world{{
-              pluralSuffix(finishedWorlds.length)
+            {{ playedWorlds.length }} world{{
+              getPluralSuffix(playedWorlds.length)
             }}
-            finished
+            played
           </p>
-          <button class="ghost" @click="resetSave">Reset save</button>
         </header>
 
         <ul class="world-list">
-          <li v-for="world in finishedWorlds" :key="world.name" class="row">
-            <span class="row-name" :title="world.name">{{ world.name }}</span>
-            <span class="row-day">{{ formatDay(world.day) }}</span>
-            <span class="row-score">★ {{ formatScore(world.score) }}</span>
-            <span class="row-time">⏱ {{ formatClock(world.seconds) }}</span>
-            <button
-              v-if="world.replay"
-              class="ghost row-watch"
-              @click="emit('watch', world)">
-              ▶ Replay
-            </button>
-            <span v-else class="row-watch none">no replay</span>
+          <li v-for="world in playedWorlds" :key="world.name" class="row">
+            <span class="row-name" :title="world.name"
+              >World {{ world.name }}</span
+            >
+
+            <div class="row-meta">
+              <span class="row-day">{{ formatDay(world.day) }}</span>
+              <template v-if="world.completed !== null">
+                <span class="row-score">★ {{ formatWorldScore(world) }}</span>
+                <span class="row-time">⏱ {{ formatWorldClock(world) }}</span>
+              </template>
+              <span v-else class="row-open">unfinished</span>
+              <span v-if="world.runs > 1" class="row-runs"
+                >×{{ world.runs }}</span
+              >
+            </div>
+
+            <div class="row-actions">
+              <button
+                v-if="world.day"
+                class="ghost"
+                @click="emit('start', world.day)">
+                ▶ Play
+              </button>
+              <button
+                v-if="world.replays.length"
+                class="ghost"
+                :aria-expanded="isOpen(world)"
+                @click="toggleRuns(world)">
+                ⟲ Replays ({{ size(world.replays) }})
+              </button>
+            </div>
+
+            <ul v-if="isOpen(world)" class="run-list">
+              <li v-for="run in world.replays" :key="run.id" class="run">
+                <span class="run-outcome" :class="run.outcome.toLowerCase()">{{
+                  formatRunLabel(run)
+                }}</span>
+
+                <span class="run-meta">
+                  <span class="run-score">★ {{ formatScore(run.score) }}</span>
+                  <span class="run-time">⏱ {{ formatClock(run.seconds) }}</span>
+                  <span class="run-when">{{ formatPlayedWhen(run) }}</span>
+                </span>
+
+                <button class="ghost" @click="emit('watch', run)">
+                  ▶ Watch
+                </button>
+              </li>
+            </ul>
           </li>
         </ul>
       </div>
 
       <p class="controls">
-        A / D move · W jump · E interact · Space star · X shoot · Esc close · R
-        respawn
+        A / D move · W jump · E interact · Space star · X shoot · Esc close ·
+        Backspace respawn · M moons
       </p>
     </div>
   </div>
@@ -208,7 +277,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-height: 240px;
+  max-height: 280px;
   overflow-y: auto;
   margin: 0;
   padding: 0;
@@ -217,7 +286,7 @@ h1 {
 
 .row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 4px 10px;
   padding: 8px 10px;
@@ -235,6 +304,13 @@ h1 {
   overflow-wrap: anywhere;
 }
 
+.row-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
 .row-day {
   font-family: 'Cascadia Mono', Consolas, monospace;
   font-size: 12px;
@@ -250,14 +326,79 @@ h1 {
   color: #9fb0c3;
 }
 
-.row-watch {
+.row-open {
+  color: #4a5567;
+  font-size: 12px;
+}
+
+.row-runs {
+  font-size: 12px;
+  color: #64758a;
+}
+
+.row-actions {
   justify-self: end;
+  display: flex;
+  gap: 6px;
+}
+
+.row-actions .ghost {
   padding: 4px 10px;
   font-size: 12px;
 }
 
-.row-watch.none {
-  color: #4a5567;
+.run-list {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 6px 0 0;
+  padding: 8px 0 0;
+  border-top: 1px solid #2a3648;
+  list-style: none;
+}
+
+.run {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 2px 10px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #161d2b;
+}
+
+.run-outcome {
+  font-size: 12px;
+  font-weight: 700;
+  color: #9fb0c3;
+}
+
+.run-outcome.complete {
+  color: #7ddf9a;
+}
+
+.run-outcome.game_over {
+  color: #ff5470;
+}
+
+.run-meta {
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  font-size: 12px;
+}
+
+.run-when {
+  color: #64758a;
+}
+
+.run .ghost {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  padding: 4px 10px;
   font-size: 12px;
 }
 

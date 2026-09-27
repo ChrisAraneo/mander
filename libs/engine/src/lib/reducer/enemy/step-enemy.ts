@@ -13,37 +13,38 @@ import { match } from 'ts-pattern';
 import { moveHorizontal } from '../collision/move-horizontal';
 import { moveVertical } from '../collision/move-vertical';
 import { resolveLanding } from '../collision/resolve-landing';
-import { spikeAhead } from '../spike/spike-ahead';
+import { isSpikeAhead } from '../spike/is-spike-ahead';
+import { isBeartrapAhead } from './is-beartrap-ahead';
 import { ENEMY_DEATH_SECONDS, ENEMY_HEIGHT, ENEMY_WIDTH } from './consts';
-import { ledgeAhead } from './ledge-ahead';
-import { playerOverhead } from './player-overhead';
+import { isLedgeAhead } from './is-ledge-ahead';
+import { isPlayerOverhead } from './is-player-overhead';
 import type { EnemyMotion } from './types/enemy-motion';
-import { wallAhead } from './wall-ahead';
+import { isWallAhead } from './is-wall-ahead';
 
-const opposite = (facing: 1 | -1): 1 | -1 =>
+const flipFacing = (facing: 1 | -1): 1 | -1 =>
   match(facing)
     .with(1, (): 1 | -1 => -1)
     .otherwise((): 1 | -1 => 1);
 
-const facingOf = (enemy: Enemy): 1 | -1 =>
+const getFacing = (enemy: Enemy): 1 | -1 =>
   match(enemy.statuses.isFacingRight)
     .with(true, (): 1 | -1 => 1)
     .otherwise((): 1 | -1 => -1);
 
-const enemyHop = (
+const getEnemyHop = (
   isGrounded: boolean,
   vy: number,
   enemy: Enemy,
   player: Player,
 ): { vy: number; isGrounded: boolean } =>
-  match({ isGrounded, isOverhead: playerOverhead(enemy, player) })
+  match({ isGrounded, isOverhead: isPlayerOverhead(enemy, player) })
     .with({ isGrounded: true, isOverhead: true }, () => ({
       vy: -enemy.velocity.y.max,
       isGrounded: false,
     }))
     .otherwise(() => ({ vy, isGrounded }));
 
-const enemyTurn = (
+const getEnemyTurn = (
   level: Level,
   x: number,
   y: number,
@@ -53,19 +54,20 @@ const enemyTurn = (
   match({
     isGrounded,
     hasObstacle:
-      wallAhead(level, x, y, facing) ||
-      ledgeAhead(level, x, y, facing) ||
-      spikeAhead(level, x, y, facing),
+      isWallAhead(level, x, y, facing) ||
+      isLedgeAhead(level, x, y, facing) ||
+      isSpikeAhead(level, x, y, facing) ||
+      isBeartrapAhead(level, x, y, facing),
   })
-    .with({ isGrounded: true, hasObstacle: true }, () => opposite(facing))
+    .with({ isGrounded: true, hasObstacle: true }, () => flipFacing(facing))
     .otherwise(() => facing);
 
 const turnOnBlock = (isBlocked: boolean, facing: 1 | -1): 1 | -1 =>
   match(isBlocked)
-    .with(true, () => opposite(facing))
+    .with(true, () => flipFacing(facing))
     .otherwise(() => facing);
 
-const lostToThePit = (enemy: Enemy): Enemy => ({
+const loseToThePit = (enemy: Enemy): Enemy => ({
   ...enemy,
   velocity: {
     x: { ...enemy.velocity.x, current: 0 },
@@ -74,9 +76,13 @@ const lostToThePit = (enemy: Enemy): Enemy => ({
   timers: { ...enemy.timers, death: ENEMY_DEATH_SECONDS },
 });
 
-const toEnemy = (motion: EnemyMotion, enemy: Enemy, level: Level): Enemy =>
+const applyEnemyMotion = (
+  motion: EnemyMotion,
+  enemy: Enemy,
+  level: Level,
+): Enemy =>
   match(motion.y > (level.height + 2) * TILE_SIZE)
-    .with(true, (): Enemy => lostToThePit(enemy))
+    .with(true, (): Enemy => loseToThePit(enemy))
     .otherwise((): Enemy => ({
       kind: enemy.kind,
       position: { x: motion.x, y: motion.y },
@@ -95,7 +101,7 @@ const toEnemy = (motion: EnemyMotion, enemy: Enemy, level: Level): Enemy =>
       },
     }));
 
-const enemyIntent = (
+const getEnemyIntent = (
   level: Level,
   enemy: Enemy,
   player: Player,
@@ -106,16 +112,16 @@ const enemyIntent = (
     x: enemy.position.x,
     y: enemy.position.y,
     vy: enemy.velocity.y.current,
-    facing: facingOf(enemy),
+    facing: getFacing(enemy),
     isGrounded: enemy.statuses.isGrounded,
   })
     .thru((stage) => ({
       ...stage,
-      ...enemyHop(stage.isGrounded, stage.vy, enemy, player),
+      ...getEnemyHop(stage.isGrounded, stage.vy, enemy, player),
     }))
     .thru((stage) => ({
       ...stage,
-      facing: enemyTurn(
+      facing: getEnemyTurn(
         level,
         stage.x,
         stage.y,
@@ -168,7 +174,7 @@ const resolveEnemy = (level: Level, enemy: Enemy, motion: EnemyMotion): Enemy =>
         stage.vy,
       ),
     }))
-    .thru((stage): Enemy => toEnemy(stage, enemy, level))
+    .thru((stage): Enemy => applyEnemyMotion(stage, enemy, level))
     .value();
 
 export const stepEnemy = (
@@ -178,6 +184,6 @@ export const stepEnemy = (
   elapsedSeconds: number,
 ): Enemy => {
   const deltaSeconds = Math.min(elapsedSeconds, MAX_TICK_SECONDS);
-  const motion = enemyIntent(level, enemy, player, deltaSeconds);
+  const motion = getEnemyIntent(level, enemy, player, deltaSeconds);
   return resolveEnemy(level, enemy, motion);
 };

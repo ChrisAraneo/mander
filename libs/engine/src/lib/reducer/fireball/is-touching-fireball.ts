@@ -8,7 +8,7 @@ import {
   PLAYER_WIDTH,
 } from '../player/consts';
 import { FIREBALL_HITBOX_INSET, FIREBALL_SIZE } from './consts';
-import { fireballPosition } from './fireball-position';
+import { getFireballPosition } from './get-fireball-position';
 
 export const isTouchingFireball = (
   player: Player,
@@ -20,7 +20,7 @@ export const isTouchingFireball = (
   const playerBottom =
     player.position.y + PLAYER_HEIGHT - PLAYER_HITBOX_INSET_BOTTOM;
 
-  const centre = fireballPosition(fireball);
+  const centre = getFireballPosition(fireball);
   const reach = FIREBALL_SIZE / 2 - FIREBALL_HITBOX_INSET;
 
   return (

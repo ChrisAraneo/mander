@@ -1,1 +1,2 @@
-export * from './tick-stream';
+export * from './consts';
+export * from './fixed-clock';

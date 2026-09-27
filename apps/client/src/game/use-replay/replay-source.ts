@@ -1,8 +1,9 @@
 import type { GameState, Replay } from '@mander/engine';
 
 export interface ReplaySource {
-  replay(): Replay;
-  initialState(): GameState;
-  render(state: GameState): void;
-  onStop(): void;
+  getReplay(): Replay;
+  getGhosts(): Replay[];
+  getInitialState(): GameState;
+  render(state: GameState, ghosts: GameState[]): void;
+  handleStop(): void;
 }

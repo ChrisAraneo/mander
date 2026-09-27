@@ -1,12 +1,15 @@
 import type { Enemy, Level, Player } from '@mander/model';
 import { match, P } from 'ts-pattern';
 
-import { overlapsSpike } from '../spike/overlaps-spike';
+import { isOverlappingSpike } from '../spike/is-overlapping-spike';
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from './consts';
 import { killEnemy } from './kill-enemy';
+import { stepBeartrap } from './step-beartrap';
 import { stepDyingEnemy } from './step-dying-enemy';
 import { stepEnemy } from './step-enemy';
 import { stepFlyingEnemy } from './step-flying-enemy';
+
+const { number } = P;
 
 const moveAlive = (
   level: Level,
@@ -16,6 +19,7 @@ const moveAlive = (
 ): Enemy =>
   match(enemy.kind)
     .with('FLYING', () => stepFlyingEnemy(level, enemy, deltaSeconds))
+    .with('BEARTRAP', () => stepBeartrap(level, enemy, player, deltaSeconds))
     .otherwise(() => stepEnemy(level, enemy, player, deltaSeconds));
 
 const patrol = (
@@ -26,7 +30,7 @@ const patrol = (
 ): Enemy => {
   const stepped = moveAlive(level, enemy, player, deltaSeconds);
   return match(
-    overlapsSpike(
+    isOverlappingSpike(
       level,
       stepped.position.x,
       stepped.position.y,
@@ -45,7 +49,7 @@ export const advanceEnemy = (
   deltaSeconds: number,
 ): Enemy =>
   match(enemy.timers.death)
-    .with(P.number, (death): Enemy => {
+    .with(number, (death): Enemy => {
       const fallen = stepDyingEnemy(level, enemy, deltaSeconds);
       return {
         ...fallen,

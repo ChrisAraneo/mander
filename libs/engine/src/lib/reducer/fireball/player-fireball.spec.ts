@@ -2,6 +2,7 @@ import {
   type Enemy,
   type Fireball,
   type Item,
+  MAX_TICK_SECONDS,
   MOON_MAGNET,
   type Player,
   type Tile,
@@ -18,14 +19,18 @@ import type { GameState } from '../../state/types/game-state';
 import type { GameLevel } from '../../types/game-level';
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from '../enemy/consts';
 import { createBasePlayerVelocity } from '../player/create-base-player-velocity';
-import { playerCentre } from '../player/player-centre';
+import { getPlayerCentre } from '../player/get-player-centre';
 import { tick } from '../tick/tick';
 import { advancePlayerFireballs } from './advance-player-fireballs';
 import { burnEnemies } from './burn-enemies';
-import { PLAYER_FIREBALL_ORBIT_RADIUS } from './consts';
+import {
+  PLAYER_FIREBALL_ANGULAR_SPEED,
+  PLAYER_FIREBALL_ORBIT_RADIUS,
+} from './consts';
 import { createPlayerFireballs } from './create-player-fireballs';
-import { playerFireballPosition } from './player-fireball-position';
-import { startingFireballs } from './starting-fireballs';
+import { getPlayerFireballPosition } from './get-player-fireball-position';
+import { countStartingFireballs } from './count-starting-fireballs';
+import { stepFireball } from './step-fireball';
 
 const DELTA_SECONDS = 1 / 60;
 
@@ -41,7 +46,7 @@ const player = (x = 0, y = 0): Player => ({
   position: { x, y },
   velocity: createBasePlayerVelocity(),
   hearts: { value: 3 },
-  timers: { death: null, invincibility: 0 },
+  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
   statuses: {
     isFacingRight: true,
     isGrounded: false,
@@ -59,7 +64,7 @@ const enemy = (x: number, y: number, death: number | null = null): Enemy => ({
 });
 
 const radiusOf = (fireball: Fireball): number => {
-  const orbiting = playerFireballPosition(fireball);
+  const orbiting = getPlayerFireballPosition(fireball);
 
   return Math.hypot(
     orbiting.x - fireball.origin.x,
@@ -68,7 +73,7 @@ const radiusOf = (fireball: Fireball): number => {
 };
 
 const enemyUnder = (fireball: Fireball, death: number | null = null): Enemy => {
-  const orbiting = playerFireballPosition(fireball);
+  const orbiting = getPlayerFireballPosition(fireball);
 
   return enemy(
     orbiting.x - ENEMY_WIDTH / 2,
@@ -114,52 +119,52 @@ const dying = (state: GameState): GameState => ({
 describe('the fireballs that circle the player', () => {
   const STANDING = player(3 * TILE_SIZE, 5 * TILE_SIZE);
 
-  it('gives the player none without the magnet in the pack', () => {
+  it('should give the player none when the magnet is not in the pack', () => {
     expect(createPlayerFireballs([], STANDING)).toEqual([]);
     expect(createPlayerFireballs([trinket('GEM')], STANDING)).toEqual([]);
   });
 
-  it('lights the two the magnet promises', () => {
-    expect(startingFireballs([MOON_MAGNET])).toBe(2);
+  it('should light the two the magnet promises when the player carries one', () => {
+    expect(countStartingFireballs([MOON_MAGNET])).toBe(2);
     expect(createPlayerFireballs([MOON_MAGNET], STANDING)).toHaveLength(2);
   });
 
-  it('counts what every magnet the player carries is worth', () => {
-    expect(startingFireballs([MOON_MAGNET, trinket('GEM'), MOON_MAGNET])).toBe(
-      4,
-    );
+  it('should count what each of them is worth when the player carries several magnets', () => {
+    expect(
+      countStartingFireballs([MOON_MAGNET, trinket('GEM'), MOON_MAGNET]),
+    ).toBe(4);
   });
 
-  it('hangs them on opposite sides of the player', () => {
+  it('should hang them on opposite sides of the player when it lights two', () => {
     const [first, second] = createPlayerFireballs([MOON_MAGNET], STANDING);
 
     expect(Math.abs(second.angle - first.angle)).toBeCloseTo(Math.PI);
   });
 
-  it('hangs them off the player rather than off a block in the level', () => {
+  it('should hang them off the player rather than off a block when it lights them', () => {
     for (const fireball of createPlayerFireballs([MOON_MAGNET], STANDING)) {
-      expect(fireball.origin).toEqual(playerCentre(STANDING));
+      expect(fireball.origin).toEqual(getPlayerCentre(STANDING));
     }
   });
 
-  it('holds each one a fixed distance out from the player', () => {
+  it('should hold each one a fixed distance out when it lights them', () => {
     for (const fireball of createPlayerFireballs([MOON_MAGNET], STANDING)) {
       expect(radiusOf(fireball)).toBeCloseTo(PLAYER_FIREBALL_ORBIT_RADIUS);
     }
   });
 
-  it('circles them closer in than the fireballs bolted to the level', () => {
+  it('should circle them closer in than the fireballs bolted to the level when it lights them', () => {
     expect(PLAYER_FIREBALL_ORBIT_RADIUS).toBeLessThan(5 * TILE_SIZE);
   });
 
-  it('turns them as time passes', () => {
+  it('should turn them when time passes', () => {
     const [before] = createPlayerFireballs([MOON_MAGNET], STANDING);
     const [after] = advancePlayerFireballs([before], STANDING, DELTA_SECONDS);
 
     expect(after.angle).toBeGreaterThan(before.angle);
   });
 
-  it('carries them along wherever the player walks', () => {
+  it('should carry them along when the player walks', () => {
     const walked = player(
       STANDING.position.x + TILE_SIZE,
       STANDING.position.y - TILE_SIZE,
@@ -170,17 +175,17 @@ describe('the fireballs that circle the player', () => {
       DELTA_SECONDS,
     );
 
-    expect(followed.origin).toEqual(playerCentre(walked));
+    expect(followed.origin).toEqual(getPlayerCentre(walked));
   });
 
-  it('burns the enemy one of them sweeps through', () => {
+  it('should burn the enemy when one of them sweeps through it', () => {
     const [fireball] = createPlayerFireballs([MOON_MAGNET], STANDING);
     const [swept] = burnEnemies([fireball], [enemyUnder(fireball)]);
 
     expect(isDying(swept)).toBe(true);
   });
 
-  it('leaves the enemy standing well clear of the orbit alone', () => {
+  it('should leave the enemy alone when it stands well clear of the orbit', () => {
     const fireballs = createPlayerFireballs([MOON_MAGNET], STANDING);
     const far = enemy(
       STANDING.position.x + 10 * TILE_SIZE,
@@ -190,28 +195,28 @@ describe('the fireballs that circle the player', () => {
     expect(burnEnemies(fireballs, [far])).toEqual([far]);
   });
 
-  it('burns nothing at all when the player carries no magnet', () => {
+  it('should burn nothing when the player carries no magnet', () => {
     const [fireball] = createPlayerFireballs([MOON_MAGNET], STANDING);
     const victim = enemyUnder(fireball);
 
     expect(burnEnemies([], [victim])).toEqual([victim]);
   });
 
-  it('leaves an enemy already dying to its own death', () => {
+  it('should leave the enemy to its own death when it is already dying', () => {
     const [fireball] = createPlayerFireballs([MOON_MAGNET], STANDING);
     const fading = enemyUnder(fireball, 0.2);
 
     expect(burnEnemies([fireball], [fading])).toEqual([fading]);
   });
 
-  it('sets them circling the player from the very first tick', () => {
+  it('should set them circling the player when the very first tick comes', () => {
     expect(
       tick(carrying(MOON_MAGNET), DELTA_SECONDS).playerFireballs,
     ).toHaveLength(2);
     expect(tick(carrying(), DELTA_SECONDS).playerFireballs).toEqual([]);
   });
 
-  it('keeps them circling and following as the game ticks along', () => {
+  it('should keep them circling and following when the game ticks along', () => {
     const state = carrying(MOON_MAGNET);
     const ticked = tick(state, DELTA_SECONDS);
 
@@ -219,25 +224,37 @@ describe('the fireballs that circle the player', () => {
       map(state.playerFireballs, 'angle'),
     );
     expect(ticked.playerFireballs[0].origin).toEqual(
-      playerCentre(ticked.player),
+      getPlayerCentre(ticked.player),
     );
   });
 
-  it('burns an enemy caught on the orbit as the game ticks along', () => {
+  it('should burn the enemy when it is caught on the orbit as the game ticks along', () => {
     const state = carrying(MOON_MAGNET);
     const caught = withEnemyOn(state, state.playerFireballs[0]);
 
     expect(isDying(tick(caught, DELTA_SECONDS).enemies[0])).toBe(true);
   });
 
-  it('burns nothing while the player lies dying', () => {
+  it('should burn the enemy when the moons only sweep past it mid-tick', () => {
+    const state = carrying(MOON_MAGNET);
+    const midTick = stepFireball(
+      state.playerFireballs[0],
+      MAX_TICK_SECONDS / 4,
+      PLAYER_FIREBALL_ANGULAR_SPEED,
+    );
+    const caught = { ...state, enemies: [enemyUnder(midTick)] };
+
+    expect(isDying(tick(caught, MAX_TICK_SECONDS).enemies[0])).toBe(true);
+  });
+
+  it('should burn nothing when the player lies dying', () => {
     const state = carrying(MOON_MAGNET);
     const caught = dying(withEnemyOn(state, state.playerFireballs[0]));
 
     expect(isDying(tick(caught, DELTA_SECONDS).enemies[0])).toBe(false);
   });
 
-  it('leaves the fireballs bolted to the level burning where they are', () => {
+  it('should leave the fireballs bolted to the level where they are when it ticks', () => {
     const state = carrying(MOON_MAGNET);
 
     expect(tick(state, DELTA_SECONDS).fireballs).toEqual(state.fireballs);

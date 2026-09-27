@@ -1,27 +1,31 @@
-import { filter, map, size, times, uniq } from 'lodash-es';
+import { filter, map, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { isMirrored, MIRROR_CHANCE } from './is-mirrored';
+import { MIRRORED_LEVELS } from '../consts';
+import { isMirrored } from './is-mirrored';
 
-const seeds = times(600, (index) => `SEED-${index}`);
+const LEVELS_A_DAY = 8;
 
-const share = (): number => size(filter(seeds, isMirrored)) / size(seeds);
+const levelNumbers = times(LEVELS_A_DAY, (index) => index + 1);
 
 describe('isMirrored', () => {
-  it('should turn about three levels in ten around', () => {
-    expect(MIRROR_CHANCE).toBe(0.3);
-    expect(share()).toBeCloseTo(MIRROR_CHANCE, 1);
+  it('should turn the level around when it is the third or the sixth', () => {
+    expect(MIRRORED_LEVELS).toEqual([3, 6]);
+    expect(isMirrored(3)).toBe(true);
+    expect(isMirrored(6)).toBe(true);
   });
 
-  it('should leave most levels running the way they were built', () => {
-    expect(share()).toBeLessThan(0.5);
+  it('should leave the level running the way it was built when it is any other of the day', () => {
+    expect(filter(levelNumbers, isMirrored)).toEqual([3, 6]);
   });
 
-  it('should call the same seed the same way every time', () => {
-    expect(map(seeds, isMirrored)).toEqual(map(seeds, isMirrored));
+  it('should never turn the level around when it is the one the player starts the day on', () => {
+    expect(isMirrored(1)).toBe(false);
   });
 
-  it('should not answer the same for every seed', () => {
-    expect(uniq(map(seeds, isMirrored)).sort()).toEqual([false, true]);
+  it('should answer the same for a level number when the day it falls on changes', () => {
+    expect(map(levelNumbers, isMirrored)).toEqual(
+      map(levelNumbers, isMirrored),
+    );
   });
 });

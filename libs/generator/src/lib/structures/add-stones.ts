@@ -1,6 +1,9 @@
 import { isSolidTile, type Tile, TILE_DIRT, TILE_STONE } from '@mander/model';
-import { createRandom } from '@mander/utils';
-import { join, map, range, reduce, size, sum, times } from 'lodash-es';
+import { chain, createRandom } from '@mander/utils';
+import { map, range, reduce, size, sum, times } from 'lodash-es';
+import { match } from 'ts-pattern';
+
+import { formatTilesSeed } from './format-tiles-seed';
 
 const DIRT_DEPTH = 3;
 
@@ -32,69 +35,65 @@ const UNBURIED = -1;
 
 type Field = number[][];
 
-const seedOf = (tiles: Tile[][]): string =>
-  join(
-    map(tiles, (row) => join(row, ',')),
-    '|',
-  );
+const convertToFlag = (isOn: boolean): number => Number(isOn);
 
-const depthsOf = (tiles: Tile[][]): Field =>
+const measureDepths = (tiles: Tile[][]): Field =>
   reduce(
     tiles,
     (depths: Field, cells, row): Field => [
       ...depths,
       map(cells, (tile, column) =>
-        isSolidTile(tile)
-          ? (depths[row - 1]?.[column] ?? UNBURIED) + 1
-          : UNBURIED,
+        match(isSolidTile(tile))
+          .with(true, () => (depths[row - 1]?.[column] ?? UNBURIED) + 1)
+          .otherwise(() => UNBURIED),
       ),
     ],
     [],
   );
 
-const buriedOf = (tiles: Tile[][], dirtDepth: number): Field =>
-  map(depthsOf(tiles), (depths, row) =>
+const findBuried = (tiles: Tile[][], dirtDepth: number): Field =>
+  map(measureDepths(tiles), (depths, row) =>
     map(depths, (depth, column) =>
-      tiles[row][column] === TILE_DIRT && depth >= dirtDepth ? 1 : 0,
+      convertToFlag(tiles[row][column] === TILE_DIRT && depth >= dirtDepth),
     ),
   );
 
-const nearest = (index: number, edge: number): number =>
+const clampIndex = (index: number, edge: number): number =>
   Math.min(Math.max(index, 0), edge);
 
-const blurRows = (field: Field): Field =>
-  map(field, (cells) => {
-    const edge = size(cells) - 1;
+const sumTaps = (sampleAt: (tap: number) => number): number => {
+  let total = 0;
 
-    return times(size(cells), (column) => {
-      let total = 0;
+  for (let tap = 0; tap < BLUR_TAPS.length; tap++) {
+    total += BLUR_TAPS[tap] * sampleAt(tap);
+  }
 
-      for (let tap = 0; tap < BLUR_TAPS.length; tap++) {
-        total +=
-          BLUR_TAPS[tap] * cells[nearest(column + tap - BLUR_REACH, edge)];
-      }
-
-      return total / BLUR_WEIGHT;
-    });
-  });
-
-const blurColumns = (field: Field): Field => {
-  const edge = size(field) - 1;
-
-  return map(field, (cells, row) => {
-    const rows = map(BLUR_SPAN, (offset) => field[nearest(row + offset, edge)]);
-
-    return times(size(cells), (column) => {
-      let total = 0;
-
-      for (let tap = 0; tap < BLUR_TAPS.length; tap++) {
-        total += BLUR_TAPS[tap] * rows[tap][column];
-      }
-
-      return total / BLUR_WEIGHT;
-    });
-  });
+  return total / BLUR_WEIGHT;
 };
+
+const blurRows = (field: Field): Field =>
+  map(field, (cells) =>
+    chain(size(cells) - 1)
+      .thru((edge) =>
+        times(size(cells), (column) =>
+          sumTaps((tap) => cells[clampIndex(column + tap - BLUR_REACH, edge)]),
+        ),
+      )
+      .value(),
+  );
+
+const blurColumns = (field: Field): Field =>
+  chain(size(field) - 1)
+    .thru((edge) =>
+      map(field, (cells, row) =>
+        chain(map(BLUR_SPAN, (offset) => field[clampIndex(row + offset, edge)]))
+          .thru((rows) =>
+            times(size(cells), (column) => sumTaps((tap) => rows[tap][column])),
+          )
+          .value(),
+      ),
+    )
+    .value();
 
 const blur = (field: Field): Field => blurColumns(blurRows(field));
 
@@ -102,9 +101,11 @@ const soften = (field: Field): Field =>
   reduce(times(BLUR_PASSES), (softened: Field) => blur(softened), field);
 
 const sharpen = (field: Field): Field =>
-  map(field, (cells) => map(cells, (share) => (share >= STONE_SHARE ? 1 : 0)));
+  map(field, (cells) =>
+    map(cells, (share) => convertToFlag(share >= STONE_SHARE)),
+  );
 
-const both = (field: Field, other: Field): Field =>
+const multiplyFields = (field: Field, other: Field): Field =>
   map(field, (cells, row) =>
     map(cells, (share, column) => share * other[row][column]),
   );
@@ -112,11 +113,11 @@ const both = (field: Field, other: Field): Field =>
 const roundOff = (buried: Field): Field =>
   reduce(
     times(BLOB_ROUNDS),
-    (blobs: Field) => both(sharpen(blur(blobs)), buried),
-    both(sharpen(soften(buried)), buried),
+    (blobs: Field) => multiplyFields(sharpen(blur(blobs)), buried),
+    multiplyFields(sharpen(soften(buried)), buried),
   );
 
-const company = (blobs: Field, row: number, column: number): number =>
+const countCompany = (blobs: Field, row: number, column: number): number =>
   sum([
     blobs[row - 1]?.[column] ?? 0,
     blobs[row + 1]?.[column] ?? 0,
@@ -130,22 +131,29 @@ const shed = (blobs: Field): Field =>
     (kept: Field) =>
       map(kept, (cells, row) =>
         map(cells, (stone, column) =>
-          stone === 1 && company(kept, row, column) >= STONE_COMPANY ? 1 : 0,
+          convertToFlag(
+            stone === 1 && countCompany(kept, row, column) >= STONE_COMPANY,
+          ),
         ),
       ),
     blobs,
   );
 
-export const addStones = (tiles: Tile[][]): Tile[][] => {
-  const random = createRandom(seedOf(tiles));
-  const dirtDepth = random.chance(DEEP_DIRT_CHANCE)
-    ? DEEP_DIRT_DEPTH
-    : DIRT_DEPTH;
-  const stones = shed(roundOff(buriedOf(tiles, dirtDepth)));
-
-  return map(tiles, (cells, row) =>
-    map(cells, (tile, column) =>
-      stones[row][column] === 1 ? TILE_STONE : tile,
-    ),
-  );
-};
+export const addStones = (tiles: Tile[][]): Tile[][] =>
+  chain(createRandom(formatTilesSeed(tiles)))
+    .thru((random) =>
+      match(random.isRollUnder(DEEP_DIRT_CHANCE))
+        .with(true, () => DEEP_DIRT_DEPTH)
+        .otherwise(() => DIRT_DEPTH),
+    )
+    .thru((dirtDepth) => shed(roundOff(findBuried(tiles, dirtDepth))))
+    .thru((stones) =>
+      map(tiles, (cells, row) =>
+        map(cells, (tile, column) =>
+          match(stones[row][column])
+            .with(1, () => TILE_STONE)
+            .otherwise(() => tile),
+        ),
+      ),
+    )
+    .value();

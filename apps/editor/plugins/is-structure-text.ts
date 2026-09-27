@@ -1,13 +1,15 @@
-import { every, map, size, uniq } from 'lodash-es';
+import { every, map, size, split, uniq } from 'lodash-es';
 
-const SHAPE = /^\[\n(?: {2}\[\w+(?:, \w+)*\],\n)+\]$/;
+const LAYER = String.raw`(?:\[\]|\[\n(?: {4}\[\w+(?:, \w+)*\],\n)+ {2}\])`;
 
-const rowsOf = (text: string): string[][] =>
-  map([...text.matchAll(/ {2}\[(\w+(?:, \w+)*)\],/g)], ([, row]) =>
-    row.split(', '),
+const SHAPE = new RegExp(String.raw`^\[\n {2}${LAYER},\n {2}${LAYER},\n\]$`);
+
+const parseRows = (text: string): string[][] =>
+  map([...text.matchAll(/ {4}\[(\w+(?:, \w+)*)\],/g)], ([, row]) =>
+    split(row, ', '),
   );
 
 export const isStructureText = (text: string): boolean =>
   SHAPE.test(text) &&
-  size(uniq(map(rowsOf(text), size))) === 1 &&
-  every(rowsOf(text), (row) => size(row) > 0);
+  size(uniq(map(parseRows(text), size))) === 1 &&
+  every(parseRows(text), (row) => size(row) > 0);

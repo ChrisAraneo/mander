@@ -3,7 +3,6 @@ export interface FireballColors {
   flame: string;
   edge: string;
   tail: string;
-  glow: string;
 }
 
 export const EMBER_FIREBALL: FireballColors = {
@@ -11,7 +10,6 @@ export const EMBER_FIREBALL: FireballColors = {
   flame: '#FFB03A',
   edge: '#D8341C',
   tail: 'RGBA(255, 138, 42, 0.5)',
-  glow: '#FF7A2F',
 };
 
 export const WHITE_FIREBALL: FireballColors = {
@@ -19,5 +17,4 @@ export const WHITE_FIREBALL: FireballColors = {
   flame: '#F2F6FF',
   edge: '#B9C6E8',
   tail: 'RGBA(230, 238, 255, 0.5)',
-  glow: '#E8F0FF',
 };

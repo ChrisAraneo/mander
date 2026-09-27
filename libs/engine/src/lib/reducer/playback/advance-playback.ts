@@ -1,31 +1,51 @@
-import { map, slice } from 'lodash-es';
+import { chain } from '@mander/utils';
+import { reduce as fold, map, slice, times } from 'lodash-es';
+import { match } from 'ts-pattern';
 
-import type { RecordedAction } from '../recorder/types/recorded-action';
+import type { Action } from '../../actions/actions';
 import { applyActions } from '../apply-actions';
+import type { RecordedAction } from '../recorder/types/recorded-action';
 import type { Replay } from '../recorder/types/replay';
+import { isReplayFinished } from './is-replay-finished';
 import type { ReplayPlayback } from './types/replay-playback';
 
-const dueIndex = (
+const TICK: Action = { type: 'TICK' };
+
+const getDueEnd = (
   entries: RecordedAction[],
   index: number,
-  untilMs: number,
-): number => {
-  let next = index;
-  while (next < entries.length && entries[next].atMs <= untilMs) next++;
-  return next;
-};
+  step: number,
+): number =>
+  match<RecordedAction | undefined>(entries[index])
+    .with({ atStep: step }, () => getDueEnd(entries, index + 1, step))
+    .otherwise(() => index);
+
+const stepOnce = (replay: Replay, playback: ReplayPlayback): ReplayPlayback =>
+  chain(getDueEnd(replay.entries, playback.index, playback.step))
+    .thru((index) => ({
+      index,
+      due: map(
+        slice(replay.entries, playback.index, index),
+        (entry) => entry.action,
+      ),
+    }))
+    .thru(({ index, due }): ReplayPlayback => ({
+      step: playback.step + 1,
+      index,
+      state: applyActions(playback.state, [...due, TICK]),
+    }))
+    .value();
 
 export const advancePlayback = (
   replay: Replay,
   playback: ReplayPlayback,
-  deltaMs: number,
-): ReplayPlayback => {
-  const elapsedMs = playback.elapsedMs + Math.max(0, deltaMs);
-  const index = dueIndex(replay.entries, playback.index, elapsedMs);
-  const due = map(
-    slice(replay.entries, playback.index, index),
-    (entry) => entry.action,
+  steps: number,
+): ReplayPlayback =>
+  fold(
+    times(Math.max(0, steps)),
+    (current) =>
+      match(isReplayFinished(replay, current))
+        .with(true, () => current)
+        .otherwise(() => stepOnce(replay, current)),
+    playback,
   );
-
-  return { elapsedMs, index, state: applyActions(playback.state, due) };
-};

@@ -1,7 +1,7 @@
 import { clamp } from 'lodash-es';
 
-import type { Hsl } from './hsl';
-import { wrapHue } from './wrap-hue';
+import type { Hsl } from './hsl.ts';
+import { wrapHue } from './wrap-hue.ts';
 
 export const shiftHsl = (color: Hsl, delta: Partial<Hsl>): Hsl => ({
   hue: wrapHue(color.hue + (delta.hue ?? 0)),

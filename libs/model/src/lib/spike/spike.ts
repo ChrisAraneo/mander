@@ -3,6 +3,7 @@ import type { Tile } from '../tile/tile';
 
 export const TILE_SPIKE: Tile = 2;
 export const TILE_SPIKE_CEILING: Tile = 3;
+export const TILE_SPIKE_FALLING: Tile = 16;
 
 export const SPIKE_TILES: Tile[] = [TILE_SPIKE, TILE_SPIKE_CEILING];
 

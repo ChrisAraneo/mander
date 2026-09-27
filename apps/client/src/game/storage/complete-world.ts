@@ -1,34 +1,32 @@
-import { concat, find, reject } from 'lodash-es';
+import { concat, find, isUndefined, reject } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 
-import { loadSave } from './load-save';
-import { persist } from './persist';
-import type { CompletedWorld } from './save-data';
+import type { CompletedWorld, SaveData } from './save-data';
 
-const best = (
+const { when } = P;
+
+const pickBest = (
   run: CompletedWorld,
   previous: CompletedWorld | undefined,
 ): CompletedWorld =>
   match(previous)
     .with(
-      P.when(
+      when(
         (earlier): earlier is CompletedWorld =>
-          earlier !== undefined && earlier.score >= run.score,
+          !isUndefined(earlier) && earlier.score >= run.score,
       ),
       (earlier) => earlier,
     )
     .otherwise(() => run);
 
-export const completeWorld = (run: CompletedWorld): void => {
-  const save = loadSave();
-  const previous = find(save.completedWorlds, { name: run.name });
-
-  persist({
-    ...save,
-    score: run.score,
-    completedWorlds: concat(
-      reject(save.completedWorlds, { name: run.name }),
-      best(run, previous),
-    ),
-  });
-};
+export const addCompletedWorld = (
+  save: SaveData,
+  run: CompletedWorld,
+): SaveData => ({
+  ...save,
+  score: run.score,
+  completedWorlds: concat(
+    reject(save.completedWorlds, { name: run.name }),
+    pickBest(run, find(save.completedWorlds, { name: run.name })),
+  ),
+});

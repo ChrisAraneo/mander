@@ -3,6 +3,7 @@ import type {
   Cannon,
   Cannonball,
   Enemy,
+  FallingSpike,
   Fireball,
   Item,
   Player,
@@ -20,17 +21,19 @@ export interface GameState {
   enemies: Enemy[];
   cannons: Cannon[];
   cannonballs: Cannonball[];
+  fallingSpikes: FallingSpike[];
   fireballs: Fireball[];
   playerFireballs: Fireball[];
   bullets: Bullet[];
   ammo: number;
   stars: number;
-  diamonds: Point[];
+  gems: Point[];
   input: InputState;
   status: GameStatus;
   hasKey: boolean;
   isChestOpened: boolean;
   inventory: Item[];
+  isMoonMagnetOn: boolean;
   isNearChest: boolean;
   isNearPortal: boolean;
   time: number;

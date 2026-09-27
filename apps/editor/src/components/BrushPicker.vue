@@ -1,42 +1,53 @@
 <script setup lang="ts">
-import { BRUSH_GROUPS } from '../editor';
+import type { Brush } from '../editor';
+import { BRUSH_ROWS } from '../editor';
 import CellSwatch from './CellSwatch.vue';
 
-defineProps<{ brush: number }>();
+defineProps<{ brush: Brush }>();
 
-const emit = defineEmits<{ pick: [value: number] }>();
+const emit = defineEmits<{ pick: [brush: Brush] }>();
 </script>
 
 <template>
-  <div class="groups">
-    <div v-for="group in BRUSH_GROUPS" :key="group.name" class="group">
-      <h3>{{ group.name }}</h3>
-      <button
-        v-for="option in group.brushes"
-        :key="option.value"
-        type="button"
-        class="brush"
-        :class="{ active: option.value === brush }"
-        @click="emit('pick', option.value)">
-        <CellSwatch :value="option.value" />
-        <span class="label">{{ option.label }}</span>
-        <kbd>{{ option.shortcut }}</kbd>
-      </button>
+  <div class="rows">
+    <div v-for="row in BRUSH_ROWS" :key="row[0].name" class="row">
+      <div v-for="group in row" :key="group.name" class="group">
+        <h3>{{ group.name }}</h3>
+        <button
+          v-for="option in group.brushes"
+          :key="`${option.layer}-${option.value}`"
+          type="button"
+          class="brush"
+          :class="{ active: option === brush }"
+          @click="emit('pick', option)">
+          <CellSwatch :value="option.value" :layer="option.layer" />
+          <span class="label">{{ option.label }}</span>
+          <kbd>{{ option.shortcut }}</kbd>
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.groups {
+.rows {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .group {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 h3 {
@@ -51,8 +62,8 @@ h3 {
 .brush {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 10px;
+  gap: 8px;
+  padding: 6px 8px;
   border-radius: 9px;
   border: 1px solid #33445a;
   background: transparent;
@@ -73,6 +84,8 @@ h3 {
 
 .label {
   flex: 1;
+  min-width: 0;
+  font-size: 13px;
 }
 
 kbd {

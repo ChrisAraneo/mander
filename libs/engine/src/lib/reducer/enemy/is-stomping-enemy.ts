@@ -13,13 +13,13 @@ import {
   STOMP_GRACE_Y,
 } from './consts';
 
-const feetOf = (player: Player): number =>
+const getFeet = (player: Player): number =>
   player.position.y + PLAYER_HEIGHT - PLAYER_HITBOX_INSET_BOTTOM;
 
-const headOf = (enemy: Enemy): number => enemy.position.y + ENEMY_HITBOX_INSET;
+const getHead = (enemy: Enemy): number => enemy.position.y + ENEMY_HITBOX_INSET;
 
-const headBeforeHopOf = (enemy: Enemy, deltaSeconds: number): number =>
-  headOf(enemy) -
+const getHeadBeforeHop = (enemy: Enemy, deltaSeconds: number): number =>
+  getHead(enemy) -
   Math.min(0, enemy.velocity.y.current) *
     Math.min(deltaSeconds, MAX_TICK_SECONDS);
 
@@ -33,15 +33,15 @@ const isOverlappingHorizontally = (player: Player, enemy: Enemy): boolean => {
   return playerLeft < enemyRight && playerRight > enemyLeft;
 };
 
-const dropsOntoHead = (
+const isDroppingOntoHead = (
   previousPlayer: Player,
   player: Player,
   enemy: Enemy,
   deltaSeconds: number,
 ): boolean =>
-  feetOf(previousPlayer) <=
-    headBeforeHopOf(enemy, deltaSeconds) + STOMP_GRACE_Y &&
-  feetOf(player) >= headOf(enemy);
+  getFeet(previousPlayer) <=
+    getHeadBeforeHop(enemy, deltaSeconds) + STOMP_GRACE_Y &&
+  getFeet(player) >= getHead(enemy);
 
 export const isStompingEnemy = (
   previousPlayer: Player,
@@ -51,4 +51,4 @@ export const isStompingEnemy = (
 ): boolean =>
   player.velocity.y.current > 0 &&
   isOverlappingHorizontally(player, enemy) &&
-  dropsOntoHead(previousPlayer, player, enemy, deltaSeconds);
+  isDroppingOntoHead(previousPlayer, player, enemy, deltaSeconds);

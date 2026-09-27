@@ -1,3 +1,4 @@
+import { FIXED_STEP_SECONDS } from '@mander/model';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
 
@@ -17,6 +18,7 @@ import { respawn } from './respawn/respawn';
 import { restart } from './restart/restart';
 import { shoot } from './shoot/shoot';
 import { tick } from './tick/tick';
+import { toggleMoonMagnet } from './toggle-moon-magnet/toggle-moon-magnet';
 import { useStar } from './use-star/use-star';
 
 export const reduce = (state: GameState, action: Action): GameState =>
@@ -24,7 +26,7 @@ export const reduce = (state: GameState, action: Action): GameState =>
     .thru((startTime) => ({
       startTime,
       newState: match(action)
-        .with({ type: 'TICK' }, ({ deltaSeconds }) => tick(state, deltaSeconds))
+        .with({ type: 'TICK' }, () => tick(state, FIXED_STEP_SECONDS))
         .with({ type: 'MOVE_LEFT_START' }, () => moveLeftStart(state))
         .with({ type: 'MOVE_LEFT_STOP' }, () => moveLeftStop(state))
         .with({ type: 'MOVE_RIGHT_START' }, () => moveRightStart(state))
@@ -35,6 +37,7 @@ export const reduce = (state: GameState, action: Action): GameState =>
         .with({ type: 'CHOOSE_ITEM' }, ({ index }) => chooseItem(state, index))
         .with({ type: 'USE_STAR' }, () => useStar(state))
         .with({ type: 'SHOOT' }, () => shoot(state))
+        .with({ type: 'TOGGLE_MOON_MAGNET' }, () => toggleMoonMagnet(state))
         .with({ type: 'CLOSE' }, () => close(state))
         .with({ type: 'RESPAWN' }, () => respawn(state))
         .with({ type: 'LOAD_LEVEL' }, ({ level, levelIndex }) =>

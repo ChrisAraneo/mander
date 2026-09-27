@@ -1,37 +1,73 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { chain } from '@mander/utils';
+import { noop } from 'lodash-es';
+import { match } from 'ts-pattern';
+import { computed, ref } from 'vue';
+
+import { setRef } from '../editor';
+
+const COPIED_MS = 1400;
 
 const props = defineProps<{ text: string }>();
 
-const copied = ref(false);
-const failed = ref(false);
+const isCopied = ref(false);
+const hasFailed = ref(false);
+const isShown = ref(false);
 
-async function copy(): Promise<void> {
-  failed.value = false;
-  try {
-    await navigator.clipboard.writeText(props.text);
-    copied.value = true;
-    window.setTimeout(() => {
-      copied.value = false;
-    }, 1400);
-  } catch {
-    failed.value = true;
-  }
-}
+const label = computed(() =>
+  match(isCopied.value)
+    .with(true, () => 'Copied')
+    .otherwise(() => 'Copy'),
+);
+
+const toggleLabel = computed(() =>
+  match(isShown.value)
+    .with(true, () => 'Hide')
+    .otherwise(() => 'Show'),
+);
+
+const toggle = (): void => void setRef(isShown, !isShown.value);
+
+// a blocked clipboard leaves the source as the only way out, so it is opened
+const showBlocked = (): void =>
+  void chain(setRef(hasFailed, true))
+    .thru(() => setRef(isShown, true))
+    .value();
+
+const copy = (): Promise<void> =>
+  chain(setRef(hasFailed, false))
+    .thru(() =>
+      navigator.clipboard.writeText(props.text).then(
+        () =>
+          chain(setRef(isCopied, true))
+            .thru(() =>
+              window.setTimeout(() => setRef(isCopied, false), COPIED_MS),
+            )
+            .value(),
+        () => showBlocked(),
+      ),
+    )
+    .thru((settled) => settled.then(noop))
+    .value();
 </script>
 
 <template>
   <section class="output">
     <header>
       <h2>Structure source</h2>
-      <button class="ghost" type="button" @click="copy">
-        {{ copied ? 'Copied' : 'Copy' }}
-      </button>
+      <div class="buttons">
+        <button class="ghost" type="button" @click="copy">
+          {{ label }}
+        </button>
+        <button class="ghost" type="button" @click="toggle()">
+          {{ toggleLabel }}
+        </button>
+      </div>
     </header>
-    <p v-if="failed" class="failed">
+    <p v-if="hasFailed" class="failed">
       Clipboard blocked — select the text below and copy manually.
     </p>
-    <pre>{{ text }}</pre>
+    <pre v-if="isShown">{{ text }}</pre>
   </section>
 </template>
 
@@ -54,6 +90,12 @@ header {
   gap: 12px;
 }
 
+.buttons {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+
 h2 {
   margin: 0;
   font-size: 14px;
@@ -70,13 +112,13 @@ h2 {
 
 pre {
   margin: 0;
-  padding: 12px;
+  padding: 10px;
   border-radius: 8px;
   background: #0b0f17;
   color: #c8d3e3;
   font-family: 'Cascadia Mono', Consolas, monospace;
-  font-size: 12px;
-  line-height: 1.5;
+  font-size: 11px;
+  line-height: 1.45;
   overflow-x: auto;
   user-select: all;
 }

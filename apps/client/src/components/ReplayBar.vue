@@ -5,6 +5,7 @@ import { formatClock } from '../game/format';
 
 const props = defineProps<{
   worldName: string;
+  label?: string;
   isPaused: boolean;
   isFinished: boolean;
   speed: number;
@@ -32,6 +33,7 @@ const toggleLabel = computed(() =>
     <header class="replay-head">
       <span class="badge">● REPLAY</span>
       <span class="chip">World {{ worldName }}</span>
+      <span v-if="label" class="chip run">{{ label }}</span>
       <span v-if="isFinished" class="chip done">Finished</span>
       <span v-else-if="isPaused" class="chip">Paused</span>
     </header>
@@ -102,6 +104,10 @@ const toggleLabel = computed(() =>
 .chip.done {
   color: #ffd166;
   border-color: #8a6d2f;
+}
+
+.chip.run {
+  color: #e8eef6;
 }
 
 .replay-foot {

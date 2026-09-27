@@ -1,7 +1,7 @@
 import type { Level } from '@mander/model';
 
 import type { AxisMove } from './types/axis-move';
-import { overlapsSolid } from './overlaps-solid';
+import { isOverlappingSolid } from './is-overlapping-solid';
 import { sweep } from './sweep';
 
 export const moveVertical = (
@@ -16,6 +16,6 @@ export const moveVertical = (
     origin: originY,
     delta,
     size: height,
-    collides: (position) =>
-      overlapsSolid(level, originX, position, width, height),
+    isColliding: (position) =>
+      isOverlappingSolid(level, originX, position, width, height),
   });

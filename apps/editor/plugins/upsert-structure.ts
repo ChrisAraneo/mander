@@ -1,30 +1,36 @@
+import { replace, trimEnd } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 export interface Upsert {
   source: string;
-  created: boolean;
+  isCreated: boolean;
 }
 
-const blockOf = (name: string): RegExp =>
-  new RegExp(`export const ${name}: Structure = \\[[\\s\\S]*?\\n\\];`);
+const createBlockPattern = (name: string): RegExp =>
+  new RegExp(
+    `export const ${name}: (?:Vertical)?Structure = \\[[\\s\\S]*?\\n\\];`,
+  );
 
-const declarationOf = (name: string, text: string): string =>
-  `export const ${name}: Structure = ${text};`;
+const formatDeclaration = (name: string, type: string, text: string): string =>
+  `export const ${name}: ${type} = ${text};`;
 
-const appended = (source: string, declaration: string): string =>
-  `${source.replace(/\s+$/, '')}\n\n${declaration}\n`;
+const appendDeclaration = (source: string, declaration: string): string =>
+  `${trimEnd(source)}\n\n${declaration}\n`;
 
 export const upsertStructure = (
   source: string,
   name: string,
   text: string,
+  type = 'Structure',
 ): Upsert =>
-  match(blockOf(name).test(source))
+  match(createBlockPattern(name).test(source))
     .with(true, (): Upsert => ({
-      source: source.replace(blockOf(name), () => declarationOf(name, text)),
-      created: false,
+      source: replace(source, createBlockPattern(name), () =>
+        formatDeclaration(name, type, text),
+      ),
+      isCreated: false,
     }))
     .otherwise((): Upsert => ({
-      source: appended(source, declarationOf(name, text)),
-      created: true,
+      source: appendDeclaration(source, formatDeclaration(name, type, text)),
+      isCreated: true,
     }));

@@ -7,7 +7,7 @@ import { EPSILON, SUBSTEP } from './consts';
 import type { AxisMove } from './types/axis-move';
 import type { Sweep } from './types/sweep';
 
-const blockedPosition = (
+const getBlockedPosition = (
   nextPosition: number,
   direction: number,
   size: number,
@@ -32,9 +32,13 @@ const advance = (
       chain(direction * Math.min(Math.abs(remaining), SUBSTEP))
         .thru((step) => ({ step, nextPosition: current + step }))
         .thru(({ step, nextPosition }) =>
-          match(config.collides(nextPosition))
+          match(config.isColliding(nextPosition))
             .with(true, (): AxisMove => ({
-              position: blockedPosition(nextPosition, direction, config.size),
+              position: getBlockedPosition(
+                nextPosition,
+                direction,
+                config.size,
+              ),
               isBlocked: true,
             }))
             .otherwise((): AxisMove =>

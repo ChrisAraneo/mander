@@ -1,7 +1,7 @@
 import type { GameState } from '@mander/engine';
 import { TILE_SIZE } from '@mander/model';
 import { chain } from '@mander/utils';
-import { clamp, map } from 'lodash-es';
+import { map } from 'lodash-es';
 
 import {
   paint,
@@ -15,46 +15,38 @@ import {
 import { drawBullets } from '../bullet';
 import { drawCannon, drawCannonballs } from '../cannon';
 import { drawChest } from '../chest';
-import { drawDiamonds } from '../diamond';
+import { drawGems } from '../gem';
 import { drawEnemy } from '../enemies';
 import { drawFireballs, drawPlayerFireballs } from '../fireball';
-import { type Focus, playerFocus } from '../focus';
+import { type Focus, getPlayerFocus } from '../focus';
 import { drawHillLayer, HILL_LAYERS } from '../hill';
 import { drawKey } from '../key';
 import type { Palette } from '../palette';
-import { drawPlayer } from '../player';
+import { drawGhost, drawPlayer, type Ghost } from '../player';
 import { drawPortal } from '../portal';
 import { drawSky } from '../sky';
+import { drawFallingSpike } from '../spike';
 import { drawTiles } from '../tile';
-import { snapToDevicePixel, type Viewport } from '../viewport';
-
-const cameraAxis = (
-  focusAt: number,
-  viewSize: number,
-  worldSize: number,
-  scale: number,
-): number =>
-  snapToDevicePixel(
-    clamp(focusAt - viewSize / 2, 0, Math.max(0, worldSize - viewSize)),
-    scale,
-  );
+import type { Viewport } from '../viewport';
+import { getCameraAxis } from './get-camera-axis';
 
 export const renderGame = (
   context: CanvasRenderingContext2D,
   state: GameState,
   palette: Palette,
   viewport: Viewport,
-  focus: Focus = playerFocus(state),
+  focus: Focus = getPlayerFocus(state),
+  ghosts: Ghost[] = [],
 ): void =>
   chain(state.level)
     .thru((level) => ({
-      cameraX: cameraAxis(
+      cameraX: getCameraAxis(
         focus.x,
         viewport.width,
         level.width * TILE_SIZE,
         viewport.scale,
       ),
-      cameraY: cameraAxis(
+      cameraY: getCameraAxis(
         focus.y,
         viewport.height,
         level.height * TILE_SIZE,
@@ -89,7 +81,7 @@ export const renderGame = (
             run((target) => drawCannon(target, cannon)),
           ),
         ),
-        run((target) => drawDiamonds(target, state)),
+        run((target) => drawGems(target, state)),
         run((target) => drawKey(target, state)),
         run((target) => drawChest(target, state)),
         run((target) => drawPortal(target, state)),
@@ -97,6 +89,14 @@ export const renderGame = (
           map(state.enemies, (enemy) =>
             run((target) => drawEnemy(target, enemy, state.time)),
           ),
+        ),
+        sequence(
+          map(state.fallingSpikes, (spike) =>
+            run((target) => drawFallingSpike(target, spike)),
+          ),
+        ),
+        sequence(
+          map(ghosts, (ghost) => run((target) => drawGhost(target, ghost))),
         ),
         run((target) => drawPlayer(target, state.player, state.time)),
         run((target) => drawCannonballs(target, state)),

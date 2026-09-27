@@ -3,12 +3,28 @@ import { every } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { getAlias, parseAlias } from './aliases';
-import { __, BR, CN, CR, DR, EE, EN, FB, SC, SP, SS, ST, WD } from './consts';
+import {
+  __,
+  BR,
+  BT,
+  CN,
+  CR,
+  DR,
+  EE,
+  EN,
+  FB,
+  SC,
+  SF,
+  SP,
+  SS,
+  ST,
+  WD,
+} from './consts';
 
-const CELLS = [__, DR, EN, SP, SC, BR, ST, WD, CR, CN, FB, SS, EE];
+const CELLS = [__, DR, EN, BT, SP, SC, SF, BR, ST, WD, CR, CN, FB, SS, EE];
 
 describe('getAlias', () => {
-  it('should name every cell the library writes', () => {
+  it('should name the cell when the library writes an alias for it', () => {
     expect(getAlias(TILE_AIR)).toBe('__');
     expect(getAlias(TILE_DIRT)).toBe('DR');
     expect(getAlias(TILE_CANNON)).toBe('CN');
@@ -21,7 +37,7 @@ describe('getAlias', () => {
 });
 
 describe('parseAlias', () => {
-  it('should read back every alias it writes', () => {
+  it('should read the cell back when it is given an alias it wrote', () => {
     expect(every(CELLS, (cell) => parseAlias(getAlias(cell)) === cell)).toBe(
       true,
     );
