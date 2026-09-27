@@ -27,3 +27,5 @@ export const SPIKE_REMOVAL_RATES: readonly number[] = Object.freeze([
 export const BEARTRAP_REMOVAL_RATES: readonly number[] = Object.freeze([
   0.5, 0.35, 0.2,
 ]);
+
+export const KEY_HEIGHT = 1;

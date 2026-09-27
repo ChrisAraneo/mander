@@ -5,14 +5,12 @@
 - `addCompletedWorld`
 - `addCompletion`
 - `addGems`
-- `addKey`
 - `addPadding`
 - `addRun`
 - `addStones`
 - `addStops`
 - `addVerticalChest`
 - `addVerticalGems`
-- `addVerticalKey`
 - `advance`
 - `advanceBarrage`
 - `advanceBullets`
@@ -214,6 +212,7 @@
 - `createKeeper`
 - `createKeyboard`
 - `createKeyGlyphStep`
+- `createKeyPatches`
 - `createKeyStep`
 - `createLegsStep`
 - `createLibraryPattern`
@@ -372,6 +371,7 @@
 - `findHeadroomSpots`
 - `findHighest`
 - `findHornedVictims`
+- `findKeyCandidates`
 - `findKeyTile`
 - `findLowestFilledRow`
 - `findMarker`
@@ -810,6 +810,7 @@
 - `patchCannonTiles`
 - `patchFireballTiles`
 - `patchInput`
+- `patchKeyTiles`
 - `patchPlayerSpawnTiles`
 - `patchPortalTiles`
 - `patchSpikeTiles`
@@ -820,6 +821,7 @@
 - `pick`
 - `pickBeartrapCells`
 - `pickBest`
+- `pickKeyCandidate`
 - `pickPlayerSpawnCandidate`
 - `pickPortalCandidate`
 - `pickSpikeCells`
@@ -827,6 +829,7 @@
 - `pitRow`
 - `place`
 - `placeAt`
+- `placeKey`
 - `placePlayerSpawn`
 - `placePortal`
 - `platformRow`
@@ -932,7 +935,7 @@
 - `snapShut`
 - `snapToDevicePixel`
 - `soften`
-- `sortMiddleFirst`
+- `sortKeyCandidates`
 - `sortPlayerSpawnCandidates`
 - `sortPortalCandidates`
 - `source`

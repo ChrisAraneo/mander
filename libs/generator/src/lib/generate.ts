@@ -21,6 +21,7 @@ import { mirrorTiles } from './structures/mirror-tiles';
 import { pickStructures, type Pool } from './structures/pick-structures';
 import { placePlayerSpawn } from './structures/player-spawn/place-player-spawn';
 import { placePortal } from './structures/portal/place-portal';
+import { placeKey } from './structures/key/place-key';
 import { computeWorldName } from './seed/compute-world-name';
 import {
   FIRST_HORNED_ENEMY_LEVEL,
@@ -105,7 +106,7 @@ const buildLayers = (structures: Sector[], levelNumber: number): Layers => {
   const withPadding = addPadding(withPortal);
   const withSpikes = clearSpikes(withPadding, levelNumber);
   const withBeartraps = clearBeartraps(withSpikes, levelNumber);
-  const withKey = layout.addKey(withBeartraps);
+  const withKey = placeKey(withBeartraps, levelType);
   const withChest = layout.addChest(withKey);
   const withGems = layout.addGems(withChest);
   const withStones = addStones(withGems);
