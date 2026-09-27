@@ -11,11 +11,6 @@ import type { ReplayPlayback } from './types/replay-playback';
 
 const TICK: Action = { type: 'TICK' };
 
-/**
- * Entries are in step order, so the inputs due on a step are the run of entries
- * starting at `index` that carry it. Recursion depth is the number of inputs
- * seen within one step, which is a keypress or two.
- */
 const getDueEnd = (
   entries: RecordedAction[],
   index: number,
@@ -41,11 +36,6 @@ const stepOnce = (replay: Replay, playback: ReplayPlayback): ReplayPlayback =>
     }))
     .value();
 
-/**
- * Runs whole fixed steps, so a replay lands on exactly the states the run did.
- * There is no resampling against the wall clock: how many steps to take is the
- * caller's decision, and the frame clock is what makes that decision.
- */
 export const advancePlayback = (
   replay: Replay,
   playback: ReplayPlayback,

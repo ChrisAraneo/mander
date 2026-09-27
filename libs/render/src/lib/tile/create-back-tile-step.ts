@@ -45,7 +45,6 @@ export const createBackTileStep = (
           fillRect(pixelX, pixelY, TILE_SIZE, CAP_HIGHLIGHT_HEIGHT),
         ),
         restore,
-        // no edges: the border belongs to the blocks the player can touch
         applyStyle({ fillStyle: BACK_SHADE }),
         fillRect(pixelX, pixelY, TILE_SIZE, TILE_SIZE),
       ]),

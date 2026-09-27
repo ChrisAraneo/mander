@@ -15,9 +15,6 @@ export interface BrushGroup {
   brushes: Brush[];
 }
 
-// the picker lays its groups out in rows, and the groups named together in one
-// row sit side by side: the background blocks stand beside the blocks they are
-// the dimmer twins of
 const ROWS: readonly (readonly string[])[] = Object.freeze([
   Object.freeze([EMPTY]),
   Object.freeze([BLOCKS, BACKGROUND]),

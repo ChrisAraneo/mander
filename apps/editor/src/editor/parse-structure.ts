@@ -22,7 +22,6 @@ const parseRows = (text: string): Row[] =>
     at: match.index ?? 0,
   }));
 
-// the two layers are told apart by where the front one is closed off
 const findBoundary = (text: string): number =>
   chain(text.search(LAYER_END))
     .thru((at) => (at < 0 ? size(text) : at))

@@ -53,7 +53,6 @@ const keepPlaying = (idle: GameState, next: GameState): GameState =>
     .with('PLAYING', () => next)
     .otherwise(() => idle);
 
-/** Only steps reach this stream, so every action makes a new pair to draw across. */
 const advance =
   (idle: GameState) =>
   (frame: BackdropFrame, action: Action): BackdropFrame =>

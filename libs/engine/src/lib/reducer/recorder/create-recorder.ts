@@ -21,10 +21,6 @@ const createEmptyState = (): RecorderState => ({
 const mutate = (state: RecorderState, patch: Partial<RecorderState>): void =>
   void assign(state, patch);
 
-/**
- * A tick moves the run's clock on; every other action is an input, and where it
- * landed is the step it was seen on.
- */
 const append = (state: RecorderState, action: Action): void =>
   match(action)
     .with({ type: 'TICK' }, () => mutate(state, { step: state.step + 1 }))

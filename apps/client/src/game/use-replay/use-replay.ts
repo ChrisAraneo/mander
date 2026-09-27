@@ -107,10 +107,6 @@ const createPublisher =
       )
       .value();
 
-/**
- * Speed is a whole multiplier, so running it faster is running more steps, not
- * bigger ones - the run stays the run it was recorded as at every speed.
- */
 const createFramer =
   (cell: ReplayCell, refs: ReplayRefs, publish: (next: ReplayStep) => void) =>
   (pulse: Pulse): void =>

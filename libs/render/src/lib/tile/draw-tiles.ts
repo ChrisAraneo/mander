@@ -125,8 +125,6 @@ export const drawTiles = (
     rows: getVisibleRange(cameraY, viewport.height, level.height - 1),
   })
     .thru(({ materials, columns, rows }) => [
-      // the back layer is laid down whole before the front, so nothing the
-      // player can touch is painted over by what stands behind it
       ...flatMap(columns, (column) =>
         map(rows, (row) => createBackStep(level, column, row, materials)),
       ),

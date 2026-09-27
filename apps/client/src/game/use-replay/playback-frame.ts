@@ -7,10 +7,6 @@ import {
 import { chain } from '@mander/utils';
 import { match, P } from 'ts-pattern';
 
-/**
- * A playback and the state it was in one step ago. The renderer draws somewhere
- * between the two, so motion stays continuous on the frames that buy no step.
- */
 export interface PlaybackFrame {
   previous: GameState;
   playback: ReplayPlayback;
@@ -21,11 +17,6 @@ export const createStartFrame = (playback: ReplayPlayback): PlaybackFrame => ({
   playback,
 });
 
-/**
- * A frame that buys no steps leaves both states alone on purpose: the alpha
- * keeps rising against the same pair, which is what carries the motion on
- * instead of freezing it.
- */
 export const advanceFrames = (
   replay: Replay,
   frame: PlaybackFrame,

@@ -150,7 +150,6 @@ const BULLET_CLUSTERS: Readonly<Record<number, BulletCluster>> = Object.freeze({
 const getHeartCluster = (count: number): HeartCluster =>
   CLUSTERS[clamp(round(count), 1, 3)];
 
-// counts without a cluster of their own borrow the largest one below them
 const BULLET_CLUSTER_COUNTS: readonly number[] = Object.freeze(
   sortBy(map(keys(BULLET_CLUSTERS), Number)),
 );

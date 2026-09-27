@@ -38,8 +38,6 @@ interface Stub extends Saved {
   restore(): void;
 }
 
-// styled() writes straight onto the context, so the recorder reads the colour
-// off itself as each rectangle lands
 const stub = (fills: Fill[], stack: Saved[]): Stub => ({
   fillStyle: '',
   fillRect(x: number, y: number, width: number, height: number): void {

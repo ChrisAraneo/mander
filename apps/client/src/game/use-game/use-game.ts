@@ -58,10 +58,6 @@ import { createRunArchive, type RunArchive } from './run-archive';
 
 const { nonNullable } = P;
 
-/**
- * The world one step apart. A frame lands between the two, so this is what the
- * renderer draws across rather than the bare latest state.
- */
 interface GameFrame {
   previous: GameState;
   current: GameState;
@@ -81,7 +77,6 @@ const createStartFrame = (state: GameState): GameFrame => ({
   current: state,
 });
 
-/** Only a step moves the world on; an input changes what the next step will do. */
 const advanceFrame = (frame: GameFrame, action: Action): GameFrame =>
   match(action)
     .with({ type: 'TICK' }, (): GameFrame => ({
@@ -197,7 +192,6 @@ const createStateHandler =
       )
       .value();
 
-/** The replay draws its own frames while it is up, so the game stands back. */
 const createDrawHandler =
   (
     cell: GameCell,
@@ -236,10 +230,6 @@ const startOnMount = (
         .thru((current) => ({ current, pulses$: createFixedPulses() }))
         .thru(({ current, pulses$ }) =>
           assign(current, {
-            /**
-             * The simulation subscribes first and the screen second, so every
-             * step a frame bought has run by the time that frame is drawn.
-             */
             subscription: merge(
               createPulseTicks(pulses$),
               current.keyboard.actions$,

@@ -18,5 +18,4 @@ export type Action =
   | { type: 'RESPAWN' }
   | { type: 'RESTART'; level: GameLevel };
 
-/** Everything a run records. A tick is the clock, not an input, so it is not here. */
 export type RecordableAction = Exclude<Action, { type: 'TICK' }>;

@@ -16,11 +16,6 @@ import { MAX_STEPS_PER_FRAME, TIME_SCALE } from './consts';
 
 const TICK: Action = { type: 'TICK' };
 
-/**
- * What one frame buys: `steps` whole simulation steps, and `alpha` - how far the
- * time left over carries past the last of them. The simulation runs on `steps`,
- * the screen draws with `alpha`, and neither has to match the refresh rate.
- */
 export interface Pulse {
   steps: number;
   alpha: number;
@@ -42,11 +37,6 @@ const advanceCarry = (carry: Carry, deltaMs: number): Carry =>
     }))
     .value();
 
-/**
- * Shared, so every consumer of one frame sees the same pulse. Subscribers are
- * served in subscription order: subscribe the simulation before the renderer so
- * a frame's steps have run by the time it is drawn.
- */
 export const createFixedPulses = (): Observable<Pulse> =>
   animationFrames().pipe(
     pairwise(),
@@ -59,7 +49,6 @@ export const createFixedPulses = (): Observable<Pulse> =>
     share(),
   );
 
-/** The pulse's steps as actions, for a reducer pipeline to fold over. */
 export const createPulseTicks = (
   pulses$: Observable<Pulse>,
 ): Observable<Action> =>

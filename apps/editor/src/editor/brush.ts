@@ -1,4 +1,3 @@
-// which of a sector's two layers a brush paints into
 export type BrushLayer = 'front' | 'back';
 
 export interface Brush {

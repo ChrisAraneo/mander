@@ -18,11 +18,6 @@ const flipMoonMagnet = (state: GameState): GameState =>
     }))
     .value();
 
-/**
- * The moons are passive, so the only way to call them off is this toggle. It
- * does nothing without the item: there is nothing to suspend, and a run that
- * never owned a Moon Magnet must not drift from its replay.
- */
 export const toggleMoonMagnet = (state: GameState): GameState =>
   match({
     status: state.status,

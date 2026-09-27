@@ -14,7 +14,6 @@ const convertDrawn = (cell: number): Tile =>
 const paintTiles = (grid: number[][]): Tile[][] =>
   map(grid, (cells) => map(cells, convertDrawn));
 
-// the two layers the editor paints are the two layers the game draws
 export const createStructureTileMap = ({
   tiles,
   backTiles,

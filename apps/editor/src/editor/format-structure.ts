@@ -14,8 +14,6 @@ const formatRow = (row: number[], indent: string): string =>
 const isBlank = (grid: number[][]): boolean =>
   every(flatten(grid), (cell) => cell === TILE_AIR);
 
-// a layer with nothing on it is written as an empty array rather than a page of
-// air, so a sector reads as what was actually painted
 const formatLayer = (grid: number[][]): string =>
   match(isBlank(grid))
     .with(true, () => EMPTY_LAYER)

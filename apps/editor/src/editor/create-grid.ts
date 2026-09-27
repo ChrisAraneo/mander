@@ -28,7 +28,6 @@ export const getHeight = (pool: Pool): number =>
     .with('vertical', () => VERTICAL_HEIGHT)
     .otherwise(() => STRUCTURE_HEIGHT);
 
-// a vertical sector is born with the blocks the climb is joined by
 const seedCell = ({ row, column }: Cell): number =>
   match({ row, column })
     .with({ row: VERTICAL_END_ROW, column: VERTICAL_MARKER_COLUMN }, () =>
@@ -64,8 +63,6 @@ export const createEmptyGrid = (pool: Pool = 'normal'): number[][] =>
 export const createGrid = (pool: Pool = 'normal'): number[][] =>
   map(range(getHeight(pool)), (row) => layAcross(pool, row));
 
-// both layers are held at full size while the sector is painted; the empty one
-// is trimmed away when it is written out
 export const createSketch = (pool: Pool = 'normal'): Layers => ({
   tiles: createGrid(pool),
   backTiles: createEmptyGrid(pool),

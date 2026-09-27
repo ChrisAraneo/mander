@@ -29,10 +29,6 @@ export const createGhosts = (
       .value(),
   );
 
-/**
- * Every ghost takes the same steps on the same frame, so they run in lockstep
- * with the replay they are shown against rather than each on its own clock.
- */
 export const advanceGhosts = (
   ghosts: GhostPlayback[],
   steps: number,

@@ -2,11 +2,6 @@ import { indexOf } from 'lodash-es';
 
 import type { RecordableAction } from '../../actions/actions';
 
-/**
- * Ticks are never recorded, so they have no code here: a packed run is inputs
- * plus a step count. Codes are positional, so append rather than reorder.
- */
-
 export const ACTION_CODES: readonly RecordableAction['type'][] = Object.freeze([
   'MOVE_LEFT_START',
   'MOVE_LEFT_STOP',

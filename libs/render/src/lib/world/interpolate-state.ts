@@ -6,10 +6,6 @@ import { match, P } from 'ts-pattern';
 
 const { nonNullable } = P;
 
-/**
- * Further than this in one step is a teleport - a respawn, or a portal - and
- * sliding across it would look worse than the cut.
- */
 const SNAP_DISTANCE = TILE_SIZE * 2;
 
 const lerp = (from: number, to: number, alpha: number): number =>
@@ -32,7 +28,6 @@ const tweenPlayer = (
   position: lerpPoint(previous.position, current.position, alpha),
 });
 
-/** An enemy has no id, but where it spawned is fixed and unique to it. */
 const isSameEnemy = (one: Enemy, other: Enemy): boolean =>
   one.spawn.x === other.spawn.x && one.spawn.y === other.spawn.y;
 
@@ -50,16 +45,6 @@ const tweenEnemies = (
       .otherwise(() => enemy),
   );
 
-/**
- * The simulation moves in whole fixed steps, which the screen does not line up
- * with: a frame lands part-way through a step, and drawing the raw state makes
- * everything stutter on the frames where no step happened. `alpha` is how far
- * that frame has carried past `previous`, so the drawn state is the one the run
- * was passing through at the moment the frame is showing.
- *
- * Projectiles are left alone - they carry no identity to match them by, and
- * they are small, brief, and fast enough that nothing follows them.
- */
 export const interpolateState = (
   previous: GameState,
   current: GameState,

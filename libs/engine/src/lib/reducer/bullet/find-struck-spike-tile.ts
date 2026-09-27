@@ -14,8 +14,6 @@ import { getTileRange } from '../collision/get-tile-range';
 import { getBulletBox } from './get-bullet-box';
 import { isOverlappingBox } from './is-overlapping-box';
 
-// the whole band the prongs rise through, not the prongs themselves: a shot
-// grazing the tips still shatters the row, where it would slip between them
 const getProngBand = (level: Level, tile: Point): Rectangle => ({
   x: tile.x * TILE_SIZE,
   y: match(getSpikeOrientation(level, tile.x, tile.y))

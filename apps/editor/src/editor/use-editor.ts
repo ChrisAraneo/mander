@@ -35,8 +35,6 @@ const removeMarker = (grid: number[][], marker: number): number[][] =>
     ),
   );
 
-// a sector is entered and left in one place, so painting a marker lifts the one
-// that was there before
 const clearMarker = (sketch: Layers, value: number): Layers =>
   match(includes(MARKERS, value))
     .with(true, (): Layers => ({

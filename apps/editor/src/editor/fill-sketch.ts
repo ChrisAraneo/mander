@@ -11,8 +11,6 @@ const fillGrid = (
     times(width, (column) => grid[row]?.[column] ?? TILE_AIR),
   );
 
-// a sector written with an empty back layer is opened at full size, so there is
-// something to paint into
 export const fillSketch = (sketch: Layers): Layers =>
   chain({ height: size(sketch.tiles), width: size(head(sketch.tiles)) })
     .thru(({ height, width }): Layers => ({

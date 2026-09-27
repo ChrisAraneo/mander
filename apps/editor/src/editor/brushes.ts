@@ -27,8 +27,6 @@ export const HAZARDS = 'Hazards';
 export const BACKGROUND = 'Background';
 export const MARKERS = 'Markers';
 
-// the background brushes carry the same blocks as the front ones: it is the
-// layer they paint into, not the block, that puts them behind the level
 export const BRUSHES: Brush[] = [
   {
     value: TILE_AIR,
@@ -172,5 +170,4 @@ export const BRUSHES: Brush[] = [
   },
 ];
 
-// the block the editor opens with
 export const DEFAULT_BRUSH: Brush = BRUSHES[1];

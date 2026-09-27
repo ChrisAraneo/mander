@@ -37,7 +37,6 @@ const countTile = (grid: number[][], tile: number): number =>
 const isKnown = (cell: number): boolean =>
   includes(KNOWN_TILES, cell) || isSolidTile(cell);
 
-// nothing is played against the back layer, so only blocks belong on it
 const canBeBehind = (cell: number): boolean =>
   cell === TILE_AIR || isSolidTile(cell);
 
