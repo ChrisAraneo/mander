@@ -368,9 +368,8 @@
 - `findFloorRow`
 - `findGemTiles`
 - `findGhostRuns`
+- `findHeadroomSpots`
 - `findHighest`
-- `findHorizontalPlayerSpawnCandidates`
-- `findHorizontalPortalCandidates`
 - `findHornedVictims`
 - `findKeyTile`
 - `findLowestFilledRow`
@@ -378,8 +377,10 @@
 - `findMarkerCells`
 - `findNeighbourTiles`
 - `findPlatformRows`
+- `findPlayerSpawnCandidates`
 - `findPoolIssues`
 - `findPortalBottomTile`
+- `findPortalCandidates`
 - `findPortalTile`
 - `findReplays`
 - `findSpawnTile`
@@ -390,12 +391,11 @@
 - `findStruckSpikeTile`
 - `findStructureIssues`
 - `findSurfaceRow`
+- `findSurfaceSpots`
 - `findTile`
 - `findTiles`
 - `findTypesHolding`
 - `findVerticalIssues`
-- `findVerticalPlayerSpawnCandidates`
-- `findVerticalPortalCandidates`
 - `findVictim`
 - `fingerprint`
 - `fire`
@@ -459,6 +459,7 @@
 - `getChestRectangle`
 - `getChestType`
 - `getColumnOrder`
+- `getColumnPriority`
 - `getDailyDate`
 - `getDeathProgress`
 - `getDeviceSize`
@@ -509,6 +510,7 @@
 - `getLevelGhosts`
 - `getLevelIndex`
 - `getLevelMeta`
+- `getLevelType`
 - `getMaterialStyle`
 - `getMaterialTint`
 - `getMaxYVelocity`
@@ -521,6 +523,7 @@
 - `getMissingDepth`
 - `getMoveSpeed`
 - `getNodeKey`
+- `getOffsetPriority`
 - `getPackedReplay`
 - `getPalette`
 - `getPlanInput`
@@ -687,6 +690,7 @@
 - `isStompingEnemy`
 - `isStructureName`
 - `isStructureText`
+- `isSurface`
 - `isThinnable`
 - `isTop`
 - `isTopLeftSquare`
@@ -817,12 +821,8 @@
 - `pitRow`
 - `place`
 - `placeAt`
-- `placeHorizontalPlayerSpawn`
-- `placeHorizontalPortal`
 - `placePlayerSpawn`
 - `placePortal`
-- `placeVerticalPlayerSpawn`
-- `placeVerticalPortal`
 - `platformRow`
 - `played`
 - `player`
@@ -925,11 +925,9 @@
 - `snapShut`
 - `snapToDevicePixel`
 - `soften`
-- `sortHorizontalPlayerSpawnCandidates`
-- `sortHorizontalPortalCandidates`
 - `sortMiddleFirst`
-- `sortVerticalPlayerSpawnCandidates`
-- `sortVerticalPortalCandidates`
+- `sortPlayerSpawnCandidates`
+- `sortPortalCandidates`
 - `source`
 - `sowSlot`
 - `spike`

@@ -10,8 +10,8 @@ import { describe, expect, it } from 'vitest';
 import { VERTICAL_LEVELS } from '../consts';
 import { generate } from '../generate';
 import { addPadding } from './padding/add-padding';
-import { placeVerticalPlayerSpawn } from './player-spawn/vertical/place-vertical-player-spawn';
-import { placeVerticalPortal } from './portal/vertical/place-vertical-portal';
+import { placePlayerSpawn } from './player-spawn/place-player-spawn';
+import { placePortal } from './portal/place-portal';
 import { stackStructures } from './stack-structures';
 
 const SECTORS = 2;
@@ -23,10 +23,12 @@ const named = (index: number): string =>
 
 const twoUp = (structure: VerticalStructure): Level => {
   const tiles = addPadding(
-    placeVerticalPortal(
-      placeVerticalPlayerSpawn(
+    placePortal(
+      placePlayerSpawn(
         stackStructures(times(SECTORS, () => structure)).tiles,
+        'VERTICAL',
       ),
+      'VERTICAL',
     ),
   );
 

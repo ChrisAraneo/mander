@@ -13,11 +13,14 @@ import { clearFireballs } from './structures/fireballs/clear-fireballs';
 import { clearSpikes } from './structures/clear-spikes';
 import { generateChestItems } from './items/generate-chest-items';
 import { generatePalette } from './palette/generate-palette';
+import { getLevelType } from './structures/get-level-type';
 import { isMirrored } from './structures/is-mirrored';
 import { isVertical } from './structures/is-vertical';
 import { getLayout } from './structures/layout';
 import { mirrorTiles } from './structures/mirror-tiles';
 import { pickStructures, type Pool } from './structures/pick-structures';
+import { placePlayerSpawn } from './structures/player-spawn/place-player-spawn';
+import { placePortal } from './structures/portal/place-portal';
 import { computeWorldName } from './seed/compute-world-name';
 import {
   FIRST_HORNED_ENEMY_LEVEL,
@@ -94,10 +97,11 @@ const getMeta = (structures: Sector[]): LevelMeta => ({
 
 const buildLayers = (structures: Sector[], levelNumber: number): Layers => {
   const layout = getLayout(levelNumber);
+  const levelType = getLevelType(levelNumber);
   const { tiles: joined, backTiles } = layout.join(structures);
   const tiles = clearFireballs(clearCannons(joined, levelNumber), levelNumber);
-  const withPlayer = layout.placePlayerSpawn(tiles);
-  const withPortal = layout.placePortal(withPlayer);
+  const withPlayer = placePlayerSpawn(tiles, levelType);
+  const withPortal = placePortal(withPlayer, levelType);
   const withPadding = addPadding(withPortal);
   const withSpikes = clearSpikes(withPadding, levelNumber);
   const withBeartraps = clearBeartraps(withSpikes, levelNumber);
