@@ -79,8 +79,6 @@ export const stackStructures = (structures: Sector[]): Layers =>
     .otherwise((): Layers =>
       chain(stackTiles(structures, getFront))
         .thru((tiles) => ({
-          // only the front layer is sealed: the bedrock under a climb is what
-          // the player stands on
           tiles: patchTiles(tiles, sealGround(tiles)),
           backTiles: stackTiles(structures, getBack),
         }))

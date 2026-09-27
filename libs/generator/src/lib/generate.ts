@@ -92,10 +92,6 @@ const getMeta = (structures: Sector[]): LevelMeta => ({
   structures: map(structures, getStructureName),
 });
 
-// the sectors carry two layers of their own, and the level is sown against the
-// front one alone: the spawn, the portal and the pickups all read cells the
-// back layer has something in as empty, so what is painted behind the level
-// stays behind it
 const buildLayers = (structures: Sector[], levelNumber: number): Layers => {
   const layout = getLayout(levelNumber);
   const { tiles: joined, backTiles } = layout.join(structures);

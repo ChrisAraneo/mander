@@ -7,7 +7,6 @@ import { findLowestFilledRow } from './find-lowest-filled-row';
 const grid = (rows: string[]): Tile[][] =>
   map(rows, (row) =>
     map([...row], (cell) =>
-      // '#' is ground, 'o' is a gem: not solid, but not empty either
       cell === '#' ? TILE_DIRT : cell === 'o' ? TILE_GEM : TILE_AIR,
     ),
   );

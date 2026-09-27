@@ -118,9 +118,6 @@ const layOut = (placement: Placement, layer: Layer): TilePatch[] =>
     .filter(({ tile }) => isDrawn(tile))
     .value();
 
-// the block a sector stands on is carried down to the floor of the level, in
-// whichever layer it was painted, so a sector lifted above the join line is not
-// left hanging over a gap
 const underpin = (
   tiles: Tile[][],
   placement: Placement,

@@ -2,23 +2,23 @@ import { TILE_AIR, type Tile } from '@mander/model';
 import { times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { sortVerticalPlayerSpawnCandidates } from './sort-vertical-player-spawn-candidates';
+import { sortVerticalPortalCandidates } from './sort-vertical-portal-candidates';
 
 const LEVEL: Tile[][] = [times(5, () => TILE_AIR)];
 
 const sorted = (candidates: { row: number; column: number }[]) =>
-  sortVerticalPlayerSpawnCandidates({ tiles: LEVEL, candidates }).candidates;
+  sortVerticalPortalCandidates({ tiles: LEVEL, candidates }).candidates;
 
-describe('sortVerticalPlayerSpawnCandidates', () => {
-  it('should put the lowest candidate first when the candidates are on different rows', () => {
+describe('sortVerticalPortalCandidates', () => {
+  it('should put the highest candidate first when the candidates are on different rows', () => {
     expect(
       sorted([
-        { row: 1, column: 2 },
-        { row: 3, column: 0 },
+        { row: 3, column: 2 },
+        { row: 1, column: 0 },
       ]),
     ).toEqual([
-      { row: 3, column: 0 },
-      { row: 1, column: 2 },
+      { row: 1, column: 0 },
+      { row: 3, column: 2 },
     ]);
   });
 
@@ -54,7 +54,7 @@ describe('sortVerticalPlayerSpawnCandidates', () => {
 
   it('should keep the grid the same when it sorts', () => {
     expect(
-      sortVerticalPlayerSpawnCandidates({ tiles: LEVEL, candidates: [] }).tiles,
+      sortVerticalPortalCandidates({ tiles: LEVEL, candidates: [] }).tiles,
     ).toBe(LEVEL);
   });
 });

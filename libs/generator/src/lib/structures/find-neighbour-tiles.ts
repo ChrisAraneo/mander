@@ -12,9 +12,6 @@ const NEIGHBOURS: readonly number[][] = Object.freeze([
   [1, 1],
 ]);
 
-// the eight tiles around a spot, in a fixed order, with the ones that fall off
-// the grid left as gaps: the callers decide what counts as a neighbour they can
-// use, and the order settles any tie between equally common ones
 export const findNeighbourTiles = (
   tiles: Tile[][],
   row: number,

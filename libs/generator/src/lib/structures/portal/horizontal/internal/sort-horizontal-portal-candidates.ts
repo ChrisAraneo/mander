@@ -1,16 +1,16 @@
 import { chain } from '@mander/utils';
 import { indexOf, size, sortBy } from 'lodash-es';
 import { match } from 'ts-pattern';
-import type { createColumnNumbers } from './create-column-numbers';
+import type { findHorizontalPortalCandidates } from './find-horizontal-portal-candidates';
 
 const PREFERRED_PORTAL_OFFSETS = [1, 2, 3, 0];
 
-export const sortColumnNumbersByPriority = ({
+export const sortHorizontalPortalCandidates = ({
   tiles,
-  columns,
-}: ReturnType<typeof createColumnNumbers>) => ({
+  candidates,
+}: ReturnType<typeof findHorizontalPortalCandidates>) => ({
   tiles,
-  columns: sortBy(columns, (column) =>
+  candidates: sortBy(candidates, ({ column }) =>
     chain(size(tiles[0]) - 1 - column)
       .thru((offset) =>
         match(indexOf(PREFERRED_PORTAL_OFFSETS, offset))

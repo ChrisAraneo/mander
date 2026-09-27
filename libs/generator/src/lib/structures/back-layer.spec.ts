@@ -28,8 +28,6 @@ const grid = (fill: (row: number, column: number) => number): number[][] =>
     times(STRUCTURE_WIDTH, (column) => fill(row, column)),
   );
 
-// the case the single grid could not hold: a beartrap standing on the ground
-// with a brick wall painted behind it
 const sector = (): Sector =>
   [
     grid((row, column) => {

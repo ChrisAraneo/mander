@@ -8,12 +8,12 @@ import { addKey } from './add-key';
 import { addVerticalChest } from './add-vertical-chest';
 import { addVerticalGems } from './add-vertical-gems';
 import { addVerticalKey } from './add-vertical-key';
-import { addVerticalPortal } from './add-vertical-portal';
 import { isVertical } from './is-vertical';
 import { joinStructures } from './join-structures';
 import { placeHorizontalPlayerSpawn } from './player-spawn/horizontal/place-horizontal-player-spawn';
 import { placeVerticalPlayerSpawn } from './player-spawn/vertical/place-vertical-player-spawn';
-import { placePortal } from './portal/place-portal';
+import { placeHorizontalPortal } from './portal/horizontal/place-horizontal-portal';
+import { placeVerticalPortal } from './portal/vertical/place-vertical-portal';
 import { stackStructures } from './stack-structures';
 
 type Sow = (tiles: Tile[][]) => Tile[][];
@@ -30,7 +30,7 @@ export interface Layout {
 export const ACROSS: Layout = Object.freeze({
   join: joinStructures,
   placePlayerSpawn: placeHorizontalPlayerSpawn,
-  placePortal,
+  placePortal: placeHorizontalPortal,
   addKey,
   addChest,
   addGems,
@@ -39,7 +39,7 @@ export const ACROSS: Layout = Object.freeze({
 export const UPWARD: Layout = Object.freeze({
   join: stackStructures,
   placePlayerSpawn: placeVerticalPlayerSpawn,
-  placePortal: addVerticalPortal,
+  placePortal: placeVerticalPortal,
   addKey: addVerticalKey,
   addChest: addVerticalChest,
   addGems: addVerticalGems,

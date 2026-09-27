@@ -2,7 +2,7 @@ import { TILE_AIR, TILE_DIRT, TILE_GEM, type Tile } from '@mander/model';
 import { map } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { findHorizontalPlayerSpawnCandidates } from './find-horizontal-player-spawn-candidates';
+import { findHorizontalPortalCandidates } from './find-horizontal-portal-candidates';
 
 const grid = (rows: string[]): Tile[][] =>
   map(rows, (row) =>
@@ -12,9 +12,9 @@ const grid = (rows: string[]): Tile[][] =>
   );
 
 const candidates = (rows: string[]) =>
-  findHorizontalPlayerSpawnCandidates(grid(rows)).candidates;
+  findHorizontalPortalCandidates(grid(rows)).candidates;
 
-describe('findHorizontalPlayerSpawnCandidates', () => {
+describe('findHorizontalPortalCandidates', () => {
   it('should give the top block of each column when there is room above it', () => {
     expect(candidates(['..', '..', '##'])).toEqual([
       { row: 2, column: 0 },
@@ -41,6 +41,10 @@ describe('findHorizontalPlayerSpawnCandidates', () => {
     expect(candidates(['..', 'o.', '##'])).toEqual([{ row: 2, column: 1 }]);
   });
 
+  it('should skip a column when its top block has only one row above it', () => {
+    expect(candidates(['..', '#.', '##'])).toEqual([{ row: 2, column: 1 }]);
+  });
+
   it('should give no candidates when there is nothing to stand on', () => {
     expect(candidates(['..', '..'])).toEqual([]);
   });
@@ -52,6 +56,6 @@ describe('findHorizontalPlayerSpawnCandidates', () => {
   it('should keep the grid the same when it looks for candidates', () => {
     const tiles = grid(['..', '..', '##']);
 
-    expect(findHorizontalPlayerSpawnCandidates(tiles).tiles).toBe(tiles);
+    expect(findHorizontalPortalCandidates(tiles).tiles).toBe(tiles);
   });
 });

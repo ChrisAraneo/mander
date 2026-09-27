@@ -9,7 +9,6 @@ const grid = (rows: string[]): Tile[][] =>
     map([...row], (cell) => (cell === '#' ? TILE_DIRT : TILE_AIR)),
   );
 
-// the upper floor has four rows of air above it, the lower one only two
 const TWO_FLOORS = grid([
   '...',
   '...',

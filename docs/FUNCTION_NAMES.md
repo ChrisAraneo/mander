@@ -13,7 +13,6 @@
 - `addVerticalChest`
 - `addVerticalGems`
 - `addVerticalKey`
-- `addVerticalPortal`
 - `advance`
 - `advanceBarrage`
 - `advanceBullets`
@@ -234,7 +233,6 @@
 - `createPlayerFireballs`
 - `createPlayerFireballStep`
 - `createPlayerSpawnPatches`
-- `createPortalCandidates`
 - `createPortalPatches`
 - `createPortalStep`
 - `createProngStep`
@@ -372,6 +370,7 @@
 - `findGhostRuns`
 - `findHighest`
 - `findHorizontalPlayerSpawnCandidates`
+- `findHorizontalPortalCandidates`
 - `findHornedVictims`
 - `findKeyTile`
 - `findLowestFilledRow`
@@ -381,7 +380,6 @@
 - `findPlatformRows`
 - `findPoolIssues`
 - `findPortalBottomTile`
-- `findPortalCandidate`
 - `findPortalTile`
 - `findReplays`
 - `findSpawnTile`
@@ -395,9 +393,9 @@
 - `findTile`
 - `findTiles`
 - `findTypesHolding`
-- `findValidPortalRows`
 - `findVerticalIssues`
 - `findVerticalPlayerSpawnCandidates`
+- `findVerticalPortalCandidates`
 - `findVictim`
 - `fingerprint`
 - `fire`
@@ -814,14 +812,17 @@
 - `pick`
 - `pickBest`
 - `pickPlayerSpawnCandidate`
+- `pickPortalCandidate`
 - `pickStructures`
 - `pitRow`
 - `place`
 - `placeAt`
 - `placeHorizontalPlayerSpawn`
+- `placeHorizontalPortal`
 - `placePlayerSpawn`
 - `placePortal`
 - `placeVerticalPlayerSpawn`
+- `placeVerticalPortal`
 - `platformRow`
 - `played`
 - `player`
@@ -924,10 +925,11 @@
 - `snapShut`
 - `snapToDevicePixel`
 - `soften`
-- `sortHighestFirst`
 - `sortHorizontalPlayerSpawnCandidates`
+- `sortHorizontalPortalCandidates`
 - `sortMiddleFirst`
 - `sortVerticalPlayerSpawnCandidates`
+- `sortVerticalPortalCandidates`
 - `source`
 - `sowSlot`
 - `spike`
