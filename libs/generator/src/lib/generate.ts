@@ -7,7 +7,7 @@ import { match } from 'ts-pattern';
 import { addPadding } from './structures/padding/add-padding';
 import { addStones } from './structures/add-stones';
 import { computeLevelSeeds } from './seed/compute-level-seeds';
-import { clearBeartraps } from './structures/clear-beartraps';
+import { clearBeartraps } from './structures/beartraps/clear-beartraps';
 import { clearCannons } from './structures/cannons/clear-cannons';
 import { clearFireballs } from './structures/fireballs/clear-fireballs';
 import { clearSpikes } from './structures/spikes/clear-spikes';

@@ -132,12 +132,12 @@
 - `countSweptSteps`
 - `countTile`
 - `coverOver`
-- `createAirPatch`
 - `createArtStep`
 - `createBackStep`
 - `createBackTileStep`
 - `createBallStep`
 - `createBasePlayerVelocity`
+- `createBeartrapPatches`
 - `createBeartraps`
 - `createBeartrapStep`
 - `createBedrockRows`
@@ -441,6 +441,7 @@
 - `getBackLayer`
 - `getBackTileAt`
 - `getBand`
+- `getBeartrapRemovalRate`
 - `getBelowRow`
 - `getBlockedPosition`
 - `getBlockedVx`
@@ -541,7 +542,6 @@
 - `getProngBand`
 - `getRank`
 - `getRarity`
-- `getRemovedShare`
 - `getReplay`
 - `getReplayDuration`
 - `getReplayProgress`
@@ -806,6 +806,7 @@
 - `parseRuns`
 - `parseString`
 - `parseStructure`
+- `patchBeartrapTiles`
 - `patchCannonTiles`
 - `patchFireballTiles`
 - `patchInput`
@@ -817,6 +818,7 @@
 - `persist`
 - `persistProgress`
 - `pick`
+- `pickBeartrapCells`
 - `pickBest`
 - `pickPlayerSpawnCandidate`
 - `pickPortalCandidate`
@@ -918,6 +920,7 @@
 - `shoot`
 - `shootDown`
 - `showBlocked`
+- `shuffleBeartrapCells`
 - `shuffleSpikeCells`
 - `simulateFlights`
 - `simulatePlan`
@@ -940,7 +943,6 @@
 - `spikeLevel`
 - `spikesIn`
 - `spread`
-- `springTraps`
 - `spun`
 - `stackPaddingRows`
 - `stackRows`

@@ -23,3 +23,7 @@ export const LAST_FIREBALL_LEVEL = 8;
 export const SPIKE_REMOVAL_RATES: readonly number[] = Object.freeze([
   1, 0.8, 0.6, 0.3,
 ]);
+
+export const BEARTRAP_REMOVAL_RATES: readonly number[] = Object.freeze([
+  0.5, 0.35, 0.2,
+]);
