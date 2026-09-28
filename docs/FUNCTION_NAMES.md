@@ -285,7 +285,6 @@
 - `dealCard`
 - `dealChest`
 - `dealEpics`
-- `dealStructures`
 - `den`
 - `dispatch`
 - `dispose`
@@ -833,6 +832,7 @@
 - `pickPortalCandidate`
 - `pickSpikeCells`
 - `pickStructures`
+- `pickWorldStructures`
 - `pitRow`
 - `place`
 - `placeAt`

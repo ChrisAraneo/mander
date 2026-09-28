@@ -34,7 +34,7 @@ import {
   FIRST_HARD_LEVEL,
 } from './consts';
 
-type Deal = Record<Pool, Sector[]>;
+type WorldStructures = Record<Pool, Sector[]>;
 
 const getHornedEnemyChance = (levelNumber: number): number =>
   match(levelNumber)
@@ -66,7 +66,10 @@ const countIn = (pools: Pool[], pool: Pool): number =>
 const getRank = (pools: Pool[], index: number): number =>
   countIn(take(pools, index), pools[index]);
 
-const dealStructures = (worldName: string, pools: Pool[]): Deal => ({
+const pickWorldStructures = (
+  worldName: string,
+  pools: Pool[],
+): WorldStructures => ({
   normal: pickStructures(
     worldName,
     countIn(pools, 'normal') * STRUCTURES_PER_LEVEL,
@@ -85,13 +88,13 @@ const dealStructures = (worldName: string, pools: Pool[]): Deal => ({
 });
 
 const sliceForLevel = (
-  dealt: Sector[],
+  structures: Sector[],
   levels: number,
   index: number,
 ): Sector[] => {
-  const perLevel = floor(size(dealt) / levels);
+  const perLevel = floor(size(structures) / levels);
 
-  return slice(dealt, index * perLevel, (index + 1) * perLevel);
+  return slice(structures, index * perLevel, (index + 1) * perLevel);
 };
 
 const getMeta = (structures: Sector[]): LevelMeta => ({
@@ -127,13 +130,13 @@ export const generate = (date: Date): RenderedWorld => {
   const seeds = computeLevelSeeds(date);
   const palette = generatePalette(worldName);
   const pools = listLevelPools(size(seeds));
-  const deal = dealStructures(worldName, pools);
+  const worldStructures = pickWorldStructures(worldName, pools);
 
   const levels: GameLevel[] = map(seeds, (seed, index) => {
     const levelNumber = index + 1;
     const pool = pools[index];
     const structures = sliceForLevel(
-      deal[pool],
+      worldStructures[pool],
       countIn(pools, pool),
       getRank(pools, index),
     );
