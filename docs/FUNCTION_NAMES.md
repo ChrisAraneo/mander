@@ -3,12 +3,10 @@
 - `act`
 - `addCompletedWorld`
 - `addCompletion`
-- `addGems`
 - `addPadding`
 - `addRun`
 - `addStones`
 - `addStops`
-- `addVerticalGems`
 - `advance`
 - `advanceBarrage`
 - `advanceBullets`
@@ -187,6 +185,7 @@
 - `createFlameStep`
 - `createFramer`
 - `createGemArt`
+- `createGemPatches`
 - `createGemShapeFill`
 - `createGemShapeStep`
 - `createGemStep`
@@ -345,7 +344,6 @@
 - `filterLandings`
 - `filterLeftBehind`
 - `filterLeftOfPortal`
-- `filterSlotSpots`
 - `findAliases`
 - `findAnchorColumn`
 - `findAnchorRow`
@@ -368,6 +366,7 @@
 - `findFireballCells`
 - `findFireballTiles`
 - `findFloorRow`
+- `findGemCandidates`
 - `findGemTiles`
 - `findGhostRuns`
 - `findHeadroomSpots`
@@ -393,7 +392,6 @@
 - `findStrikingCannonballs`
 - `findStruckSpikeTile`
 - `findStructureIssues`
-- `findSurfaceRow`
 - `findSurfaceSpots`
 - `findTile`
 - `findTiles`
@@ -549,7 +547,6 @@
 - `getRight`
 - `getScoreAmount`
 - `getSkyStops`
-- `getSlotColumns`
 - `getSpawnPosition`
 - `getSpawnX`
 - `getSpawnY`
@@ -580,7 +577,9 @@
 - `grid`
 - `ground`
 - `groundLevel`
-- `groupSlots`
+- `groupGemCandidates`
+- `groupIntoColumnSlots`
+- `groupIntoRowSlots`
 - `handle`
 - `handleKeydown`
 - `handleKeyDown`
@@ -611,7 +610,6 @@
 - `interpolateState`
 - `isAbove`
 - `isAlive`
-- `isApart`
 - `isArmedTrap`
 - `isAverageableTile`
 - `isBackAt`
@@ -629,6 +627,7 @@
 - `isClearableSpikeTile`
 - `isClimbed`
 - `isColliding`
+- `isColumnApart`
 - `isCompletedWorld`
 - `isCornerSquare`
 - `isCoveredAt`
@@ -645,7 +644,7 @@
 - `isFacingRightFor`
 - `isFlashing`
 - `isFloor`
-- `isFree`
+- `isGemApart`
 - `isHittingEnemy`
 - `isHittingFallingSpike`
 - `isIntersecting`
@@ -689,6 +688,7 @@
 - `isSpikeAhead`
 - `isSpikeTile`
 - `isSpikeWithOrientation`
+- `isSpotApart`
 - `isStar`
 - `isStomping`
 - `isStompingEnemy`
@@ -749,7 +749,6 @@
 - `listNames`
 - `listPlayableWorlds`
 - `listRungs`
-- `listSlots`
 - `listStepsAcross`
 - `load`
 - `loadLevel`
@@ -811,6 +810,7 @@
 - `patchCannonTiles`
 - `patchChestTiles`
 - `patchFireballTiles`
+- `patchGemTiles`
 - `patchInput`
 - `patchKeyTiles`
 - `patchPlayerSpawnTiles`
@@ -824,6 +824,7 @@
 - `pickBeartrapCells`
 - `pickBest`
 - `pickChestCandidate`
+- `pickGemCandidates`
 - `pickKeyCandidate`
 - `pickPlayerSpawnCandidate`
 - `pickPortalCandidate`
@@ -833,6 +834,7 @@
 - `place`
 - `placeAt`
 - `placeChest`
+- `placeGems`
 - `placeKey`
 - `placePlayerSpawn`
 - `placePortal`
@@ -928,6 +930,9 @@
 - `shootDown`
 - `showBlocked`
 - `shuffleBeartrapCells`
+- `shuffleByColumn`
+- `shuffleBySpot`
+- `shuffleGemCandidates`
 - `shuffleSpikeCells`
 - `simulateFlights`
 - `simulatePlan`
@@ -944,7 +949,6 @@
 - `sortPlayerSpawnCandidates`
 - `sortPortalCandidates`
 - `source`
-- `sowSlot`
 - `spike`
 - `spikeIn`
 - `spikeKeys`

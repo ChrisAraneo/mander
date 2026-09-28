@@ -33,3 +33,9 @@ export const KEY_HEIGHT = 1;
 export const CHEST_HEIGHT = 1;
 
 export const CHEST_PORTAL_GAP = 2;
+
+export const GEMS_PER_STRUCTURE = 5;
+
+export const GEM_REST_HEIGHT = 2;
+
+export const GEM_GAP = 2;

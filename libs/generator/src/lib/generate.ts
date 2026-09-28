@@ -23,6 +23,7 @@ import { placePlayerSpawn } from './structures/player-spawn/place-player-spawn';
 import { placePortal } from './structures/portal/place-portal';
 import { placeKey } from './structures/key/place-key';
 import { placeChest } from './structures/chest/place-chest';
+import { placeGems } from './structures/gems/place-gems';
 import { computeWorldName } from './seed/compute-world-name';
 import {
   FIRST_HORNED_ENEMY_LEVEL,
@@ -109,7 +110,7 @@ const buildLayers = (structures: Sector[], levelNumber: number): Layers => {
   const withBeartraps = clearBeartraps(withSpikes, levelNumber);
   const withKey = placeKey(withBeartraps, levelType);
   const withChest = placeChest(withKey, levelType);
-  const withGems = layout.addGems(withChest);
+  const withGems = placeGems(withChest, levelType);
   const withStones = addStones(withGems);
   const paddedBack = addPadding(backTiles, withPortal);
 
