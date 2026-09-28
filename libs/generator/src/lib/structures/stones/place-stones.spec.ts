@@ -24,12 +24,9 @@ import {
 } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { generate } from '../generate';
-import { addStones } from './add-stones';
-
-const DIRT_DEPTH = 3;
-
-const DEEP_DIRT_DEPTH = 4;
+import { DEEP_DIRT_DEPTH, DIRT_DEPTH } from '../../consts';
+import { generate } from '../../generate';
+import { placeStones } from './place-stones';
 
 const WIDTH = 24;
 
@@ -105,9 +102,9 @@ const fingerprint = (tiles: Tile[][]): string =>
     '|',
   );
 
-describe('addStones', () => {
+describe('placeStones', () => {
   it('should settle the stone three or four blocks under the ground when the ground is deep enough', () => {
-    const settled = addStones(ground(4, 12));
+    const settled = placeStones(ground(4, 12));
 
     expect(includes(DEPTHS, stoneDepth(settled, 0))).toBe(true);
     expect(
@@ -119,7 +116,7 @@ describe('addStones', () => {
   });
 
   it('should lay the stone line level when the ground is even', () => {
-    const settled = addStones(ground(4, 12));
+    const settled = placeStones(ground(4, 12));
 
     expect(uniq(times(WIDTH, (column) => stoneRow(settled, column)))).toEqual([
       stoneRow(settled, 0),
@@ -129,7 +126,7 @@ describe('addStones', () => {
   it('should deal the deeper start about half the time when it settles many grounds', () => {
     const dealt = countBy(
       map(
-        times(120, (index) => addStones(ground(3, 14, WIDTH + index))),
+        times(120, (index) => placeStones(ground(3, 14, WIDTH + index))),
         (settled) => stoneDepth(settled, 2),
       ),
     );
@@ -142,21 +139,23 @@ describe('addStones', () => {
   it('should deal the same stone twice over when it is given the same ground', () => {
     const tiles = ground(4, 12);
 
-    expect(fingerprint(addStones(tiles))).toBe(fingerprint(addStones(tiles)));
+    expect(fingerprint(placeStones(tiles))).toBe(
+      fingerprint(placeStones(tiles)),
+    );
   });
 
   it('should leave the ground as dirt all the way down when it is shallower than the stone depth', () => {
-    expect(cellsOf(addStones(ground(4, DIRT_DEPTH)), TILE_STONE)).toEqual([]);
+    expect(cellsOf(placeStones(ground(4, DIRT_DEPTH)), TILE_STONE)).toEqual([]);
   });
 
   it('should count the blocks down from the surface it finds when sky sits above it', () => {
-    const settled = addStones(ground(0, 16));
+    const settled = placeStones(ground(0, 16));
 
     expect(includes(DEPTHS, stoneRow(settled, 0))).toBe(true);
   });
 
   it('should start counting afresh when the ground lies under an overhang', () => {
-    const settled = addStones(
+    const settled = placeStones(
       carve([
         '........................',
         ...times(16, () => 'DDDDDDDDDDDDDDDDDDDDDDDD'),
@@ -174,7 +173,7 @@ describe('addStones', () => {
   });
 
   it('should keep three blocks of cover over the stone when it settles one', () => {
-    const settled = addStones(ROUGH_GROUND);
+    const settled = placeStones(ROUGH_GROUND);
     const stones = cellsOf(settled, TILE_STONE);
 
     expect(size(stones)).toBeGreaterThan(0);
@@ -188,14 +187,14 @@ describe('addStones', () => {
     tiles[10][3] = TILE_BRICK;
     tiles[11][4] = TILE_SPIKE;
 
-    const settled = addStones(tiles);
+    const settled = placeStones(tiles);
 
     expect(settled[10][3]).toBe(TILE_BRICK);
     expect(settled[11][4]).toBe(TILE_SPIKE);
   });
 
   it('should smooth the line when the depth rule cuts it ragged', () => {
-    const settled = addStones(
+    const settled = placeStones(
       carve([
         '........................',
         '........................',
@@ -210,7 +209,7 @@ describe('addStones', () => {
   });
 
   it('should spare the pillar its streak when it stands on its own', () => {
-    const settled = addStones(
+    const settled = placeStones(
       carve([
         '........................',
         ...times(6, () => '...D....................'),
@@ -226,7 +225,7 @@ describe('addStones', () => {
 
   it('should round the corner off when the ground falls away at the lip of a pit', () => {
     const brink = 16;
-    const settled = addStones(
+    const settled = placeStones(
       carve([
         '................................................',
         ...times(5, () => 'DDDDDDDDDDDDDDDD................DDDDDDDDDDDDDDDD'),
@@ -245,7 +244,7 @@ describe('addStones', () => {
   });
 
   it('should leave no stone stranded when it settles them on rough ground', () => {
-    const settled = addStones(ROUGH_GROUND);
+    const settled = placeStones(ROUGH_GROUND);
 
     expect(size(cellsOf(settled, TILE_STONE))).toBeGreaterThan(0);
     expect(
@@ -260,7 +259,7 @@ describe('addStones', () => {
     const tiles = ground(4, 12);
     const before = fingerprint(tiles);
 
-    addStones(tiles);
+    placeStones(tiles);
 
     expect(fingerprint(tiles)).toBe(before);
   });

@@ -39,3 +39,7 @@ export const GEMS_PER_STRUCTURE = 5;
 export const GEM_REST_HEIGHT = 2;
 
 export const GEM_GAP = 2;
+
+export const DIRT_DEPTH = 3;
+
+export const DEEP_DIRT_DEPTH = 4;

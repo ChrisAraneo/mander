@@ -5,7 +5,7 @@ import { getStructureName, type Sector } from '@mander/structures';
 import { filter, floor, map, range, size, slice, take } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { addPadding } from './structures/padding/add-padding';
-import { addStones } from './structures/add-stones';
+import { placeStones } from './structures/stones/place-stones';
 import { computeLevelSeeds } from './seed/compute-level-seeds';
 import { clearBeartraps } from './structures/beartraps/clear-beartraps';
 import { clearCannons } from './structures/cannons/clear-cannons';
@@ -111,7 +111,7 @@ const buildLayers = (structures: Sector[], levelNumber: number): Layers => {
   const withKey = placeKey(withBeartraps, levelType);
   const withChest = placeChest(withKey, levelType);
   const withGems = placeGems(withChest, levelType);
-  const withStones = addStones(withGems);
+  const withStones = placeStones(withGems);
   const paddedBack = addPadding(backTiles, withPortal);
 
   return match(isMirrored(levelNumber))

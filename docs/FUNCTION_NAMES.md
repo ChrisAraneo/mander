@@ -5,7 +5,6 @@
 - `addCompletion`
 - `addPadding`
 - `addRun`
-- `addStones`
 - `addStops`
 - `advance`
 - `advanceBarrage`
@@ -84,6 +83,7 @@
 - `clearBeartraps`
 - `clearCannons`
 - `clearFireballs`
+- `clearLoneStones`
 - `clearMarker`
 - `clearSpikes`
 - `cloneGrid`
@@ -261,6 +261,7 @@
 - `createStartFrame`
 - `createStartState`
 - `createStateHandler`
+- `createStonePatches`
 - `createStoneStep`
 - `createStop`
 - `createStructureLibrary`
@@ -351,7 +352,6 @@
 - `findBeartrapTiles`
 - `findBitingSpikes`
 - `findBoundary`
-- `findBuried`
 - `findCandidates`
 - `findCannonCells`
 - `findCannonTiles`
@@ -359,6 +359,7 @@
 - `findCellIn`
 - `findChestCandidates`
 - `findChestTile`
+- `findDeepDirt`
 - `findEnemyTiles`
 - `findEntryPlayer`
 - `findFallingSpike`
@@ -816,6 +817,7 @@
 - `patchPlayerSpawnTiles`
 - `patchPortalTiles`
 - `patchSpikeTiles`
+- `patchStoneTiles`
 - `patchTiles`
 - `patrol`
 - `persist`
@@ -824,6 +826,7 @@
 - `pickBeartrapCells`
 - `pickBest`
 - `pickChestCandidate`
+- `pickDirtDepth`
 - `pickGemCandidates`
 - `pickKeyCandidate`
 - `pickPlayerSpawnCandidate`
@@ -838,6 +841,7 @@
 - `placeKey`
 - `placePlayerSpawn`
 - `placePortal`
+- `placeStones`
 - `platformRow`
 - `played`
 - `player`
@@ -899,7 +903,6 @@
 - `rollSky`
 - `room`
 - `rotate`
-- `roundOff`
 - `rounds`
 - `row`
 - `run`
@@ -923,7 +926,6 @@
 - `setTransform`
 - `sharpen`
 - `shatterSpikeTile`
-- `shed`
 - `shieldPlayer`
 - `shiftHsl`
 - `shoot`
@@ -940,6 +942,7 @@
 - `sketch`
 - `sliceForLevel`
 - `slowed`
+- `smoothStoneCells`
 - `snapshot`
 - `snapShut`
 - `snapToDevicePixel`
