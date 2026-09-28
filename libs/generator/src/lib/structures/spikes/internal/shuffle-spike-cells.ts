@@ -1,11 +1,7 @@
-import type { Tile } from '@mander/model';
 import { chain, createRandom } from '@mander/utils';
 import { sortBy } from 'lodash-es';
-import { formatTilesSeed } from '../../format-tiles-seed';
 import type { findSpikeCells } from './find-spike-cells';
-
-const formatSeed = (tiles: Tile[][], levelNumber: number) =>
-  `${levelNumber}#${formatTilesSeed(tiles)}`;
+import { formatSpikeSeed } from './format-spike-seed';
 
 export const shuffleSpikeCells = ({
   tiles,
@@ -15,7 +11,7 @@ export const shuffleSpikeCells = ({
 }: ReturnType<typeof findSpikeCells>) => ({
   tiles,
   rate,
-  cells: chain(createRandom(formatSeed(tiles, levelNumber)))
+  cells: chain(createRandom(formatSpikeSeed(tiles, levelNumber)))
     .thru((random) => sortBy(cells, () => random.rollFloat()))
     .value(),
 });

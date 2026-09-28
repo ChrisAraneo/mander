@@ -1,11 +1,7 @@
-import type { Tile } from '@mander/model';
 import { chain, createRandom } from '@mander/utils';
 import { sortBy } from 'lodash-es';
-import { formatTilesSeed } from '../../format-tiles-seed';
 import type { findBeartrapCells } from './find-beartrap-cells';
-
-const formatSeed = (tiles: Tile[][], levelNumber: number) =>
-  `beartrap#${levelNumber}#${formatTilesSeed(tiles)}`;
+import { formatBeartrapSeed } from './format-beartrap-seed';
 
 export const shuffleBeartrapCells = ({
   tiles,
@@ -15,7 +11,7 @@ export const shuffleBeartrapCells = ({
 }: ReturnType<typeof findBeartrapCells>) => ({
   tiles,
   rate,
-  cells: chain(createRandom(formatSeed(tiles, levelNumber)))
+  cells: chain(createRandom(formatBeartrapSeed(tiles, levelNumber)))
     .thru((random) => sortBy(cells, () => random.rollFloat()))
     .value(),
 });
