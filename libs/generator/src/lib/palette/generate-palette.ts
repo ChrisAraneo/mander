@@ -2,29 +2,32 @@ import type { Palette } from '@mander/render';
 import { createRandom, formatHslCss, type Hsl, wrapHue } from '@mander/utils';
 import { match } from 'ts-pattern';
 
-import { CAP_HUES, GROUND_HUES, SKY_HUES } from './cel-hues';
+import { CAP_HUES, GLOW_HUES, GROUND_HUES, SKY_HUES } from './cel-hues';
 
-const SKY_SATURATION_MIN = 10;
-const SKY_SATURATION_MAX = 26;
-const SKY_TOP_LIGHTNESS_MIN = 8;
-const SKY_TOP_LIGHTNESS_MAX = 14;
-const SKY_MIDDLE_LIGHTNESS_GAIN = 8;
-const SKY_HORIZON_LIGHTNESS_GAIN = 14;
-const SKY_HORIZON_HUE_DRIFT = 12;
+const SKY_SATURATION_MIN = 24;
+const SKY_SATURATION_MAX = 38;
+const SKY_TOP_LIGHTNESS_MIN = 26;
+const SKY_TOP_LIGHTNESS_MAX = 34;
+const SKY_MIDDLE_LIGHTNESS_GAIN = 16;
+const SKY_HORIZON_LIGHTNESS_GAIN = 30;
+const SKY_HAZE_SATURATION_RATIO = 0.8;
 
-const HILL_SATURATION_DROP = 3;
-const FAR_HILL_LIGHTNESS_GAIN = 6;
-const NEAR_HILL_LIGHTNESS_GAIN = 2;
+const GLOW_SATURATION_MIN = 44;
+const GLOW_SATURATION_MAX = 60;
 
-const GROUND_SATURATION_MIN = 8;
-const GROUND_SATURATION_MAX = 22;
-const GROUND_LIGHTNESS_MIN = 18;
-const GROUND_LIGHTNESS_MAX = 26;
+const HILL_SATURATION_DROP = 6;
+const FAR_HILL_LIGHTNESS_GAIN = 10;
+const NEAR_HILL_LIGHTNESS_GAIN = 4;
 
-const CAP_SATURATION_MIN = 14;
-const CAP_SATURATION_MAX = 30;
-const CAP_LIGHTNESS_MIN = 36;
-const CAP_LIGHTNESS_MAX = 48;
+const GROUND_SATURATION_MIN = 18;
+const GROUND_SATURATION_MAX = 30;
+const GROUND_LIGHTNESS_MIN = 28;
+const GROUND_LIGHTNESS_MAX = 36;
+
+const CAP_SATURATION_MIN = 34;
+const CAP_SATURATION_MAX = 50;
+const CAP_LIGHTNESS_MIN = 44;
+const CAP_LIGHTNESS_MAX = 54;
 const CAP_HIGHLIGHT_SATURATION_GAIN = 4;
 const CAP_HIGHLIGHT_LIGHTNESS_GAIN = 6;
 
@@ -33,8 +36,9 @@ const ENTITY_HUE_GUARD = 30;
 
 interface Sky {
   hue: number;
-  horizonHue: number;
+  glowHue: number;
   saturation: number;
+  glowSaturation: number;
   topLightness: number;
 }
 
@@ -59,18 +63,13 @@ const pushAwayFromEntityHue = (hue: number): number =>
     )
     .otherwise(() => wrapHue(ENTITY_HUE - ENTITY_HUE_GUARD));
 
-const rollSky = (random: ReturnType<typeof createRandom>): Sky => {
-  const hue = random.pick(SKY_HUES);
-
-  return {
-    hue,
-    horizonHue: wrapHue(
-      hue + random.rollInt(-SKY_HORIZON_HUE_DRIFT, SKY_HORIZON_HUE_DRIFT),
-    ),
-    saturation: random.rollInt(SKY_SATURATION_MIN, SKY_SATURATION_MAX),
-    topLightness: random.rollInt(SKY_TOP_LIGHTNESS_MIN, SKY_TOP_LIGHTNESS_MAX),
-  };
-};
+const rollSky = (random: ReturnType<typeof createRandom>): Sky => ({
+  hue: random.pick(SKY_HUES),
+  glowHue: random.pick(GLOW_HUES),
+  saturation: random.rollInt(SKY_SATURATION_MIN, SKY_SATURATION_MAX),
+  glowSaturation: random.rollInt(GLOW_SATURATION_MIN, GLOW_SATURATION_MAX),
+  topLightness: random.rollInt(SKY_TOP_LIGHTNESS_MIN, SKY_TOP_LIGHTNESS_MAX),
+});
 
 const rollGround = (random: ReturnType<typeof createRandom>): Ground => {
   const hue = random.pick(GROUND_HUES);
@@ -88,13 +87,13 @@ const rollGround = (random: ReturnType<typeof createRandom>): Ground => {
 const getSkyStops = (sky: Sky): readonly [Hsl, Hsl, Hsl] => [
   { hue: sky.hue, saturation: sky.saturation, lightness: sky.topLightness },
   {
-    hue: sky.hue,
-    saturation: sky.saturation,
+    hue: sky.glowHue,
+    saturation: sky.saturation * SKY_HAZE_SATURATION_RATIO,
     lightness: sky.topLightness + SKY_MIDDLE_LIGHTNESS_GAIN,
   },
   {
-    hue: sky.horizonHue,
-    saturation: sky.saturation,
+    hue: sky.glowHue,
+    saturation: sky.glowSaturation,
     lightness: sky.topLightness + SKY_HORIZON_LIGHTNESS_GAIN,
   },
 ];
