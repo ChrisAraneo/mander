@@ -23,7 +23,10 @@ import { createBasePlayerVelocity } from '../player/create-base-player-velocity'
 import { BASE_HEARTS, PLAYER_HEIGHT, PLAYER_WIDTH } from '../player/consts';
 import { reduce } from '../reduce';
 import { advanceFallingSpikes } from './advance-falling-spikes';
-import { FALLING_SPIKE_TRIGGER_TILES } from './consts';
+import {
+  FALLING_SPIKE_TRIGGER_DEPTH_TILES,
+  FALLING_SPIKE_TRIGGER_TILES,
+} from './consts';
 import { createFallingSpikes } from './create-falling-spikes';
 import { isTouchingFallingSpike } from './is-touching-falling-spike';
 import { stepFallingSpike } from './step-falling-spike';
@@ -72,6 +75,16 @@ const playerAt = (gap: number): Player => {
   const walking = player(0);
   walking.position.x = SPIKE_CENTRE + gap - PLAYER_WIDTH / 2;
   return walking;
+};
+
+const SPIKE_MIDDLE = CEILING_ROW * TILE_SIZE + TILE_SIZE / 2;
+
+const TRIGGER_DEPTH = FALLING_SPIKE_TRIGGER_DEPTH_TILES * TILE_SIZE;
+
+const playerBelow = (depth: number): Player => {
+  const hanging = playerAt(0);
+  hanging.position.y = SPIKE_MIDDLE + depth - PLAYER_HEIGHT / 2;
+  return hanging;
 };
 
 const fallFor = (seconds: number, watcher: Player) => {
@@ -136,6 +149,50 @@ describe('stepFallingSpike', () => {
 
       expect(dropped?.statuses.isFalling, `gap ${gap}`).toBe(true);
       expect(dropped?.position.y).toBeGreaterThan(spikeIn(level).position.y);
+    });
+  });
+
+  it('should hold on when the player is further below than seven blocks', () => {
+    const level = room();
+    const held = stepFallingSpike(
+      level,
+      spikeIn(level),
+      playerBelow(TRIGGER_DEPTH + 1),
+      DELTA_SECONDS,
+    );
+
+    expect(held).toEqual(spikeIn(level));
+  });
+
+  it('should let go when the player is below it within seven blocks', () => {
+    const level = room();
+
+    times(2, (index) => {
+      const depth = [1, TRIGGER_DEPTH][index];
+      const dropped = stepFallingSpike(
+        level,
+        spikeIn(level),
+        playerBelow(depth),
+        DELTA_SECONDS,
+      );
+
+      expect(dropped?.statuses.isFalling, `depth ${depth}`).toBe(true);
+    });
+  });
+
+  it('should hold on when the player is above it or level with it', () => {
+    const level = room();
+
+    times(3, (index) => {
+      const depth = [-TRIGGER_DEPTH, -1, 0][index];
+      const held = stepFallingSpike(
+        level,
+        spikeIn(level),
+        playerBelow(depth),
+        DELTA_SECONDS,
+      );
+
+      expect(held, `depth ${depth}`).toEqual(spikeIn(level));
     });
   });
 
