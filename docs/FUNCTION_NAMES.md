@@ -60,7 +60,6 @@
 - `blurColumns`
 - `blurRows`
 - `borrowNeighbourTile`
-- `buildLayers`
 - `burnEnemies`
 - `burnStar`
 - `canBeBehind`
@@ -417,8 +416,8 @@
 - `formatDeclaration`
 - `formatHslCss`
 - `formatLayer`
+- `formatLevelCategorySeed`
 - `formatPlayedWhen`
-- `formatPoolSeed`
 - `formatRow`
 - `formatRunLabel`
 - `formatScore`
@@ -508,6 +507,8 @@
 - `getLayout`
 - `getLeft`
 - `getLevelAt`
+- `getLevelCategories`
+- `getLevelCategory`
 - `getLevelGhosts`
 - `getLevelIndex`
 - `getLevelMeta`
@@ -740,11 +741,11 @@
 - `lerp`
 - `lerpPoint`
 - `level`
+- `levelCategoryPrefixOf`
 - `levelOf`
 - `levelWithAirborneEnemies`
 - `levelWithEnemies`
 - `lightnessOf`
-- `listLevelPools`
 - `listNamePairs`
 - `listNames`
 - `listPlayableWorlds`
@@ -850,7 +851,6 @@
 - `playerWithFeetAt`
 - `playOnMount`
 - `playToEnd`
-- `poolPrefixOf`
 - `postStructure`
 - `project`
 - `projectX`

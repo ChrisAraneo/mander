@@ -53,7 +53,7 @@ const GEMS_A_CLIMB = 10;
 
 const dayOf = (day: number): Date => new Date(Date.UTC(2026, 0, 1 + day));
 
-const poolPrefixOf = (levelNumber: number): string =>
+const levelCategoryPrefixOf = (levelNumber: number): string =>
   includes(VERTICAL_LEVELS, levelNumber)
     ? 'VERTICAL'
     : levelNumber >= FIRST_HARD_LEVEL
@@ -363,12 +363,12 @@ describe('generate', () => {
     expect(uniq(counts)).toEqual([STRUCTURES_PER_LEVEL]);
   });
 
-  it('should record the structures of the pool when the level was dealt from it', () => {
+  it('should record the structures of the category when the level was dealt from it', () => {
     const strays = flatMap(days, (date) =>
       flatMap(generate(date).levels, (level, index) =>
         filter(
           level.meta?.structures ?? [],
-          (name) => !name.startsWith(`${poolPrefixOf(index + 1)}_`),
+          (name) => !name.startsWith(`${levelCategoryPrefixOf(index + 1)}_`),
         ),
       ),
     );
