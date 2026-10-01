@@ -106,9 +106,9 @@
 - `cool`
 - `coolTimers`
 - `copy`
+- `countChestEpics`
 - `countCompany`
 - `countCover`
-- `countEpics`
 - `countIn`
 - `countOf`
 - `countRunsAfter`
@@ -156,6 +156,7 @@
 - `createCeramicStep`
 - `createChargeStep`
 - `createChestPatches`
+- `createChestRandom`
 - `createChestStep`
 - `createClimb`
 - `createController`
@@ -889,6 +890,7 @@
 - `pickCards`
 - `pickChest`
 - `pickChestCandidate`
+- `pickChestItems`
 - `pickDirtDepth`
 - `pickEpics`
 - `pickFrom`
@@ -966,10 +968,10 @@
 - `restore`
 - `restoreEndings`
 - `right`
+- `rollChestRarities`
 - `rollFrom`
 - `rollGround`
 - `rollInt`
-- `rollRarities`
 - `rollSky`
 - `room`
 - `rotate`
