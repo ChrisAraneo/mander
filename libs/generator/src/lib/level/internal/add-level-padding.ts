@@ -2,14 +2,14 @@ import { addPadding } from '../../structures/padding/add-padding';
 import type { placeLevelEnds } from './place-level-ends';
 
 export const addLevelPadding = ({
-  seed,
+  random,
   levelNumber,
   levelType,
   structures,
   tiles,
   backTiles,
 }: ReturnType<typeof placeLevelEnds>) => ({
-  seed,
+  random,
   levelNumber,
   levelType,
   structures,

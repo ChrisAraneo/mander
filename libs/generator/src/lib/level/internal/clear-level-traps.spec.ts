@@ -3,10 +3,10 @@ import {
   TILE_BEARTRAP,
   TILE_DIRT,
   TILE_SPIKE,
-  TILE_STONE,
   type Tile,
 } from '@mander/model';
 import type { Sector } from '@mander/structures';
+import { createRandom } from '@mander/utils';
 import { filter, flatten, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
@@ -20,22 +20,22 @@ const STRUCTURES: Sector[] = [];
 
 const BACK_LEVEL: Tile[][] = [[TILE_AIR]];
 
-const createLevel = (ground: Tile = TILE_DIRT): Tile[][] => [
+const createLevel = (): Tile[][] => [
   times(TRAPS, (): Tile => TILE_SPIKE),
   times(TRAPS, (): Tile => TILE_BEARTRAP),
-  times(TRAPS, (): Tile => ground),
+  times(TRAPS, (): Tile => TILE_DIRT),
 ];
 
 const countTiles = (tiles: Tile[][], wanted: Tile): number =>
   size(filter(flatten(tiles), (tile) => tile === wanted));
 
-const clearOn = (levelNumber: number, tiles: Tile[][] = createLevel()) =>
+const clearOn = (levelNumber: number, random = createRandom('DAY-1')) =>
   clearLevelTraps({
-    seed: 'SEED',
+    random,
     levelNumber,
     levelType: 'HORIZONTAL',
     structures: STRUCTURES,
-    tiles,
+    tiles: createLevel(),
     backTiles: BACK_LEVEL,
   });
 
@@ -51,20 +51,20 @@ describe('clearLevelTraps', () => {
     expect(clearOn(FIRST_UNTOUCHED_LEVEL).tiles).toEqual(createLevel());
   });
 
-  it('should clear the traps the same way when it is given the same level', () => {
+  it('should clear the traps the same way when the generator starts from the same seed', () => {
     expect(clearOn(2).tiles).toEqual(clearOn(2).tiles);
   });
 
-  it('should clear the traps another way when the grid is different', () => {
+  it('should clear the traps another way when the generator starts from another seed', () => {
     expect(clearOn(1).tiles[1]).not.toEqual(
-      clearOn(1, createLevel(TILE_STONE)).tiles[1],
+      clearOn(1, createRandom('DAY-2')).tiles[1],
     );
   });
 
   it('should give back an empty grid when the grid is empty', () => {
     expect(
       clearLevelTraps({
-        seed: 'SEED',
+        random: createRandom('DAY-1'),
         levelNumber: 1,
         levelType: 'HORIZONTAL',
         structures: STRUCTURES,
@@ -74,8 +74,10 @@ describe('clearLevelTraps', () => {
     ).toEqual([]);
   });
 
-  it('should pass the seed on when it clears the traps', () => {
-    expect(clearOn(1).seed).toBe('SEED');
+  it('should pass the generator on when it clears the traps', () => {
+    const random = createRandom('DAY-1');
+
+    expect(clearOn(1, random).random).toBe(random);
   });
 
   it('should pass the level number on when it clears the traps', () => {

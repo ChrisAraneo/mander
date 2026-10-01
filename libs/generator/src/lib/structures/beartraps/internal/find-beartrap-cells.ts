@@ -4,11 +4,11 @@ import type { getBeartrapRemovalRate } from './get-beartrap-removal-rate';
 
 export const findBeartrapCells = ({
   tiles,
-  levelNumber,
+  random,
   rate,
 }: ReturnType<typeof getBeartrapRemovalRate>) => ({
   tiles,
-  levelNumber,
+  random,
   rate,
   cells: flatMap(tiles, (cells, row) =>
     map(

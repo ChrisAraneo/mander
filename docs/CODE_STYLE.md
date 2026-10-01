@@ -75,9 +75,10 @@ bring it in line.
      `chain(value).thru(…).value()`:
 
      ```ts
-     cells: chain(createRandom(formatBeartrapSeed(tiles, levelNumber)))
-       .thru((random) => sortBy(cells, () => random.rollFloat()))
-       .value(),
+     chain(filter(findNeighbourTiles(tiles, row, column), isAverageableTile))
+       .thru((solid) => maxBy(uniq(solid), (tile) => countOf(solid, tile)))
+       .thru((average) => average ?? TILE_BRICK)
+       .value();
      ```
 
    - When a function needs several named values, a block body is allowed if it
@@ -210,15 +211,15 @@ shape.
 7. **Standard steps.** A pipeline that places or removes things on a grid uses
    these steps in this order, skipping the ones it does not need:
 
-   | Step                             | Job                                    | Example                                       |
-   | -------------------------------- | -------------------------------------- | --------------------------------------------- |
-   | `get…` / `mark…`                 | read the settings for this level       | `getSpikeRemovalRate`, `markCannonsArmed`     |
-   | `find…Candidates` / `find…Cells` | collect positions from the grid        | `findChestCandidates`, `findSpikeCells`       |
-   | `filter…` / `group…`             | drop or group those positions          | `filterChestCandidates`, `groupGemCandidates` |
-   | `sort…` / `shuffle…`             | put the best first, or mix with a seed | `sortPortalCandidates`, `shuffleSpikeCells`   |
-   | `pick…`                          | choose from the ordered list           | `pickKeyCandidate`, `pickBeartrapCells`       |
-   | `create…Patches`                 | turn the choice into patches           | `createGemPatches`                            |
-   | `patch…Tiles`                    | apply the patches                      | `patchGemTiles`                               |
+   | Step                             | Job                                  | Example                                       |
+   | -------------------------------- | ------------------------------------ | --------------------------------------------- |
+   | `get…` / `mark…`                 | read the settings for this level     | `getSpikeRemovalRate`, `markCannonsArmed`     |
+   | `find…Candidates` / `find…Cells` | collect positions from the grid      | `findChestCandidates`, `findSpikeCells`       |
+   | `filter…` / `group…`             | drop or group those positions        | `filterChestCandidates`, `groupGemCandidates` |
+   | `sort…` / `shuffle…`             | put the best first, or mix at random | `sortPortalCandidates`, `shuffleSpikeCells`   |
+   | `pick…`                          | choose from the ordered list         | `pickKeyCandidate`, `pickBeartrapCells`       |
+   | `create…Patches`                 | turn the choice into patches         | `createGemPatches`                            |
+   | `patch…Tiles`                    | apply the patches                    | `patchGemTiles`                               |
 
    Other pipelines name their middle steps with plain verbs
    (`smoothStoneCells`, `stackPaddingRows`), but still end with
@@ -227,12 +228,16 @@ shape.
 8. **One pipeline for both level types.** Horizontal and vertical levels go
    through the same steps. Branch on `levelType` inside the steps that differ,
    never in the entry point.
-9. **Random choices are seeded.** NEVER use `Math.random`. Build a seed string
-   from the input in a `format…Seed` function, make a generator with
-   `createRandom(seed)` from `@mander/utils`, and shuffle with
-   `sortBy(items, () => random.rollFloat())`. Start a new seed with a tag that
-   names the feature (`beartrap#3#…`), so two features never draw the same
-   numbers from the same grid. The same input MUST always give the same output.
+9. **One random generator.** NEVER use `Math.random`. In the generator, only
+   `generate` calls `createRandom`: it makes one generator from the world name
+   and passes it down. Everything else takes that generator as its last
+   argument, named `random` (`clearSpikes(tiles, levelNumber, random)`), and
+   NEVER builds a seed or a generator of its own. A pipeline carries `random`
+   as a field until the last step that draws from it. Shuffle with
+   `sortBy(items, () => random.rollFloat())`. Each draw moves the generator on,
+   so the order of the calls is part of the output: one draw more or less
+   anywhere changes everything drawn after it. The same day MUST always give
+   the same world.
 
 ## 5. Naming
 
@@ -251,7 +256,7 @@ shape.
    | `get…`                                  | look up or work out one value                  | `getMiddleColumn`               |
    | `compute…`                              | work a value out from several others           | `computeAverageNeighbourTile`   |
    | `count…`, `measure…`                    | numbers about the grid                         | `countCompany`, `measureDepths` |
-   | `format…`                               | build a string                                 | `formatTilesSeed`               |
+   | `format…`                               | build a string                                 | `formatDateSeed`                |
    | `convert…`                              | turn a value into another type                 | `convertToFlag`                 |
    | `is…`                                   | return a boolean                               | `isSurface`                     |
 
@@ -373,8 +378,11 @@ shape.
      `'should pass the level type on when …'`);
    - for an entry point or a `patch…Tiles` step: that the grid it was given is
      unchanged (`'should not change the old grid when …'`);
-   - for anything seeded: the same input gives the same result, and a
-     different input gives a different one;
+   - for anything that draws from the generator: a generator started from the
+     same seed gives the same result, and one started from another seed gives
+     a different one. Give each call its own `createRandom(seed)`, because a
+     shared generator moves on with every draw. A step that only passes
+     `random` on may share one `RANDOM` constant across its tests;
    - for anything that branches on `levelType`: both `'HORIZONTAL'` and
      `'VERTICAL'`.
 6. **Fixtures.**

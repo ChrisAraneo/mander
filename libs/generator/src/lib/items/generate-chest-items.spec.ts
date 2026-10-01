@@ -9,6 +9,7 @@ import {
   TWO_BULLETS,
   VAMPIRE_SLAYER_BULLET_RAIN,
 } from '@mander/model';
+import { createRandom } from '@mander/utils';
 import {
   countBy,
   every,
@@ -40,31 +41,32 @@ const SEED = 'PROBE-SEED';
 
 const SEEDS = times(400, (day) => `DAY-${day}`);
 
-const pickCards = (): Item[] => flatMap(SEEDS, generateChestItems);
+const pickFrom = (seed: string): Item[] =>
+  generateChestItems(createRandom(seed));
 
-const getCardIds = (seed: string): string[] =>
-  map(generateChestItems(seed), 'id');
+const pickCards = (): Item[] => flatMap(SEEDS, pickFrom);
+
+const getCardIds = (seed: string): string[] => map(pickFrom(seed), 'id');
 
 const getCardTypes = (seed: string): (ChestItemType | undefined)[] =>
-  map(generateChestItems(seed), getChestType);
+  map(pickFrom(seed), getChestType);
 
 const isEpicChest = (seed: string): boolean =>
-  some(generateChestItems(seed), { rarity: 'EPIC' });
+  some(pickFrom(seed), { rarity: 'EPIC' });
 
 const findEpicSeeds = (): string[] => filter(SEEDS, isEpicChest);
 
 const findEverydaySeeds = (): string[] =>
   filter(SEEDS, (seed) => !isEpicChest(seed));
 
-const getLeadCards = (): Item[] =>
-  map(SEEDS, (seed) => generateChestItems(seed)[0]);
+const getLeadCards = (): Item[] => map(SEEDS, (seed) => pickFrom(seed)[0]);
 
 describe('generateChestItems', () => {
-  it('should fill the chest the same way when the seed is the same', () => {
-    expect(generateChestItems(SEED)).toEqual(generateChestItems(SEED));
+  it('should fill the chest the same way when the generator starts from the same seed', () => {
+    expect(pickFrom(SEED)).toEqual(pickFrom(SEED));
   });
 
-  it('should lay the cards out differently when the seed differs', () => {
+  it('should lay the cards out differently when the generator starts from other seeds', () => {
     const filled = map(SEEDS, getCardIds);
 
     expect(size(uniq(map(filled, String)))).toBeGreaterThan(1);
@@ -73,10 +75,7 @@ describe('generateChestItems', () => {
   it('should offer three cards to choose between when no epic turns up', () => {
     expect(CHEST_ITEM_COUNT).toBe(3);
     expect(
-      filter(
-        findEverydaySeeds(),
-        (seed) => size(generateChestItems(seed)) !== 3,
-      ),
+      filter(findEverydaySeeds(), (seed) => size(pickFrom(seed)) !== 3),
     ).toEqual([]);
   });
 
@@ -151,7 +150,7 @@ describe('generateChestItems', () => {
 
     times(size(epicSeeds), (index) => {
       const seed = epicSeeds[index];
-      const cards = generateChestItems(seed);
+      const cards = pickFrom(seed);
 
       expect(every(cards, { rarity: 'EPIC' }), `only epics on ${seed}`).toBe(
         true,
@@ -179,7 +178,7 @@ describe('generateChestItems', () => {
   it('should keep the epics out when the chest is an ordinary one', () => {
     expect(
       filter(findEverydaySeeds(), (seed) =>
-        some(generateChestItems(seed), { rarity: 'EPIC' }),
+        some(pickFrom(seed), { rarity: 'EPIC' }),
       ),
     ).toEqual([]);
   });
@@ -207,7 +206,7 @@ describe('generateChestItems', () => {
 
   it('should offer a rare card often enough to be worth finding when enough chests are filled', () => {
     const withRare = filter(SEEDS, (seed) =>
-      some(generateChestItems(seed), { rarity: 'RARE' }),
+      some(pickFrom(seed), { rarity: 'RARE' }),
     );
 
     expect(size(withRare) / size(SEEDS)).toBeGreaterThan(0.1);

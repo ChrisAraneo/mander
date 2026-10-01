@@ -1,8 +1,11 @@
 import { TILE_AIR, type Tile } from '@mander/model';
+import { createRandom } from '@mander/utils';
 import { times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { groupGemCandidates } from './group-gem-candidates';
+
+const RANDOM = createRandom('SEED');
 
 const createLevel = (width: number, height: number): Tile[][] =>
   times(height, () => times(width, () => TILE_AIR));
@@ -13,6 +16,7 @@ describe('groupGemCandidates', () => {
       groupGemCandidates({
         tiles: createLevel(8, 10),
         levelType: 'HORIZONTAL',
+        random: RANDOM,
         candidates: [
           { row: 9, column: 1 },
           { row: 2, column: 6 },
@@ -26,6 +30,7 @@ describe('groupGemCandidates', () => {
       groupGemCandidates({
         tiles: createLevel(8, 10),
         levelType: 'VERTICAL',
+        random: RANDOM,
         candidates: [
           { row: 1, column: 6 },
           { row: 6, column: 1 },
@@ -36,8 +41,12 @@ describe('groupGemCandidates', () => {
 
   it('should give no slots when the grid is empty', () => {
     expect(
-      groupGemCandidates({ tiles: [], levelType: 'HORIZONTAL', candidates: [] })
-        .slots,
+      groupGemCandidates({
+        tiles: [],
+        levelType: 'HORIZONTAL',
+        random: RANDOM,
+        candidates: [],
+      }).slots,
     ).toEqual([]);
   });
 
@@ -45,15 +54,34 @@ describe('groupGemCandidates', () => {
     const tiles = createLevel(3, 3);
 
     expect(
-      groupGemCandidates({ tiles, levelType: 'HORIZONTAL', candidates: [] })
-        .tiles,
+      groupGemCandidates({
+        tiles,
+        levelType: 'HORIZONTAL',
+        random: RANDOM,
+        candidates: [],
+      }).tiles,
     ).toBe(tiles);
   });
 
   it('should pass the level type on when it groups', () => {
     expect(
-      groupGemCandidates({ tiles: [], levelType: 'VERTICAL', candidates: [] })
-        .levelType,
+      groupGemCandidates({
+        tiles: [],
+        levelType: 'VERTICAL',
+        random: RANDOM,
+        candidates: [],
+      }).levelType,
     ).toBe('VERTICAL');
+  });
+
+  it('should pass the generator on when it groups', () => {
+    expect(
+      groupGemCandidates({
+        tiles: [],
+        levelType: 'VERTICAL',
+        random: RANDOM,
+        candidates: [],
+      }).random,
+    ).toBe(RANDOM);
   });
 });

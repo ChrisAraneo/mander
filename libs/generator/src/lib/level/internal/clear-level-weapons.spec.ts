@@ -6,11 +6,14 @@ import {
   type Tile,
 } from '@mander/model';
 import type { Sector } from '@mander/structures';
+import { createRandom } from '@mander/utils';
 import { flatten, includes } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { FIRST_CANNON_LEVEL, FIRST_FIREBALL_LEVEL } from '../../consts';
 import { clearLevelWeapons } from './clear-level-weapons';
+
+const RANDOM = createRandom('SEED');
 
 const STRUCTURES: Sector[] = [];
 
@@ -23,10 +26,10 @@ const createLevel = (): Tile[][] => [
 
 const clearOn = (levelNumber: number) =>
   clearLevelWeapons({
-    seed: 'SEED',
     levelNumber,
     levelType: 'HORIZONTAL',
     structures: STRUCTURES,
+    random: RANDOM,
     tiles: createLevel(),
     backTiles: BACK_LEVEL,
   });
@@ -53,18 +56,18 @@ describe('clearLevelWeapons', () => {
   it('should give back an empty grid when the grid is empty', () => {
     expect(
       clearLevelWeapons({
-        seed: 'SEED',
         levelNumber: 1,
         levelType: 'HORIZONTAL',
         structures: STRUCTURES,
+        random: RANDOM,
         tiles: [],
         backTiles: [],
       }).tiles,
     ).toEqual([]);
   });
 
-  it('should pass the seed on when it clears the weapons', () => {
-    expect(clearOn(1).seed).toBe('SEED');
+  it('should pass the generator on when it clears the weapons', () => {
+    expect(clearOn(1).random).toBe(RANDOM);
   });
 
   it('should pass the level number on when it clears the weapons', () => {

@@ -1,9 +1,12 @@
 import { TILE_AIR, TILE_DIRT, TILE_GEM, type Tile } from '@mander/model';
+import { createRandom } from '@mander/utils';
 import { map } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import type { LevelType } from '../../types/level-type';
 import { findGemCandidates } from './find-gem-candidates';
+
+const RANDOM = createRandom('SEED');
 
 const TILES: Record<string, Tile> = {
   '#': TILE_DIRT,
@@ -14,7 +17,8 @@ const createGrid = (rows: string[]): Tile[][] =>
   map(rows, (row) => map([...row], (cell) => TILES[cell] ?? TILE_AIR));
 
 const findCandidates = (rows: string[], levelType: LevelType) =>
-  findGemCandidates({ tiles: createGrid(rows), levelType }).candidates;
+  findGemCandidates({ tiles: createGrid(rows), levelType, random: RANDOM })
+    .candidates;
 
 describe('findGemCandidates', () => {
   it('should give the top block of each column in a horizontal level when there are three free blocks above it', () => {
@@ -108,14 +112,23 @@ describe('findGemCandidates', () => {
   it('should keep the grid the same when it looks for candidates', () => {
     const tiles = createGrid(['..', '##']);
 
-    expect(findGemCandidates({ tiles, levelType: 'HORIZONTAL' }).tiles).toBe(
-      tiles,
-    );
+    expect(
+      findGemCandidates({ tiles, levelType: 'HORIZONTAL', random: RANDOM })
+        .tiles,
+    ).toBe(tiles);
   });
 
   it('should pass the level type on when it looks for candidates', () => {
     expect(
-      findGemCandidates({ tiles: [], levelType: 'VERTICAL' }).levelType,
+      findGemCandidates({ tiles: [], levelType: 'VERTICAL', random: RANDOM })
+        .levelType,
     ).toBe('VERTICAL');
+  });
+
+  it('should pass the generator on when it looks for candidates', () => {
+    expect(
+      findGemCandidates({ tiles: [], levelType: 'VERTICAL', random: RANDOM })
+        .random,
+    ).toBe(RANDOM);
   });
 });

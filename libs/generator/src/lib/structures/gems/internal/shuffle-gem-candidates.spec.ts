@@ -1,4 +1,5 @@
-import { TILE_AIR, TILE_DIRT, TILE_SPIKE, type Tile } from '@mander/model';
+import { TILE_AIR, TILE_DIRT, type Tile } from '@mander/model';
+import { createRandom } from '@mander/utils';
 import { chunk, map, range, sortBy, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
@@ -12,70 +13,84 @@ const LEVEL: Tile[][] = [
   times(WIDTH, () => TILE_DIRT),
 ];
 
-const SPIKED_LEVEL: Tile[][] = [
-  [TILE_SPIKE, ...times(WIDTH - 1, () => TILE_AIR)],
-  times(WIDTH, () => TILE_DIRT),
-];
-
 const SLOTS = chunk(
   map(range(WIDTH), (column) => ({ row: 1, column })),
   4,
 );
 
-const shuffleIn = (tiles: Tile[][], levelType: LevelType) =>
-  shuffleGemCandidates({ tiles, levelType, slots: SLOTS }).slots;
+const RANDOM = createRandom('SEED');
+
+const shuffleIn = (levelType: LevelType, seed: string) =>
+  shuffleGemCandidates({
+    tiles: LEVEL,
+    levelType,
+    random: createRandom(seed),
+    slots: SLOTS,
+  }).slots;
 
 describe('shuffleGemCandidates', () => {
   it('should keep every candidate in its slot when it shuffles a horizontal level', () => {
     expect(
-      map(shuffleIn(LEVEL, 'HORIZONTAL'), (slot) => sortBy(slot, 'column')),
+      map(shuffleIn('HORIZONTAL', 'DAY-1'), (slot) => sortBy(slot, 'column')),
     ).toEqual(SLOTS);
   });
 
   it('should keep every candidate in its slot when it shuffles a vertical level', () => {
     expect(
-      map(shuffleIn(LEVEL, 'VERTICAL'), (slot) => sortBy(slot, 'column')),
+      map(shuffleIn('VERTICAL', 'DAY-1'), (slot) => sortBy(slot, 'column')),
     ).toEqual(SLOTS);
   });
 
   it('should mix the candidates up when it shuffles a horizontal level', () => {
-    expect(shuffleIn(LEVEL, 'HORIZONTAL')).not.toEqual(SLOTS);
+    expect(shuffleIn('HORIZONTAL', 'DAY-1')).not.toEqual(SLOTS);
   });
 
   it('should mix the candidates up when it shuffles a vertical level', () => {
-    expect(shuffleIn(LEVEL, 'VERTICAL')).not.toEqual(SLOTS);
+    expect(shuffleIn('VERTICAL', 'DAY-1')).not.toEqual(SLOTS);
   });
 
-  it('should shuffle the candidates the same way when it gets the same grid', () => {
-    expect(shuffleIn(LEVEL, 'HORIZONTAL')).toEqual(
-      shuffleIn(LEVEL, 'HORIZONTAL'),
+  it('should shuffle the candidates the same way when the generator starts from the same seed', () => {
+    expect(shuffleIn('HORIZONTAL', 'DAY-1')).toEqual(
+      shuffleIn('HORIZONTAL', 'DAY-1'),
     );
   });
 
-  it('should shuffle the candidates another way when the grid is different', () => {
-    expect(shuffleIn(LEVEL, 'HORIZONTAL')).not.toEqual(
-      shuffleIn(SPIKED_LEVEL, 'HORIZONTAL'),
+  it('should shuffle the candidates another way when the generator starts from another seed', () => {
+    expect(shuffleIn('HORIZONTAL', 'DAY-1')).not.toEqual(
+      shuffleIn('HORIZONTAL', 'DAY-2'),
     );
   });
 
   it('should give no slots when it gets no slots', () => {
     expect(
-      shuffleGemCandidates({ tiles: LEVEL, levelType: 'VERTICAL', slots: [] })
-        .slots,
+      shuffleGemCandidates({
+        tiles: LEVEL,
+        levelType: 'VERTICAL',
+        random: RANDOM,
+        slots: [],
+      }).slots,
     ).toEqual([]);
   });
 
   it('should keep the grid the same when it shuffles', () => {
     expect(
-      shuffleGemCandidates({ tiles: LEVEL, levelType: 'VERTICAL', slots: [] })
-        .tiles,
+      shuffleGemCandidates({
+        tiles: LEVEL,
+        levelType: 'VERTICAL',
+        random: RANDOM,
+        slots: [],
+      }).tiles,
     ).toBe(LEVEL);
   });
 
   it('should pass the level type on when it shuffles', () => {
     expect(
-      shuffleGemCandidates({ tiles: LEVEL, levelType: 'VERTICAL', slots: [] })
-        .levelType,
+      shuffleGemCandidates({
+        tiles: LEVEL,
+        levelType: 'VERTICAL',
+        random: RANDOM,
+        slots: [],
+      }).levelType,
     ).toBe('VERTICAL');
   });
 });

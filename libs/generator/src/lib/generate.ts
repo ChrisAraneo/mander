@@ -1,8 +1,9 @@
 import type { RenderedWorld } from '@mander/render';
-import { map, size } from 'lodash-es';
+import { createRandom } from '@mander/utils';
+import { times } from 'lodash-es';
+import { LEVELS_PER_DAY } from './consts';
 import { generateLevel } from './level/generate-level';
 import { generatePalette } from './palette/generate-palette';
-import { computeLevelSeeds } from './seed/compute-level-seeds';
 import { computeWorldName } from './seed/compute-world-name';
 import { getLevelCategories } from './structures/world/get-level-categories';
 import { pickWorldStructures } from './structures/world/pick-world-structures';
@@ -10,20 +11,21 @@ import { sliceForLevel } from './structures/world/slice-for-level';
 
 export const generate = (date: Date): RenderedWorld => {
   const worldName = computeWorldName(date);
-  const seeds = computeLevelSeeds(date);
-  const levelCategories = getLevelCategories(size(seeds));
-  const worldStructures = pickWorldStructures(worldName, levelCategories);
+  const random = createRandom(worldName);
+  const palette = generatePalette(random);
+  const levelCategories = getLevelCategories(LEVELS_PER_DAY);
+  const worldStructures = pickWorldStructures(levelCategories, random);
 
   return {
     name: worldName,
-    levels: map(seeds, (seed, index) =>
+    levels: times(LEVELS_PER_DAY, (index) =>
       generateLevel(
-        seed,
         index + 1,
         sliceForLevel(worldStructures, levelCategories, index),
+        random,
       ),
     ),
-    palette: generatePalette(worldName),
+    palette,
     score: 0,
   };
 };

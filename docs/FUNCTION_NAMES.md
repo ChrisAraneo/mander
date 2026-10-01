@@ -92,7 +92,6 @@
 - `computeAverageNeighbourTile`
 - `computeFallingSpikeTriangles`
 - `computeLevelScore`
-- `computeLevelSeeds`
 - `computeSpikeTriangles`
 - `computeTotalTime`
 - `computeWorldName`
@@ -156,7 +155,6 @@
 - `createCeramicStep`
 - `createChargeStep`
 - `createChestPatches`
-- `createChestRandom`
 - `createChestStep`
 - `createClimb`
 - `createController`
@@ -459,8 +457,6 @@
 - `flipMoonMagnet`
 - `flyOn`
 - `followFocus`
-- `formatBeartrapSeed`
-- `formatChestSeed`
 - `formatClock`
 - `formatDateSeed`
 - `formatDay`
@@ -468,17 +464,14 @@
 - `formatGrid`
 - `formatHslCss`
 - `formatLayer`
-- `formatLevelCategorySeed`
 - `formatPlayedWhen`
 - `formatRow`
 - `formatRunLabel`
 - `formatScore`
 - `formatSpan`
 - `formatSpikeKeys`
-- `formatSpikeSeed`
 - `formatStructure`
 - `formatStructureName`
-- `formatTilesSeed`
 - `formatWorldClock`
 - `formatWorldScore`
 - `furnishIn`
@@ -897,6 +890,7 @@
 - `pickFrom`
 - `pickGemCandidates`
 - `pickKeyCandidate`
+- `pickLevelSeed`
 - `pickPlayerSpawnCandidate`
 - `pickPortalCandidate`
 - `pickSpikeCells`
@@ -969,7 +963,6 @@
 - `restore`
 - `restoreEndings`
 - `right`
-- `rollFrom`
 - `rollGround`
 - `rollInt`
 - `rollSky`
@@ -1006,7 +999,6 @@
 - `shuffleBySpot`
 - `shuffleGemCandidates`
 - `shuffleIn`
-- `shuffleOn`
 - `shuffleSpikeCells`
 - `shuffleWith`
 - `simulateFlights`

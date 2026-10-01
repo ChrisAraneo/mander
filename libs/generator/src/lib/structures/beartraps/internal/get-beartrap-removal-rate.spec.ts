@@ -1,12 +1,15 @@
 import { TILE_BEARTRAP, type Tile } from '@mander/model';
+import { createRandom } from '@mander/utils';
 import { describe, expect, it } from 'vitest';
 
 import { getBeartrapRemovalRate } from './get-beartrap-removal-rate';
 
 const LEVEL: Tile[][] = [[TILE_BEARTRAP]];
 
+const RANDOM = createRandom('SEED');
+
 const getRate = (levelNumber: number) =>
-  getBeartrapRemovalRate({ tiles: LEVEL, levelNumber }).rate;
+  getBeartrapRemovalRate({ tiles: LEVEL, levelNumber, random: RANDOM }).rate;
 
 describe('getBeartrapRemovalRate', () => {
   it('should remove half the traps when the level is the first', () => {
@@ -24,14 +27,19 @@ describe('getBeartrapRemovalRate', () => {
   });
 
   it('should keep the grid the same when it reads the level number', () => {
-    expect(getBeartrapRemovalRate({ tiles: LEVEL, levelNumber: 1 }).tiles).toBe(
-      LEVEL,
-    );
+    expect(
+      getBeartrapRemovalRate({
+        tiles: LEVEL,
+        levelNumber: 1,
+        random: RANDOM,
+      }).tiles,
+    ).toBe(LEVEL);
   });
 
-  it('should pass the level number on when it reads it', () => {
+  it('should pass the generator on when it reads the level number', () => {
     expect(
-      getBeartrapRemovalRate({ tiles: LEVEL, levelNumber: 3 }).levelNumber,
-    ).toBe(3);
+      getBeartrapRemovalRate({ tiles: LEVEL, levelNumber: 1, random: RANDOM })
+        .random,
+    ).toBe(RANDOM);
   });
 });

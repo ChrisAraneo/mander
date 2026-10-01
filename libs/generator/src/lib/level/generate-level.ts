@@ -1,4 +1,5 @@
 import type { Sector } from '@mander/structures';
+import type { createRandom } from '@mander/utils';
 import { flow } from 'lodash-es';
 import { addLevelPadding } from './internal/add-level-padding';
 import { clearLevelTraps } from './internal/clear-level-traps';
@@ -9,9 +10,9 @@ import { joinLevelStructures } from './internal/join-level-structures';
 import { placeLevelEnds } from './internal/place-level-ends';
 
 export const generateLevel = (
-  seed: string,
   levelNumber: number,
   structures: Sector[],
+  random: ReturnType<typeof createRandom>,
 ) =>
   flow(
     joinLevelStructures,
@@ -21,4 +22,4 @@ export const generateLevel = (
     clearLevelTraps,
     furnishLevel,
     createGameLevel,
-  )({ seed, levelNumber, structures });
+  )({ levelNumber, structures, random });

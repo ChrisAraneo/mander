@@ -3,17 +3,21 @@ import { clearSpikes } from '../../structures/spikes/clear-spikes';
 import type { addLevelPadding } from './add-level-padding';
 
 export const clearLevelTraps = ({
-  seed,
+  random,
   levelNumber,
   levelType,
   structures,
   tiles,
   backTiles,
 }: ReturnType<typeof addLevelPadding>) => ({
-  seed,
+  random,
   levelNumber,
   levelType,
   structures,
-  tiles: clearBeartraps(clearSpikes(tiles, levelNumber), levelNumber),
+  tiles: clearBeartraps(
+    clearSpikes(tiles, levelNumber, random),
+    levelNumber,
+    random,
+  ),
   backTiles,
 });

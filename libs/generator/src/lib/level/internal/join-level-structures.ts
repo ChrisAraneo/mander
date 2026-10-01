@@ -1,20 +1,21 @@
 import type { Sector } from '@mander/structures';
+import type { createRandom } from '@mander/utils';
 import { getLevelType } from '../../structures/get-level-type';
 import { joinStructures } from '../../structures/layout/join-structures';
 
 export const joinLevelStructures = ({
-  seed,
   levelNumber,
   structures,
+  random,
 }: {
-  seed: string;
   levelNumber: number;
   structures: Sector[];
+  random: ReturnType<typeof createRandom>;
 }) => {
   const levelType = getLevelType(levelNumber);
 
   return {
-    seed,
+    random,
     levelNumber,
     levelType,
     structures,

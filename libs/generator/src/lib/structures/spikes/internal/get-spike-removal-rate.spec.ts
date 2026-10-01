@@ -1,12 +1,15 @@
 import { TILE_SPIKE, type Tile } from '@mander/model';
+import { createRandom } from '@mander/utils';
 import { describe, expect, it } from 'vitest';
 
 import { getSpikeRemovalRate } from './get-spike-removal-rate';
 
 const LEVEL: Tile[][] = [[TILE_SPIKE]];
 
+const RANDOM = createRandom('SEED');
+
 const getRate = (levelNumber: number) =>
-  getSpikeRemovalRate({ tiles: LEVEL, levelNumber }).rate;
+  getSpikeRemovalRate({ tiles: LEVEL, levelNumber, random: RANDOM }).rate;
 
 describe('getSpikeRemovalRate', () => {
   it('should remove every spike when the level is the first', () => {
@@ -25,14 +28,19 @@ describe('getSpikeRemovalRate', () => {
   });
 
   it('should keep the grid the same when it reads the level number', () => {
-    expect(getSpikeRemovalRate({ tiles: LEVEL, levelNumber: 1 }).tiles).toBe(
-      LEVEL,
-    );
+    expect(
+      getSpikeRemovalRate({
+        tiles: LEVEL,
+        levelNumber: 1,
+        random: RANDOM,
+      }).tiles,
+    ).toBe(LEVEL);
   });
 
-  it('should pass the level number on when it reads it', () => {
+  it('should pass the generator on when it reads the level number', () => {
     expect(
-      getSpikeRemovalRate({ tiles: LEVEL, levelNumber: 3 }).levelNumber,
-    ).toBe(3);
+      getSpikeRemovalRate({ tiles: LEVEL, levelNumber: 1, random: RANDOM })
+        .random,
+    ).toBe(RANDOM);
   });
 });

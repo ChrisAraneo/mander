@@ -3,14 +3,14 @@ import { placePortal } from '../../structures/portal/place-portal';
 import type { clearLevelWeapons } from './clear-level-weapons';
 
 export const placeLevelEnds = ({
-  seed,
+  random,
   levelNumber,
   levelType,
   structures,
   tiles,
   backTiles,
 }: ReturnType<typeof clearLevelWeapons>) => ({
-  seed,
+  random,
   levelNumber,
   levelType,
   structures,

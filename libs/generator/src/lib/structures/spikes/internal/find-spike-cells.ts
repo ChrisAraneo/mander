@@ -4,11 +4,11 @@ import { isClearableSpikeTile } from './is-clearable-spike-tile';
 
 export const findSpikeCells = ({
   tiles,
-  levelNumber,
+  random,
   rate,
 }: ReturnType<typeof getSpikeRemovalRate>) => ({
   tiles,
-  levelNumber,
+  random,
   rate,
   cells: flatMap(tiles, (cells, row) =>
     map(

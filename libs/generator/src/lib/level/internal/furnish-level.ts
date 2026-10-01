@@ -5,18 +5,23 @@ import { placeStones } from '../../structures/stones/place-stones';
 import type { clearLevelTraps } from './clear-level-traps';
 
 export const furnishLevel = ({
-  seed,
+  random,
   levelNumber,
   levelType,
   structures,
   tiles,
   backTiles,
 }: ReturnType<typeof clearLevelTraps>) => ({
-  seed,
+  random,
   levelNumber,
   structures,
   tiles: placeStones(
-    placeGems(placeChest(placeKey(tiles, levelType), levelType), levelType),
+    placeGems(
+      placeChest(placeKey(tiles, levelType), levelType),
+      levelType,
+      random,
+    ),
+    random,
   ),
   backTiles,
 });

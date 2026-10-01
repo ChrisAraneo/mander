@@ -6,6 +6,7 @@ import {
   type Tile,
 } from '@mander/model';
 import { getStructureName, NORMAL_STRUCTURES } from '@mander/structures';
+import { createRandom } from '@mander/utils';
 import { map, take } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
@@ -13,6 +14,7 @@ import { generateChestItems } from '../../items/generate-chest-items';
 import { mirrorTiles } from '../../structures/mirror-tiles';
 import { createGameLevel } from './create-game-level';
 import { getHornedEnemyChance } from './get-horned-enemy-chance';
+import { pickLevelSeed } from './pick-level-seed';
 
 const STRUCTURES = take([...NORMAL_STRUCTURES], 2);
 
@@ -28,7 +30,7 @@ const BACK: Tile[][] = [
 
 const createOn = (levelNumber: number) =>
   createGameLevel({
-    seed: 'SEED',
+    random: createRandom('DAY-1'),
     levelNumber,
     structures: STRUCTURES,
     tiles: FRONT,
@@ -57,8 +59,12 @@ describe('createGameLevel', () => {
     expect(level.height).toBe(2);
   });
 
-  it('should fill the chest from the seed when it creates the level', () => {
-    expect(createOn(1).chestItems).toEqual(generateChestItems('SEED'));
+  it('should fill the chest from the generator after it picks the level seed', () => {
+    const random = createRandom('DAY-1');
+
+    pickLevelSeed(random);
+
+    expect(createOn(1).chestItems).toEqual(generateChestItems(random));
   });
 
   it('should send out the horned enemies the level allows when it creates it', () => {
@@ -81,13 +87,13 @@ describe('createGameLevel', () => {
     });
   });
 
-  it('should keep the seed when it creates the level', () => {
-    expect(createOn(1).seed).toBe('SEED');
+  it('should pick the level seed from the generator when it creates the level', () => {
+    expect(createOn(1).seed).toBe(pickLevelSeed(createRandom('DAY-1')));
   });
 
   it('should measure an empty level as nothing when the grid is empty', () => {
     const level = createGameLevel({
-      seed: 'SEED',
+      random: createRandom('DAY-1'),
       levelNumber: 1,
       structures: [],
       tiles: [],

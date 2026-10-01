@@ -6,11 +6,14 @@ import {
   type Tile,
 } from '@mander/model';
 import type { Sector } from '@mander/structures';
+import { createRandom } from '@mander/utils';
 import { map } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import type { LevelType } from '../../structures/types/level-type';
 import { placeLevelEnds } from './place-level-ends';
+
+const RANDOM = createRandom('SEED');
 
 const TILES: Record<string, Tile> = {
   '#': TILE_DIRT,
@@ -27,10 +30,10 @@ const BACK_LEVEL: Tile[][] = [[TILE_AIR]];
 
 const placeIn = (rows: string[], levelType: LevelType) =>
   placeLevelEnds({
-    seed: 'SEED',
     levelNumber: 1,
     levelType,
     structures: STRUCTURES,
+    random: RANDOM,
     tiles: createGrid(rows),
     backTiles: BACK_LEVEL,
   });
@@ -61,8 +64,8 @@ describe('placeLevelEnds', () => {
     expect(placeIn([], 'VERTICAL').tiles).toEqual([]);
   });
 
-  it('should pass the seed on when it places the ends', () => {
-    expect(placeIn([], 'HORIZONTAL').seed).toBe('SEED');
+  it('should pass the generator on when it places the ends', () => {
+    expect(placeIn([], 'HORIZONTAL').random).toBe(RANDOM);
   });
 
   it('should pass the level number on when it places the ends', () => {

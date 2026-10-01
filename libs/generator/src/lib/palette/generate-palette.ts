@@ -1,5 +1,5 @@
 import type { Palette } from '@mander/render';
-import { createRandom, formatHslCss } from '@mander/utils';
+import { type createRandom, formatHslCss } from '@mander/utils';
 import { getHillShades } from './internal/get-hill-shades';
 import { getSkyStops } from './internal/get-sky-stops';
 import { rollGround } from './internal/roll-ground';
@@ -9,8 +9,9 @@ const CAP_HIGHLIGHT_SATURATION_GAIN = 4;
 
 const CAP_HIGHLIGHT_LIGHTNESS_GAIN = 6;
 
-export const generatePalette = (seed: string): Palette => {
-  const random = createRandom(seed);
+export const generatePalette = (
+  random: ReturnType<typeof createRandom>,
+): Palette => {
   const sky = rollSky(random);
   const ground = rollGround(random);
   const [top, middle, horizon] = getSkyStops(sky);

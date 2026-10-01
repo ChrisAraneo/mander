@@ -1,10 +1,13 @@
 import { TILE_AIR, TILE_BRICK, TILE_DIRT, type Tile } from '@mander/model';
 import type { Sector } from '@mander/structures';
+import { createRandom } from '@mander/utils';
 import { map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { addPadding } from '../../structures/padding/add-padding';
 import { addLevelPadding } from './add-level-padding';
+
+const RANDOM = createRandom('SEED');
 
 const STRUCTURES: Sector[] = [];
 
@@ -20,10 +23,10 @@ const BACK: Tile[][] = [
 
 const padLevel = (tiles: Tile[][], backTiles: Tile[][]) =>
   addLevelPadding({
-    seed: 'SEED',
     levelNumber: 1,
     levelType: 'HORIZONTAL',
     structures: STRUCTURES,
+    random: RANDOM,
     tiles,
     backTiles,
   });
@@ -47,8 +50,8 @@ describe('addLevelPadding', () => {
     expect(backTiles).toEqual([]);
   });
 
-  it('should pass the seed on when it pads the level', () => {
-    expect(padLevel([], []).seed).toBe('SEED');
+  it('should pass the generator on when it pads the level', () => {
+    expect(padLevel([], []).random).toBe(RANDOM);
   });
 
   it('should pass the level number on when it pads the level', () => {

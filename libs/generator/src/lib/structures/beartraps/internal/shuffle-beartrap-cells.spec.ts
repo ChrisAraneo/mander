@@ -1,4 +1,5 @@
 import { TILE_BEARTRAP, type Tile } from '@mander/model';
+import { createRandom } from '@mander/utils';
 import { map, range, sortBy, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
@@ -10,38 +11,50 @@ const LEVEL: Tile[][] = [times(WIDTH, () => TILE_BEARTRAP)];
 
 const CELLS = map(range(WIDTH), (column) => ({ row: 0, column }));
 
-const shuffleOn = (levelNumber: number) =>
-  shuffleBeartrapCells({ tiles: LEVEL, levelNumber, rate: 1, cells: CELLS })
-    .cells;
+const shuffleWith = (seed: string) =>
+  shuffleBeartrapCells({
+    tiles: LEVEL,
+    random: createRandom(seed),
+    rate: 1,
+    cells: CELLS,
+  }).cells;
 
 describe('shuffleBeartrapCells', () => {
   it('should keep every spot when it shuffles them', () => {
-    expect(sortBy(shuffleOn(1), 'column')).toEqual(CELLS);
+    expect(sortBy(shuffleWith('DAY-1'), 'column')).toEqual(CELLS);
   });
 
   it('should mix the spots up when it shuffles them', () => {
-    expect(shuffleOn(1)).not.toEqual(CELLS);
+    expect(shuffleWith('DAY-1')).not.toEqual(CELLS);
   });
 
-  it('should shuffle the spots the same way when it gets the same grid and level', () => {
-    expect(shuffleOn(2)).toEqual(shuffleOn(2));
+  it('should shuffle the spots the same way when the generator starts from the same seed', () => {
+    expect(shuffleWith('DAY-2')).toEqual(shuffleWith('DAY-2'));
   });
 
-  it('should shuffle the spots another way when the level is different', () => {
-    expect(shuffleOn(1)).not.toEqual(shuffleOn(2));
+  it('should shuffle the spots another way when the generator starts from another seed', () => {
+    expect(shuffleWith('DAY-1')).not.toEqual(shuffleWith('DAY-2'));
   });
 
   it('should give no spots when it gets no spots', () => {
     expect(
-      shuffleBeartrapCells({ tiles: LEVEL, levelNumber: 1, rate: 1, cells: [] })
-        .cells,
+      shuffleBeartrapCells({
+        tiles: LEVEL,
+        random: createRandom('DAY-1'),
+        rate: 1,
+        cells: [],
+      }).cells,
     ).toEqual([]);
   });
 
   it('should keep the grid the same when it shuffles the spots', () => {
     expect(
-      shuffleBeartrapCells({ tiles: LEVEL, levelNumber: 1, rate: 1, cells: [] })
-        .tiles,
+      shuffleBeartrapCells({
+        tiles: LEVEL,
+        random: createRandom('DAY-1'),
+        rate: 1,
+        cells: [],
+      }).tiles,
     ).toBe(LEVEL);
   });
 
@@ -49,7 +62,7 @@ describe('shuffleBeartrapCells', () => {
     expect(
       shuffleBeartrapCells({
         tiles: LEVEL,
-        levelNumber: 1,
+        random: createRandom('DAY-1'),
         rate: 0.35,
         cells: [],
       }).rate,

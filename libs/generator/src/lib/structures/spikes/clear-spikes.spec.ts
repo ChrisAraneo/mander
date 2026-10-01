@@ -5,8 +5,8 @@ import {
   TILE_DIRT,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
-  TILE_STONE,
 } from '@mander/model';
+import { createRandom } from '@mander/utils';
 import {
   every,
   filter,
@@ -28,13 +28,15 @@ interface Cell {
   column: number;
 }
 
+const SEED = 'DAY-1';
+
 const TEETH = 300;
 
 const FIRST_UNTOUCHED_LEVEL = 5;
 
-const createToothyFloor = (ground: Tile = TILE_DIRT): Tile[][] => [
+const createToothyFloor = (): Tile[][] => [
   times(TEETH, (): Tile => TILE_SPIKE),
-  times(TEETH, (): Tile => ground),
+  times(TEETH, (): Tile => TILE_DIRT),
 ];
 
 const createDen = (): Tile[][] => [
@@ -58,7 +60,11 @@ const formatSpikeKeys = (tiles: Tile[][]): string[] =>
   map(findSpikes(tiles), ({ row, column }) => `${row},${column}`);
 
 const countSpikesLeft = (levelNumber: number): number =>
-  size(findSpikes(clearSpikes(createToothyFloor(), levelNumber)));
+  size(
+    findSpikes(
+      clearSpikes(createToothyFloor(), levelNumber, createRandom(SEED)),
+    ),
+  );
 
 describe('clearSpikes', () => {
   it('should sow no teeth of its own when it thins any level', () => {
@@ -67,7 +73,9 @@ describe('clearSpikes', () => {
     times(LEVELS_PER_DAY, (index) => {
       const levelNumber = index + 1;
       const sprung = filter(
-        formatSpikeKeys(clearSpikes(createDen(), levelNumber)),
+        formatSpikeKeys(
+          clearSpikes(createDen(), levelNumber, createRandom(SEED)),
+        ),
         (key) => !includes(planted, key),
       );
 
@@ -76,7 +84,9 @@ describe('clearSpikes', () => {
   });
 
   it('should send the level out bare, hanging teeth and all, when it is the first', () => {
-    expect(findSpikes(clearSpikes(createDen(), 1))).toEqual([]);
+    expect(findSpikes(clearSpikes(createDen(), 1, createRandom(SEED)))).toEqual(
+      [],
+    );
   });
 
   it('should pull the share the level was promised when it thins one', () => {
@@ -91,31 +101,35 @@ describe('clearSpikes', () => {
       const levelNumber = FIRST_UNTOUCHED_LEVEL + index;
 
       expect(
-        clearSpikes(createDen(), levelNumber),
+        clearSpikes(createDen(), levelNumber, createRandom(SEED)),
         `level ${levelNumber}`,
       ).toEqual(createDen());
       expect(countSpikesLeft(levelNumber)).toBe(TEETH);
     });
   });
 
-  it('should thin the level the same way when it is dealt again', () => {
+  it('should thin the level the same way when the generator starts from the same seed', () => {
     times(4, (index) => {
       const levelNumber = index + 1;
 
-      expect(clearSpikes(createToothyFloor(), levelNumber)).toEqual(
-        clearSpikes(createToothyFloor(), levelNumber),
+      expect(
+        clearSpikes(createToothyFloor(), levelNumber, createRandom(SEED)),
+      ).toEqual(
+        clearSpikes(createToothyFloor(), levelNumber, createRandom(SEED)),
       );
     });
   });
 
-  it('should thin the level another way when the grid is different', () => {
-    expect(clearSpikes(createToothyFloor(), 2)[0]).not.toEqual(
-      clearSpikes(createToothyFloor(TILE_STONE), 2)[0],
+  it('should thin the level another way when the generator starts from another seed', () => {
+    expect(
+      clearSpikes(createToothyFloor(), 2, createRandom('DAY-1'))[0],
+    ).not.toEqual(
+      clearSpikes(createToothyFloor(), 2, createRandom('DAY-2'))[0],
     );
   });
 
   it('should leave an air tile behind and nothing else touched when it pulls a tooth', () => {
-    const thinned = clearSpikes(createDen(), 1);
+    const thinned = clearSpikes(createDen(), 1, createRandom(SEED));
 
     expect(every(flatten(thinned), (tile) => !isSpikeTile(tile))).toBe(true);
     expect(thinned[1]).toEqual([TILE_AIR, TILE_AIR, TILE_AIR, TILE_AIR]);
@@ -130,14 +144,14 @@ describe('clearSpikes', () => {
   });
 
   it('should give back an empty grid when the grid is empty', () => {
-    expect(clearSpikes([], 1)).toEqual([]);
+    expect(clearSpikes([], 1, createRandom(SEED))).toEqual([]);
   });
 
   it('should not change the old grid when it thins the spikes', () => {
     const tiles = createDen();
 
-    clearSpikes(tiles, 1);
-    clearSpikes(tiles, FIRST_UNTOUCHED_LEVEL);
+    clearSpikes(tiles, 1, createRandom(SEED));
+    clearSpikes(tiles, FIRST_UNTOUCHED_LEVEL, createRandom(SEED));
 
     expect(tiles).toEqual(createDen());
   });

@@ -7,6 +7,7 @@ import {
   TILE_SPIKE,
   TILE_STONE,
 } from '@mander/model';
+import { createRandom } from '@mander/utils';
 import {
   countBy,
   every,
@@ -34,6 +35,8 @@ interface Cell {
   column: number;
 }
 
+const SEED = 'DAY-1';
+
 const WIDTH = 24;
 
 const DEPTHS = [DIRT_DEPTH, DEEP_DIRT_DEPTH];
@@ -45,9 +48,9 @@ const TILES: Record<string, Tile> = {
 const createGrid = (rows: string[]): Tile[][] =>
   map(rows, (row) => map([...row], (cell) => TILES[cell] ?? TILE_AIR));
 
-const createGround = (sky: number, depth: number, width = WIDTH): Tile[][] => [
-  ...times(sky, () => times(width, (): Tile => TILE_AIR)),
-  ...times(depth, () => times(width, (): Tile => TILE_DIRT)),
+const createGround = (sky: number, depth: number): Tile[][] => [
+  ...times(sky, () => times(WIDTH, (): Tile => TILE_AIR)),
+  ...times(depth, () => times(WIDTH, (): Tile => TILE_DIRT)),
 ];
 
 const findCells = (tiles: Tile[][], wanted: Tile): Cell[] =>
@@ -101,7 +104,7 @@ const ROUGH_GROUND = createGrid([
 
 describe('placeStones', () => {
   it('should settle the stone three or four blocks under the ground when the ground is deep enough', () => {
-    const settled = placeStones(createGround(4, 12));
+    const settled = placeStones(createGround(4, 12), createRandom(SEED));
 
     expect(includes(DEPTHS, measureStoneDepth(settled, 0))).toBe(true);
     expect(
@@ -113,17 +116,19 @@ describe('placeStones', () => {
   });
 
   it('should lay the stone line level when the ground is even', () => {
-    const settled = placeStones(createGround(4, 12));
+    const settled = placeStones(createGround(4, 12), createRandom(SEED));
 
     expect(
       uniq(times(WIDTH, (column) => findStoneRow(settled, column))),
     ).toEqual([findStoneRow(settled, 0)]);
   });
 
-  it('should pick the deeper start about half the time when it settles many grounds', () => {
+  it('should pick the deeper start about half the time when the generator starts from many seeds', () => {
     const picked = countBy(
       map(
-        times(120, (index) => placeStones(createGround(3, 14, WIDTH + index))),
+        times(120, (day) =>
+          placeStones(createGround(3, 14), createRandom(`DAY-${day}`)),
+        ),
         (settled) => measureStoneDepth(settled, 2),
       ),
     );
@@ -136,20 +141,23 @@ describe('placeStones', () => {
     expect(picked[DEEP_DIRT_DEPTH]).toBeGreaterThan(30);
   });
 
-  it('should deal the same stone twice over when it is given the same ground', () => {
-    expect(placeStones(createGround(4, 12))).toEqual(
-      placeStones(createGround(4, 12)),
+  it('should lay the same stone twice over when the generator starts from the same seed', () => {
+    expect(placeStones(createGround(4, 12), createRandom(SEED))).toEqual(
+      placeStones(createGround(4, 12), createRandom(SEED)),
     );
   });
 
   it('should leave the ground as dirt all the way down when it is shallower than the stone depth', () => {
     expect(
-      findCells(placeStones(createGround(4, DIRT_DEPTH)), TILE_STONE),
+      findCells(
+        placeStones(createGround(4, DIRT_DEPTH), createRandom(SEED)),
+        TILE_STONE,
+      ),
     ).toEqual([]);
   });
 
   it('should count the blocks down from the surface it finds when sky sits above it', () => {
-    const settled = placeStones(createGround(0, 16));
+    const settled = placeStones(createGround(0, 16), createRandom(SEED));
 
     expect(includes(DEPTHS, findStoneRow(settled, 0))).toBe(true);
   });
@@ -163,6 +171,7 @@ describe('placeStones', () => {
         '........................',
         ...times(16, () => '########################'),
       ]),
+      createRandom(SEED),
     );
 
     const roof = measureStoneDepth(settled, 0);
@@ -174,7 +183,7 @@ describe('placeStones', () => {
   });
 
   it('should keep three blocks of cover over the stone when it settles one', () => {
-    const settled = placeStones(ROUGH_GROUND);
+    const settled = placeStones(ROUGH_GROUND, createRandom(SEED));
 
     const stones = findCells(settled, TILE_STONE);
 
@@ -189,7 +198,7 @@ describe('placeStones', () => {
     tiles[10][3] = TILE_BRICK;
     tiles[11][4] = TILE_SPIKE;
 
-    const settled = placeStones(tiles);
+    const settled = placeStones(tiles, createRandom(SEED));
 
     expect(settled[10][3]).toBe(TILE_BRICK);
     expect(settled[11][4]).toBe(TILE_SPIKE);
@@ -203,6 +212,7 @@ describe('placeStones', () => {
         '.#.#.#.#.#.#.#.#.#.#.#.#',
         ...times(12, () => '########################'),
       ]),
+      createRandom(SEED),
     );
 
     expect(
@@ -217,6 +227,7 @@ describe('placeStones', () => {
         ...times(6, () => '...#....................'),
         ...times(7, () => '########################'),
       ]),
+      createRandom(SEED),
     );
 
     expect(some(times(6, (row) => settled[row + 1][3] === TILE_STONE))).toBe(
@@ -234,6 +245,7 @@ describe('placeStones', () => {
         ...times(5, () => '################................################'),
         ...times(14, () => '################################################'),
       ]),
+      createRandom(SEED),
     );
     const lip = times(brink, (column) => findStoneRow(settled, column));
     const bend = findIndex(lip, (row) => row > lip[0]);
@@ -247,7 +259,7 @@ describe('placeStones', () => {
   });
 
   it('should leave no stone stranded when it settles them on rough ground', () => {
-    const settled = placeStones(ROUGH_GROUND);
+    const settled = placeStones(ROUGH_GROUND, createRandom(SEED));
 
     expect(size(findCells(settled, TILE_STONE))).toBeGreaterThan(0);
     expect(
@@ -277,13 +289,13 @@ describe('placeStones', () => {
   });
 
   it('should give back an empty grid when the grid is empty', () => {
-    expect(placeStones([])).toEqual([]);
+    expect(placeStones([], createRandom(SEED))).toEqual([]);
   });
 
   it('should not change the old grid when it settles stone', () => {
     const tiles = createGround(4, 12);
 
-    placeStones(tiles);
+    placeStones(tiles, createRandom(SEED));
 
     expect(tiles).toEqual(createGround(4, 12));
   });

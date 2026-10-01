@@ -8,9 +8,10 @@ import { createLevelMeta } from './create-level-meta';
 import type { furnishLevel } from './furnish-level';
 import { getHornedEnemyChance } from './get-horned-enemy-chance';
 import { mirrorLayers } from './mirror-layers';
+import { pickLevelSeed } from './pick-level-seed';
 
 export const createGameLevel = ({
-  seed,
+  random,
   levelNumber,
   structures,
   tiles,
@@ -21,12 +22,12 @@ export const createGameLevel = ({
     .otherwise((): Layers => ({ tiles, backTiles }));
 
   return {
-    seed,
+    seed: pickLevelSeed(random),
     width: size(layers.tiles[0]),
     height: size(layers.tiles),
     tiles: layers.tiles,
     backTiles: layers.backTiles,
-    chestItems: generateChestItems(seed),
+    chestItems: generateChestItems(random),
     hornedEnemyChance: getHornedEnemyChance(levelNumber),
     isOpenSided: isVertical(levelNumber),
     meta: createLevelMeta(structures),
