@@ -3,7 +3,7 @@ import { CHEST_ITEM_COUNT } from '../../consts';
 import type { createChestRandom } from './create-chest-random';
 import { getRarity } from './get-rarity';
 
-export const rollChestRarities = ({
+export const pickChestRarities = ({
   random,
 }: ReturnType<typeof createChestRandom>) => ({
   random,

@@ -891,6 +891,7 @@
 - `pickChest`
 - `pickChestCandidate`
 - `pickChestItems`
+- `pickChestRarities`
 - `pickDirtDepth`
 - `pickEpics`
 - `pickFrom`
@@ -968,7 +969,6 @@
 - `restore`
 - `restoreEndings`
 - `right`
-- `rollChestRarities`
 - `rollFrom`
 - `rollGround`
 - `rollInt`
