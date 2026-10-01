@@ -120,20 +120,20 @@ describe('placeStones', () => {
     ).toEqual([findStoneRow(settled, 0)]);
   });
 
-  it('should deal the deeper start about half the time when it settles many grounds', () => {
-    const dealt = countBy(
+  it('should pick the deeper start about half the time when it settles many grounds', () => {
+    const picked = countBy(
       map(
         times(120, (index) => placeStones(createGround(3, 14, WIDTH + index))),
         (settled) => measureStoneDepth(settled, 2),
       ),
     );
 
-    expect(sortBy(keys(dealt))).toEqual([
+    expect(sortBy(keys(picked))).toEqual([
       `${DIRT_DEPTH}`,
       `${DEEP_DIRT_DEPTH}`,
     ]);
-    expect(dealt[DIRT_DEPTH]).toBeGreaterThan(30);
-    expect(dealt[DEEP_DIRT_DEPTH]).toBeGreaterThan(30);
+    expect(picked[DIRT_DEPTH]).toBeGreaterThan(30);
+    expect(picked[DEEP_DIRT_DEPTH]).toBeGreaterThan(30);
   });
 
   it('should deal the same stone twice over when it is given the same ground', () => {

@@ -1,17 +1,17 @@
 import type { ItemRarity } from '@mander/model';
 import type { createRandom } from '@mander/utils';
-import type { Deal } from './deal';
+import type { Picking } from './picking';
 import { findTypesHolding } from './find-types-holding';
 import { takeType } from './take-type';
 
-export const dealCard = (
-  deal: Deal,
+export const pickCard = (
+  picking: Picking,
   rarity: ItemRarity,
   random: ReturnType<typeof createRandom>,
-): Deal =>
+): Picking =>
   takeType(
-    deal,
-    random.pick(findTypesHolding(deal.typesLeft, rarity)),
+    picking,
+    random.pick(findTypesHolding(picking.typesLeft, rarity)),
     rarity,
     random,
   );

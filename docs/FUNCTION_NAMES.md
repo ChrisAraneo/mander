@@ -313,10 +313,6 @@
 - `crushEnemies`
 - `cutLayer`
 - `cycleSpeed`
-- `dealCard`
-- `dealCards`
-- `dealChest`
-- `dealEpics`
 - `dispatch`
 - `dispose`
 - `drawBullets`
@@ -889,8 +885,12 @@
 - `pick`
 - `pickBeartrapCells`
 - `pickBest`
+- `pickCard`
+- `pickCards`
+- `pickChest`
 - `pickChestCandidate`
 - `pickDirtDepth`
+- `pickEpics`
 - `pickFrom`
 - `pickGemCandidates`
 - `pickKeyCandidate`

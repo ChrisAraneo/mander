@@ -2,13 +2,13 @@ import { createRandom } from '@mander/utils';
 import { map, size, times, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { dealCard } from './deal-card';
+import { pickCard } from './pick-card';
 import { getChestType } from './get-chest-type';
 
-describe('dealCard', () => {
-  it('should deal a card of a type that holds the rarity when one is left', () => {
+describe('pickCard', () => {
+  it('should pick a card of a type that holds the rarity when one is left', () => {
     times(20, (index) => {
-      const { picked } = dealCard(
+      const { picked } = pickCard(
         { picked: [], typesLeft: ['GEAR', 'HEART'] },
         'RARE',
         createRandom(`DAY-${index}`),
@@ -18,8 +18,8 @@ describe('dealCard', () => {
     });
   });
 
-  it('should take the type of the card out of the types left when it deals the card', () => {
-    const { picked, typesLeft } = dealCard(
+  it('should take the type of the card out of the types left when it picks the card', () => {
+    const { picked, typesLeft } = pickCard(
       { picked: [], typesLeft: ['GEM', 'HEART', 'STAR'] },
       'COMMON',
       createRandom('DAY-1'),
@@ -29,15 +29,15 @@ describe('dealCard', () => {
     expect(typesLeft).toHaveLength(2);
   });
 
-  it('should deal the same card when the generator starts from the same seed', () => {
+  it('should pick the same card when the generator starts from the same seed', () => {
     expect(
-      dealCard(
+      pickCard(
         { picked: [], typesLeft: ['GEM', 'HEART', 'STAR'] },
         'COMMON',
         createRandom('DAY-1'),
       ),
     ).toEqual(
-      dealCard(
+      pickCard(
         { picked: [], typesLeft: ['GEM', 'HEART', 'STAR'] },
         'COMMON',
         createRandom('DAY-1'),
@@ -45,14 +45,14 @@ describe('dealCard', () => {
     );
   });
 
-  it('should deal other cards when the generator starts from other seeds', () => {
+  it('should pick other cards when the generator starts from other seeds', () => {
     expect(
       size(
         uniq(
           times(
             30,
             (index) =>
-              dealCard(
+              pickCard(
                 { picked: [], typesLeft: ['GEM', 'HEART', 'STAR'] },
                 'COMMON',
                 createRandom(`DAY-${index}`),

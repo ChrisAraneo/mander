@@ -40,7 +40,7 @@ const SEED = 'PROBE-SEED';
 
 const SEEDS = times(400, (day) => `DAY-${day}`);
 
-const dealCards = (): Item[] => flatMap(SEEDS, generateChestItems);
+const pickCards = (): Item[] => flatMap(SEEDS, generateChestItems);
 
 const getCardIds = (seed: string): string[] =>
   map(generateChestItems(seed), 'id');
@@ -80,7 +80,7 @@ describe('generateChestItems', () => {
     ).toEqual([]);
   });
 
-  it('should deal each card a type of its own when it fills a chest', () => {
+  it('should pick a type of its own for each card when it fills a chest', () => {
     expect(CHEST_ITEM_TYPES).toEqual([
       'GEM',
       'BULLET',
@@ -98,7 +98,7 @@ describe('generateChestItems', () => {
   });
 
   it('should reach for every type when enough chests are filled', () => {
-    expect(sortBy(uniq(map(dealCards(), getChestType)))).toEqual(
+    expect(sortBy(uniq(map(pickCards(), getChestType)))).toEqual(
       sortBy(CHEST_ITEM_TYPES),
     );
   });
@@ -113,7 +113,7 @@ describe('generateChestItems', () => {
   });
 
   it('should reach for every item in the pool when enough chests are filled', () => {
-    expect(size(countBy(dealCards(), 'id'))).toBe(size(CHEST_ITEM_POOL));
+    expect(size(countBy(pickCards(), 'id'))).toBe(size(CHEST_ITEM_POOL));
   });
 
   it('should lead the chest less often than a common one when the card is rare', () => {
@@ -122,13 +122,13 @@ describe('generateChestItems', () => {
     expect(leading['RARE']).toBeLessThan(leading['COMMON']);
   });
 
-  it('should promise four commons in five, a rare in five and an epic in fifty when it deals the odds', () => {
+  it('should promise four commons in five, a rare in five and an epic in fifty when it rolls the rarities', () => {
     expect(RARITY_CHANCE).toEqual({ COMMON: 0.79, RARE: 0.19, EPIC: 0.02 });
     expect(sum(values(RARITY_CHANCE)), 'and nothing else').toBeCloseTo(1);
   });
 
-  it('should deal the cards out close to those odds when enough chests are filled', () => {
-    const cards = dealCards();
+  it('should pick the cards close to those odds when enough chests are filled', () => {
+    const cards = pickCards();
 
     const share = mapValues(
       countBy(cards, 'rarity'),
@@ -184,7 +184,7 @@ describe('generateChestItems', () => {
     ).toEqual([]);
   });
 
-  it('should deal the gear only when an epic takes the chest', () => {
+  it('should pick the gear only when an epic takes the chest', () => {
     expect(
       filter(findEverydaySeeds(), (seed) =>
         some(getCardTypes(seed), (type) => type === 'GEAR'),

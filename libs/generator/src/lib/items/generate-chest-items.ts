@@ -4,8 +4,8 @@ import { isEmpty } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { EPIC_POOL } from '../consts';
 import { countEpics } from './internal/count-epics';
-import { dealChest } from './internal/deal-chest';
-import { dealEpics } from './internal/deal-epics';
+import { pickChest } from './internal/pick-chest';
+import { pickEpics } from './internal/pick-epics';
 import { formatChestSeed } from './internal/format-chest-seed';
 import { rollRarities } from './internal/roll-rarities';
 
@@ -16,7 +16,7 @@ export const generateChestItems = (seed: string): Item[] => {
   return match(countEpics(rarities))
     .when(
       (epics) => epics > 0 && !isEmpty(EPIC_POOL),
-      (epics) => dealEpics(epics, random),
+      (epics) => pickEpics(epics, random),
     )
-    .otherwise(() => dealChest(rarities, random));
+    .otherwise(() => pickChest(rarities, random));
 };

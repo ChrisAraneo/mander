@@ -241,18 +241,19 @@ shape.
    (`'HORIZONTAL'`), `kebab-case` for files and folders.
 2. **Functions start with a verb**, and each verb keeps one meaning:
 
-   | Verb                                    | Meaning                                     | Example                         |
-   | --------------------------------------- | ------------------------------------------- | ------------------------------- |
-   | `place…`                                | entry point that adds things to a grid      | `placeChest`                    |
-   | `clear…`                                | entry point that removes things from a grid | `clearSpikes`                   |
-   | `add…`                                  | entry point that adds rows around a grid    | `addPadding`                    |
-   | `find…`, `filter…`, `sort…`, `pick…`, … | pipeline steps, see section 4               | `findKeyCandidates`             |
-   | `get…`                                  | look up or work out one value               | `getMiddleColumn`               |
-   | `compute…`                              | work a value out from several others        | `computeAverageNeighbourTile`   |
-   | `count…`, `measure…`                    | numbers about the grid                      | `countCompany`, `measureDepths` |
-   | `format…`                               | build a string                              | `formatTilesSeed`               |
-   | `convert…`                              | turn a value into another type              | `convertToFlag`                 |
-   | `is…`                                   | return a boolean                            | `isSurface`                     |
+   | Verb                                    | Meaning                                        | Example                         |
+   | --------------------------------------- | ---------------------------------------------- | ------------------------------- |
+   | `place…`                                | entry point that adds things to a grid         | `placeChest`                    |
+   | `clear…`                                | entry point that removes things from a grid    | `clearSpikes`                   |
+   | `add…`                                  | entry point that adds rows around a grid       | `addPadding`                    |
+   | `find…`, `filter…`, `sort…`, `pick…`, … | pipeline steps, see section 4                  | `findKeyCandidates`             |
+   | `pick…`                                 | take or choose things at random; NEVER `deal…` | `pickStructures`, `pickEpics`   |
+   | `get…`                                  | look up or work out one value                  | `getMiddleColumn`               |
+   | `compute…`                              | work a value out from several others           | `computeAverageNeighbourTile`   |
+   | `count…`, `measure…`                    | numbers about the grid                         | `countCompany`, `measureDepths` |
+   | `format…`                               | build a string                                 | `formatTilesSeed`               |
+   | `convert…`                              | turn a value into another type                 | `convertToFlag`                 |
+   | `is…`                                   | return a boolean                               | `isSurface`                     |
 
    Other verbs are fine when they say exactly what the function does
    (`mirrorTiles`, `blurRows`, `sliceForLevel`).
