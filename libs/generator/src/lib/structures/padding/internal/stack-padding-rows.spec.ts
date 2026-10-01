@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { stackPaddingRows } from './stack-padding-rows';
 
-const level = (): Tile[][] => [
+const createLevel = (): Tile[][] => [
   [TILE_AIR, TILE_AIR],
   [TILE_DIRT, TILE_DIRT],
 ];
@@ -18,14 +18,14 @@ const BEDROCK: Tile[][] = [
 describe('stackPaddingRows', () => {
   it('should put the sky on top and the bedrock at the bottom when it stacks the rows', () => {
     expect(
-      stackPaddingRows({ tiles: level(), sky: SKY, bedrock: BEDROCK }),
-    ).toEqual([...SKY, ...level(), ...BEDROCK]);
+      stackPaddingRows({ tiles: createLevel(), sky: SKY, bedrock: BEDROCK }),
+    ).toEqual([...SKY, ...createLevel(), ...BEDROCK]);
   });
 
   it('should give back the same grid when there is no sky and no bedrock', () => {
-    expect(stackPaddingRows({ tiles: level(), sky: [], bedrock: [] })).toEqual(
-      level(),
-    );
+    expect(
+      stackPaddingRows({ tiles: createLevel(), sky: [], bedrock: [] }),
+    ).toEqual(createLevel());
   });
 
   it('should give back an empty grid when it gets nothing', () => {
@@ -33,7 +33,7 @@ describe('stackPaddingRows', () => {
   });
 
   it('should make new rows for the grid when it stacks the rows', () => {
-    const tiles = level();
+    const tiles = createLevel();
 
     expect(stackPaddingRows({ tiles, sky: SKY, bedrock: BEDROCK })[1]).not.toBe(
       tiles[0],

@@ -2,15 +2,16 @@ import { TILE_AIR, TILE_DIRT, TILE_GEM, type Tile } from '@mander/model';
 import { map } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { LevelType } from '../../get-level-type';
+import type { LevelType } from '../../types/level-type';
 import { findPortalCandidates } from './find-portal-candidates';
 
+const TILES: Record<string, Tile> = {
+  '#': TILE_DIRT,
+  o: TILE_GEM,
+};
+
 const createGrid = (rows: string[]): Tile[][] =>
-  map(rows, (row) =>
-    map([...row], (cell) =>
-      cell === '#' ? TILE_DIRT : cell === 'o' ? TILE_GEM : TILE_AIR,
-    ),
-  );
+  map(rows, (row) => map([...row], (cell) => TILES[cell] ?? TILE_AIR));
 
 const findCandidates = (rows: string[], levelType: LevelType) =>
   findPortalCandidates({ tiles: createGrid(rows), levelType }).candidates;

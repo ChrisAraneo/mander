@@ -18,6 +18,7 @@ import {
   mapValues,
   size,
   some,
+  sortBy,
   sum,
   times,
   uniq,
@@ -26,36 +27,37 @@ import {
 import { describe, expect, it } from 'vitest';
 
 import {
-  type ChestItemType,
   CHEST_ITEM_COUNT,
   CHEST_ITEM_POOL,
   CHEST_ITEM_TYPES,
-  getChestType,
-  generateChestItems,
   RARITY_CHANCE,
-} from './generate-chest-items';
+} from '../consts';
+import { generateChestItems } from './generate-chest-items';
+import { getChestType } from './internal/get-chest-type';
+import type { ChestItemType } from './types/chest-item-type';
 
 const SEED = 'PROBE-SEED';
 
-const seeds = times(400, (day) => `DAY-${day}`);
+const SEEDS = times(400, (day) => `DAY-${day}`);
 
-const drawn = (): Item[] => flatMap(seeds, generateChestItems);
+const dealCards = (): Item[] => flatMap(SEEDS, generateChestItems);
 
-const idsIn = (seed: string): string[] => map(generateChestItems(seed), 'id');
+const getCardIds = (seed: string): string[] =>
+  map(generateChestItems(seed), 'id');
 
-const typesIn = (seed: string): (ChestItemType | undefined)[] =>
+const getCardTypes = (seed: string): (ChestItemType | undefined)[] =>
   map(generateChestItems(seed), getChestType);
 
 const isEpicChest = (seed: string): boolean =>
   some(generateChestItems(seed), { rarity: 'EPIC' });
 
-const epicSeeds = (): string[] => filter(seeds, isEpicChest);
+const findEpicSeeds = (): string[] => filter(SEEDS, isEpicChest);
 
-const everydaySeeds = (): string[] =>
-  filter(seeds, (seed) => !isEpicChest(seed));
+const findEverydaySeeds = (): string[] =>
+  filter(SEEDS, (seed) => !isEpicChest(seed));
 
-const leadCards = (): Item[] =>
-  map(seeds, (seed) => generateChestItems(seed)[0]);
+const getLeadCards = (): Item[] =>
+  map(SEEDS, (seed) => generateChestItems(seed)[0]);
 
 describe('generateChestItems', () => {
   it('should fill the chest the same way when the seed is the same', () => {
@@ -63,7 +65,7 @@ describe('generateChestItems', () => {
   });
 
   it('should lay the cards out differently when the seed differs', () => {
-    const filled = map(seeds, idsIn);
+    const filled = map(SEEDS, getCardIds);
 
     expect(size(uniq(map(filled, String)))).toBeGreaterThan(1);
   });
@@ -71,7 +73,10 @@ describe('generateChestItems', () => {
   it('should offer three cards to choose between when no epic turns up', () => {
     expect(CHEST_ITEM_COUNT).toBe(3);
     expect(
-      filter(everydaySeeds(), (seed) => size(generateChestItems(seed)) !== 3),
+      filter(
+        findEverydaySeeds(),
+        (seed) => size(generateChestItems(seed)) !== 3,
+      ),
     ).toEqual([]);
   });
 
@@ -84,29 +89,35 @@ describe('generateChestItems', () => {
       'GEAR',
     ]);
     expect(
-      filter(everydaySeeds(), (seed) => size(uniq(typesIn(seed))) !== 3),
+      filter(
+        findEverydaySeeds(),
+        (seed) => size(uniq(getCardTypes(seed))) !== 3,
+      ),
       'no chest doubles up on a type',
     ).toEqual([]);
   });
 
   it('should reach for every type when enough chests are filled', () => {
-    expect(uniq(map(drawn(), getChestType)).sort()).toEqual(
-      [...CHEST_ITEM_TYPES].sort(),
+    expect(sortBy(uniq(map(dealCards(), getChestType)))).toEqual(
+      sortBy(CHEST_ITEM_TYPES),
     );
   });
 
   it('should never offer the same item twice when it fills one chest', () => {
     expect(
-      filter(seeds, (seed) => size(uniq(idsIn(seed))) !== size(idsIn(seed))),
+      filter(
+        SEEDS,
+        (seed) => size(uniq(getCardIds(seed))) !== size(getCardIds(seed)),
+      ),
     ).toEqual([]);
   });
 
   it('should reach for every item in the pool when enough chests are filled', () => {
-    expect(size(countBy(drawn(), 'id'))).toBe(size(CHEST_ITEM_POOL));
+    expect(size(countBy(dealCards(), 'id'))).toBe(size(CHEST_ITEM_POOL));
   });
 
   it('should lead the chest less often than a common one when the card is rare', () => {
-    const leading = countBy(leadCards(), 'rarity');
+    const leading = countBy(getLeadCards(), 'rarity');
 
     expect(leading['RARE']).toBeLessThan(leading['COMMON']);
   });
@@ -117,7 +128,8 @@ describe('generateChestItems', () => {
   });
 
   it('should deal the cards out close to those odds when enough chests are filled', () => {
-    const cards = drawn();
+    const cards = dealCards();
+
     const share = mapValues(
       countBy(cards, 'rarity'),
       (count) => count / size(cards),
@@ -128,14 +140,17 @@ describe('generateChestItems', () => {
   });
 
   it('should turn up now and then but stay rare when the chest is an epic one', () => {
-    const share = size(epicSeeds()) / size(seeds);
+    const share = size(findEpicSeeds()) / size(SEEDS);
 
     expect(share, 'epics do happen').toBeGreaterThan(0);
     expect(share, 'and stay rare').toBeLessThan(0.1);
   });
 
   it('should hand the whole chest over with nothing else to pick when an epic takes it', () => {
-    for (const seed of epicSeeds()) {
+    const epicSeeds = findEpicSeeds();
+
+    times(size(epicSeeds), (index) => {
+      const seed = epicSeeds[index];
       const cards = generateChestItems(seed);
 
       expect(every(cards, { rarity: 'EPIC' }), `only epics on ${seed}`).toBe(
@@ -145,25 +160,25 @@ describe('generateChestItems', () => {
       expect(size(uniq(map(cards, 'id'))), `no repeats on ${seed}`).toBe(
         size(cards),
       );
-    }
+    });
   });
 
   it('should keep the epics to the bullet rain and the three pieces of gear when it stocks the pool', () => {
     expect(
-      map(filter(CHEST_ITEM_POOL, { rarity: 'EPIC' }), 'id').sort(),
+      sortBy(map(filter(CHEST_ITEM_POOL, { rarity: 'EPIC' }), 'id')),
     ).toEqual(
-      [
+      sortBy([
         BOOTS_OF_CLOUDS.id,
         MOON_MAGNET.id,
         TITANIUM_HELMET.id,
         VAMPIRE_SLAYER_BULLET_RAIN.id,
-      ].sort(),
+      ]),
     );
   });
 
   it('should keep the epics out when the chest is an ordinary one', () => {
     expect(
-      filter(everydaySeeds(), (seed) =>
+      filter(findEverydaySeeds(), (seed) =>
         some(generateChestItems(seed), { rarity: 'EPIC' }),
       ),
     ).toEqual([]);
@@ -171,8 +186,8 @@ describe('generateChestItems', () => {
 
   it('should deal the gear only when an epic takes the chest', () => {
     expect(
-      filter(everydaySeeds(), (seed) =>
-        some(typesIn(seed), (type) => type === 'GEAR'),
+      filter(findEverydaySeeds(), (seed) =>
+        some(getCardTypes(seed), (type) => type === 'GEAR'),
       ),
       'gear never rides along with commons and rares',
     ).toEqual([]);
@@ -191,10 +206,10 @@ describe('generateChestItems', () => {
   });
 
   it('should offer a rare card often enough to be worth finding when enough chests are filled', () => {
-    const withRare = filter(seeds, (seed) =>
+    const withRare = filter(SEEDS, (seed) =>
       some(generateChestItems(seed), { rarity: 'RARE' }),
     );
 
-    expect(size(withRare) / size(seeds)).toBeGreaterThan(0.1);
+    expect(size(withRare) / size(SEEDS)).toBeGreaterThan(0.1);
   });
 });

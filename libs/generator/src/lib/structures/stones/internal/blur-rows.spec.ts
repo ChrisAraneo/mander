@@ -12,7 +12,7 @@ describe('blurRows', () => {
     expect(blurRows([[1, 1, 1, 1]])).toEqual([[1, 1, 1, 1]]);
   });
 
-  it('should spread a lone cell out along its row', () => {
+  it('should spread a lone cell out along its row when it blurs the field', () => {
     const blurred = blurRows([times(21, (column) => Number(column === 10))]);
 
     expect(blurred[0][10]).toBeCloseTo(12 / TOTAL_WEIGHT);
@@ -27,7 +27,7 @@ describe('blurRows', () => {
     ).toBeCloseTo(EDGE_WEIGHT / TOTAL_WEIGHT);
   });
 
-  it('should not mix cells from other rows', () => {
+  it('should not mix cells from other rows when it blurs the field', () => {
     expect(
       blurRows([
         [1, 1],
@@ -37,5 +37,9 @@ describe('blurRows', () => {
       [1, 1],
       [0, 0],
     ]);
+  });
+
+  it('should give back an empty field when the field is empty', () => {
+    expect(blurRows([])).toEqual([]);
   });
 });

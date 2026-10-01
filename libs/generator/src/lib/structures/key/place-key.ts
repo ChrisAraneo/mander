@@ -1,6 +1,6 @@
 import type { Tile } from '@mander/model';
 import { flow } from 'lodash-es';
-import type { LevelType } from '../get-level-type';
+import type { LevelType } from '../types/level-type';
 import { createKeyPatches } from './internal/create-key-patches';
 import { findKeyCandidates } from './internal/find-key-candidates';
 import { patchKeyTiles } from './internal/patch-key-tiles';

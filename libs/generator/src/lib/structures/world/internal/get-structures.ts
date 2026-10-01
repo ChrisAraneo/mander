@@ -11,6 +11,7 @@ export const getStructures = (
   levelCategory: LevelCategory,
 ): readonly Sector[] =>
   match(levelCategory)
+    .with('NORMAL', () => NORMAL_STRUCTURES)
     .with('HARD', () => HARD_STRUCTURES)
     .with('VERTICAL', () => VERTICAL_STRUCTURES)
-    .otherwise(() => NORMAL_STRUCTURES);
+    .exhaustive();

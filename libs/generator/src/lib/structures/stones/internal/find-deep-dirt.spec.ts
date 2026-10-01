@@ -9,22 +9,22 @@ import { describe, expect, it } from 'vitest';
 
 import { findDeepDirt } from './find-deep-dirt';
 
-const cellsIn = (tiles: Tile[][], depth: number) =>
+const findCells = (tiles: Tile[][], depth: number) =>
   findDeepDirt({ tiles, depth }).cells;
 
 describe('findDeepDirt', () => {
-  it('should mark the dirt that lies at the dirt depth or deeper', () => {
+  it('should mark the dirt when it lies at the dirt depth or deeper', () => {
     expect(
-      cellsIn(
+      findCells(
         [[TILE_AIR], [TILE_DIRT], [TILE_DIRT], [TILE_DIRT], [TILE_DIRT]],
         2,
       ),
     ).toEqual([[0], [0], [0], [1], [1]]);
   });
 
-  it('should count the depth in each column on its own', () => {
+  it('should count the depth in each column on its own when the columns differ', () => {
     expect(
-      cellsIn(
+      findCells(
         [
           [TILE_DIRT, TILE_AIR],
           [TILE_DIRT, TILE_DIRT],
@@ -39,19 +39,23 @@ describe('findDeepDirt', () => {
     ]);
   });
 
-  it('should not mark a solid tile that is not dirt', () => {
+  it('should not mark a solid tile when it is not dirt', () => {
     expect(
-      cellsIn([[TILE_DIRT], [TILE_DIRT], [TILE_BRICK], [TILE_DIRT]], 2),
+      findCells([[TILE_DIRT], [TILE_DIRT], [TILE_BRICK], [TILE_DIRT]], 2),
     ).toEqual([[0], [0], [0], [1]]);
   });
 
-  it('should start counting again under a gap', () => {
+  it('should start counting again when there is a gap above', () => {
     expect(
-      cellsIn(
+      findCells(
         [[TILE_DIRT], [TILE_DIRT], [TILE_SPIKE], [TILE_DIRT], [TILE_DIRT]],
         1,
       ),
     ).toEqual([[0], [1], [0], [0], [1]]);
+  });
+
+  it('should mark nothing when the grid is empty', () => {
+    expect(findCells([], 1)).toEqual([]);
   });
 
   it('should keep the grid the same when it marks the dirt', () => {

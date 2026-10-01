@@ -35,15 +35,21 @@ describe('createSkyRows', () => {
     ).toEqual([]);
   });
 
-  it('should keep the grid, padding and floor the same when it makes the sky', () => {
-    const { tiles, padding, floor } = createSkyRows({
-      tiles: LEVEL,
-      padding: PADDING,
-      floor: FLOOR,
-    });
+  it('should keep the grid the same when it makes the sky', () => {
+    expect(
+      createSkyRows({ tiles: LEVEL, padding: PADDING, floor: FLOOR }).tiles,
+    ).toBe(LEVEL);
+  });
 
-    expect(tiles).toBe(LEVEL);
-    expect(padding).toBe(PADDING);
-    expect(floor).toBe(FLOOR);
+  it('should pass the padding on when it makes the sky', () => {
+    expect(
+      createSkyRows({ tiles: LEVEL, padding: PADDING, floor: FLOOR }).padding,
+    ).toBe(PADDING);
+  });
+
+  it('should pass the floor on when it makes the sky', () => {
+    expect(
+      createSkyRows({ tiles: LEVEL, padding: PADDING, floor: FLOOR }).floor,
+    ).toBe(FLOOR);
   });
 });

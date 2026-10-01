@@ -8,13 +8,13 @@ import {
   TILE_STONE,
   TILE_WOOD,
 } from '@mander/model';
-import { flatten, includes, range, times } from 'lodash-es';
+import { flatten, includes, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { FIRST_FIREBALL_LEVEL, LAST_FIREBALL_LEVEL } from '../../consts';
 import { clearFireballs } from './clear-fireballs';
 
-const forge = (): Tile[][] => [
+const createForge = (): Tile[][] => [
   [TILE_AIR, TILE_STONE, TILE_AIR, TILE_SPIKE],
   [TILE_DIRT, TILE_FIREBALL, TILE_WOOD, TILE_DIRT],
 ];
@@ -22,32 +22,40 @@ const forge = (): Tile[][] => [
 describe('clearFireballs', () => {
   it('should put every fireball out when the level is before the fourth', () => {
     times(FIRST_FIREBALL_LEVEL - 1, (index) => {
-      const cleared = clearFireballs(forge(), index + 1);
+      const levelNumber = index + 1;
 
       expect(
-        includes(flatten(cleared), TILE_FIREBALL),
-        `level ${index + 1} still burns`,
+        includes(
+          flatten(clearFireballs(createForge(), levelNumber)),
+          TILE_FIREBALL,
+        ),
+        `level ${levelNumber} still burns`,
       ).toBe(false);
     });
   });
 
   it('should leave the fireballs burning when the level is the fourth through the eighth', () => {
-    range(FIRST_FIREBALL_LEVEL, LAST_FIREBALL_LEVEL + 1).forEach((level) => {
-      expect(clearFireballs(forge(), level), `level ${level}`).toEqual(forge());
+    times(LAST_FIREBALL_LEVEL - FIRST_FIREBALL_LEVEL + 1, (index) => {
+      const levelNumber = FIRST_FIREBALL_LEVEL + index;
+
+      expect(
+        clearFireballs(createForge(), levelNumber),
+        `level ${levelNumber}`,
+      ).toEqual(createForge());
     });
   });
 
   it('should put every fireball out when the level is past the eighth', () => {
     expect(
       includes(
-        flatten(clearFireballs(forge(), LAST_FIREBALL_LEVEL + 1)),
+        flatten(clearFireballs(createForge(), LAST_FIREBALL_LEVEL + 1)),
         TILE_FIREBALL,
       ),
     ).toBe(false);
   });
 
   it('should hand the fireball spot over to the blocks when they stand around it', () => {
-    expect(clearFireballs(forge(), 1)).toEqual([
+    expect(clearFireballs(createForge(), 1)).toEqual([
       [TILE_AIR, TILE_STONE, TILE_AIR, TILE_SPIKE],
       [TILE_DIRT, TILE_STONE, TILE_WOOD, TILE_DIRT],
     ]);
@@ -66,7 +74,7 @@ describe('clearFireballs', () => {
     ).toBe(TILE_DIRT);
   });
 
-  it('should look sideways when no block sits above or below', () => {
+  it('should take the block beside the spot when no block sits above or below it', () => {
     expect(
       clearFireballs(
         [
@@ -109,12 +117,16 @@ describe('clearFireballs', () => {
     ).toBe(TILE_BRICK);
   });
 
-  it('should hand back a grid of its own when it is given one to clear', () => {
-    const tiles = forge();
+  it('should give back an empty grid when the grid is empty', () => {
+    expect(clearFireballs([], 1)).toEqual([]);
+  });
+
+  it('should not change the old grid when it puts the fireballs out', () => {
+    const tiles = createForge();
 
     clearFireballs(tiles, 1);
     clearFireballs(tiles, FIRST_FIREBALL_LEVEL);
 
-    expect(tiles).toEqual(forge());
+    expect(tiles).toEqual(createForge());
   });
 });

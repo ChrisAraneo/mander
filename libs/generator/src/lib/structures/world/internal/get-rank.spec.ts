@@ -21,7 +21,7 @@ describe('getRank', () => {
     expect(getRank(LEVEL_CATEGORIES, 6)).toBe(0);
   });
 
-  it('should count only the earlier levels of the same category', () => {
+  it('should count only the earlier levels of the same category when other categories come between them', () => {
     expect(getRank(LEVEL_CATEGORIES, 4)).toBe(1);
     expect(getRank(LEVEL_CATEGORIES, 5)).toBe(3);
     expect(getRank(LEVEL_CATEGORIES, 7)).toBe(1);

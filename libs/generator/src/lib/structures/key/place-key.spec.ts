@@ -5,11 +5,11 @@ import {
   TILE_KEY,
   type Tile,
 } from '@mander/model';
-import { filter, flatten, map, repeat } from 'lodash-es';
+import { filter, flatten, join, map, repeat } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { KEY_HEIGHT } from '../../consts';
-import type { LevelType } from '../get-level-type';
+import type { LevelType } from '../types/level-type';
 import { placeKey } from './place-key';
 
 const TILES: Record<string, Tile> = {
@@ -26,7 +26,8 @@ const createGrid = (rows: string[]): Tile[][] =>
   map(rows, (row) => map([...row], (cell) => TILES[cell] ?? TILE_AIR));
 
 const createRow = (marks: Record<number, string> = {}, fill = '.'): string =>
-  map([...repeat(fill, WIDTH)], (cell, column) => marks[column] ?? cell).join(
+  join(
+    map([...repeat(fill, WIDTH)], (cell, column) => marks[column] ?? cell),
     '',
   );
 

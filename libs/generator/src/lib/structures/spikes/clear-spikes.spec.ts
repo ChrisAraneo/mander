@@ -5,92 +5,117 @@ import {
   TILE_DIRT,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
+  TILE_STONE,
 } from '@mander/model';
-import { every, filter, flatten, map, size, times } from 'lodash-es';
+import {
+  every,
+  filter,
+  flatten,
+  includes,
+  map,
+  range,
+  size,
+  times,
+} from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
+import { LEVELS_PER_DAY } from '../../consts';
 import { generate } from '../../generate';
 import { clearSpikes } from './clear-spikes';
+
+interface Cell {
+  row: number;
+  column: number;
+}
 
 const TEETH = 300;
 
 const FIRST_UNTOUCHED_LEVEL = 5;
 
-const toothyFloor = (): Tile[][] => [
+const createToothyFloor = (ground: Tile = TILE_DIRT): Tile[][] => [
   times(TEETH, (): Tile => TILE_SPIKE),
-  times(TEETH, (): Tile => TILE_DIRT),
+  times(TEETH, (): Tile => ground),
 ];
 
-const den = (): Tile[][] => [
+const createDen = (): Tile[][] => [
   [TILE_AIR, TILE_SPIKE_CEILING, TILE_AIR, TILE_SPIKE_CEILING],
   [TILE_AIR, TILE_AIR, TILE_AIR, TILE_AIR],
   [TILE_SPIKE, TILE_AIR, TILE_SPIKE, TILE_AIR],
   [TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT],
 ];
 
-const spikesIn = (tiles: Tile[][]): { row: number; column: number }[] =>
+const findSpikes = (tiles: Tile[][]): Cell[] =>
   flatten(
     map(tiles, (cells, row) =>
-      filter(
-        map(cells, (tile, column) => ({ tile, row, column })),
-        ({ tile }) => isSpikeTile(tile),
+      map(
+        filter(range(size(cells)), (column) => isSpikeTile(cells[column])),
+        (column) => ({ row, column }),
       ),
     ),
   );
 
-const spikeKeys = (tiles: Tile[][]): Set<string> =>
-  new Set(map(spikesIn(tiles), ({ row, column }) => `${row},${column}`));
+const formatSpikeKeys = (tiles: Tile[][]): string[] =>
+  map(findSpikes(tiles), ({ row, column }) => `${row},${column}`);
 
-const leftOn = (levelNumber: number): number =>
-  size(spikesIn(clearSpikes(toothyFloor(), levelNumber)));
+const countSpikesLeft = (levelNumber: number): number =>
+  size(findSpikes(clearSpikes(createToothyFloor(), levelNumber)));
 
 describe('clearSpikes', () => {
   it('should sow no teeth of its own when it thins any level', () => {
-    const planted = spikeKeys(den());
+    const planted = formatSpikeKeys(createDen());
 
-    times(8, (index) => {
-      const level = index + 1;
+    times(LEVELS_PER_DAY, (index) => {
+      const levelNumber = index + 1;
       const sprung = filter(
-        spikesIn(clearSpikes(den(), level)),
-        ({ row, column }) => !planted.has(`${row},${column}`),
+        formatSpikeKeys(clearSpikes(createDen(), levelNumber)),
+        (key) => !includes(planted, key),
       );
 
-      expect(sprung, `level ${level} grew teeth of its own`).toEqual([]);
+      expect(sprung, `level ${levelNumber} grew teeth of its own`).toEqual([]);
     });
   });
 
   it('should send the level out bare, hanging teeth and all, when it is the first', () => {
-    expect(spikesIn(clearSpikes(den(), 1))).toEqual([]);
+    expect(findSpikes(clearSpikes(createDen(), 1))).toEqual([]);
   });
 
   it('should pull the share the level was promised when it thins one', () => {
-    expect(leftOn(1)).toBe(0);
-    expect(leftOn(2)).toBe(TEETH * 0.2);
-    expect(leftOn(3)).toBe(TEETH * 0.4);
-    expect(leftOn(4)).toBe(TEETH * 0.7);
+    expect(countSpikesLeft(1)).toBe(0);
+    expect(countSpikesLeft(2)).toBe(TEETH * 0.2);
+    expect(countSpikesLeft(3)).toBe(TEETH * 0.4);
+    expect(countSpikesLeft(4)).toBe(TEETH * 0.7);
   });
 
   it('should leave every tooth standing when the level is the fifth or later', () => {
     times(4, (index) => {
-      const level = FIRST_UNTOUCHED_LEVEL + index;
+      const levelNumber = FIRST_UNTOUCHED_LEVEL + index;
 
-      expect(clearSpikes(den(), level), `level ${level}`).toEqual(den());
-      expect(leftOn(level)).toBe(TEETH);
+      expect(
+        clearSpikes(createDen(), levelNumber),
+        `level ${levelNumber}`,
+      ).toEqual(createDen());
+      expect(countSpikesLeft(levelNumber)).toBe(TEETH);
     });
   });
 
   it('should thin the level the same way when it is dealt again', () => {
     times(4, (index) => {
-      const level = index + 1;
+      const levelNumber = index + 1;
 
-      expect(clearSpikes(toothyFloor(), level)).toEqual(
-        clearSpikes(toothyFloor(), level),
+      expect(clearSpikes(createToothyFloor(), levelNumber)).toEqual(
+        clearSpikes(createToothyFloor(), levelNumber),
       );
     });
   });
 
+  it('should thin the level another way when the grid is different', () => {
+    expect(clearSpikes(createToothyFloor(), 2)[0]).not.toEqual(
+      clearSpikes(createToothyFloor(TILE_STONE), 2)[0],
+    );
+  });
+
   it('should leave an air tile behind and nothing else touched when it pulls a tooth', () => {
-    const thinned = clearSpikes(den(), 1);
+    const thinned = clearSpikes(createDen(), 1);
 
     expect(every(flatten(thinned), (tile) => !isSpikeTile(tile))).toBe(true);
     expect(thinned[1]).toEqual([TILE_AIR, TILE_AIR, TILE_AIR, TILE_AIR]);
@@ -98,18 +123,22 @@ describe('clearSpikes', () => {
     expect(thinned[0]).toEqual([TILE_AIR, TILE_AIR, TILE_AIR, TILE_AIR]);
   });
 
-  it('should hand back a grid of its own when it is given one to thin', () => {
-    const tiles = den();
+  it('should send the level out bare when it is the first of a dealt day', () => {
+    const world = generate(new Date(Date.UTC(2026, 7, 2)));
+
+    expect(findSpikes(world.levels[0].tiles)).toEqual([]);
+  });
+
+  it('should give back an empty grid when the grid is empty', () => {
+    expect(clearSpikes([], 1)).toEqual([]);
+  });
+
+  it('should not change the old grid when it thins the spikes', () => {
+    const tiles = createDen();
 
     clearSpikes(tiles, 1);
     clearSpikes(tiles, FIRST_UNTOUCHED_LEVEL);
 
-    expect(tiles).toEqual(den());
-  });
-
-  it('should send the level out bare when it is the first of a dealt day', () => {
-    const world = generate(new Date(Date.UTC(2026, 7, 2)));
-
-    expect(spikesIn(world.levels[0].tiles)).toEqual([]);
+    expect(tiles).toEqual(createDen());
   });
 });

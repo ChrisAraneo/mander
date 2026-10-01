@@ -4,12 +4,13 @@ import { describe, expect, it } from 'vitest';
 
 import { findSurfaceSpots } from './find-surface-spots';
 
+const TILES: Record<string, Tile> = {
+  '#': TILE_DIRT,
+  o: TILE_GEM,
+};
+
 const createGrid = (rows: string[]): Tile[][] =>
-  map(rows, (row) =>
-    map([...row], (cell) =>
-      cell === '#' ? TILE_DIRT : cell === 'o' ? TILE_GEM : TILE_AIR,
-    ),
-  );
+  map(rows, (row) => map([...row], (cell) => TILES[cell] ?? TILE_AIR));
 
 describe('findSurfaceSpots', () => {
   it('should give the top block of each column when there is room above it', () => {

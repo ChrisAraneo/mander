@@ -1,6 +1,6 @@
 import type { Tile } from '@mander/model';
 import { match } from 'ts-pattern';
-import type { LevelType } from '../../get-level-type';
+import type { LevelType } from '../../types/level-type';
 import { findHeadroomSpots } from './find-headroom-spots';
 import { findSurfaceSpots } from './find-surface-spots';
 

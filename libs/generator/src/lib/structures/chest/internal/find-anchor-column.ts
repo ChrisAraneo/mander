@@ -5,7 +5,7 @@ import { match, P } from 'ts-pattern';
 
 const { nullish } = P;
 
-export const findAnchorColumn = (tiles: Tile[][]) =>
+export const findAnchorColumn = (tiles: Tile[][]): number =>
   chain(tiles)
     .find((cells) => includes(cells, TILE_PORTAL))
     .thru((carrying) =>

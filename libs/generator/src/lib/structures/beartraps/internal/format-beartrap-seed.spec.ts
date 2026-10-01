@@ -10,10 +10,14 @@ const LEVEL: Tile[][] = [
 ];
 
 describe('formatBeartrapSeed', () => {
-  it('should join the beartrap tag, the level number and the grid', () => {
+  it('should join the beartrap tag, the level number and the grid when it writes the seed', () => {
     expect(formatBeartrapSeed(LEVEL, 3)).toBe(
       `beartrap#3#${formatTilesSeed(LEVEL)}`,
     );
+  });
+
+  it('should give the same seed when the grid and the level are the same', () => {
+    expect(formatBeartrapSeed(LEVEL, 2)).toBe(formatBeartrapSeed(LEVEL, 2));
   });
 
   it('should give another seed when the level is different', () => {

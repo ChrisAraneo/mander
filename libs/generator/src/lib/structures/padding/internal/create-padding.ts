@@ -1,6 +1,5 @@
+import { SKY_HEIGHT } from '../../../consts';
 import type { getMissingDepth } from './get-missing-depth';
-
-const SKY_HEIGHT = 20;
 
 export const createPadding = ({
   tiles,

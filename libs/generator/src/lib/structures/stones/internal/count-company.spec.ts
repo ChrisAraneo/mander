@@ -9,11 +9,11 @@ const BLOBS = [
 ];
 
 describe('countCompany', () => {
-  it('should count the stones above, below, left and right of a cell', () => {
+  it('should count the stones above, below, left and right when it looks around a cell', () => {
     expect(countCompany(BLOBS, 1, 1)).toBe(3);
   });
 
-  it('should not count the stones that only touch at a corner', () => {
+  it('should count nothing when the stones only touch at a corner', () => {
     expect(
       countCompany(
         [
@@ -27,7 +27,7 @@ describe('countCompany', () => {
     ).toBe(0);
   });
 
-  it('should count nothing past the edge of the field', () => {
+  it('should count nothing past the edge when the cell sits at the edge of the field', () => {
     expect(countCompany(BLOBS, 0, 0)).toBe(2);
     expect(countCompany(BLOBS, 2, 2)).toBe(1);
   });

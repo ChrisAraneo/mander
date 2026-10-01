@@ -2,8 +2,8 @@ import { PORTAL_HEIGHT, type Tile } from '@mander/model';
 import { filter } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { findStandingSpots } from '../../find-standing-spots';
-import type { LevelType } from '../../get-level-type';
 import { isSurface } from '../../is-surface';
+import type { LevelType } from '../../types/level-type';
 
 export const findPortalCandidates = ({
   tiles,

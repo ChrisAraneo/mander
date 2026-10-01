@@ -1,7 +1,6 @@
 import { match } from 'ts-pattern';
 import { isVertical } from './is-vertical';
-
-export type LevelType = 'HORIZONTAL' | 'VERTICAL';
+import type { LevelType } from './types/level-type';
 
 export const getLevelType = (levelNumber: number): LevelType =>
   match(isVertical(levelNumber))

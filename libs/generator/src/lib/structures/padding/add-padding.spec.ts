@@ -1,47 +1,60 @@
-import { TILE_AIR, TILE_DIRT } from '@mander/model';
-import { every, last, map, size, takeRight, times } from 'lodash-es';
+import { TILE_AIR, TILE_DIRT, type Tile } from '@mander/model';
+import { every, last, map, size, take, takeRight, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
+import { SKY_HEIGHT } from '../../consts';
 import { addPadding } from './add-padding';
 
-const SKY_HEIGHT = 20;
+const WIDTH = 4;
 
-const row = (tile: number): number[] => times(4, () => tile);
+const BEDROCK_DEPTH = 4;
 
-const ground = (): number[][] => [row(TILE_AIR), row(TILE_DIRT)];
+const createRow = (tile: Tile): Tile[] => times(WIDTH, () => tile);
+
+const createGround = (): Tile[][] => [
+  createRow(TILE_AIR),
+  createRow(TILE_DIRT),
+];
 
 describe('addPadding', () => {
   it('should hang the sky above and the bedrock below when it pads a grid', () => {
-    const padded = addPadding(ground());
+    const padded = addPadding(createGround());
 
-    expect(size(padded)).toBe(SKY_HEIGHT + 2 + 4);
+    expect(size(padded)).toBe(
+      SKY_HEIGHT + size(createGround()) + BEDROCK_DEPTH,
+    );
     expect(
-      every(padded.slice(0, SKY_HEIGHT), (cells) =>
+      every(take(padded, SKY_HEIGHT), (cells) =>
         every(cells, (tile) => tile === TILE_AIR),
       ),
     ).toBe(true);
-    expect(last(padded)).toEqual(row(TILE_DIRT));
+    expect(last(padded)).toEqual(createRow(TILE_DIRT));
   });
 
   it('should reach for enough bedrock to bury the lowest filled row when the level is shallow', () => {
-    expect(takeRight(addPadding(ground()), 4)).toEqual(
-      times(4, () => row(TILE_DIRT)),
+    expect(takeRight(addPadding(createGround()), BEDROCK_DEPTH)).toEqual(
+      times(BEDROCK_DEPTH, () => createRow(TILE_DIRT)),
     );
   });
 
   it('should add no bedrock when the level is already deep enough', () => {
-    const tiles = [row(TILE_DIRT), ...times(5, () => row(TILE_AIR))];
+    const tiles = [
+      createRow(TILE_DIRT),
+      ...times(5, () => createRow(TILE_AIR)),
+    ];
 
     expect(size(addPadding(tiles))).toBe(SKY_HEIGHT + size(tiles));
   });
 
   it('should measure the grid itself when it gets no front layer', () => {
-    expect(addPadding(ground())).toEqual(addPadding(ground(), ground()));
+    expect(addPadding(createGround())).toEqual(
+      addPadding(createGround(), createGround()),
+    );
   });
 
   it('should measure the padding off the front layer when it pads the back one, so the two stay the same shape', () => {
-    const front = ground();
-    const back = [row(TILE_DIRT), row(TILE_AIR)];
+    const front = createGround();
+    const back = [createRow(TILE_DIRT), createRow(TILE_AIR)];
 
     expect(map(addPadding(back, front), size)).toEqual(
       map(addPadding(front), size),
@@ -54,10 +67,10 @@ describe('addPadding', () => {
   });
 
   it('should not change the old grid when it pads it', () => {
-    const tiles = ground();
+    const tiles = createGround();
 
     addPadding(tiles);
 
-    expect(tiles).toEqual(ground());
+    expect(tiles).toEqual(createGround());
   });
 });

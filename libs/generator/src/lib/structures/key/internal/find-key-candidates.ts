@@ -3,8 +3,8 @@ import { filter } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { KEY_HEIGHT } from '../../../consts';
 import { findStandingSpots } from '../../find-standing-spots';
-import type { LevelType } from '../../get-level-type';
 import { isSurface } from '../../is-surface';
+import type { LevelType } from '../../types/level-type';
 
 export const findKeyCandidates = ({
   tiles,

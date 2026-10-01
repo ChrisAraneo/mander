@@ -37,15 +37,17 @@ describe('shuffleSpikeCells', () => {
     ).toEqual([]);
   });
 
-  it('should keep the grid and rate the same when it shuffles', () => {
-    const shuffled = shuffleSpikeCells({
-      tiles: LEVEL,
-      levelNumber: 1,
-      rate: 0.6,
-      cells: [],
-    });
+  it('should keep the grid the same when it shuffles the spots', () => {
+    expect(
+      shuffleSpikeCells({ tiles: LEVEL, levelNumber: 1, rate: 1, cells: [] })
+        .tiles,
+    ).toBe(LEVEL);
+  });
 
-    expect(shuffled.tiles).toBe(LEVEL);
-    expect(shuffled.rate).toBe(0.6);
+  it('should pass the rate on when it shuffles the spots', () => {
+    expect(
+      shuffleSpikeCells({ tiles: LEVEL, levelNumber: 1, rate: 0.6, cells: [] })
+        .rate,
+    ).toBe(0.6);
   });
 });

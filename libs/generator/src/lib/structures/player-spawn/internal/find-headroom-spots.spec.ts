@@ -4,10 +4,12 @@ import { describe, expect, it } from 'vitest';
 
 import { findHeadroomSpots } from './find-headroom-spots';
 
+const TILES: Record<string, Tile> = {
+  '#': TILE_DIRT,
+};
+
 const createGrid = (rows: string[]): Tile[][] =>
-  map(rows, (row) =>
-    map([...row], (cell) => (cell === '#' ? TILE_DIRT : TILE_AIR)),
-  );
+  map(rows, (row) => map([...row], (cell) => TILES[cell] ?? TILE_AIR));
 
 describe('findHeadroomSpots', () => {
   it('should give the spots with room for the player to stand up when there are some', () => {

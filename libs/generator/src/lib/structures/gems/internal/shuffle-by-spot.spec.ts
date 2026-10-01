@@ -2,7 +2,7 @@ import { createRandom } from '@mander/utils';
 import { chunk, floor, map, range, sortBy } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { Spot } from '../../find-standing-spots';
+import type { Spot } from '../../types/spot';
 import { shuffleBySpot } from './shuffle-by-spot';
 
 const SLOTS: Spot[][] = chunk(

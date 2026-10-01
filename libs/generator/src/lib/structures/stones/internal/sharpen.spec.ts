@@ -11,7 +11,11 @@ describe('sharpen', () => {
     expect(sharpen([[0, 0.2, 0.49]])).toEqual([[0, 0, 0]]);
   });
 
-  it('should sharpen every row', () => {
+  it('should sharpen every row when the field has several', () => {
     expect(sharpen([[0.3], [0.7]])).toEqual([[0], [1]]);
+  });
+
+  it('should give back an empty field when the field is empty', () => {
+    expect(sharpen([])).toEqual([]);
   });
 });

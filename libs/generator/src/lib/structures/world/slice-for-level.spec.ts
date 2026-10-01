@@ -2,9 +2,9 @@ import { HARD_STRUCTURES, NORMAL_STRUCTURES } from '@mander/structures';
 import { slice, take } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
+import { sliceForLevel } from './slice-for-level';
 import type { LevelCategory } from './types/level-category';
 import type { WorldStructures } from './types/world-structures';
-import { sliceForLevel } from './slice-for-level';
 
 const LEVEL_CATEGORIES: LevelCategory[] = ['NORMAL', 'HARD', 'NORMAL'];
 

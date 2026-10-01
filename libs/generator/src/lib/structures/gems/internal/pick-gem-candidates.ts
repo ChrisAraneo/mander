@@ -1,6 +1,6 @@
 import { find, reduce } from 'lodash-es';
 import { match, P } from 'ts-pattern';
-import type { Spot } from '../../find-standing-spots';
+import type { Spot } from '../../types/spot';
 import { isGemApart } from './is-gem-apart';
 import type { shuffleGemCandidates } from './shuffle-gem-candidates';
 

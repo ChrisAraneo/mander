@@ -38,15 +38,21 @@ describe('shuffleBeartrapCells', () => {
     ).toEqual([]);
   });
 
-  it('should keep the grid and rate the same when it shuffles', () => {
-    const shuffled = shuffleBeartrapCells({
-      tiles: LEVEL,
-      levelNumber: 1,
-      rate: 0.35,
-      cells: [],
-    });
+  it('should keep the grid the same when it shuffles the spots', () => {
+    expect(
+      shuffleBeartrapCells({ tiles: LEVEL, levelNumber: 1, rate: 1, cells: [] })
+        .tiles,
+    ).toBe(LEVEL);
+  });
 
-    expect(shuffled.tiles).toBe(LEVEL);
-    expect(shuffled.rate).toBe(0.35);
+  it('should pass the rate on when it shuffles the spots', () => {
+    expect(
+      shuffleBeartrapCells({
+        tiles: LEVEL,
+        levelNumber: 1,
+        rate: 0.35,
+        cells: [],
+      }).rate,
+    ).toBe(0.35);
   });
 });

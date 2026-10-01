@@ -5,24 +5,24 @@ import { describe, expect, it } from 'vitest';
 import { DEEP_DIRT_DEPTH, DIRT_DEPTH } from '../../../consts';
 import { pickDirtDepth } from './pick-dirt-depth';
 
-const ground = (width: number): Tile[][] => [
+const createGround = (width: number): Tile[][] => [
   times(width, (): Tile => TILE_AIR),
   times(width, (): Tile => TILE_DIRT),
 ];
 
 describe('pickDirtDepth', () => {
-  it('should give the normal or the deep dirt depth', () => {
+  it('should give the normal or the deep dirt depth when it picks one', () => {
     expect(
       includes(
         [DIRT_DEPTH, DEEP_DIRT_DEPTH],
-        pickDirtDepth({ tiles: ground(8) }).depth,
+        pickDirtDepth({ tiles: createGround(8) }).depth,
       ),
     ).toBe(true);
   });
 
   it('should give the same depth when it gets the same grid', () => {
-    expect(pickDirtDepth({ tiles: ground(8) }).depth).toBe(
-      pickDirtDepth({ tiles: ground(8) }).depth,
+    expect(pickDirtDepth({ tiles: createGround(8) }).depth).toBe(
+      pickDirtDepth({ tiles: createGround(8) }).depth,
     );
   });
 
@@ -31,7 +31,7 @@ describe('pickDirtDepth', () => {
       sortBy(
         uniq(
           map(
-            times(40, (index) => ground(8 + index)),
+            times(40, (index) => createGround(8 + index)),
             (tiles) => pickDirtDepth({ tiles }).depth,
           ),
         ),
@@ -40,7 +40,7 @@ describe('pickDirtDepth', () => {
   });
 
   it('should keep the grid the same when it picks the depth', () => {
-    const tiles = ground(8);
+    const tiles = createGround(8);
 
     expect(pickDirtDepth({ tiles }).tiles).toBe(tiles);
   });

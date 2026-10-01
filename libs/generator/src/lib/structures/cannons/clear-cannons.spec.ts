@@ -4,6 +4,7 @@ import {
   TILE_CANNON,
   TILE_DIRT,
   TILE_SPIKE,
+  type Tile,
 } from '@mander/model';
 import { flatten, includes, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
@@ -11,7 +12,7 @@ import { describe, expect, it } from 'vitest';
 import { FIRST_CANNON_LEVEL } from '../../consts';
 import { clearCannons } from './clear-cannons';
 
-const emplacement = () => [
+const createEmplacement = (): Tile[][] => [
   [TILE_AIR, TILE_CANNON, TILE_AIR, TILE_SPIKE],
   [TILE_DIRT, TILE_DIRT, TILE_CANNON, TILE_DIRT],
 ];
@@ -19,27 +20,31 @@ const emplacement = () => [
 describe('clearCannons', () => {
   it('should fill every cannon in when the level is before the fifth', () => {
     times(FIRST_CANNON_LEVEL - 1, (index) => {
-      const cleared = clearCannons(emplacement(), index + 1);
+      const levelNumber = index + 1;
 
       expect(
-        includes(flatten(cleared), TILE_CANNON),
-        `level ${index + 1} still armed`,
+        includes(
+          flatten(clearCannons(createEmplacement(), levelNumber)),
+          TILE_CANNON,
+        ),
+        `level ${levelNumber} still armed`,
       ).toBe(false);
     });
   });
 
   it('should leave the cannons standing when the level is the fifth or later', () => {
     times(4, (index) => {
-      const level = FIRST_CANNON_LEVEL + index;
+      const levelNumber = FIRST_CANNON_LEVEL + index;
 
-      expect(clearCannons(emplacement(), level), `level ${level}`).toEqual(
-        emplacement(),
-      );
+      expect(
+        clearCannons(createEmplacement(), levelNumber),
+        `level ${levelNumber}`,
+      ).toEqual(createEmplacement());
     });
   });
 
   it('should hand the cannon spot over to the blocks when they stand around it', () => {
-    expect(clearCannons(emplacement(), 1)).toEqual([
+    expect(clearCannons(createEmplacement(), 1)).toEqual([
       [TILE_AIR, TILE_DIRT, TILE_AIR, TILE_SPIKE],
       [TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT],
     ]);
@@ -73,12 +78,16 @@ describe('clearCannons', () => {
     ).toBe(TILE_BRICK);
   });
 
-  it('should hand back a grid of its own when it is given one to clear', () => {
-    const tiles = emplacement();
+  it('should give back an empty grid when the grid is empty', () => {
+    expect(clearCannons([], 1)).toEqual([]);
+  });
+
+  it('should not change the old grid when it clears the cannons', () => {
+    const tiles = createEmplacement();
 
     clearCannons(tiles, 1);
     clearCannons(tiles, FIRST_CANNON_LEVEL);
 
-    expect(tiles).toEqual(emplacement());
+    expect(tiles).toEqual(createEmplacement());
   });
 });

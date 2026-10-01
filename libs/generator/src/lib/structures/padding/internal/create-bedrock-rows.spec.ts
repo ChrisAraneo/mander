@@ -57,15 +57,25 @@ describe('createBedrockRows', () => {
     ).toEqual([]);
   });
 
-  it('should keep the grid and the sky the same when it makes the bedrock', () => {
-    const { tiles, sky } = createBedrockRows({
-      tiles: LEVEL,
-      padding: PADDING,
-      floor: FLOOR,
-      sky: SKY,
-    });
+  it('should keep the grid the same when it makes the bedrock', () => {
+    expect(
+      createBedrockRows({
+        tiles: LEVEL,
+        padding: PADDING,
+        floor: FLOOR,
+        sky: SKY,
+      }).tiles,
+    ).toBe(LEVEL);
+  });
 
-    expect(tiles).toBe(LEVEL);
-    expect(sky).toBe(SKY);
+  it('should pass the sky on when it makes the bedrock', () => {
+    expect(
+      createBedrockRows({
+        tiles: LEVEL,
+        padding: PADDING,
+        floor: FLOOR,
+        sky: SKY,
+      }).sky,
+    ).toBe(SKY);
   });
 });

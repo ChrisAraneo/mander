@@ -6,67 +6,74 @@ import {
   TILE_SPAWN,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
+  TILE_STONE,
 } from '@mander/model';
-import { flatMap, map, size, sortBy } from 'lodash-es';
+import { filter, flatMap, flatten, map, range, size, sortBy } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { mirrorTiles } from './mirror-tiles';
 
-const LEVEL: Tile[][] = [
+const createLevel = (): Tile[][] => [
   [TILE_SPIKE_CEILING, TILE_AIR, TILE_AIR, TILE_AIR],
   [TILE_SPAWN, TILE_AIR, TILE_AIR, TILE_PORTAL],
   [TILE_DIRT, TILE_SPIKE, TILE_AIR, TILE_DIRT],
 ];
 
-const columnsOf = (tiles: Tile[][], wanted: Tile): number[] =>
-  flatMap(tiles, (row) =>
-    flatMap(row, (tile, column) => (tile === wanted ? [column] : [])),
+const findColumns = (tiles: Tile[][], wanted: Tile): number[] =>
+  flatMap(tiles, (cells) =>
+    filter(range(size(cells)), (column) => cells[column] === wanted),
   );
 
-const census = (tiles: Tile[][]): Tile[] =>
-  sortBy(flatMap(tiles, (row) => row));
+const listTiles = (tiles: Tile[][]): Tile[] => sortBy(flatten(tiles));
 
 describe('mirrorTiles', () => {
   it('should turn each row back to front when it mirrors a grid', () => {
-    expect(mirrorTiles([[1, 2, 3] as Tile[]])).toEqual([[3, 2, 1]]);
+    expect(mirrorTiles([[TILE_DIRT, TILE_AIR, TILE_STONE]])).toEqual([
+      [TILE_STONE, TILE_AIR, TILE_DIRT],
+    ]);
   });
 
   it('should send the player in from the other end when the level is mirrored', () => {
-    const mirrored = mirrorTiles(LEVEL);
+    const mirrored = mirrorTiles(createLevel());
 
-    expect(columnsOf(LEVEL, TILE_SPAWN)).toEqual([0]);
-    expect(columnsOf(mirrored, TILE_SPAWN)).toEqual([3]);
-    expect(columnsOf(mirrored, TILE_PORTAL)).toEqual([0]);
+    expect(findColumns(createLevel(), TILE_SPAWN)).toEqual([0]);
+    expect(findColumns(mirrored, TILE_SPAWN)).toEqual([3]);
+    expect(findColumns(mirrored, TILE_PORTAL)).toEqual([0]);
   });
 
   it('should leave every block standing, just somewhere else, when the level is mirrored', () => {
-    expect(census(mirrorTiles(LEVEL))).toEqual(census(LEVEL));
+    expect(listTiles(mirrorTiles(createLevel()))).toEqual(
+      listTiles(createLevel()),
+    );
   });
 
   it('should keep the floor spikes down and the ceiling spikes up when the level is mirrored', () => {
-    const mirrored = mirrorTiles(LEVEL);
+    const mirrored = mirrorTiles(createLevel());
 
     expect(mirrored[0][3]).toBe(TILE_SPIKE_CEILING);
     expect(mirrored[2][2]).toBe(TILE_SPIKE);
   });
 
   it('should keep the level the same shape when it is mirrored', () => {
-    const mirrored = mirrorTiles(LEVEL);
+    const mirrored = mirrorTiles(createLevel());
 
-    expect(size(mirrored)).toBe(size(LEVEL));
-    expect(map(mirrored, size)).toEqual(map(LEVEL, size));
+    expect(size(mirrored)).toBe(size(createLevel()));
+    expect(map(mirrored, size)).toEqual(map(createLevel(), size));
   });
 
-  it('should come back to the original when mirrored twice', () => {
-    expect(mirrorTiles(mirrorTiles(LEVEL))).toEqual(LEVEL);
+  it('should come back to the original when it mirrors the grid twice', () => {
+    expect(mirrorTiles(mirrorTiles(createLevel()))).toEqual(createLevel());
   });
 
-  it('should leave the level it was handed untouched when it mirrors one', () => {
-    const before = census(LEVEL);
+  it('should give back an empty grid when the grid is empty', () => {
+    expect(mirrorTiles([])).toEqual([]);
+  });
 
-    mirrorTiles(LEVEL);
+  it('should not change the old grid when it mirrors one', () => {
+    const tiles = createLevel();
 
-    expect(LEVEL[1][0]).toBe(TILE_SPAWN);
-    expect(census(LEVEL)).toEqual(before);
+    mirrorTiles(tiles);
+
+    expect(tiles).toEqual(createLevel());
   });
 });

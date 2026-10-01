@@ -47,13 +47,16 @@ describe('findBeartrapCells', () => {
     ).toBe(LEVEL);
   });
 
-  it('should pass the level number and rate on when it looks for traps', () => {
-    const found = findBeartrapCells({
-      tiles: LEVEL,
-      levelNumber: 2,
-      rate: 0.35,
-    });
+  it('should pass the level number on when it looks for traps', () => {
+    expect(
+      findBeartrapCells({ tiles: LEVEL, levelNumber: 2, rate: 0.35 })
+        .levelNumber,
+    ).toBe(2);
+  });
 
-    expect([found.levelNumber, found.rate]).toEqual([2, 0.35]);
+  it('should pass the rate on when it looks for traps', () => {
+    expect(
+      findBeartrapCells({ tiles: LEVEL, levelNumber: 2, rate: 0.35 }).rate,
+    ).toBe(0.35);
   });
 });

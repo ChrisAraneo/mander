@@ -10,8 +10,12 @@ const LEVEL: Tile[][] = [
 ];
 
 describe('formatSpikeSeed', () => {
-  it('should join the level number and the grid', () => {
+  it('should join the level number and the grid when it writes the seed', () => {
     expect(formatSpikeSeed(LEVEL, 3)).toBe(`3#${formatTilesSeed(LEVEL)}`);
+  });
+
+  it('should give the same seed when the grid and the level are the same', () => {
+    expect(formatSpikeSeed(LEVEL, 2)).toBe(formatSpikeSeed(LEVEL, 2));
   });
 
   it('should give another seed when the level is different', () => {

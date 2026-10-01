@@ -1,9 +1,8 @@
 import { TILE_AIR, type Tile } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
+import { SKY_HEIGHT } from '../../../consts';
 import { createPadding } from './create-padding';
-
-const SKY_HEIGHT = 20;
 
 const LEVEL: Tile[][] = [[TILE_AIR]];
 

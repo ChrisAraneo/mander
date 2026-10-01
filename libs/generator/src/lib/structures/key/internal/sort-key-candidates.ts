@@ -4,10 +4,10 @@ import { floor, size, sortBy } from 'lodash-es';
 import { match } from 'ts-pattern';
 import type { findKeyCandidates } from './find-key-candidates';
 
-const getMiddleSeam = (tiles: Tile[][]) =>
+const getMiddleSeam = (tiles: Tile[][]): number =>
   floor(size(tiles[0]) / 2 / STRUCTURE_WIDTH) * STRUCTURE_WIDTH;
 
-const getMiddleRow = (tiles: Tile[][]) => floor(size(tiles) / 2);
+const getMiddleRow = (tiles: Tile[][]): number => floor(size(tiles) / 2);
 
 export const sortKeyCandidates = ({
   tiles,

@@ -9,7 +9,7 @@ const SIZE = 21;
 
 const MIDDLE = 10;
 
-const dot = () =>
+const createDot = (): number[][] =>
   times(SIZE, (row) =>
     times(SIZE, (column) => Number(row === MIDDLE && column === MIDDLE)),
   );
@@ -27,8 +27,8 @@ describe('blur', () => {
     ]);
   });
 
-  it('should spread a lone cell out both across and down', () => {
-    const blurred = blur(dot());
+  it('should spread a lone cell out both across and down when it blurs the field', () => {
+    const blurred = blur(createDot());
 
     expect(blurred[MIDDLE][MIDDLE]).toBeCloseTo((12 * 12) / TOTAL_WEIGHT ** 2);
     expect(blurred[MIDDLE][MIDDLE + 1]).toBeCloseTo(
@@ -42,7 +42,11 @@ describe('blur', () => {
     );
   });
 
-  it('should not reach farther than eight cells', () => {
-    expect(blur(dot())[MIDDLE][MIDDLE + 9]).toBe(0);
+  it('should not reach farther than eight cells when it blurs a lone cell', () => {
+    expect(blur(createDot())[MIDDLE][MIDDLE + 9]).toBe(0);
+  });
+
+  it('should give back an empty field when the field is empty', () => {
+    expect(blur([])).toEqual([]);
   });
 });

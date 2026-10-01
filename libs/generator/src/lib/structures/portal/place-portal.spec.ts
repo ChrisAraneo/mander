@@ -9,7 +9,7 @@ import {
 import { filter, flatten, map } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { LevelType } from '../get-level-type';
+import type { LevelType } from '../types/level-type';
 import { placePortal } from './place-portal';
 
 const TILES: Record<string, Tile> = {

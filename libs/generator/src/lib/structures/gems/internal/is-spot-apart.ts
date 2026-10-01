@@ -1,8 +1,8 @@
 import { every } from 'lodash-es';
 import { GEM_GAP } from '../../../consts';
-import type { Spot } from '../../find-standing-spots';
+import type { Spot } from '../../types/spot';
 
-export const isSpotApart = (picked: Spot[], candidate: Spot) =>
+export const isSpotApart = (picked: Spot[], candidate: Spot): boolean =>
   every(
     picked,
     ({ row, column }) =>

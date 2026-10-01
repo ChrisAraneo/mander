@@ -3,7 +3,16 @@ import {
   NORMAL_STRUCTURES,
   type Sector,
 } from '@mander/structures';
-import { filter, map, max, size, take, times, uniq } from 'lodash-es';
+import {
+  difference,
+  filter,
+  map,
+  max,
+  size,
+  take,
+  times,
+  uniq,
+} from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { pickStructures } from './pick-structures';
@@ -14,14 +23,14 @@ const OVER_NORMAL = size(NORMAL_STRUCTURES) + 7;
 
 const OVER_HARD = size(HARD_STRUCTURES) + 7;
 
-const seeds = times(20, (day) => `DAY-${day}`);
+const SEEDS = times(20, (day) => `DAY-${day}`);
 
 const hasDuplicates = (picked: Sector[]): boolean =>
   size(uniq(picked)) !== size(picked);
 
 describe('pickStructures', () => {
   it('should never deal the same structure twice when the category can cover the hand', () => {
-    const dealt = map(seeds, (seed) =>
+    const dealt = map(SEEDS, (seed) =>
       pickStructures(seed, size(NORMAL_STRUCTURES), 'NORMAL'),
     );
 
@@ -29,7 +38,7 @@ describe('pickStructures', () => {
   });
 
   it('should never deal the same structure twice when it deals out of the hard category', () => {
-    const dealt = map(seeds, (seed) => pickStructures(seed, 14, 'HARD'));
+    const dealt = map(SEEDS, (seed) => pickStructures(seed, 14, 'HARD'));
 
     expect(filter(dealt, hasDuplicates)).toEqual([]);
   });
@@ -44,7 +53,7 @@ describe('pickStructures', () => {
   });
 
   it('should deal the whole category out before it repeats any of it when it is asked for more', () => {
-    const dealt = map(seeds, (seed) =>
+    const dealt = map(SEEDS, (seed) =>
       pickStructures(seed, OVER_NORMAL, 'NORMAL'),
     );
 
@@ -67,7 +76,7 @@ describe('pickStructures', () => {
   it('should deal every structure in the category when it is asked for them all', () => {
     const picked = pickStructures(SEED, size(NORMAL_STRUCTURES), 'NORMAL');
 
-    expect(new Set(picked)).toEqual(new Set(NORMAL_STRUCTURES));
+    expect(difference([...NORMAL_STRUCTURES], picked)).toEqual([]);
   });
 
   it('should deal the same hand when the seed is the same', () => {
@@ -83,13 +92,13 @@ describe('pickStructures', () => {
   });
 
   it('should rarely open both hands on the same structure when the hard and normal categories are dealt from one seed', () => {
-    const sameOpening = filter(seeds, (seed) => {
+    const sameOpening = filter(SEEDS, (seed) => {
       const normal = pickStructures(seed, 42, 'NORMAL');
       const hard = pickStructures(seed, 14, 'HARD');
 
       return normal[0] === hard[0];
     });
 
-    expect(size(sameOpening)).toBeLessThan(size(seeds) / 2);
+    expect(size(sameOpening)).toBeLessThan(size(SEEDS) / 2);
   });
 });

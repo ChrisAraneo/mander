@@ -1,6 +1,6 @@
 import type { Tile } from '@mander/model';
 import { flow } from 'lodash-es';
-import type { LevelType } from '../get-level-type';
+import type { LevelType } from '../types/level-type';
 import { createPortalPatches } from './internal/create-portal-patches';
 import { findPortalCandidates } from './internal/find-portal-candidates';
 import { patchPortalTiles } from './internal/patch-portal-tiles';

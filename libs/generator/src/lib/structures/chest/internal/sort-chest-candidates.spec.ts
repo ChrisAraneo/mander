@@ -2,8 +2,8 @@ import { TILE_AIR, type Tile } from '@mander/model';
 import { map } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { Spot } from '../../find-standing-spots';
-import type { LevelType } from '../../get-level-type';
+import type { LevelType } from '../../types/level-type';
+import type { Spot } from '../../types/spot';
 import { sortChestCandidates } from './sort-chest-candidates';
 
 const LEVEL: Tile[][] = [[TILE_AIR]];

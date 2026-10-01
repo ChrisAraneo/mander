@@ -4,28 +4,31 @@ import {
   type VerticalStructure,
   VERTICAL_STRUCTURES,
 } from '@mander/structures';
-import { filter, includes, join, map, size, times } from 'lodash-es';
+import { filter, includes, join, map, padStart, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { VERTICAL_LEVELS } from '../consts';
 import { generate } from '../generate';
+import { joinStructures } from './layout/join-structures';
 import { addPadding } from './padding/add-padding';
 import { placePlayerSpawn } from './player-spawn/place-player-spawn';
 import { placePortal } from './portal/place-portal';
-import { stackStructures } from './stack-structures';
 
 const SECTORS = 2;
 
-const dayOf = (day: number): Date => new Date(Date.UTC(2026, 0, 1 + day));
+const createDate = (day: number): Date => new Date(Date.UTC(2026, 0, 1 + day));
 
-const named = (index: number): string =>
-  `VERTICAL_${String(index + 1).padStart(3, '0')}`;
+const formatStructureName = (index: number): string =>
+  `VERTICAL_${padStart(String(index + 1), 3, '0')}`;
 
-const twoUp = (structure: VerticalStructure): Level => {
+const createClimb = (structure: VerticalStructure): Level => {
   const tiles = addPadding(
     placePortal(
       placePlayerSpawn(
-        stackStructures(times(SECTORS, () => structure)).tiles,
+        joinStructures(
+          times(SECTORS, () => structure),
+          'VERTICAL',
+        ).tiles,
         'VERTICAL',
       ),
       'VERTICAL',
@@ -48,7 +51,7 @@ const isPortalReached = (level: Level): boolean => {
   return portal !== null && isReachableCell(reach, portal.y + 1, portal.x);
 };
 
-const verticalLevels = (date: Date): Level[] =>
+const findVerticalLevels = (date: Date): Level[] =>
   filter(generate(date).levels, (_, index) =>
     includes(VERTICAL_LEVELS, index + 1),
   );
@@ -57,8 +60,8 @@ describe('the climb up a vertical level', () => {
   it('should carry the player out of the top of the next sector when they start on the ground of one', () => {
     const stuck = filter(
       map(VERTICAL_STRUCTURES, (structure, index) => ({
-        name: named(index),
-        isClimbed: isPortalReached(twoUp(structure)),
+        name: formatStructureName(index),
+        isClimbed: isPortalReached(createClimb(structure)),
       })),
       ({ isClimbed }) => !isClimbed,
     );
@@ -73,7 +76,7 @@ describe('the climb up a vertical level', () => {
 
   it('should reach the portal when the generator stands a level up', () => {
     const lost = filter(
-      map(verticalLevels(dayOf(0)), (level, index) => ({
+      map(findVerticalLevels(createDate(0)), (level, index) => ({
         level: index,
         isReached: isPortalReached(level),
       })),

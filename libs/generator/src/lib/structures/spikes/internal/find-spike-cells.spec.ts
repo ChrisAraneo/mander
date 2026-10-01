@@ -44,9 +44,15 @@ describe('findSpikeCells', () => {
     ).toBe(LEVEL);
   });
 
-  it('should pass the level number and rate on when it looks for spikes', () => {
-    const found = findSpikeCells({ tiles: LEVEL, levelNumber: 2, rate: 0.8 });
+  it('should pass the level number on when it looks for spikes', () => {
+    expect(
+      findSpikeCells({ tiles: LEVEL, levelNumber: 2, rate: 0.8 }).levelNumber,
+    ).toBe(2);
+  });
 
-    expect([found.levelNumber, found.rate]).toEqual([2, 0.8]);
+  it('should pass the rate on when it looks for spikes', () => {
+    expect(
+      findSpikeCells({ tiles: LEVEL, levelNumber: 2, rate: 0.8 }).rate,
+    ).toBe(0.8);
   });
 });

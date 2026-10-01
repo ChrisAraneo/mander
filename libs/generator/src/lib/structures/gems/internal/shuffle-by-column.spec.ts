@@ -3,7 +3,7 @@ import { createRandom } from '@mander/utils';
 import { chunk, filter, map, range, sortBy, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { Spot } from '../../find-standing-spots';
+import type { Spot } from '../../types/spot';
 import { shuffleByColumn } from './shuffle-by-column';
 
 const WIDTH = 40;

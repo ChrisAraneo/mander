@@ -1,6 +1,6 @@
 import type { Tile } from '@mander/model';
 import { flow } from 'lodash-es';
-import type { LevelType } from '../get-level-type';
+import type { LevelType } from '../types/level-type';
 import { createPlayerSpawnPatches } from './internal/create-player-spawn-patches';
 import { findPlayerSpawnCandidates } from './internal/find-player-spawn-candidates';
 import { patchPlayerSpawnTiles } from './internal/patch-player-spawn-tiles';

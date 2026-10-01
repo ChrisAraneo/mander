@@ -10,7 +10,7 @@ import { filter, flatten, map } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { CHEST_HEIGHT } from '../../consts';
-import type { LevelType } from '../get-level-type';
+import type { LevelType } from '../types/level-type';
 import { placeChest } from './place-chest';
 
 const TILES: Record<string, Tile> = {

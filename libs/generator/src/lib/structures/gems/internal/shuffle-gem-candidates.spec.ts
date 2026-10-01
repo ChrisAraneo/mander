@@ -2,7 +2,7 @@ import { TILE_AIR, TILE_DIRT, TILE_SPIKE, type Tile } from '@mander/model';
 import { chunk, map, range, sortBy, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { LevelType } from '../../get-level-type';
+import type { LevelType } from '../../types/level-type';
 import { shuffleGemCandidates } from './shuffle-gem-candidates';
 
 const WIDTH = 12;
@@ -13,7 +13,7 @@ const LEVEL: Tile[][] = [
 ];
 
 const SPIKED_LEVEL: Tile[][] = [
-  times(WIDTH, (column) => (column === 0 ? TILE_SPIKE : TILE_AIR)),
+  [TILE_SPIKE, ...times(WIDTH - 1, () => TILE_AIR)],
   times(WIDTH, () => TILE_DIRT),
 ];
 
@@ -65,14 +65,17 @@ describe('shuffleGemCandidates', () => {
     ).toEqual([]);
   });
 
-  it('should keep the grid and level type the same when it shuffles', () => {
-    const shuffled = shuffleGemCandidates({
-      tiles: LEVEL,
-      levelType: 'VERTICAL',
-      slots: [],
-    });
+  it('should keep the grid the same when it shuffles', () => {
+    expect(
+      shuffleGemCandidates({ tiles: LEVEL, levelType: 'VERTICAL', slots: [] })
+        .tiles,
+    ).toBe(LEVEL);
+  });
 
-    expect(shuffled.tiles).toBe(LEVEL);
-    expect(shuffled.levelType).toBe('VERTICAL');
+  it('should pass the level type on when it shuffles', () => {
+    expect(
+      shuffleGemCandidates({ tiles: LEVEL, levelType: 'VERTICAL', slots: [] })
+        .levelType,
+    ).toBe('VERTICAL');
   });
 });

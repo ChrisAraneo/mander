@@ -1,19 +1,23 @@
 import type { Tile } from '@mander/model';
 import { map } from 'lodash-es';
 
-const NEIGHBOURS: readonly number[][] = Object.freeze([
-  [0, -1],
-  [0, 1],
-  [-1, 0],
-  [1, 0],
-  [-1, -1],
-  [1, -1],
-  [-1, 1],
-  [1, 1],
+const NEIGHBOUR_OFFSETS = Object.freeze([
+  { row: -1, column: 0 },
+  { row: 1, column: 0 },
+  { row: 0, column: -1 },
+  { row: 0, column: 1 },
+  { row: -1, column: -1 },
+  { row: -1, column: 1 },
+  { row: 1, column: -1 },
+  { row: 1, column: 1 },
 ]);
 
 export const findNeighbourTiles = (
   tiles: Tile[][],
   row: number,
   column: number,
-) => map(NEIGHBOURS, ([stepX, stepY]) => tiles[row + stepY]?.[column + stepX]);
+): (Tile | undefined)[] =>
+  map(
+    NEIGHBOUR_OFFSETS,
+    (offset) => tiles[row + offset.row]?.[column + offset.column],
+  );

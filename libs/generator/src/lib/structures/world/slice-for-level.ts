@@ -1,8 +1,8 @@
 import type { Sector } from '@mander/structures';
 import { floor, size, slice } from 'lodash-es';
-import type { LevelCategory } from './types/level-category';
 import { countIn } from './internal/count-in';
 import { getRank } from './internal/get-rank';
+import type { LevelCategory } from './types/level-category';
 import type { WorldStructures } from './types/world-structures';
 
 export const sliceForLevel = (

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { countIn } from './count-in';
 
 describe('countIn', () => {
-  it('should count how many times the category shows up', () => {
+  it('should count how many times the category shows up when it shows up more than once', () => {
     expect(countIn(['NORMAL', 'VERTICAL', 'NORMAL', 'HARD'], 'NORMAL')).toBe(2);
   });
 

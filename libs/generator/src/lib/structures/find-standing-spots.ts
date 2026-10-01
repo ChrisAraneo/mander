@@ -1,10 +1,6 @@
 import { isSolidTile, type Tile, TILE_AIR } from '@mander/model';
 import { every, filter, flatMap, map, range, size } from 'lodash-es';
-
-export interface Spot {
-  row: number;
-  column: number;
-}
+import type { Spot } from './types/spot';
 
 const isClear = (
   tiles: Tile[][],

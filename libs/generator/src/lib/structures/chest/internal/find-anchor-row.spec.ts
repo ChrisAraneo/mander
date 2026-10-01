@@ -4,12 +4,13 @@ import { describe, expect, it } from 'vitest';
 
 import { findAnchorRow } from './find-anchor-row';
 
+const TILES: Record<string, Tile> = {
+  '#': TILE_DIRT,
+  P: TILE_PORTAL,
+};
+
 const createGrid = (rows: string[]): Tile[][] =>
-  map(rows, (row) =>
-    map([...row], (cell) =>
-      cell === '#' ? TILE_DIRT : cell === 'P' ? TILE_PORTAL : TILE_AIR,
-    ),
-  );
+  map(rows, (row) => map([...row], (cell) => TILES[cell] ?? TILE_AIR));
 
 describe('findAnchorRow', () => {
   it('should give the top row of the portal when the grid has one', () => {

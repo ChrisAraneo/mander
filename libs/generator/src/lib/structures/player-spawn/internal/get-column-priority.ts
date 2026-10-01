@@ -1,13 +1,12 @@
-import { indexOf } from 'lodash-es';
+import { indexOf, size } from 'lodash-es';
 import { match } from 'ts-pattern';
-import type { Spot } from '../../find-standing-spots';
+import type { Spot } from '../../types/spot';
 
 const PREFERRED_SPAWN_COLUMNS = [1, 2, 3, 0, 4, 5];
 
-export const getColumnPriority = ({ column }: Spot) =>
+const NOT_FOUND = -1;
+
+export const getColumnPriority = ({ column }: Spot): number =>
   match(indexOf(PREFERRED_SPAWN_COLUMNS, column))
-    .when(
-      (priority) => priority === -1,
-      () => PREFERRED_SPAWN_COLUMNS.length + column,
-    )
+    .with(NOT_FOUND, () => size(PREFERRED_SPAWN_COLUMNS) + column)
     .otherwise((priority) => priority);

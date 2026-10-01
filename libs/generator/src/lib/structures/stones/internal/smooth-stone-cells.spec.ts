@@ -11,10 +11,10 @@ const SIZE = 30;
 
 const PILLAR_COLUMN = 15;
 
-const fill = (value: number): Field =>
+const createField = (value: number): Field =>
   times(SIZE, () => times(SIZE, () => value));
 
-const blockWithPillar = (): Field =>
+const createBlockWithPillar = (): Field =>
   times(SIZE, (row) =>
     times(SIZE, (column) =>
       Number(row >= SIZE / 2 || (row >= 2 && column === PILLAR_COLUMN)),
@@ -26,15 +26,15 @@ const smooth = (cells: Field) =>
 
 describe('smoothStoneCells', () => {
   it('should turn all of the buried dirt into stone when it is one big block', () => {
-    expect(smooth(fill(1))).toEqual(fill(1));
+    expect(smooth(createField(1))).toEqual(createField(1));
   });
 
   it('should make no stone when nothing is buried', () => {
-    expect(smooth(fill(0))).toEqual(fill(0));
+    expect(smooth(createField(0))).toEqual(createField(0));
   });
 
-  it('should make no stone in a thin pillar of buried dirt', () => {
-    const stones = smooth(blockWithPillar());
+  it('should make no stone when the buried dirt is a thin pillar', () => {
+    const stones = smooth(createBlockWithPillar());
 
     expect(times(8, (row) => stones[row + 2][PILLAR_COLUMN])).toEqual(
       times(8, () => 0),
@@ -42,12 +42,12 @@ describe('smoothStoneCells', () => {
     expect(stones[SIZE - 1][PILLAR_COLUMN]).toBe(1);
   });
 
-  it('should only make stone where the dirt is buried', () => {
-    const buried = flatten(blockWithPillar());
+  it('should only make stone when the dirt is buried', () => {
+    const buried = flatten(createBlockWithPillar());
 
     expect(
       every(
-        flatten(smooth(blockWithPillar())),
+        flatten(smooth(createBlockWithPillar())),
         (stone, index) => stone <= buried[index],
       ),
     ).toBe(true);
