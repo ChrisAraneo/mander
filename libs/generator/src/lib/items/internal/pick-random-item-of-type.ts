@@ -6,7 +6,7 @@ import type { ChestItemType } from '../types/chest-item-type';
 import type { Picking } from './picking';
 import { findItemsOfRarity } from './find-items-of-rarity';
 
-export const takeType = (
+export const pickRandomItemOfType = (
   picking: Picking,
   type: ChestItemType,
   rarity: ItemRarity,

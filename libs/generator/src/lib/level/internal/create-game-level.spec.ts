@@ -14,7 +14,7 @@ import { generateChestItems } from '../../items/generate-chest-items';
 import { mirrorTiles } from '../../structures/mirror-tiles';
 import { createGameLevel } from './create-game-level';
 import { getHornedEnemyChance } from './get-horned-enemy-chance';
-import { pickLevelSeed } from './pick-level-seed';
+import { pickRandomLevelSeed } from './pick-random-level-seed';
 
 const STRUCTURES = take([...NORMAL_STRUCTURES], 2);
 
@@ -62,7 +62,7 @@ describe('createGameLevel', () => {
   it('should fill the chest from the generator after it picks the level seed', () => {
     const random = createRandom('DAY-1');
 
-    pickLevelSeed(random);
+    pickRandomLevelSeed(random);
 
     expect(createOn(1).chestItems).toEqual(generateChestItems(random));
   });
@@ -88,7 +88,7 @@ describe('createGameLevel', () => {
   });
 
   it('should pick the level seed from the generator when it creates the level', () => {
-    expect(createOn(1).seed).toBe(pickLevelSeed(createRandom('DAY-1')));
+    expect(createOn(1).seed).toBe(pickRandomLevelSeed(createRandom('DAY-1')));
   });
 
   it('should measure an empty level as nothing when the grid is empty', () => {

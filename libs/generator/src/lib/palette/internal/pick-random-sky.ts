@@ -20,7 +20,9 @@ const SKY_TOP_LIGHTNESS_MIN = 26;
 
 const SKY_TOP_LIGHTNESS_MAX = 34;
 
-export const rollSky = (random: ReturnType<typeof createRandom>): Sky => ({
+export const pickRandomSky = (
+  random: ReturnType<typeof createRandom>,
+): Sky => ({
   hue: random.pick(SKY_HUES),
   glowHue: random.pick(GLOW_HUES),
   saturation: random.rollInt(SKY_SATURATION_MIN, SKY_SATURATION_MAX),

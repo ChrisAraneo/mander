@@ -3,7 +3,7 @@ import { times } from 'lodash-es';
 import { CHEST_ITEM_COUNT } from '../../consts';
 import { getRarity } from './get-rarity';
 
-export const pickChestRarities = ({
+export const pickRandomChestRarities = ({
   random,
 }: {
   random: ReturnType<typeof createRandom>;

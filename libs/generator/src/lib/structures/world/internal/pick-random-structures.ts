@@ -4,7 +4,7 @@ import { ceil, flatMap, range, size, sortBy, take } from 'lodash-es';
 import type { LevelCategory } from '../types/level-category';
 import { getStructures } from './get-structures';
 
-export const pickStructures = (
+export const pickRandomStructures = (
   count: number,
   levelCategory: LevelCategory,
   random: ReturnType<typeof createRandom>,

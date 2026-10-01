@@ -27,7 +27,7 @@ const CAP_LIGHTNESS_MIN = 44;
 
 const CAP_LIGHTNESS_MAX = 54;
 
-export const rollGround = (
+export const pickRandomGround = (
   random: ReturnType<typeof createRandom>,
 ): Ground => ({
   hue: random.pick(GROUND_HUES),

@@ -5,7 +5,7 @@ import { clearLoneStones } from './internal/clear-lone-stones';
 import { createStonePatches } from './internal/create-stone-patches';
 import { findDeepDirt } from './internal/find-deep-dirt';
 import { patchStoneTiles } from './internal/patch-stone-tiles';
-import { pickDirtDepth } from './internal/pick-dirt-depth';
+import { pickRandomDirtDepth } from './internal/pick-random-dirt-depth';
 import { smoothStoneCells } from './internal/smooth-stone-cells';
 
 export const placeStones = (
@@ -13,7 +13,7 @@ export const placeStones = (
   random: ReturnType<typeof createRandom>,
 ) =>
   flow(
-    pickDirtDepth,
+    pickRandomDirtDepth,
     findDeepDirt,
     smoothStoneCells,
     clearLoneStones,

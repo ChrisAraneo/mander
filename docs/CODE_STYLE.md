@@ -32,7 +32,7 @@ bring it in line.
        └── …
    world/
    ├── get-level-categories.ts        a folder may have several entry points
-   ├── pick-world-structures.ts
+   ├── pick-random-world-structures.ts
    ├── slice-for-level.ts
    ├── internal/
    └── types/                         types that callers outside world/ use
@@ -232,12 +232,15 @@ shape.
    `generate` calls `createRandom`: it makes one generator from the world name
    and passes it down. Everything else takes that generator as its last
    argument, named `random` (`clearSpikes(tiles, levelNumber, random)`), and
-   NEVER builds a seed or a generator of its own. A pipeline carries `random`
-   as a field until the last step that draws from it. Shuffle with
-   `sortBy(items, () => random.rollFloat())`. Each draw moves the generator on,
-   so the order of the calls is part of the output: one draw more or less
-   anywhere changes everything drawn after it. The same day MUST always give
-   the same world.
+   NEVER builds a seed or a generator of its own. A function that chooses
+   something at random MUST be named `pickRandom…` (`pickRandomDirtDepth`).
+   Plain `pick…` is for steps that choose from an already ordered list
+   (`pickBeartrapCells`), and `shuffle…` for steps that only mix the order.
+   A pipeline carries `random` as a field until the last step that draws from
+   it. Shuffle with `sortBy(items, () => random.rollFloat())`. Each draw moves
+   the generator on, so the order of the calls is part of the output: one draw
+   more or less anywhere changes everything drawn after it. The same day MUST
+   always give the same world.
 
 ## 5. Naming
 
@@ -246,19 +249,19 @@ shape.
    (`'HORIZONTAL'`), `kebab-case` for files and folders.
 2. **Functions start with a verb**, and each verb keeps one meaning:
 
-   | Verb                                    | Meaning                                        | Example                         |
-   | --------------------------------------- | ---------------------------------------------- | ------------------------------- |
-   | `place…`                                | entry point that adds things to a grid         | `placeChest`                    |
-   | `clear…`                                | entry point that removes things from a grid    | `clearSpikes`                   |
-   | `add…`                                  | entry point that adds rows around a grid       | `addPadding`                    |
-   | `find…`, `filter…`, `sort…`, `pick…`, … | pipeline steps, see section 4                  | `findKeyCandidates`             |
-   | `pick…`                                 | take or choose things at random; NEVER `deal…` | `pickStructures`, `pickEpics`   |
-   | `get…`                                  | look up or work out one value                  | `getMiddleColumn`               |
-   | `compute…`                              | work a value out from several others           | `computeAverageNeighbourTile`   |
-   | `count…`, `measure…`                    | numbers about the grid                         | `countCompany`, `measureDepths` |
-   | `format…`                               | build a string                                 | `formatDateSeed`                |
-   | `convert…`                              | turn a value into another type                 | `convertToFlag`                 |
-   | `is…`                                   | return a boolean                               | `isSurface`                     |
+   | Verb                                    | Meaning                                           | Example                                   |
+   | --------------------------------------- | ------------------------------------------------- | ----------------------------------------- |
+   | `place…`                                | entry point that adds things to a grid            | `placeChest`                              |
+   | `clear…`                                | entry point that removes things from a grid       | `clearSpikes`                             |
+   | `add…`                                  | entry point that adds rows around a grid          | `addPadding`                              |
+   | `find…`, `filter…`, `sort…`, `pick…`, … | pipeline steps, see section 4                     | `findKeyCandidates`                       |
+   | `pickRandom…`                           | choose things at random; NEVER `deal…` or `roll…` | `pickRandomStructures`, `pickRandomEpics` |
+   | `get…`                                  | look up or work out one value                     | `getMiddleColumn`                         |
+   | `compute…`                              | work a value out from several others              | `computeAverageNeighbourTile`             |
+   | `count…`, `measure…`                    | numbers about the grid                            | `countCompany`, `measureDepths`           |
+   | `format…`                               | build a string                                    | `formatDateSeed`                          |
+   | `convert…`                              | turn a value into another type                    | `convertToFlag`                           |
+   | `is…`                                   | return a boolean                                  | `isSurface`                               |
 
    Other verbs are fine when they say exactly what the function does
    (`mirrorTiles`, `blurRows`, `sliceForLevel`).

@@ -5,13 +5,13 @@ import { describe, expect, it } from 'vitest';
 
 import { EVERYDAY_POOL_BY_TYPE } from '../../consts';
 import { getChestType } from './get-chest-type';
-import { takeType } from './take-type';
+import { pickRandomItemOfType } from './pick-random-item-of-type';
 
 const RANDOM_SEED = 'DAY-1';
 
-describe('takeType', () => {
+describe('pickRandomItemOfType', () => {
   it('should add a card of the type and the rarity when the type holds one', () => {
-    const { picked } = takeType(
+    const { picked } = pickRandomItemOfType(
       { picked: [], typesLeft: ['HEART', 'STAR'] },
       'HEART',
       'RARE',
@@ -23,7 +23,7 @@ describe('takeType', () => {
   });
 
   it('should add any card of the type when the type holds none of the rarity', () => {
-    const { picked } = takeType(
+    const { picked } = pickRandomItemOfType(
       { picked: [], typesLeft: ['HEART'] },
       'HEART',
       'EPIC',
@@ -40,7 +40,7 @@ describe('takeType', () => {
           times(
             30,
             (index) =>
-              takeType(
+              pickRandomItemOfType(
                 { picked: [], typesLeft: ['GEM'] },
                 'GEM',
                 'COMMON',
@@ -54,7 +54,7 @@ describe('takeType', () => {
 
   it('should take the type out of the types left when it adds the card', () => {
     expect(
-      takeType(
+      pickRandomItemOfType(
         { picked: [], typesLeft: ['HEART', 'STAR'] },
         'HEART',
         'COMMON',
@@ -65,7 +65,7 @@ describe('takeType', () => {
 
   it('should keep the cards picked before when it adds a card', () => {
     expect(
-      takeType(
+      pickRandomItemOfType(
         { picked: [RED_GEM], typesLeft: ['HEART'] },
         'HEART',
         'COMMON',

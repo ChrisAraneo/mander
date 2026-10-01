@@ -5,7 +5,7 @@ import { DEEP_DIRT_DEPTH, DIRT_DEPTH } from '../../../consts';
 
 const DEEP_DIRT_CHANCE = 0.5;
 
-export const pickDirtDepth = ({
+export const pickRandomDirtDepth = ({
   tiles,
   random,
 }: {

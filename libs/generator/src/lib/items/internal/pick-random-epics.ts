@@ -3,7 +3,7 @@ import type { createRandom } from '@mander/utils';
 import { concat, includes, reduce, reject, size, times } from 'lodash-es';
 import { EPIC_POOL } from '../../consts';
 
-export const pickEpics = (
+export const pickRandomEpics = (
   rolled: number,
   random: ReturnType<typeof createRandom>,
 ): Item[] =>

@@ -2,13 +2,13 @@ import { createRandom } from '@mander/utils';
 import { map, size, times, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { pickCard } from './pick-card';
+import { pickRandomCard } from './pick-random-card';
 import { getChestType } from './get-chest-type';
 
-describe('pickCard', () => {
+describe('pickRandomCard', () => {
   it('should pick a card of a type that holds the rarity when one is left', () => {
     times(20, (index) => {
-      const { picked } = pickCard(
+      const { picked } = pickRandomCard(
         { picked: [], typesLeft: ['GEAR', 'HEART'] },
         'RARE',
         createRandom(`DAY-${index}`),
@@ -19,7 +19,7 @@ describe('pickCard', () => {
   });
 
   it('should take the type of the card out of the types left when it picks the card', () => {
-    const { picked, typesLeft } = pickCard(
+    const { picked, typesLeft } = pickRandomCard(
       { picked: [], typesLeft: ['GEM', 'HEART', 'STAR'] },
       'COMMON',
       createRandom('DAY-1'),
@@ -31,13 +31,13 @@ describe('pickCard', () => {
 
   it('should pick the same card when the generator starts from the same seed', () => {
     expect(
-      pickCard(
+      pickRandomCard(
         { picked: [], typesLeft: ['GEM', 'HEART', 'STAR'] },
         'COMMON',
         createRandom('DAY-1'),
       ),
     ).toEqual(
-      pickCard(
+      pickRandomCard(
         { picked: [], typesLeft: ['GEM', 'HEART', 'STAR'] },
         'COMMON',
         createRandom('DAY-1'),
@@ -52,7 +52,7 @@ describe('pickCard', () => {
           times(
             30,
             (index) =>
-              pickCard(
+              pickRandomCard(
                 { picked: [], typesLeft: ['GEM', 'HEART', 'STAR'] },
                 'COMMON',
                 createRandom(`DAY-${index}`),

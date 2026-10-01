@@ -6,7 +6,7 @@ import { generateLevel } from './level/generate-level';
 import { generatePalette } from './palette/generate-palette';
 import { computeWorldName } from './seed/compute-world-name';
 import { getLevelCategories } from './structures/world/get-level-categories';
-import { pickWorldStructures } from './structures/world/pick-world-structures';
+import { pickRandomWorldStructures } from './structures/world/pick-random-world-structures';
 import { sliceForLevel } from './structures/world/slice-for-level';
 
 export const generate = (date: Date): RenderedWorld => {
@@ -14,7 +14,7 @@ export const generate = (date: Date): RenderedWorld => {
   const random = createRandom(worldName);
   const palette = generatePalette(random);
   const levelCategories = getLevelCategories(LEVELS_PER_DAY);
-  const worldStructures = pickWorldStructures(levelCategories, random);
+  const worldStructures = pickRandomWorldStructures(levelCategories, random);
 
   return {
     name: worldName,

@@ -8,7 +8,7 @@ import { difference, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { STRUCTURES_PER_LEVEL } from '../../consts';
-import { pickWorldStructures } from './pick-world-structures';
+import { pickRandomWorldStructures } from './pick-random-world-structures';
 import type { LevelCategory } from './types/level-category';
 
 const SEED = 'PROBE-WORLD';
@@ -20,9 +20,12 @@ const LEVEL_CATEGORIES: LevelCategory[] = [
   'HARD',
 ];
 
-describe('pickWorldStructures', () => {
+describe('pickRandomWorldStructures', () => {
   it('should pick enough structures of each category for all of its levels when the world has levels of every category', () => {
-    const picked = pickWorldStructures(LEVEL_CATEGORIES, createRandom(SEED));
+    const picked = pickRandomWorldStructures(
+      LEVEL_CATEGORIES,
+      createRandom(SEED),
+    );
 
     expect(size(picked.NORMAL)).toBe(2 * STRUCTURES_PER_LEVEL);
     expect(size(picked.HARD)).toBe(STRUCTURES_PER_LEVEL);
@@ -30,7 +33,7 @@ describe('pickWorldStructures', () => {
   });
 
   it('should pick nothing from a category when no level uses it', () => {
-    const picked = pickWorldStructures(
+    const picked = pickRandomWorldStructures(
       ['NORMAL', 'NORMAL'],
       createRandom(SEED),
     );
@@ -40,7 +43,10 @@ describe('pickWorldStructures', () => {
   });
 
   it('should pick the structures of each category only from that category when it picks for every category', () => {
-    const picked = pickWorldStructures(LEVEL_CATEGORIES, createRandom(SEED));
+    const picked = pickRandomWorldStructures(
+      LEVEL_CATEGORIES,
+      createRandom(SEED),
+    );
 
     expect(difference(picked.NORMAL, NORMAL_STRUCTURES)).toEqual([]);
     expect(difference(picked.HARD, HARD_STRUCTURES)).toEqual([]);
@@ -48,16 +54,16 @@ describe('pickWorldStructures', () => {
   });
 
   it('should pick the same structures when the generator starts from the same seed', () => {
-    expect(pickWorldStructures(LEVEL_CATEGORIES, createRandom(SEED))).toEqual(
-      pickWorldStructures(LEVEL_CATEGORIES, createRandom(SEED)),
-    );
+    expect(
+      pickRandomWorldStructures(LEVEL_CATEGORIES, createRandom(SEED)),
+    ).toEqual(pickRandomWorldStructures(LEVEL_CATEGORIES, createRandom(SEED)));
   });
 
   it('should pick different structures when the generator starts from another seed', () => {
     expect(
-      pickWorldStructures(LEVEL_CATEGORIES, createRandom(SEED)),
+      pickRandomWorldStructures(LEVEL_CATEGORIES, createRandom(SEED)),
     ).not.toEqual(
-      pickWorldStructures(LEVEL_CATEGORIES, createRandom('OTHER-SEED')),
+      pickRandomWorldStructures(LEVEL_CATEGORIES, createRandom('OTHER-SEED')),
     );
   });
 });
