@@ -24,7 +24,7 @@ const findColumns = (tiles: Tile[][], wanted: Tile): number[] =>
     filter(range(size(cells)), (column) => cells[column] === wanted),
   );
 
-const listTiles = (tiles: Tile[][]): Tile[] => sortBy(flatten(tiles));
+const getTiles = (tiles: Tile[][]): Tile[] => sortBy(flatten(tiles));
 
 describe('mirrorTiles', () => {
   it('should turn each row back to front when it mirrors a grid', () => {
@@ -42,8 +42,8 @@ describe('mirrorTiles', () => {
   });
 
   it('should leave every block standing, just somewhere else, when the level is mirrored', () => {
-    expect(listTiles(mirrorTiles(createLevel()))).toEqual(
-      listTiles(createLevel()),
+    expect(getTiles(mirrorTiles(createLevel()))).toEqual(
+      getTiles(createLevel()),
     );
   });
 

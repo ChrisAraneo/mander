@@ -20,21 +20,21 @@ export interface PlayableWorld {
   replays: RunRecord[];
 }
 
-const convertToPlayed = (world: CompletedWorld): PlayedWorld => ({
+const toPlayed = (world: CompletedWorld): PlayedWorld => ({
   name: world.name,
   day: world.day,
   playedAt: '',
   runs: 1,
 });
 
-const convertRunToPlayed = (run: RunRecord): PlayedWorld => ({
+const toPlayedFromRun = (run: RunRecord): PlayedWorld => ({
   name: run.name,
   day: run.day,
   playedAt: run.playedAt,
   runs: 1,
 });
 
-const keepBest = (
+const filterMissingBest = (
   completed: CompletedWorld | null,
   runs: RunRecord[],
 ): RunRecord[] =>
@@ -67,7 +67,10 @@ const findReplays = (
 ): RunRecord[] =>
   chain(filter(save.runs, { name }))
     .thru((runs) =>
-      concat(orderBy(runs, ['playedAt'], ['desc']), keepBest(completed, runs)),
+      concat(
+        orderBy(runs, ['playedAt'], ['desc']),
+        filterMissingBest(completed, runs),
+      ),
     )
     .thru((runs) => filter(runs, isPlayable))
     .value();
@@ -81,13 +84,13 @@ const createPlayable = (save: SaveData, world: PlayedWorld): PlayableWorld =>
     }))
     .value();
 
-export const listPlayableWorlds = (save: SaveData): PlayableWorld[] =>
+export const getPlayableWorlds = (save: SaveData): PlayableWorld[] =>
   orderBy(
     map(
       unionBy(
         save.playedWorlds,
-        map(save.completedWorlds, convertToPlayed),
-        map(save.runs, convertRunToPlayed),
+        map(save.completedWorlds, toPlayed),
+        map(save.runs, toPlayedFromRun),
         'name',
       ),
       (world) => createPlayable(save, world),

@@ -17,15 +17,15 @@ export interface RunSource {
 }
 
 export interface RunArchive {
-  keep(state: GameState, outcome: RunOutcome): void;
+  save(state: GameState, outcome: RunOutcome): void;
   reset(): void;
 }
 
 interface ArchiveCell {
-  isKept: boolean;
+  isSaved: boolean;
 }
 
-const createEmptyCell = (): ArchiveCell => ({ isKept: false });
+const createEmptyCell = (): ArchiveCell => ({ isSaved: false });
 
 const mutate = (cell: ArchiveCell, patch: Partial<ArchiveCell>): void =>
   void assign(cell, patch);
@@ -35,7 +35,7 @@ const countRunSeconds = (state: GameState): number =>
     .with('COMPLETE', () => computeTotalTime(state.levelTimes))
     .otherwise(() => computeTotalTime(state.levelTimes) + state.time);
 
-const isWorthKeeping = (outcome: RunOutcome, seconds: number): boolean =>
+const isWorthSaving = (outcome: RunOutcome, seconds: number): boolean =>
   match(outcome)
     .with('ABANDONED', () => seconds >= MIN_ABANDONED_SECONDS)
     .otherwise(() => true);
@@ -55,21 +55,21 @@ const createFinishedRun = (
   replay: source.getReplay(),
 });
 
-const createKeeper =
+const createSaver =
   (cell: ArchiveCell, source: RunSource) =>
   (state: GameState, outcome: RunOutcome): void =>
     chain(countRunSeconds(state))
       .thru((seconds) => ({
         seconds,
-        isKeeping: !cell.isKept && isWorthKeeping(outcome, seconds),
+        isSaving: !cell.isSaved && isWorthSaving(outcome, seconds),
       }))
-      .thru(({ seconds, isKeeping }) =>
-        match(isKeeping)
+      .thru(({ seconds, isSaving }) =>
+        match(isSaving)
           .with(true, () =>
             archiveRun(
               tapEffect(
                 createFinishedRun(source, state, outcome, seconds),
-                () => mutate(cell, { isKept: true }),
+                () => mutate(cell, { isSaved: true }),
               ),
             ),
           )
@@ -80,7 +80,7 @@ const createKeeper =
 export const createRunArchive = (source: RunSource): RunArchive =>
   chain(createEmptyCell())
     .thru((cell): RunArchive => ({
-      keep: createKeeper(cell, source),
+      save: createSaver(cell, source),
       reset: () => mutate(cell, createEmptyCell()),
     }))
     .value();

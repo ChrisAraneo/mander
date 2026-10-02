@@ -99,17 +99,17 @@ const areStepsWithinReach = (rows: readonly number[]): boolean =>
 
 interface Rule {
   message: string;
-  isKept: (structure: Grid) => boolean;
+  isMet: (structure: Grid) => boolean;
 }
 
 const RULES: readonly Rule[] = Object.freeze([
   {
     message: `row ${VERTICAL_END_ROW} is the shaft the player leaves through and must be empty`,
-    isKept: (structure: Grid) => areEmpty(structure, [VERTICAL_END_ROW]),
+    isMet: (structure: Grid) => areEmpty(structure, [VERTICAL_END_ROW]),
   },
   {
     message: `the end must be marked in row ${VERTICAL_END_ROW}, column ${VERTICAL_MARKER_COLUMN}, where the sector above is entered`,
-    isKept: (structure: Grid) =>
+    isMet: (structure: Grid) =>
       isMarkerAt(
         structure,
         STRUCTURE_END,
@@ -119,11 +119,11 @@ const RULES: readonly Rule[] = Object.freeze([
   },
   {
     message: `rows ${VERTICAL_ARRIVAL_ROWS.join(', ')} are the hall the player arrives in and must be empty`,
-    isKept: (structure: Grid) => areEmpty(structure, VERTICAL_ARRIVAL_ROWS),
+    isMet: (structure: Grid) => areEmpty(structure, VERTICAL_ARRIVAL_ROWS),
   },
   {
     message: `the start must be marked in row ${VERTICAL_START_ROW}, column ${VERTICAL_MARKER_COLUMN}, where the sector below ends`,
-    isKept: (structure: Grid) =>
+    isMet: (structure: Grid) =>
       isMarkerAt(
         structure,
         STRUCTURE_START,
@@ -133,17 +133,17 @@ const RULES: readonly Rule[] = Object.freeze([
   },
   {
     message: `row ${VERTICAL_LAUNCH_ROW} must carry a platform of at least ${VERTICAL_PLATFORM_LENGTH} block from column ${VERTICAL_PLATFORM_COLUMN}, the ledge the player leaves from`,
-    isKept: (structure: Grid) =>
+    isMet: (structure: Grid) =>
       areSolidAcross(structure, VERTICAL_LAUNCH_ROW, VERTICAL_PLATFORM_COLUMNS),
   },
   {
     message: `row ${VERTICAL_LANDING_ROW} must leave columns ${formatSpan(VERTICAL_SHAFT_COLUMNS)} open so the sector below can be jumped out of`,
-    isKept: (structure: Grid) =>
+    isMet: (structure: Grid) =>
       areEmptyAcross(structure, [VERTICAL_LANDING_ROW], VERTICAL_SHAFT_COLUMNS),
   },
   {
     message: `row ${VERTICAL_LANDING_ROW} must carry the ledge the player lands on across columns ${map(VERTICAL_LANDING_BANDS, formatSpan).join(' or ')}, clear of rows ${VERTICAL_HEADROOM_ROWS.join(' and ')}`,
-    isKept: (structure: Grid) =>
+    isMet: (structure: Grid) =>
       some(
         VERTICAL_LANDING_BANDS,
         (band) =>
@@ -153,13 +153,13 @@ const RULES: readonly Rule[] = Object.freeze([
   },
   {
     message: `no platform may sit more than ${VERTICAL_AIR_GAP} rows of air above the one below it, which is as high as the player jumps`,
-    isKept: (structure: Grid) =>
+    isMet: (structure: Grid) =>
       areStepsWithinReach(findPlatformRows(structure)),
   },
 ]);
 
 export const findVerticalIssues = (structure: Grid): string[] =>
   map(
-    filter(RULES, (rule) => !rule.isKept(structure)),
+    filter(RULES, (rule) => !rule.isMet(structure)),
     (rule) => rule.message,
   );

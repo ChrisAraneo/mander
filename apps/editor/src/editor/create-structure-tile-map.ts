@@ -6,13 +6,13 @@ import { match } from 'ts-pattern';
 
 const NOT_DRAWN = [STRUCTURE_START, STRUCTURE_END];
 
-const convertDrawn = (cell: number): Tile =>
+const toTile = (cell: number): Tile =>
   match(includes(NOT_DRAWN, cell))
     .with(true, () => TILE_AIR)
     .otherwise(() => cell);
 
 const paintTiles = (grid: number[][]): Tile[][] =>
-  map(grid, (cells) => map(cells, convertDrawn));
+  map(grid, (cells) => map(cells, toTile));
 
 export const createStructureTileMap = ({
   tiles,

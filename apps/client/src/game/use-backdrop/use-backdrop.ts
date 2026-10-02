@@ -48,7 +48,7 @@ const createStartFrame = (state: GameState): BackdropFrame => ({
   current: state,
 });
 
-const keepPlaying = (idle: GameState, next: GameState): GameState =>
+const filterPlaying = (idle: GameState, next: GameState): GameState =>
   match(next.status)
     .with('PLAYING', () => next)
     .otherwise(() => idle);
@@ -56,7 +56,7 @@ const keepPlaying = (idle: GameState, next: GameState): GameState =>
 const advance =
   (idle: GameState) =>
   (frame: BackdropFrame, action: Action): BackdropFrame =>
-    chain(keepPlaying(idle, reduce(frame.current, action)))
+    chain(filterPlaying(idle, reduce(frame.current, action)))
       .thru((current): BackdropFrame => ({ previous: frame.current, current }))
       .value();
 

@@ -1,14 +1,14 @@
 import { type Sector, STRUCTURE_WIDTH } from '@mander/structures';
 import { describe, expect, it } from 'vitest';
 
-import { measureGridWidth } from './measure-grid-width';
+import { computeGridWidth } from './compute-grid-width';
 
 const SECTOR: Sector = [[], []];
 
-describe('measureGridWidth', () => {
+describe('computeGridWidth', () => {
   it('should reach the right edge of the rightmost structure when the structures sit side by side', () => {
     expect(
-      measureGridWidth([
+      computeGridWidth([
         { structure: SECTOR, row: 0, column: 0 },
         { structure: SECTOR, row: 2, column: STRUCTURE_WIDTH },
       ]),
@@ -17,7 +17,7 @@ describe('measureGridWidth', () => {
 
   it('should give one structure width when the structures sit in one column', () => {
     expect(
-      measureGridWidth([
+      computeGridWidth([
         { structure: SECTOR, row: 21, column: 0 },
         { structure: SECTOR, row: 0, column: 0 },
       ]),
@@ -25,6 +25,6 @@ describe('measureGridWidth', () => {
   });
 
   it('should give zero when there are no placements', () => {
-    expect(measureGridWidth([])).toBe(0);
+    expect(computeGridWidth([])).toBe(0);
   });
 });

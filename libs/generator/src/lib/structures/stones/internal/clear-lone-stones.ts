@@ -1,8 +1,8 @@
 import { map, reduce, times } from 'lodash-es';
-import { convertToFlag } from './convert-to-flag';
 import { countCompany } from './count-company';
 import type { Field } from './field';
 import type { smoothStoneCells } from './smooth-stone-cells';
+import { toFlag } from './to-flag';
 
 const SHED_ROUNDS = 2;
 
@@ -18,7 +18,7 @@ export const clearLoneStones = ({
     (kept: Field) =>
       map(kept, (flags, row) =>
         map(flags, (stone, column) =>
-          convertToFlag(
+          toFlag(
             stone === 1 && countCompany(kept, row, column) >= STONE_COMPANY,
           ),
         ),

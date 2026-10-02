@@ -5,7 +5,7 @@ import { match, P } from 'ts-pattern';
 import { computeWorldName } from '@mander/generator';
 import { formatClock, formatRunLabel } from '../game/format';
 import {
-  listPlayableWorlds,
+  getPlayableWorlds,
   loadSave,
   type PlayableWorld,
   type RunRecord,
@@ -33,7 +33,7 @@ const finishedToday = computed(() =>
   save.value.completedWorlds.find((world) => world.name === worldName),
 );
 
-const playedWorlds = computed(() => listPlayableWorlds(save.value));
+const playedWorlds = computed(() => getPlayableWorlds(save.value));
 
 const opened = ref<string | null>(null);
 

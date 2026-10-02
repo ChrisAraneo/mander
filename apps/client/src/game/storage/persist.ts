@@ -6,24 +6,24 @@ import type { SaveData } from './save-data';
 
 type Rung = [runs: number, worlds: number];
 
-const keepRuns = (save: SaveData, keep: number): SaveData => ({
+const filterNewestRuns = (save: SaveData, count: number): SaveData => ({
   ...save,
-  runs: takeRight(save.runs, keep),
+  runs: takeRight(save.runs, count),
 });
 
-const keepReplays = (save: SaveData, keep: number): SaveData => ({
+const filterNewestReplays = (save: SaveData, count: number): SaveData => ({
   ...save,
   completedWorlds: map(save.completedWorlds, (world, index) =>
-    index >= size(save.completedWorlds) - keep
+    index >= size(save.completedWorlds) - count
       ? world
       : { ...world, replay: null },
   ),
 });
 
 const trimSave = (save: SaveData, [runs, worlds]: Rung): SaveData =>
-  keepReplays(keepRuns(save, runs), worlds);
+  filterNewestReplays(filterNewestRuns(save, runs), worlds);
 
-const listRungs = (): Rung[] => [
+const getRungs = (): Rung[] => [
   ...map(range(RUNS_KEPT, -1, -1), (runs): Rung => [runs, REPLAYS_KEPT]),
   ...map(range(REPLAYS_KEPT - 1, -1, -1), (worlds): Rung => [0, worlds]),
 ];
@@ -39,7 +39,7 @@ const isWritten: (save: SaveData) => boolean = tryCatch(
 
 export const persist = (save: SaveData): void => {
   find(
-    map(listRungs(), (rung) => trimSave(save, rung)),
+    map(getRungs(), (rung) => trimSave(save, rung)),
     isWritten,
   );
 };

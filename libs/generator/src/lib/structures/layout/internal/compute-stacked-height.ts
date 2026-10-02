@@ -3,7 +3,7 @@ import { map, max } from 'lodash-es';
 import { VERTICAL_GROUND_DEPTH } from '../../../consts';
 import type { Placement } from './placement';
 
-export const measureStackedHeight = (placements: Placement[]): number =>
+export const computeStackedHeight = (placements: Placement[]): number =>
   max(
     map(
       placements,

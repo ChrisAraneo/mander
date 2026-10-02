@@ -59,9 +59,9 @@ describe('createRunArchive', () => {
     const archive = createRunArchive(source());
     const over = stateWith({ status: 'GAME_OVER', time: 30 });
 
-    archive.keep(over, 'GAME_OVER');
-    archive.keep(over, 'GAME_OVER');
-    archive.keep(over, 'ABANDONED');
+    archive.save(over, 'GAME_OVER');
+    archive.save(over, 'GAME_OVER');
+    archive.save(over, 'ABANDONED');
 
     expect(archived()).toBe(1);
     expect(map(loadSave().runs, 'outcome')).toEqual(['GAME_OVER']);
@@ -70,15 +70,15 @@ describe('createRunArchive', () => {
   it('should file a fresh run when the recording has been reset', () => {
     const archive = createRunArchive(source());
 
-    archive.keep(stateWith({ status: 'GAME_OVER', time: 30 }), 'GAME_OVER');
+    archive.save(stateWith({ status: 'GAME_OVER', time: 30 }), 'GAME_OVER');
     archive.reset();
-    archive.keep(stateWith({ status: 'GAME_OVER', time: 40 }), 'GAME_OVER');
+    archive.save(stateWith({ status: 'GAME_OVER', time: 40 }), 'GAME_OVER');
 
     expect(archived()).toBe(2);
   });
 
   it('should count the level it happened on when the run ended in death', () => {
-    createRunArchive(source()).keep(
+    createRunArchive(source()).save(
       stateWith({ status: 'GAME_OVER', levelTimes: [10, 20], time: 5 }),
       'GAME_OVER',
     );
@@ -87,7 +87,7 @@ describe('createRunArchive', () => {
   });
 
   it('should not count the last level twice when the run was finished', () => {
-    createRunArchive(source()).keep(
+    createRunArchive(source()).save(
       stateWith({ status: 'COMPLETE', levelTimes: [10, 20], time: 20 }),
       'COMPLETE',
     );
@@ -96,7 +96,7 @@ describe('createRunArchive', () => {
   });
 
   it('should leave the run out of the archive when the player barely started it', () => {
-    createRunArchive(source()).keep(
+    createRunArchive(source()).save(
       stateWith({ time: MIN_ABANDONED_SECONDS - 1 }),
       'ABANDONED',
     );
@@ -105,7 +105,7 @@ describe('createRunArchive', () => {
   });
 
   it('should keep the run when the player walked away from it mid-world', () => {
-    createRunArchive(source()).keep(
+    createRunArchive(source()).save(
       stateWith({ time: MIN_ABANDONED_SECONDS, levelIndex: 3 }),
       'ABANDONED',
     );
@@ -116,7 +116,7 @@ describe('createRunArchive', () => {
   });
 
   it('should keep the run when the death came quickly', () => {
-    createRunArchive(source()).keep(
+    createRunArchive(source()).save(
       stateWith({ status: 'GAME_OVER', time: 1 }),
       'GAME_OVER',
     );
@@ -129,7 +129,7 @@ describe('the save it writes into', () => {
   beforeEach(() => store.clear());
 
   it('should be left alone when nothing was worth keeping', () => {
-    createRunArchive(source()).keep(stateWith({ time: 0 }), 'ABANDONED');
+    createRunArchive(source()).save(stateWith({ time: 0 }), 'ABANDONED');
 
     expect(store.get(STORAGE_KEY)).toBeUndefined();
   });

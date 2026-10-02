@@ -93,7 +93,7 @@ const findTopRow = (band: number): number =>
 const findBandRows = (band: number): number[] =>
   map(BAND_ROWS, (row) => findTopRow(band) + row);
 
-const measureAirRuns = (tiles: Tile[][]): number[] =>
+const computeAirRuns = (tiles: Tile[][]): number[] =>
   map(
     split(
       join(
@@ -253,7 +253,7 @@ describe('joinStructures', () => {
   it('should join the sectors no further apart than the player can jump in a vertical level when it stacks them', () => {
     const climb = joinStructures([...VERTICAL_STRUCTURES], 'VERTICAL').tiles;
 
-    expect(max(measureAirRuns(climb))).toBeLessThanOrEqual(VERTICAL_AIR_GAP);
+    expect(max(computeAirRuns(climb))).toBeLessThanOrEqual(VERTICAL_AIR_GAP);
   });
 
   it('should lay the block a sector ends in where the next one starts in a vertical level when it seams them together', () => {

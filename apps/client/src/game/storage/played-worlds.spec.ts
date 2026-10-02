@@ -2,8 +2,8 @@ import { padStart } from 'lodash-es';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { PLAYED_WORLDS_KEPT, STORAGE_KEY } from './consts';
+import { getPlayableWorlds } from './get-playable-worlds';
 import { loadSave } from './load-save';
-import { listPlayableWorlds } from './list-playable-worlds';
 import { recordPlayedWorld } from './record-played-world';
 import type { CompletedWorld } from './save-data';
 
@@ -48,7 +48,7 @@ describe('the worlds a player has played', () => {
   it('should keep the day the world was built from when it records a world', () => {
     recordPlayedWorld({ name: 'ABC', day: '2026-08-16' }, at(0));
 
-    expect(listPlayableWorlds(loadSave())[0].day).toBe('2026-08-16');
+    expect(getPlayableWorlds(loadSave())[0].day).toBe('2026-08-16');
   });
 
   it('should count a second run rather than list the world twice when the same world is played again', () => {
@@ -65,7 +65,7 @@ describe('the worlds a player has played', () => {
     recordPlayedWorld({ name: 'OLD', day: '2026-08-10' }, at(0));
     recordPlayedWorld({ name: 'NEW', day: '2026-08-11' }, at(5));
 
-    expect(listPlayableWorlds(loadSave()).map((world) => world.name)).toEqual([
+    expect(getPlayableWorlds(loadSave()).map((world) => world.name)).toEqual([
       'NEW',
       'OLD',
     ]);
@@ -85,7 +85,7 @@ describe('the worlds a player has played', () => {
     savedBy({ score: 5, completedWorlds: [completed('ABC', '2026-08-16')] });
     recordPlayedWorld({ name: 'ABC', day: '2026-08-16' }, at(0));
 
-    const worlds = listPlayableWorlds(loadSave());
+    const worlds = getPlayableWorlds(loadSave());
     expect(worlds).toHaveLength(1);
     expect(worlds[0].completed?.score).toBe(100);
   });
@@ -93,7 +93,7 @@ describe('the worlds a player has played', () => {
   it('should take the world as played too when it was finished before records were kept', () => {
     savedBy({ score: 5, completedWorlds: [completed('OLD', '2026-01-01')] });
 
-    const [world] = listPlayableWorlds(loadSave());
+    const [world] = getPlayableWorlds(loadSave());
     expect(world.name).toBe('OLD');
     expect(world.day, 'an old save can still be replayed').toBe('2026-01-01');
     expect(world.completed).not.toBeNull();
@@ -103,6 +103,6 @@ describe('the worlds a player has played', () => {
     savedBy({ score: 7 });
 
     expect(loadSave().playedWorlds).toEqual([]);
-    expect(listPlayableWorlds(loadSave())).toEqual([]);
+    expect(getPlayableWorlds(loadSave())).toEqual([]);
   });
 });

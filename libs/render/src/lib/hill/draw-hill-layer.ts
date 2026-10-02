@@ -17,7 +17,7 @@ import type { HillLayer } from './hill-layer';
 
 const HILL_STEP = 16;
 
-const listStepsAcross = (width: number): number[] =>
+const getStepsAcross = (width: number): number[] =>
   times(floor(width / HILL_STEP) + 1, (index) => index * HILL_STEP);
 
 const getHillPoint = (
@@ -45,7 +45,7 @@ export const drawHillLayer = (
 ): void =>
   chain(viewport.height * layer.baselineRatio)
     .thru((baseline) =>
-      map(listStepsAcross(viewport.width), (screenX) =>
+      map(getStepsAcross(viewport.width), (screenX) =>
         getHillPoint(screenX, cameraX, layer, baseline),
       ),
     )

@@ -209,22 +209,7 @@ shape.
    (`{ row, column, tile }`) in a `create…Patches` step, then apply them with
    `patchTiles(tiles, patches)` in the last step. NEVER write into a grid.
 7. **Standard steps.** A pipeline that places or removes things on a grid uses
-   these steps in this order, skipping the ones it does not need:
-
-   | Step                             | Job                                  | Example                                       |
-   | -------------------------------- | ------------------------------------ | --------------------------------------------- |
-   | `get…` / `mark…`                 | read the settings for this level     | `getSpikeRemovalRate`, `markCannonsArmed`     |
-   | `find…Candidates` / `find…Cells` | collect positions from the grid      | `findChestCandidates`, `findSpikeCells`       |
-   | `filter…` / `group…`             | drop or group those positions        | `filterChestCandidates`, `groupGemCandidates` |
-   | `sort…` / `shuffle…`             | put the best first, or mix at random | `sortPortalCandidates`, `shuffleSpikeCells`   |
-   | `pick…`                          | choose from the ordered list         | `pickKeyCandidate`, `pickBeartrapCells`       |
-   | `create…Patches`                 | turn the choice into patches         | `createGemPatches`                            |
-   | `patch…Tiles`                    | apply the patches                    | `patchGemTiles`                               |
-
-   Other pipelines name their middle steps with plain verbs
-   (`smoothStoneCells`, `stackPaddingRows`), but still end with
-   `create…Patches` and `patch…Tiles` when they change tiles.
-
+   the standard steps from `docs/VERBS.md`, in the order given there.
 8. **One pipeline for both level types.** Horizontal and vertical levels go
    through the same steps. Branch on `levelType` inside the steps that differ,
    never in the entry point.
@@ -232,40 +217,20 @@ shape.
    `generate` calls `createRandom`: it makes one generator from the world name
    and passes it down. Everything else takes that generator as its last
    argument, named `random` (`clearSpikes(tiles, levelNumber, random)`), and
-   NEVER builds a seed or a generator of its own. A function that chooses
-   something at random MUST be named `pickRandom…` (`pickRandomDirtDepth`).
-   Plain `pick…` is for steps that choose from an already ordered list
-   (`pickBeartrapCells`), and `shuffle…` for steps that only mix the order.
-   A pipeline carries `random` as a field until the last step that draws from
-   it. Shuffle with `sortBy(items, () => random.rollFloat())`. Each draw moves
-   the generator on, so the order of the calls is part of the output: one draw
-   more or less anywhere changes everything drawn after it. The same day MUST
-   always give the same world.
+   NEVER builds a seed or a generator of its own. A pipeline carries `random`
+   as a field until the last step that draws from it. Shuffle with
+   `sortBy(items, () => random.rollFloat())`. Each draw moves the generator
+   on, so the order of the calls is part of the output: one draw more or less
+   anywhere changes everything drawn after it. The same day MUST always give
+   the same world.
 
 ## 5. Naming
 
 1. **Case.** `camelCase` for functions and values, `PascalCase` for types,
    `UPPER_SNAKE_CASE` for module constants and for string-union members
    (`'HORIZONTAL'`), `kebab-case` for files and folders.
-2. **Functions start with a verb**, and each verb keeps one meaning:
-
-   | Verb                                    | Meaning                                           | Example                                   |
-   | --------------------------------------- | ------------------------------------------------- | ----------------------------------------- |
-   | `place…`                                | entry point that adds things to a grid            | `placeChest`                              |
-   | `clear…`                                | entry point that removes things from a grid       | `clearSpikes`                             |
-   | `add…`                                  | entry point that adds rows around a grid          | `addPadding`                              |
-   | `find…`, `filter…`, `sort…`, `pick…`, … | pipeline steps, see section 4                     | `findKeyCandidates`                       |
-   | `pickRandom…`                           | choose things at random; NEVER `deal…` or `roll…` | `pickRandomStructures`, `pickRandomEpics` |
-   | `get…`                                  | look up or work out one value                     | `getMiddleColumn`                         |
-   | `compute…`                              | work a value out from several others              | `computeAverageNeighbourTile`             |
-   | `count…`, `measure…`                    | numbers about the grid                            | `countCompany`, `measureDepths`           |
-   | `format…`                               | build a string                                    | `formatDateSeed`                          |
-   | `convert…`                              | turn a value into another type                    | `convertToFlag`                           |
-   | `is…`                                   | return a boolean                                  | `isSurface`                               |
-
-   Other verbs are fine when they say exactly what the function does
-   (`mirrorTiles`, `blurRows`, `sliceForLevel`).
-
+2. **Functions start with a verb from `docs/VERBS.md`**, used in the meaning
+   given there. NEVER use a verb that is not listed there.
 3. **Steps carry the feature's name**, so no two steps in the repo share a name:
    `findChestCandidates`, never `findCandidates`. A helper that serves one step
    may use a shorter name that fits its job (`filterLeftOfPortal`,
@@ -286,7 +251,7 @@ shape.
    | `slots`              | candidates grouped by range of columns or rows                                                                              |
    | `levelNumber`        | counts from 1; `index` counts from 0. Convert where you use it: `RATES[levelNumber - 1]`                                    |
    | `levelType`          | `'HORIZONTAL' \| 'VERTICAL'`                                                                                                |
-   | `Field`              | a grid of numbers; flags in it are `0` or `1`, made with `convertToFlag`                                                    |
+   | `Field`              | a grid of numbers; flags in it are `0` or `1`, made with `toFlag`                                                           |
 
 6. **Keep `docs/FUNCTION_NAMES.md` up to date.** Check it before you name a
    function and reuse its words. Add every name you add and remove every name

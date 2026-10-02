@@ -77,7 +77,7 @@ const findSurfaceRow = (tiles: Tile[][], column: number): number =>
 const findStoneRow = (tiles: Tile[][], column: number, from = 0): number =>
   findIndex(tiles, (cells) => cells[column] === TILE_STONE, from);
 
-const measureStoneDepth = (tiles: Tile[][], column: number): number =>
+const computeStoneDepth = (tiles: Tile[][], column: number): number =>
   findStoneRow(tiles, column) - findSurfaceRow(tiles, column);
 
 const countStoneCompany = (tiles: Tile[][], { row, column }: Cell): number =>
@@ -106,7 +106,7 @@ describe('placeStones', () => {
   it('should settle the stone three or four blocks under the ground when the ground is deep enough', () => {
     const settled = placeStones(createGround(4, 12), createRandom(SEED));
 
-    expect(includes(DEPTHS, measureStoneDepth(settled, 0))).toBe(true);
+    expect(includes(DEPTHS, computeStoneDepth(settled, 0))).toBe(true);
     expect(
       every(
         times(size(settled) - findStoneRow(settled, 0)),
@@ -129,7 +129,7 @@ describe('placeStones', () => {
         times(120, (day) =>
           placeStones(createGround(3, 14), createRandom(`DAY-${day}`)),
         ),
-        (settled) => measureStoneDepth(settled, 2),
+        (settled) => computeStoneDepth(settled, 2),
       ),
     );
 
@@ -174,7 +174,7 @@ describe('placeStones', () => {
       createRandom(SEED),
     );
 
-    const roof = measureStoneDepth(settled, 0);
+    const roof = computeStoneDepth(settled, 0);
     const cellar = findStoneRow(settled, 0, 19) - 19;
 
     expect(includes(DEPTHS, roof)).toBe(true);

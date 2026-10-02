@@ -79,12 +79,12 @@ const getLevelCategoryPrefix = (levelNumber: number): string =>
 const isCrosswise = (run: Run): boolean =>
   !includes(VERTICAL_LEVELS, run.levelNumber);
 
-const listTilesAcross = (start: number, span: number): number[] =>
+const getTilesAcross = (start: number, span: number): number[] =>
   range(floor(start / TILE_SIZE), floor((start + span - 1) / TILE_SIZE) + 1);
 
 const isWalledIn = (level: Level): boolean =>
-  some(listTilesAcross(getSpawnPosition(level).y, PLAYER_HEIGHT), (row) =>
-    some(listTilesAcross(getSpawnPosition(level).x, PLAYER_WIDTH), (column) =>
+  some(getTilesAcross(getSpawnPosition(level).y, PLAYER_HEIGHT), (row) =>
+    some(getTilesAcross(getSpawnPosition(level).x, PLAYER_WIDTH), (column) =>
       isSolid(level, column, row),
     ),
   );

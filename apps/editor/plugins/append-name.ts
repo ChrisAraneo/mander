@@ -22,11 +22,11 @@ const closeList = (list: string): string =>
     )
     .otherwise((body) => `${body},`);
 
-export const listNames = (list: string): string[] =>
+export const getNames = (list: string): string[] =>
   compact(map(split(stripComments(list), ','), trim));
 
 export const hasName = (list: string, name: string): boolean =>
-  includes(listNames(list), name);
+  includes(getNames(list), name);
 
 export const appendName = (list: string, name: string): string =>
   match(includes(list, '\n'))

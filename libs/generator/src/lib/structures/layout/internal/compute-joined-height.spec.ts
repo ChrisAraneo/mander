@@ -1,14 +1,14 @@
 import { type Sector, STRUCTURE_HEIGHT } from '@mander/structures';
 import { describe, expect, it } from 'vitest';
 
-import { measureJoinedHeight } from './measure-joined-height';
+import { computeJoinedHeight } from './compute-joined-height';
 
 const SECTOR: Sector = [[], []];
 
-describe('measureJoinedHeight', () => {
+describe('computeJoinedHeight', () => {
   it('should reach the bottom of the lowest structure when the structures sit at different rows', () => {
     expect(
-      measureJoinedHeight([
+      computeJoinedHeight([
         { structure: SECTOR, row: 0, column: 0 },
         { structure: SECTOR, row: 3, column: 20 },
       ]),
@@ -17,7 +17,7 @@ describe('measureJoinedHeight', () => {
 
   it('should give one structure height when every structure sits on the top row', () => {
     expect(
-      measureJoinedHeight([
+      computeJoinedHeight([
         { structure: SECTOR, row: 0, column: 0 },
         { structure: SECTOR, row: 0, column: 20 },
       ]),
@@ -25,6 +25,6 @@ describe('measureJoinedHeight', () => {
   });
 
   it('should give zero when there are no placements', () => {
-    expect(measureJoinedHeight([])).toBe(0);
+    expect(computeJoinedHeight([])).toBe(0);
   });
 });

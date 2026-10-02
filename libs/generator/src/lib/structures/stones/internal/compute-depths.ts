@@ -5,7 +5,7 @@ import type { Field } from './field';
 
 const UNBURIED = -1;
 
-export const measureDepths = (tiles: Tile[][]): Field =>
+export const computeDepths = (tiles: Tile[][]): Field =>
   reduce(
     tiles,
     (depths: Field, cells, row): Field => [

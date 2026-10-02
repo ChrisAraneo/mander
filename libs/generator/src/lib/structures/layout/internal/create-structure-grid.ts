@@ -1,9 +1,9 @@
 import { match } from 'ts-pattern';
+import { computeGridWidth } from './compute-grid-width';
+import { computeJoinedHeight } from './compute-joined-height';
+import { computeStackedHeight } from './compute-stacked-height';
 import { createAirGrid } from './create-air-grid';
 import type { findStructurePlacements } from './find-structure-placements';
-import { measureGridWidth } from './measure-grid-width';
-import { measureJoinedHeight } from './measure-joined-height';
-import { measureStackedHeight } from './measure-stacked-height';
 
 export const createStructureGrid = ({
   levelType,
@@ -13,9 +13,9 @@ export const createStructureGrid = ({
   placements,
   tiles: createAirGrid(
     match(levelType)
-      .with('HORIZONTAL', () => measureJoinedHeight(placements))
-      .with('VERTICAL', () => measureStackedHeight(placements))
+      .with('HORIZONTAL', () => computeJoinedHeight(placements))
+      .with('VERTICAL', () => computeStackedHeight(placements))
       .exhaustive(),
-    measureGridWidth(placements),
+    computeGridWidth(placements),
   ),
 });

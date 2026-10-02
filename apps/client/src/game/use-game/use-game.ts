@@ -133,7 +133,7 @@ const endRun = (
 ): void =>
   match(isRunOver(world, next))
     .with(true, () =>
-      archive.keep(
+      archive.save(
         tapEffect(next, () => recorder.stop()),
         getEndOutcome(next),
       ),
@@ -147,7 +147,7 @@ const restartRun = (
 ): void =>
   chain(state)
     .thru((current) =>
-      tapEffect(current, () => archive.keep(current, 'ABANDONED')),
+      tapEffect(current, () => archive.save(current, 'ABANDONED')),
     )
     .thru((current) => tapEffect(current, () => recorder.reset()))
     .thru(() => archive.reset())
@@ -337,7 +337,7 @@ export const useGame = (
           chain(setup.cell)
             .thru((cell) =>
               tapEffect(cell, () =>
-                setup.archive.keep(setup.state.value, 'ABANDONED'),
+                setup.archive.save(setup.state.value, 'ABANDONED'),
               ),
             )
             .thru((cell) =>
