@@ -1,5 +1,5 @@
-import { clearBeartraps } from '../../structures/beartraps/clear-beartraps';
-import { clearSpikes } from '../../structures/spikes/clear-spikes';
+import { clearBeartraps } from '../../beartraps/clear-beartraps';
+import { clearSpikes } from '../../spikes/clear-spikes';
 import type { addLevelPadding } from './add-level-padding';
 
 export const clearLevelTraps = ({

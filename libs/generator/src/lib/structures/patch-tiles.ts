@@ -2,7 +2,7 @@ import type { Tile } from '@mander/model';
 import { chain } from '@mander/utils';
 import { map } from 'lodash-es';
 import { match, P } from 'ts-pattern';
-import type { TilePatch } from './types/tile-patch';
+import type { TilePatch } from '../types/tile-patch';
 
 const { nullish } = P;
 

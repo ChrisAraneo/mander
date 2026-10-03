@@ -1,7 +1,7 @@
 # Code Style
 
 These rules apply to all TypeScript in this repository. They are taken from
-`libs/generator/src/lib/structures/`, which is the reference code: when this
+`libs/generator/src/lib/`, which is the reference code: when this
 guide says nothing about a case, do what that folder does.
 
 **MUST** and **NEVER** mean exactly that. A rule may only be broken where this

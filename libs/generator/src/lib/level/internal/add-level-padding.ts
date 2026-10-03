@@ -1,4 +1,4 @@
-import { addPadding } from '../../structures/padding/add-padding';
+import { addPadding } from '../../padding/add-padding';
 import type { placeLevelEnds } from './place-level-ends';
 
 export const addLevelPadding = ({

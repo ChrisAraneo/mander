@@ -1,5 +1,5 @@
-import { clearCannons } from '../../structures/cannons/clear-cannons';
-import { clearFireballs } from '../../structures/fireballs/clear-fireballs';
+import { clearCannons } from '../../cannons/clear-cannons';
+import { clearFireballs } from '../../fireballs/clear-fireballs';
 import type { joinLevelStructures } from './join-level-structures';
 
 export const clearLevelWeapons = ({

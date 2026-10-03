@@ -16,10 +16,10 @@ import {
 import { find, map, range, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { joinStructures } from './layout/join-structures';
+import { joinStructures } from '../layout/join-structures';
 import { mirrorTiles } from './mirror-tiles';
-import { addPadding } from './padding/add-padding';
-import type { TilePatch } from './types/tile-patch';
+import { addPadding } from '../padding/add-padding';
+import type { TilePatch } from '../types/tile-patch';
 
 const GROUND_ROW = STRUCTURE_HEIGHT - 1;
 

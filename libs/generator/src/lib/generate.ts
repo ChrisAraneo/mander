@@ -5,9 +5,9 @@ import { LEVELS_PER_DAY } from './consts';
 import { generateLevel } from './level/generate-level';
 import { generatePalette } from './palette/generate-palette';
 import { computeWorldName } from './seed/compute-world-name';
-import { getLevelCategories } from './structures/world/get-level-categories';
-import { pickRandomWorldStructures } from './structures/world/pick-random-world-structures';
-import { sliceForLevel } from './structures/world/slice-for-level';
+import { getLevelCategories } from './world/get-level-categories';
+import { pickRandomWorldStructures } from './world/pick-random-world-structures';
+import { sliceForLevel } from './world/slice-for-level';
 
 export const generate = (date: Date): RenderedWorld => {
   const worldName = computeWorldName(date);

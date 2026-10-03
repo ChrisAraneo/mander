@@ -9,10 +9,10 @@ import { describe, expect, it } from 'vitest';
 
 import { VERTICAL_LEVELS } from '../consts';
 import { generate } from '../generate';
-import { joinStructures } from './layout/join-structures';
-import { addPadding } from './padding/add-padding';
-import { placePlayerSpawn } from './player-spawn/place-player-spawn';
-import { placePortal } from './portal/place-portal';
+import { joinStructures } from '../layout/join-structures';
+import { addPadding } from '../padding/add-padding';
+import { placePlayerSpawn } from '../player-spawn/place-player-spawn';
+import { placePortal } from '../portal/place-portal';
 
 const SECTORS = 2;
 

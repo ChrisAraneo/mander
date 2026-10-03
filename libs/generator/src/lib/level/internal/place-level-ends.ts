@@ -1,5 +1,5 @@
-import { placePlayerSpawn } from '../../structures/player-spawn/place-player-spawn';
-import { placePortal } from '../../structures/portal/place-portal';
+import { placePlayerSpawn } from '../../player-spawn/place-player-spawn';
+import { placePortal } from '../../portal/place-portal';
 import type { clearLevelWeapons } from './clear-level-weapons';
 
 export const placeLevelEnds = ({

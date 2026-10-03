@@ -7,7 +7,7 @@ import { createRandom } from '@mander/utils';
 import { take } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { joinStructures } from '../../structures/layout/join-structures';
+import { joinStructures } from '../../layout/join-structures';
 import { joinLevelStructures } from './join-level-structures';
 
 const RANDOM = createRandom('SEED');

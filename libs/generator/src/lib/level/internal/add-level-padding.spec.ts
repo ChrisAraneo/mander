@@ -4,7 +4,7 @@ import { createRandom } from '@mander/utils';
 import { map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { addPadding } from '../../structures/padding/add-padding';
+import { addPadding } from '../../padding/add-padding';
 import { addLevelPadding } from './add-level-padding';
 
 const RANDOM = createRandom('SEED');

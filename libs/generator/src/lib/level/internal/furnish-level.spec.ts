@@ -12,7 +12,7 @@ import { createRandom } from '@mander/utils';
 import { filter, flatten, includes, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { LevelType } from '../../structures/types/level-type';
+import type { LevelType } from '../../types/level-type';
 import { furnishLevel } from './furnish-level';
 
 const STRUCTURES: Sector[] = [];

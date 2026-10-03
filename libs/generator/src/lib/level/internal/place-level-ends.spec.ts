@@ -10,7 +10,7 @@ import { createRandom } from '@mander/utils';
 import { map } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { LevelType } from '../../structures/types/level-type';
+import type { LevelType } from '../../types/level-type';
 import { placeLevelEnds } from './place-level-ends';
 
 const RANDOM = createRandom('SEED');
