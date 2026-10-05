@@ -7,7 +7,10 @@ import { countStartingFireballs } from './count-starting-fireballs';
 
 const FULL_TURN = Math.PI * 2;
 
-const spread = (count: number, origin: Fireball['origin']): Fireball[] =>
+const createFireballRing = (
+  count: number,
+  origin: Fireball['origin'],
+): Fireball[] =>
   times(count, (index): Fireball => ({
     spin: 'CLOCKWISE',
     origin,
@@ -19,7 +22,7 @@ export const createPlayerFireballs = (
   player: Player,
   isMoonMagnetOn = true,
 ): Fireball[] =>
-  spread(
+  createFireballRing(
     match(isMoonMagnetOn)
       .with(false, () => 0)
       .otherwise(() => countStartingFireballs(inventory)),

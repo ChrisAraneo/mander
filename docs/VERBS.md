@@ -3,7 +3,8 @@
 Every function name starts with a verb from this file, and each verb keeps the
 one meaning given here. The verb is followed by what it works on:
 `findChestCandidates`, `drawStar`. The one prefix that is not a verb is `to…`,
-for mapping functions (`toFlag`). Spec helpers follow the same rules.
+for mapping functions (`toFlag`). Spec helpers follow the same rules, apart
+from the fixture builders covered by "Spec fixtures" at the end of this file.
 
 Look here before you name a function. When no verb fits, add a new one to this
 file, with its meaning and an example, in the same change.
@@ -134,9 +135,10 @@ All of these return a boolean.
   elsewhere it adds an item to a collection (`addRun`, `addStops`).
 - `blur…` — Average each cell of a field with its neighbours (`blur`,
   `blurRows`).
-- `clear…` — Remove things from a grid. In the generator, `clear…` entry points
-  remove traps and weapons (`clearSpikes`, `clearLoneStones`); in the editor,
-  `clear` empties the sketch.
+- `clear…` — Remove things from a grid, or wipe data that was stored. In the
+  generator, `clear…` entry points remove traps and weapons (`clearSpikes`,
+  `clearLoneStones`); in the editor, `clear` empties the sketch; in the client,
+  `clearSave` drops the save from `localStorage`.
 - `cut…` — Trim a layer to the size a level type needs (`cutLayer`).
 - `fill…` — Give every empty cell of a grid a value (`fillSketch`, `fillGrid`).
 - `furnish…` — Run all the `place…` entry points for one level
@@ -264,7 +266,8 @@ All of these return a boolean.
   (`outline`).
 - `paint…` — Run canvas steps on a context (`paint`), or draw into a canvas
   element (`paintInto`). In the editor, `paint` sets a cell to the brush value.
-- `render…` — Draw a whole frame of the game (`renderGame`, `renderState`).
+- `render…` — Draw a whole frame of the game (`renderGame`, `renderState`, and
+  the replay source's `render`).
 - `repaint…` — Draw a canvas again after its data changed (`repaint`).
 - `resize…`, `fit…` — Match a canvas's size to its element and the device's
   pixel ratio (`resizeCanvas`, `fitCanvas`). `refit` does it again.
@@ -330,7 +333,8 @@ All of these return a boolean.
 - `mutate…` — Change an internal state object in place. Only the small state
   cells behind factories use it (`mutate`).
 - `open…` — Open something for use (`openCanvas`).
-- `play…` — Start playing a replay (`playOnMount`).
+- `play…` — Start playing a replay (`playOnMount`, and the replay controller's
+  `play`). In specs, `playToEnd` runs one to the end.
 - `remember…` — Store the current sketch in the undo history (`remember`).
 - `reset…` — Put an object back to how it started (`reset`).
 - `set…` — Write one value into a Vue ref or a store (`setRef`, `setItem`).
@@ -356,3 +360,42 @@ These verbs appear only in spec files.
 - `erase…` — Turn marker tiles into air (`eraseMarkers`).
 - `leap…` — Run a beartrap until it has leapt and landed (`leapAndLand`).
 - `stub…` — Build a fake canvas context that records its calls (`stub`).
+- `until…` — Tick a state forward until something happens, and return it
+  (`untilFired`, `untilStruck`).
+
+## Spec fixtures
+
+A fixture builder makes the state a test starts from, so it is named after what
+it returns rather than with a verb. These names appear only in spec files, and
+only for builders — a spec helper that does something still takes a verb from
+this file. The names below are examples of each shape, not the whole set;
+`FUNCTION_NAMES.md` lists every one.
+
+- **A noun names the thing it builds**: `player`, `enemy`, `spike`, `star`,
+  `item`, `trinket`, `level`, `arena`, `room`, `sector`, `sketch`, `palette`,
+  `replay`, `recorder`, `source`, `simulation`, `tileMap`, `initialState`.
+- **A noun says what the fixture holds**: `cannonLevel`, `chestLevel`,
+  `spikeLevel`, `ceilingSpikeLevel`, `wideCannonLevel`, `testLevel`,
+  `levelWithEnemies`, `airRow`, `pitRow`, `platformRow`.
+- **`with…` adds one thing to a state** (`withCannon`, `withEnemy`,
+  `withSpike`, `withSpawn`, `withFlyingEnemy`, `withEnemyOn`), and
+  `…With` reads the same way round (`itemWith`, `stateWith`, `strewnWith`).
+- **A suffix says where the fixture sits or what it came from**: `…At`
+  (`playerAt`, `enemyAt`, `armedAt`, `standingAt`, `settledAt`), `…In`
+  (`spikeIn`, `trapIn`, `colorsIn`), `…Of` (`levelOf`, `playerOf`, `replayOf`,
+  `stateOf`, `ghostOf`, `radiusOf`, `firstOf`, `lastOf`), `…For` (`barsFor`,
+  `ticksFor`, `watchedFor`), and `…To`/`…By` (`movedTo`, `savedBy`).
+- **A preposition places the fixture**, either leading the name (`at`,
+  `atPortal`, `atRange`, `under`, `underCeilingSpikes`, `onTopOfPlayer`) or
+  sitting inside it (`enemyUnder`, `playerBelow`, `playerWithFeetAt`,
+  `standingOnSpikes`, `jumpedIntoTheCeiling`).
+- **A participle or adjective names the state something is already in**:
+  `armed`, `archived`, `opened`, `painted`, `played`, `recorded`, `drawn`,
+  `completed`, `dying`, `carrying`, `circling`, `turning`, `spun`, `slowed`,
+  `facing`, `standing`, `walkingRight`, `named`, `eyeToEye`.
+- **A noun names one value a test reads back** from a fixture or a result:
+  `apex`, `base`, `left`, `right`, `row`, `rounds`, `hueGap`, `hopVelocity`,
+  `jawTilts`.
+
+When no fixture name above fits, take a verb from this file instead. NEVER give
+a fixture one of these names outside a spec file.

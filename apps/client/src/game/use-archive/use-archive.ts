@@ -2,7 +2,7 @@ import {
   createInitialState,
   type GameState,
   type Replay,
-  unpackReplay,
+  decodeReplay,
 } from '@mander/engine';
 import { generate } from '@mander/generator';
 import { getPlayerFocus, renderGame, syncViewport } from '@mander/render';
@@ -32,7 +32,7 @@ export const useArchive = (
     .thru((world) => ({
       world,
       cell: createCanvasCell(),
-      recording: unpackReplay(source.replay, world.levels),
+      recording: decodeReplay(source.replay, world.levels),
       rivals: findGhostRuns(loadSave(), world.name, source.id),
     }))
     .thru((setup) => ({
@@ -55,7 +55,7 @@ export const useArchive = (
         getReplay: () => setup.recording,
         getGhosts: (): Replay[] =>
           map(setup.rivals, (run) =>
-            unpackReplay(run.replay, setup.world.levels),
+            decodeReplay(run.replay, setup.world.levels),
           ),
         getInitialState: () => createInitialState(setup.world.levels[0], 0, []),
         render: setup.renderState,

@@ -5,11 +5,11 @@ import {
   type GameState,
   type GameWorld,
   type PackedReplay,
-  packReplay,
+  encodeReplay,
   type Recorder,
   reduce,
   type Replay,
-  unpackReplay,
+  decodeReplay,
 } from '@mander/engine';
 import { generate } from '@mander/generator';
 import {
@@ -272,7 +272,7 @@ export const useGame = (
       state: shallowRef(setup.initial),
       dispatch: (action: Action): void => setup.actions$.next(action),
       getPackedReplay: (): PackedReplay =>
-        packReplay(setup.recorder.snapshot()),
+        encodeReplay(setup.recorder.snapshot()),
     }))
     .thru((setup) => ({
       ...setup,
@@ -299,7 +299,7 @@ export const useGame = (
         getReplay: () => setup.recorder.snapshot(),
         getGhosts: (): Replay[] =>
           setup.rivals.map((run) =>
-            unpackReplay(run.replay, setup.world.levels),
+            decodeReplay(run.replay, setup.world.levels),
           ),
         getInitialState: () => createStartState(setup.world),
         render: setup.renderState,

@@ -54,6 +54,7 @@
 - `atRange`
 - `barsFor`
 - `base`
+- `beginPath`
 - `blur`
 - `blurColumns`
 - `blurRows`
@@ -80,12 +81,15 @@
 - `clearLoneStones`
 - `clearMarker`
 - `clearOn`
+- `clearSave`
 - `clearSpikes`
+- `clip`
 - `cloneGrid`
 - `cloneSketch`
 - `close`
 - `closeCanvas`
 - `closeList`
+- `closePath`
 - `colorsIn`
 - `complete`
 - `completed`
@@ -369,6 +373,7 @@
 - `fallFor`
 - `fallIntoPit`
 - `fetchLibrary`
+- `fill`
 - `fillGrid`
 - `fillRect`
 - `fillSketch`
@@ -464,7 +469,6 @@
 - `fireBullet`
 - `fireCannonball`
 - `firstOf`
-- `fit`
 - `fitCanvas`
 - `flipFacing`
 - `flipMoonMagnet`
@@ -493,7 +497,6 @@
 - `generateChestItems`
 - `generateLevel`
 - `generatePalette`
-- `get`
 - `getActionCode`
 - `getAlias`
 - `getArmPoints`
@@ -542,6 +545,7 @@
 - `getFootingCells`
 - `getFootingRow`
 - `getFront`
+- `getGap`
 - `getGhosts`
 - `getGhostStates`
 - `getGravity`
@@ -809,6 +813,7 @@
 - `lightnessOf`
 - `load`
 - `loadLevel`
+- `loadSave`
 - `loadStructure`
 - `logWorldMeta`
 - `loseHeart`
@@ -915,9 +920,11 @@
 - `placeSpawn`
 - `placeStones`
 - `platformRow`
+- `play`
 - `played`
 - `player`
 - `playerAt`
+- `playerBelow`
 - `playerOf`
 - `playerWithFeetAt`
 - `playOnMount`
@@ -946,6 +953,7 @@
 - `remember`
 - `removeItem`
 - `removeMarker`
+- `render`
 - `renderGame`
 - `renderState`
 - `repaint`
@@ -968,6 +976,7 @@
 - `restore`
 - `restoreEndings`
 - `right`
+- `rollFloat`
 - `rollInt`
 - `room`
 - `rotate`
@@ -984,7 +993,6 @@
 - `sector`
 - `send`
 - `sequence`
-- `set`
 - `setItem`
 - `setRef`
 - `settledAt`
@@ -1007,6 +1015,7 @@
 - `simulatePlan`
 - `simulation`
 - `sketch`
+- `skip`
 - `sliceForLevel`
 - `slowed`
 - `smooth`
@@ -1056,6 +1065,7 @@
 - `strikeDown`
 - `strikeSpikeOrFlyOn`
 - `stripComments`
+- `stroke`
 - `strokeLine`
 - `strokeOutline`
 - `strokeTileEdges`

@@ -6,7 +6,7 @@ import { getActionCode } from './action-codes';
 import type { PackedEntry, PackedReplay } from './types/packed-replay';
 import type { Replay } from '../recorder/types/replay';
 
-const packAction = (action: RecordableAction): number[] =>
+const encodeAction = (action: RecordableAction): number[] =>
   match(action)
     .with({ type: 'CHOOSE_ITEM' }, ({ index }) => [
       getActionCode('CHOOSE_ITEM'),
@@ -18,11 +18,11 @@ const packAction = (action: RecordableAction): number[] =>
     ])
     .otherwise(({ type }) => [getActionCode(type)]);
 
-export const packReplay = (replay: Replay): PackedReplay => ({
+export const encodeReplay = (replay: Replay): PackedReplay => ({
   worldName: replay.worldName,
   steps: replay.steps,
   entries: map(replay.entries, ({ atStep, action }): PackedEntry => [
     atStep,
-    ...packAction(action),
+    ...encodeAction(action),
   ]),
 });

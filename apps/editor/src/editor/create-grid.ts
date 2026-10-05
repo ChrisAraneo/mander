@@ -28,7 +28,7 @@ export const getHeight = (pool: Pool): number =>
     .with('vertical', () => VERTICAL_HEIGHT)
     .otherwise(() => STRUCTURE_HEIGHT);
 
-const seedCell = ({ row, column }: Cell): number =>
+const getStartingTile = ({ row, column }: Cell): number =>
   match({ row, column })
     .with({ row: VERTICAL_END_ROW, column: VERTICAL_MARKER_COLUMN }, () =>
       Number(STRUCTURE_END),
@@ -47,7 +47,7 @@ const seedCell = ({ row, column }: Cell): number =>
 const layAcross = (pool: Pool, row: number): number[] =>
   match(pool)
     .with('vertical', () =>
-      map(range(STRUCTURE_WIDTH), (column) => seedCell({ row, column })),
+      map(range(STRUCTURE_WIDTH), (column) => getStartingTile({ row, column })),
     )
     .otherwise(() =>
       times(STRUCTURE_WIDTH, () =>

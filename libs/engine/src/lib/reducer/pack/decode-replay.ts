@@ -15,7 +15,7 @@ const getLevelAt = (
   index: number,
 ): GameLevel | undefined => levels[index];
 
-const unpackAction = (
+const decodeAction = (
   entry: PackedEntry,
   levels: GameLevel[],
 ): RecordableAction | null =>
@@ -44,22 +44,22 @@ const unpackAction = (
     .with(nullish, () => null)
     .otherwise((type): RecordableAction => ({ type }) as RecordableAction);
 
-const unpackEntry = (
+const decodeEntry = (
   entry: PackedEntry,
   levels: GameLevel[],
 ): RecordedAction | null =>
-  match(unpackAction(entry, levels))
+  match(decodeAction(entry, levels))
     .with(nonNullable, (action): RecordedAction => ({
       atStep: entry[0],
       action,
     }))
     .otherwise(() => null);
 
-export const unpackReplay = (
+export const decodeReplay = (
   packed: PackedReplay,
   levels: GameLevel[],
 ): Replay => ({
   worldName: packed.worldName,
   steps: packed.steps,
-  entries: compact(map(packed.entries, (entry) => unpackEntry(entry, levels))),
+  entries: compact(map(packed.entries, (entry) => decodeEntry(entry, levels))),
 });
