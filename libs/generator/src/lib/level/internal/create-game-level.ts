@@ -1,35 +1,37 @@
 import type { Layers } from '@mander/model';
+import { chain } from '@mander/utils';
 import { size } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { generateChestItems } from '../../items/generate-chest-items';
+import { takeRandomChestItems } from '../../items/take-random-chest-items';
 import { isMirrored } from '../../structures/is-mirrored';
 import { isVertical } from '../../structures/is-vertical';
+import type { addLevelFurniture } from './add-level-furniture';
 import { createLevelMeta } from './create-level-meta';
-import type { furnishLevel } from './furnish-level';
 import { getHornedEnemyChance } from './get-horned-enemy-chance';
-import { mirrorLayers } from './mirror-layers';
-import { pickRandomLevelSeed } from './pick-random-level-seed';
+import { hashLevelSeed } from './hash-level-seed';
+import { toMirroredLayers } from './to-mirrored-layers';
 
 export const createGameLevel = ({
-  random,
   levelNumber,
   structures,
   tiles,
   backTiles,
-}: ReturnType<typeof furnishLevel>) => {
-  const layers = match(isMirrored(levelNumber))
-    .with(true, () => mirrorLayers(tiles, backTiles))
-    .otherwise((): Layers => ({ tiles, backTiles }));
-
-  return {
-    seed: pickRandomLevelSeed(random),
-    width: size(layers.tiles[0]),
-    height: size(layers.tiles),
-    tiles: layers.tiles,
-    backTiles: layers.backTiles,
-    chestItems: generateChestItems(random),
-    hornedEnemyChance: getHornedEnemyChance(levelNumber),
-    isOpenSided: isVertical(levelNumber),
-    meta: createLevelMeta(structures),
-  };
-};
+  random,
+}: ReturnType<typeof addLevelFurniture>) =>
+  chain(
+    match(isMirrored(levelNumber))
+      .with(true, () => toMirroredLayers(tiles, backTiles))
+      .otherwise((): Layers => ({ tiles, backTiles })),
+  )
+    .thru((layers) => ({
+      seed: hashLevelSeed(random),
+      width: size(layers.tiles[0]),
+      height: size(layers.tiles),
+      tiles: layers.tiles,
+      backTiles: layers.backTiles,
+      chestItems: takeRandomChestItems(random),
+      hornedEnemyChance: getHornedEnemyChance(levelNumber),
+      isOpenSided: isVertical(levelNumber),
+      meta: createLevelMeta(structures),
+    }))
+    .value();

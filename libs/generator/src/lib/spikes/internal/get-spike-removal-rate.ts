@@ -14,6 +14,6 @@ export const getSpikeRemovalRate = ({
   random: ReturnType<typeof createRandom>;
 }) => ({
   tiles,
-  random,
   rate: SPIKE_REMOVAL_RATES[levelNumber - 1] ?? NOTHING_REMOVED,
+  random,
 });

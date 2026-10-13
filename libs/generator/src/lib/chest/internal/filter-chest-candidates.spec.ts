@@ -1,99 +1,105 @@
-import { TILE_AIR, TILE_DIRT, TILE_PORTAL, type Tile } from '@mander/model';
-import { map, range } from 'lodash-es';
+import { TILE_AIR, TILE_DIRT, TILE_GEM, type Tile } from '@mander/model';
+import { map } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import type { LevelType } from '../../types/level-type';
-import type { Spot } from '../../types/spot';
 import { filterChestCandidates } from './filter-chest-candidates';
 
 const TILES: Record<string, Tile> = {
   '#': TILE_DIRT,
-  P: TILE_PORTAL,
+  o: TILE_GEM,
 };
 
 const createGrid = (rows: string[]): Tile[][] =>
   map(rows, (row) => map([...row], (cell) => TILES[cell] ?? TILE_AIR));
 
-const filterCandidates = (
-  rows: string[],
-  candidates: Spot[],
-  levelType: LevelType,
-) =>
-  filterChestCandidates({ tiles: createGrid(rows), levelType, candidates })
-    .candidates;
+const filterCandidates = (rows: string[], levelType: LevelType) =>
+  filterChestCandidates({ tiles: createGrid(rows), levelType }).candidates;
 
-const filterColumns = (rows: string[], columns: number[]): number[] =>
-  map(
-    filterCandidates(
-      rows,
-      map(columns, (column) => ({ row: 2, column })),
-      'HORIZONTAL',
-    ),
-    'column',
-  );
-
-const filterRows = (rows: string[], spotRows: number[]): number[] =>
-  map(
-    filterCandidates(
-      rows,
-      map(spotRows, (row) => ({ row, column: 0 })),
-      'VERTICAL',
-    ),
-    'row',
-  );
+const TWO_FLOORS = ['...', '###', '...', '###'];
 
 describe('filterChestCandidates', () => {
-  it('should keep the columns at least two left of the portal in a horizontal level when it has one', () => {
-    expect(filterColumns(['.....P.', '.....P.', '#######'], range(7))).toEqual([
-      0, 1, 2, 3,
+  it('should give the top block of each column in a horizontal level when there is room above it', () => {
+    expect(filterCandidates(['..', '##'], 'HORIZONTAL')).toEqual([
+      { row: 1, column: 0 },
+      { row: 1, column: 1 },
     ]);
   });
 
-  it('should count from the right edge in a horizontal level when it has no portal', () => {
-    expect(filterColumns(['......', '######'], range(6))).toEqual([0, 1, 2, 3]);
-  });
-
-  it('should keep no columns in a horizontal level when the portal is too near the left edge', () => {
-    expect(filterColumns(['.P....', '.P....', '######'], range(6))).toEqual([]);
-  });
-
-  it('should keep the rows at least two below the top of the portal in a vertical level when it has one', () => {
+  it('should stand on the ledge and not the floor under it in a horizontal level when a column has both', () => {
     expect(
-      filterRows(
-        ['.....', '..P..', '..P..', '#####', '.....', '#####'],
-        [0, 2, 3, 5],
-      ),
-    ).toEqual([3, 5]);
+      filterCandidates(['...', '.#.', '...', '###'], 'HORIZONTAL'),
+    ).toEqual([
+      { row: 1, column: 1 },
+      { row: 3, column: 0 },
+      { row: 3, column: 2 },
+    ]);
   });
 
-  it('should count from the top row in a vertical level when it has no portal', () => {
-    expect(filterRows(['...', '###', '...', '###'], [1, 3])).toEqual([3]);
+  it('should skip a column in a horizontal level when its top block is in the top row', () => {
+    expect(filterCandidates(['#..', '...', '###'], 'HORIZONTAL')).toEqual([
+      { row: 2, column: 1 },
+      { row: 2, column: 2 },
+    ]);
   });
 
-  it('should give nothing back in a horizontal level when there are no candidates', () => {
-    expect(filterCandidates(['..P.', '####'], [], 'HORIZONTAL')).toEqual([]);
+  it('should skip a column in a horizontal level when something is in the way above its top block', () => {
+    expect(filterCandidates(['..', 'o.', '##'], 'HORIZONTAL')).toEqual([
+      { row: 2, column: 1 },
+    ]);
   });
 
-  it('should give nothing back in a vertical level when there are no candidates', () => {
-    expect(filterCandidates(['..P.', '####'], [], 'VERTICAL')).toEqual([]);
+  it('should give the candidates on every floor of a vertical level when it has more than one', () => {
+    expect(filterCandidates(TWO_FLOORS, 'VERTICAL')).toEqual([
+      { row: 1, column: 0 },
+      { row: 1, column: 1 },
+      { row: 1, column: 2 },
+      { row: 3, column: 0 },
+      { row: 3, column: 1 },
+      { row: 3, column: 2 },
+    ]);
   });
 
-  it('should keep the grid the same when it filters', () => {
+  it('should skip a spot in a vertical level when something is in the way above it', () => {
+    expect(filterCandidates(['.o.', '###'], 'VERTICAL')).toEqual([
+      { row: 1, column: 0 },
+      { row: 1, column: 2 },
+    ]);
+  });
+
+  it('should skip a spot in a vertical level when a block sits right on top of it', () => {
+    expect(filterCandidates(['#.', '##'], 'VERTICAL')).toEqual([
+      { row: 1, column: 1 },
+    ]);
+  });
+
+  it('should give no candidates in a horizontal level when there is nothing to stand on', () => {
+    expect(filterCandidates(['..', '..'], 'HORIZONTAL')).toEqual([]);
+  });
+
+  it('should give no candidates in a vertical level when there is nowhere to stand', () => {
+    expect(filterCandidates(['...', '...'], 'VERTICAL')).toEqual([]);
+  });
+
+  it('should give no candidates in a horizontal level when the grid is empty', () => {
+    expect(filterCandidates([], 'HORIZONTAL')).toEqual([]);
+  });
+
+  it('should give no candidates in a vertical level when the grid is empty', () => {
+    expect(filterCandidates([], 'VERTICAL')).toEqual([]);
+  });
+
+  it('should keep the grid the same when it looks for candidates', () => {
     const tiles = createGrid(['..', '##']);
 
     expect(
-      filterChestCandidates({ tiles, levelType: 'HORIZONTAL', candidates: [] })
-        .tiles,
+      filterChestCandidates({ tiles, levelType: 'HORIZONTAL' }).tiles,
     ).toBe(tiles);
   });
 
-  it('should pass the level type on when it filters', () => {
+  it('should pass the level type on when it looks for candidates', () => {
     expect(
-      filterChestCandidates({
-        tiles: [],
-        levelType: 'VERTICAL',
-        candidates: [],
-      }).levelType,
+      filterChestCandidates({ tiles: [], levelType: 'VERTICAL' }).levelType,
     ).toBe('VERTICAL');
   });
 });

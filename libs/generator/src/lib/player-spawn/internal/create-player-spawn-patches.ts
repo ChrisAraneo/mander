@@ -1,16 +1,18 @@
 import { SPAWN_HEIGHT, TILE_SPAWN } from '@mander/model';
 import { match, P } from 'ts-pattern';
-import { standTiles } from '../../structures/stand-tiles';
-import type { pickPlayerSpawnCandidate } from './pick-player-spawn-candidate';
+import { createStandingPatches } from '../../structures/create-standing-patches';
+import type { getTopPlayerSpawnCandidate } from './get-top-player-spawn-candidate';
 
 const { nullish } = P;
 
 export const createPlayerSpawnPatches = ({
   tiles,
   candidate,
-}: ReturnType<typeof pickPlayerSpawnCandidate>) => ({
+}: ReturnType<typeof getTopPlayerSpawnCandidate>) => ({
   tiles,
   patches: match(candidate)
     .with(nullish, () => [])
-    .otherwise((found) => standTiles(found, TILE_SPAWN, SPAWN_HEIGHT)),
+    .otherwise((found) =>
+      createStandingPatches(found, TILE_SPAWN, SPAWN_HEIGHT),
+    ),
 });

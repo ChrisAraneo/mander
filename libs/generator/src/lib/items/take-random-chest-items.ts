@@ -1,0 +1,12 @@
+import type { createRandom } from '@mander/utils';
+import { flow } from 'lodash-es';
+import { countChestEpics } from './internal/count-chest-epics';
+import { takeRandomChestItemsByRarity } from './internal/take-random-chest-items-by-rarity';
+import { takeRandomChestRarities } from './internal/take-random-chest-rarities';
+
+export const takeRandomChestItems = (random: ReturnType<typeof createRandom>) =>
+  flow(
+    takeRandomChestRarities,
+    countChestEpics,
+    takeRandomChestItemsByRarity,
+  )({ random });

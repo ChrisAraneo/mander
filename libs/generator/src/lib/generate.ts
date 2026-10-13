@@ -1,31 +1,20 @@
 import type { RenderedWorld } from '@mander/render';
-import { createRandom } from '@mander/utils';
-import { times } from 'lodash-es';
-import { LEVELS_PER_DAY } from './consts';
-import { generateLevel } from './level/generate-level';
-import { generatePalette } from './palette/generate-palette';
+import { chain, createRandom } from '@mander/utils';
+import { flow } from 'lodash-es';
+import { createWorldLevelCategories } from './internal/create-world-level-categories';
+import { createWorldLevels } from './internal/create-world-levels';
+import { createWorldPalette } from './internal/create-world-palette';
+import { takeRandomWorldStructures } from './internal/take-random-world-structures';
 import { computeWorldName } from './seed/compute-world-name';
-import { getLevelCategories } from './world/get-level-categories';
-import { pickRandomWorldStructures } from './world/pick-random-world-structures';
-import { sliceForLevel } from './world/slice-for-level';
 
-export const generate = (date: Date): RenderedWorld => {
-  const worldName = computeWorldName(date);
-  const random = createRandom(worldName);
-  const palette = generatePalette(random);
-  const levelCategories = getLevelCategories(LEVELS_PER_DAY);
-  const worldStructures = pickRandomWorldStructures(levelCategories, random);
-
-  return {
-    name: worldName,
-    levels: times(LEVELS_PER_DAY, (index) =>
-      generateLevel(
-        index + 1,
-        sliceForLevel(worldStructures, levelCategories, index),
-        random,
-      ),
-    ),
-    palette,
-    score: 0,
-  };
-};
+export const generate = (date: Date): RenderedWorld =>
+  chain(computeWorldName(date))
+    .thru((name) =>
+      flow(
+        createWorldPalette,
+        createWorldLevelCategories,
+        takeRandomWorldStructures,
+        createWorldLevels,
+      )({ name, random: createRandom(name) }),
+    )
+    .value();

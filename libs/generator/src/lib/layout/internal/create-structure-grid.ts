@@ -1,14 +1,14 @@
 import { match } from 'ts-pattern';
+import { createAirGrid } from '../../structures/create-air-grid';
 import { computeGridWidth } from './compute-grid-width';
 import { computeJoinedHeight } from './compute-joined-height';
 import { computeStackedHeight } from './compute-stacked-height';
-import { createAirGrid } from './create-air-grid';
-import type { findStructurePlacements } from './find-structure-placements';
+import type { computeStructurePlacements } from './compute-structure-placements';
 
 export const createStructureGrid = ({
   levelType,
   placements,
-}: ReturnType<typeof findStructurePlacements>) => ({
+}: ReturnType<typeof computeStructurePlacements>) => ({
   levelType,
   placements,
   tiles: createAirGrid(

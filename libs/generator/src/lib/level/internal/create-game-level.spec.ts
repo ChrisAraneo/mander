@@ -10,11 +10,11 @@ import { createRandom } from '@mander/utils';
 import { map, take } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { generateChestItems } from '../../items/generate-chest-items';
-import { mirrorTiles } from '../../structures/mirror-tiles';
+import { takeRandomChestItems } from '../../items/take-random-chest-items';
+import { toMirroredTiles } from '../../structures/to-mirrored-tiles';
 import { createGameLevel } from './create-game-level';
 import { getHornedEnemyChance } from './get-horned-enemy-chance';
-import { pickRandomLevelSeed } from './pick-random-level-seed';
+import { hashLevelSeed } from './hash-level-seed';
 
 const STRUCTURES = take([...NORMAL_STRUCTURES], 2);
 
@@ -30,19 +30,19 @@ const BACK: Tile[][] = [
 
 const createOn = (levelNumber: number) =>
   createGameLevel({
-    random: createRandom('DAY-1'),
     levelNumber,
     structures: STRUCTURES,
     tiles: FRONT,
     backTiles: BACK,
+    random: createRandom('DAY-1'),
   });
 
 describe('createGameLevel', () => {
   it('should turn both layers around when the level is mirrored', () => {
     const level = createOn(3);
 
-    expect(level.tiles).toEqual(mirrorTiles(FRONT));
-    expect(level.backTiles).toEqual(mirrorTiles(BACK));
+    expect(level.tiles).toEqual(toMirroredTiles(FRONT));
+    expect(level.backTiles).toEqual(toMirroredTiles(BACK));
   });
 
   it('should keep both layers the way they were built when the level is not mirrored', () => {
@@ -59,12 +59,12 @@ describe('createGameLevel', () => {
     expect(level.height).toBe(2);
   });
 
-  it('should fill the chest from the generator after it picks the level seed', () => {
+  it('should fill the chest from the generator when the level seed has been picked first', () => {
     const random = createRandom('DAY-1');
 
-    pickRandomLevelSeed(random);
+    hashLevelSeed(random);
 
-    expect(createOn(1).chestItems).toEqual(generateChestItems(random));
+    expect(createOn(1).chestItems).toEqual(takeRandomChestItems(random));
   });
 
   it('should send out the horned enemies the level allows when it creates it', () => {
@@ -88,19 +88,43 @@ describe('createGameLevel', () => {
   });
 
   it('should pick the level seed from the generator when it creates the level', () => {
-    expect(createOn(1).seed).toBe(pickRandomLevelSeed(createRandom('DAY-1')));
+    expect(createOn(1).seed).toBe(hashLevelSeed(createRandom('DAY-1')));
   });
 
   it('should measure an empty level as nothing when the grid is empty', () => {
     const level = createGameLevel({
-      random: createRandom('DAY-1'),
       levelNumber: 1,
       structures: [],
       tiles: [],
       backTiles: [],
+      random: createRandom('DAY-1'),
     });
 
     expect(level.width).toBe(0);
     expect(level.height).toBe(0);
+  });
+
+  it('should create the same level when the generator starts from the same seed', () => {
+    expect(createOn(3)).toEqual(createOn(3));
+  });
+
+  it('should create another level when the generator starts from another seed', () => {
+    expect(
+      createGameLevel({
+        levelNumber: 1,
+        structures: STRUCTURES,
+        tiles: FRONT,
+        backTiles: BACK,
+        random: createRandom('DAY-1'),
+      }),
+    ).not.toEqual(
+      createGameLevel({
+        levelNumber: 1,
+        structures: STRUCTURES,
+        tiles: FRONT,
+        backTiles: BACK,
+        random: createRandom('DAY-2'),
+      }),
+    );
   });
 });

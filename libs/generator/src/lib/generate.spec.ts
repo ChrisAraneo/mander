@@ -21,7 +21,7 @@ import {
   TILE_SPAWN,
 } from '@mander/model';
 import { STRUCTURE_WIDTH } from '@mander/structures';
-import type { Point } from '@mander/utils';
+import { hashString, type Point } from '@mander/utils';
 import {
   every,
   filter,
@@ -29,6 +29,7 @@ import {
   flatten,
   floor,
   includes,
+  isNull,
   join,
   map,
   range,
@@ -67,7 +68,7 @@ const DAYS = times(10, createDate);
 
 const WORLDS = map(DAYS, (date) => generate(date));
 
-const getLevelCategoryPrefix = (levelNumber: number): string =>
+const toLevelCategoryPrefix = (levelNumber: number): string =>
   match(levelNumber)
     .when(
       () => includes(VERTICAL_LEVELS, levelNumber),
@@ -79,13 +80,14 @@ const getLevelCategoryPrefix = (levelNumber: number): string =>
 const isCrosswise = (run: Run): boolean =>
   !includes(VERTICAL_LEVELS, run.levelNumber);
 
-const getTilesAcross = (start: number, span: number): number[] =>
+const computeTilesAcross = (start: number, span: number): number[] =>
   range(floor(start / TILE_SIZE), floor((start + span - 1) / TILE_SIZE) + 1);
 
 const isWalledIn = (level: Level): boolean =>
-  some(getTilesAcross(getSpawnPosition(level).y, PLAYER_HEIGHT), (row) =>
-    some(getTilesAcross(getSpawnPosition(level).x, PLAYER_WIDTH), (column) =>
-      isSolid(level, column, row),
+  some(computeTilesAcross(getSpawnPosition(level).y, PLAYER_HEIGHT), (row) =>
+    some(
+      computeTilesAcross(getSpawnPosition(level).x, PLAYER_WIDTH),
+      (column) => isSolid(level, column, row),
     ),
   );
 
@@ -95,7 +97,7 @@ const formatGrid = (tiles: Tile[][]): string =>
     '|',
   );
 
-const findRuns = (): Run[] =>
+const createRuns = (): Run[] =>
   flatMap(WORLDS, (world) =>
     map(world.levels, (level, index): Run => ({
       levelNumber: index + 1,
@@ -104,21 +106,21 @@ const findRuns = (): Run[] =>
     })),
   );
 
-const findCrosswiseRuns = (): Run[] => filter(findRuns(), isCrosswise);
+const filterCrosswiseRuns = (): Run[] => filter(createRuns(), isCrosswise);
 
-const findVerticalRuns = (): Run[] =>
-  filter(findRuns(), (run) => !isCrosswise(run));
+const filterVerticalRuns = (): Run[] =>
+  filter(createRuns(), (run) => !isCrosswise(run));
 
-const findVerticalLevels = (): Level[] =>
+const filterVerticalLevels = (): Level[] =>
   flatMap(WORLDS, (world) =>
     filter(world.levels, (_, index) => includes(VERTICAL_LEVELS, index + 1)),
   );
 
 const isTurned = (run: Run): boolean =>
-  run.spawn !== null && run.portal !== null && run.spawn.x > run.portal.x;
+  !isNull(run.spawn) && !isNull(run.portal) && run.spawn.x > run.portal.x;
 
 const isClimbed = (run: Run): boolean =>
-  run.spawn !== null && run.portal !== null && run.spawn.y > run.portal.y;
+  !isNull(run.spawn) && !isNull(run.portal) && run.spawn.y > run.portal.y;
 
 const hasFlyingEnemiesOn = (indexes: number[]): boolean =>
   some(WORLDS, (world) =>
@@ -211,11 +213,11 @@ describe('generate', () => {
 
   it('should lay down a way in and a way out when it builds a level', () => {
     const lost = filter(
-      findRuns(),
-      (run) => run.spawn === null || run.portal === null,
+      createRuns(),
+      (run) => isNull(run.spawn) || isNull(run.portal),
     );
 
-    expect(size(findRuns()), 'a full run of days').toBe(
+    expect(size(createRuns()), 'a full run of days').toBe(
       size(DAYS) * LEVELS_PER_DAY,
     );
     expect(lost).toEqual([]);
@@ -223,7 +225,7 @@ describe('generate', () => {
 
   it('should send the player in from the right when the level is the third or the sixth', () => {
     const wrongWay = filter(
-      findCrosswiseRuns(),
+      filterCrosswiseRuns(),
       (run) => includes(MIRRORED_LEVELS, run.levelNumber) && !isTurned(run),
     );
 
@@ -232,7 +234,7 @@ describe('generate', () => {
 
   it('should send the player in from the left when the level is any other it lays out', () => {
     const wrongWay = filter(
-      findCrosswiseRuns(),
+      filterCrosswiseRuns(),
       (run) => !includes(MIRRORED_LEVELS, run.levelNumber) && isTurned(run),
     );
 
@@ -240,7 +242,7 @@ describe('generate', () => {
   });
 
   it('should turn two levels around when it deals any day', () => {
-    expect(size(filter(findCrosswiseRuns(), isTurned))).toBe(
+    expect(size(filter(filterCrosswiseRuns(), isTurned))).toBe(
       size(DAYS) * size(MIRRORED_LEVELS),
     );
   });
@@ -279,7 +281,7 @@ describe('generate', () => {
   });
 
   it('should stand the level up when it is the second or the fifth', () => {
-    const standing = map(findVerticalLevels(), (level) => level.width);
+    const standing = map(filterVerticalLevels(), (level) => level.width);
 
     expect(size(standing)).toBe(size(DAYS) * size(VERTICAL_LEVELS));
     expect(uniq(standing)).toEqual([STRUCTURE_WIDTH]);
@@ -287,7 +289,7 @@ describe('generate', () => {
 
   it('should build the level taller than it is wide when it stands one up', () => {
     const squat = filter(
-      findVerticalLevels(),
+      filterVerticalLevels(),
       (level) => level.height <= level.width,
     );
 
@@ -295,18 +297,18 @@ describe('generate', () => {
   });
 
   it('should send the player up when it stands a level up', () => {
-    const wrongWay = filter(findVerticalRuns(), (run) => !isClimbed(run));
+    const wrongWay = filter(filterVerticalRuns(), (run) => !isClimbed(run));
 
-    expect(size(findVerticalRuns())).toBe(size(DAYS) * size(VERTICAL_LEVELS));
+    expect(size(filterVerticalRuns())).toBe(size(DAYS) * size(VERTICAL_LEVELS));
     expect(wrongWay).toEqual([]);
   });
 
   it('should leave something to be picked up on the way when it stands a level up', () => {
     const empty = filter(
-      findVerticalLevels(),
+      filterVerticalLevels(),
       (level) =>
-        findTile(level, TILE_KEY) === null ||
-        findTile(level, TILE_CHEST) === null ||
+        isNull(findTile(level, TILE_KEY)) ||
+        isNull(findTile(level, TILE_CHEST)) ||
         size(findGemTiles(level)) < GEMS_A_CLIMB,
     );
 
@@ -359,7 +361,7 @@ describe('generate', () => {
       flatMap(world.levels, (level, index) =>
         filter(
           level.meta?.structures ?? [],
-          (name) => !startsWith(name, `${getLevelCategoryPrefix(index + 1)}_`),
+          (name) => !startsWith(name, `${toLevelCategoryPrefix(index + 1)}_`),
         ),
       ),
     );
@@ -379,5 +381,148 @@ describe('generate', () => {
     expect(
       map(WORLDS[0].levels, (level) => formatGrid(level.tiles)),
     ).not.toEqual(map(WORLDS[1].levels, (level) => formatGrid(level.tiles)));
+  });
+
+  it('should deal the recorded world when it is given the first day of 2026', () => {
+    const world = WORLDS[0];
+
+    expect(world.name).toBe('0WK92JI16OFD5K');
+    expect(world.palette).toEqual({
+      sky: ['HSL(150, 35%, 30%)', 'HSL(33, 28%, 46%)', 'HSL(33, 57%, 60%)'],
+      hills: ['HSL(150, 29%, 40%)', 'HSL(150, 29%, 34%)'],
+      block: 'HSL(38, 30%, 28%)',
+      blockCap: 'HSL(128, 42%, 51%)',
+      blockCapHighlight: 'HSL(128, 46%, 57%)',
+    });
+    expect(map(world.levels, (level) => level.seed)).toEqual([
+      '1USYV7W1E23EZ8',
+      '1FFV5AF0N7NEVK',
+      '1W1K2IN02QCX1D',
+      '11509GQ0NHEUHT',
+      '0HW2Y7R0Z4PS70',
+      '05NNVVG1AL2SBI',
+      '18C8YL700X9SL5',
+      '1QMI5F31YY745J',
+    ]);
+    expect(map(world.levels, (level) => level.meta?.structures)).toEqual([
+      [
+        'NORMAL_071',
+        'NORMAL_110',
+        'NORMAL_058',
+        'NORMAL_098',
+        'NORMAL_079',
+        'NORMAL_093',
+        'NORMAL_157',
+      ],
+      [
+        'VERTICAL_010',
+        'VERTICAL_021',
+        'VERTICAL_016',
+        'VERTICAL_013',
+        'VERTICAL_011',
+        'VERTICAL_022',
+        'VERTICAL_020',
+      ],
+      [
+        'NORMAL_091',
+        'NORMAL_128',
+        'NORMAL_107',
+        'NORMAL_050',
+        'NORMAL_172',
+        'NORMAL_160',
+        'NORMAL_004',
+      ],
+      [
+        'NORMAL_005',
+        'NORMAL_016',
+        'NORMAL_013',
+        'NORMAL_089',
+        'NORMAL_166',
+        'NORMAL_025',
+        'NORMAL_038',
+      ],
+      [
+        'VERTICAL_018',
+        'VERTICAL_001',
+        'VERTICAL_003',
+        'VERTICAL_007',
+        'VERTICAL_012',
+        'VERTICAL_004',
+        'VERTICAL_002',
+      ],
+      [
+        'NORMAL_125',
+        'NORMAL_017',
+        'NORMAL_008',
+        'NORMAL_152',
+        'NORMAL_104',
+        'NORMAL_090',
+        'NORMAL_019',
+      ],
+      [
+        'HARD_037',
+        'HARD_035',
+        'HARD_012',
+        'HARD_040',
+        'HARD_034',
+        'HARD_018',
+        'HARD_042',
+      ],
+      [
+        'HARD_020',
+        'HARD_033',
+        'HARD_023',
+        'HARD_021',
+        'HARD_008',
+        'HARD_011',
+        'HARD_006',
+      ],
+    ]);
+    expect(
+      map(world.levels, (level) => hashString(formatGrid(level.tiles))),
+    ).toEqual([
+      '0GM0HS60TUOUD6',
+      '0MH7SXV114WEO7',
+      '0KE3QXV0CSC975',
+      '1D97R7H0TC83AC',
+      '16AS7GA06X9M9U',
+      '1GCGMFD1K06I77',
+      '12APXMQ0P9TPU3',
+      '0JNTOU41C3SCBZ',
+    ]);
+    expect(
+      map(world.levels, (level) =>
+        hashString(formatGrid(level.backTiles ?? [])),
+      ),
+    ).toEqual([
+      '0ZBYF5B1GNV34S',
+      '0LA8FUP12Y84L6',
+      '1QFQO2T10OYJRW',
+      '0UM9GWG07TIXDE',
+      '06EK7KL0UYNQ6Q',
+      '0YIE56H045EPM0',
+      '1AQ9H6T0WV20OY',
+      '0LVWQBK19LQ4SH',
+    ]);
+    expect(
+      map(world.levels, (level) => map(level.chestItems, (item) => item.id)),
+    ).toEqual([
+      ['FOUR_BULLETS', 'GREEN_GEM', 'TRIPLE_STAR'],
+      ['TWO_BULLETS', 'PURPLE_GEM', 'DOUBLE_STAR'],
+      ['BLUE_GEM', 'FOUR_BULLETS', 'STAR'],
+      ['STAR', 'DOUBLE_HEART', 'PINK_GEM'],
+      ['VAMPIRE_SLAYER_BULLET_RAIN'],
+      ['STAR', 'PURPLE_GEM', 'DOUBLE_HEART'],
+      ['DOUBLE_STAR', 'BULLET', 'DOUBLE_HEART'],
+      ['BULLET', 'STAR', 'YELLOW_GEM'],
+    ]);
+  });
+
+  it('should not change the old date when it deals a day', () => {
+    const date = createDate(0);
+
+    generate(date);
+
+    expect(date.getTime()).toBe(createDate(0).getTime());
   });
 });

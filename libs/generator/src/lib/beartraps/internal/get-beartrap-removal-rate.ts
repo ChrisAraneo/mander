@@ -14,6 +14,6 @@ export const getBeartrapRemovalRate = ({
   random: ReturnType<typeof createRandom>;
 }) => ({
   tiles,
-  random,
   rate: BEARTRAP_REMOVAL_RATES[levelNumber - 1] ?? NOTHING_REMOVED,
+  random,
 });

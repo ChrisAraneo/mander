@@ -2,9 +2,10 @@ import { map, range } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { CHEST_PORTAL_GAP } from '../../consts';
+import type { Spot } from '../../types/spot';
 import { filterLeftOfPortal } from './filter-left-of-portal';
 
-const createCandidates = (columns: number[]) =>
+const createCandidates = (columns: number[]): Spot[] =>
   map(columns, (column) => ({ row: 2, column }));
 
 const filterColumns = (columns: number[], anchor: number): number[] =>

@@ -43,4 +43,18 @@ describe('sliceForLevel', () => {
       slice(NORMAL_STRUCTURES, 2, 4),
     );
   });
+
+  it('should not change the old structures or level categories when it slices a share', () => {
+    const world: WorldStructures = {
+      NORMAL: [...WORLD.NORMAL],
+      HARD: [...WORLD.HARD],
+      VERTICAL: [...WORLD.VERTICAL],
+    };
+    const levelCategories = [...LEVEL_CATEGORIES];
+
+    sliceForLevel(world, levelCategories, 2);
+
+    expect(world).toEqual(WORLD);
+    expect(levelCategories).toEqual(LEVEL_CATEGORIES);
+  });
 });

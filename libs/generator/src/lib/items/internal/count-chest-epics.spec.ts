@@ -7,7 +7,7 @@ import { countChestEpics } from './count-chest-epics';
 const RANDOM = createRandom('DAY-1');
 
 const countIn = (rarities: ItemRarity[]) =>
-  countChestEpics({ random: RANDOM, rarities }).epics;
+  countChestEpics({ rarities, random: RANDOM }).epics;
 
 describe('countChestEpics', () => {
   it('should count the epic rarities when some turn up', () => {
@@ -23,7 +23,7 @@ describe('countChestEpics', () => {
   });
 
   it('should pass the generator on when it counts the epics', () => {
-    expect(countChestEpics({ random: RANDOM, rarities: [] }).random).toBe(
+    expect(countChestEpics({ rarities: [], random: RANDOM }).random).toBe(
       RANDOM,
     );
   });
@@ -31,7 +31,7 @@ describe('countChestEpics', () => {
   it('should pass the rarities on when it counts the epics', () => {
     const rarities: ItemRarity[] = ['EPIC', 'COMMON'];
 
-    expect(countChestEpics({ random: RANDOM, rarities }).rarities).toBe(
+    expect(countChestEpics({ rarities, random: RANDOM }).rarities).toBe(
       rarities,
     );
   });

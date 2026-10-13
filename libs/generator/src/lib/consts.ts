@@ -22,6 +22,7 @@ import {
   VAMPIRE_SLAYER_BULLET_RAIN,
   YELLOW_GEM,
 } from '@mander/model';
+import { STRUCTURE_WIDTH } from '@mander/structures';
 import { filter, flatMap, mapValues, reject } from 'lodash-es';
 import type { ChestItemType } from './items/types/chest-item-type';
 
@@ -69,11 +70,15 @@ export const GEM_REST_HEIGHT = 2;
 
 export const GEM_GAP = 2;
 
+export const SLOT_WIDTH = STRUCTURE_WIDTH / GEMS_PER_STRUCTURE;
+
 export const DIRT_DEPTH = 3;
 
 export const DEEP_DIRT_DEPTH = 4;
 
 export const SKY_HEIGHT = 20;
+
+export const ENTITY_HUE = 24;
 
 export const VERTICAL_GROUND_DEPTH = 3;
 

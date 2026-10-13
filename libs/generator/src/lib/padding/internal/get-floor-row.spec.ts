@@ -1,0 +1,33 @@
+import { TILE_AIR, TILE_DIRT, type Tile } from '@mander/model';
+import { describe, expect, it } from 'vitest';
+
+import { getFloorRow } from './get-floor-row';
+
+const LEVEL: Tile[][] = [
+  [TILE_AIR, TILE_AIR],
+  [TILE_DIRT, TILE_AIR],
+];
+
+const PADDING = { sky: 2, depth: 3 };
+
+describe('getFloorRow', () => {
+  it('should give the bottom row when the grid has rows', () => {
+    expect(getFloorRow({ tiles: LEVEL, padding: PADDING }).floor).toBe(
+      LEVEL[1],
+    );
+  });
+
+  it('should give nothing when the grid is empty', () => {
+    expect(getFloorRow({ tiles: [], padding: PADDING }).floor).toBeUndefined();
+  });
+
+  it('should keep the grid the same when it finds the floor', () => {
+    expect(getFloorRow({ tiles: LEVEL, padding: PADDING }).tiles).toBe(LEVEL);
+  });
+
+  it('should keep the padding the same when it finds the floor', () => {
+    expect(getFloorRow({ tiles: LEVEL, padding: PADDING }).padding).toBe(
+      PADDING,
+    );
+  });
+});

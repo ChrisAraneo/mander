@@ -1,21 +1,21 @@
+import type { Tile } from '@mander/model';
 import { match } from 'ts-pattern';
-import { filterBelowPortal } from './filter-below-portal';
-import { filterLeftOfPortal } from './filter-left-of-portal';
-import { findAnchorColumn } from './find-anchor-column';
-import { findAnchorRow } from './find-anchor-row';
-import type { findChestCandidates } from './find-chest-candidates';
+import { CHEST_HEIGHT } from '../../consts';
+import { filterStandingSpots } from '../../structures/filter-standing-spots';
+import { filterStandingSurfaceSpots } from '../../structures/filter-standing-surface-spots';
+import type { LevelType } from '../../types/level-type';
 
 export const filterChestCandidates = ({
   tiles,
   levelType,
-  candidates,
-}: ReturnType<typeof findChestCandidates>) => ({
+}: {
+  tiles: Tile[][];
+  levelType: LevelType;
+}) => ({
   tiles,
   levelType,
   candidates: match(levelType)
-    .with('HORIZONTAL', () =>
-      filterLeftOfPortal(candidates, findAnchorColumn(tiles)),
-    )
-    .with('VERTICAL', () => filterBelowPortal(candidates, findAnchorRow(tiles)))
+    .with('HORIZONTAL', () => filterStandingSurfaceSpots(tiles, CHEST_HEIGHT))
+    .with('VERTICAL', () => filterStandingSpots(tiles, CHEST_HEIGHT))
     .exhaustive(),
 });

@@ -4,15 +4,25 @@ import {
   type VerticalStructure,
   VERTICAL_STRUCTURES,
 } from '@mander/structures';
-import { filter, includes, join, map, padStart, size, times } from 'lodash-es';
+import { chain } from '@mander/utils';
+import {
+  filter,
+  includes,
+  isNull,
+  join,
+  map,
+  padStart,
+  size,
+  times,
+} from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { VERTICAL_LEVELS } from '../consts';
 import { generate } from '../generate';
-import { joinStructures } from '../layout/join-structures';
+import { createStructureLayers } from '../layout/create-structure-layers';
 import { addPadding } from '../padding/add-padding';
-import { placePlayerSpawn } from '../player-spawn/place-player-spawn';
-import { placePortal } from '../portal/place-portal';
+import { addPlayerSpawn } from '../player-spawn/add-player-spawn';
+import { addPortal } from '../portal/add-portal';
 
 const SECTORS = 2;
 
@@ -21,37 +31,42 @@ const createDate = (day: number): Date => new Date(Date.UTC(2026, 0, 1 + day));
 const formatStructureName = (index: number): string =>
   `VERTICAL_${padStart(String(index + 1), 3, '0')}`;
 
-const createClimb = (structure: VerticalStructure): Level => {
-  const tiles = addPadding(
-    placePortal(
-      placePlayerSpawn(
-        joinStructures(
-          times(SECTORS, () => structure),
+const createClimb = (structure: VerticalStructure): Level =>
+  chain(
+    addPadding(
+      addPortal(
+        addPlayerSpawn(
+          createStructureLayers(
+            times(SECTORS, () => structure),
+            'VERTICAL',
+          ).tiles,
           'VERTICAL',
-        ).tiles,
+        ),
         'VERTICAL',
       ),
-      'VERTICAL',
     ),
-  );
+  )
+    .thru((tiles) => ({
+      seed: 'CLIMB',
+      width: size(tiles[0]),
+      height: size(tiles),
+      tiles,
+      chestItems: [],
+    }))
+    .value();
 
-  return {
-    seed: 'CLIMB',
-    width: size(tiles[0]),
-    height: size(tiles),
-    tiles,
-    chestItems: [],
-  };
-};
+const isPortalReached = (level: Level): boolean =>
+  chain({
+    portal: findTile(level, TILE_PORTAL),
+    reach: checkPlayerReach(level),
+  })
+    .thru(
+      ({ portal, reach }) =>
+        !isNull(portal) && isReachableCell(reach, portal.y + 1, portal.x),
+    )
+    .value();
 
-const isPortalReached = (level: Level): boolean => {
-  const portal = findTile(level, TILE_PORTAL);
-  const reach = checkPlayerReach(level);
-
-  return portal !== null && isReachableCell(reach, portal.y + 1, portal.x);
-};
-
-const findVerticalLevels = (date: Date): Level[] =>
+const filterVerticalLevels = (date: Date): Level[] =>
   filter(generate(date).levels, (_, index) =>
     includes(VERTICAL_LEVELS, index + 1),
   );
@@ -76,7 +91,7 @@ describe('the climb up a vertical level', () => {
 
   it('should reach the portal when the generator stands a level up', () => {
     const lost = filter(
-      map(findVerticalLevels(createDate(0)), (level, index) => ({
+      map(filterVerticalLevels(createDate(0)), (level, index) => ({
         level: index,
         isReached: isPortalReached(level),
       })),

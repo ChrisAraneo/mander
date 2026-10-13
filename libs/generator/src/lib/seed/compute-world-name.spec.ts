@@ -21,4 +21,12 @@ describe('computeWorldName', () => {
       computeWorldName(new Date(Date.UTC(2026, 0, 6))),
     );
   });
+
+  it('should not change the old date when it names the world', () => {
+    const date = new Date(Date.UTC(2026, 0, 5));
+
+    computeWorldName(date);
+
+    expect(date.getTime()).toBe(DATE.getTime());
+  });
 });

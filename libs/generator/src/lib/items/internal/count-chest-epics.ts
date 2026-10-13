@@ -1,11 +1,11 @@
 import { filter, size } from 'lodash-es';
-import type { pickRandomChestRarities } from './pick-random-chest-rarities';
+import type { takeRandomChestRarities } from './take-random-chest-rarities';
 
 export const countChestEpics = ({
-  random,
   rarities,
-}: ReturnType<typeof pickRandomChestRarities>) => ({
   random,
+}: ReturnType<typeof takeRandomChestRarities>) => ({
   rarities,
   epics: size(filter(rarities, (rarity) => rarity === 'EPIC')),
+  random,
 });

@@ -1,8 +1,8 @@
 import { getBack, getFront } from '@mander/structures';
 import { map } from 'lodash-es';
 import type { createStructureGrid } from './create-structure-grid';
-import { cutLayer } from './cut-layer';
 import type { LayerPlacement } from './layer-placement';
+import { sliceLayer } from './slice-layer';
 
 export const splitStructureLayers = ({
   levelType,
@@ -12,12 +12,12 @@ export const splitStructureLayers = ({
   levelType,
   tiles,
   fronts: map(placements, ({ structure, row, column }): LayerPlacement => ({
-    layer: cutLayer(getFront(structure), levelType),
+    layer: sliceLayer(getFront(structure), levelType),
     row,
     column,
   })),
   backs: map(placements, ({ structure, row, column }): LayerPlacement => ({
-    layer: cutLayer(getBack(structure), levelType),
+    layer: sliceLayer(getBack(structure), levelType),
     row,
     column,
   })),

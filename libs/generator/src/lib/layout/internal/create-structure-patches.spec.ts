@@ -16,12 +16,12 @@ const LAYERS: LayerPlacement[] = [
   },
 ];
 
-const findRows = (patches: { row: number }[]): number[] => map(patches, 'row');
+const getRows = (patches: { row: number }[]): number[] => map(patches, 'row');
 
 describe('createStructurePatches', () => {
   it('should paint the front and prop it up to the floor in a horizontal level when it makes the marks', () => {
     expect(
-      findRows(
+      getRows(
         createStructurePatches({
           levelType: 'HORIZONTAL',
           tiles: LEVEL,
@@ -34,7 +34,7 @@ describe('createStructurePatches', () => {
 
   it('should paint the back and prop it up to the floor in a horizontal level when it makes the marks', () => {
     expect(
-      findRows(
+      getRows(
         createStructurePatches({
           levelType: 'HORIZONTAL',
           tiles: LEVEL,
@@ -47,7 +47,7 @@ describe('createStructurePatches', () => {
 
   it('should paint the front and lay the ground under it in a vertical level when it makes the marks', () => {
     expect(
-      findRows(
+      getRows(
         createStructurePatches({
           levelType: 'VERTICAL',
           tiles: LEVEL,
