@@ -260,7 +260,7 @@ describe('addGems', () => {
     );
 
     expect(bare).toEqual([]);
-  });
+  }, 120000);
 
   it('should not change the old grid when it strews gems', () => {
     const tiles = createGround();

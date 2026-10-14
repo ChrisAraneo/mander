@@ -1,7 +1,6 @@
+import type { Tile } from '@mander/model';
 import { patchTiles } from '../../structures/patch-tiles';
-import type { createSpikePatches } from './create-spike-patches';
+import type { SpikePatch } from './types/spike-patch';
 
-export const patchSpikeTiles = ({
-  tiles,
-  patches,
-}: ReturnType<typeof createSpikePatches>) => patchTiles(tiles, patches);
+export const patchSpikeTiles = ({ tiles, patches }: SpikePatch): Tile[][] =>
+  patchTiles(tiles, patches);

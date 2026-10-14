@@ -1,13 +1,14 @@
 import { match } from 'ts-pattern';
-import type { filterPortalCandidates } from './filter-portal-candidates';
 import { sortHorizontalPortalCandidates } from './sort-horizontal-portal-candidates';
 import { sortVerticalPortalCandidates } from './sort-vertical-portal-candidates';
+import type { PortalCandidates } from './types/portal-candidates';
+import type { SortedPortalCandidates } from './types/sorted-portal-candidates';
 
 export const sortPortalCandidates = ({
   tiles,
   levelType,
   candidates,
-}: ReturnType<typeof filterPortalCandidates>) => ({
+}: PortalCandidates): SortedPortalCandidates => ({
   tiles,
   candidates: match(levelType)
     .with('HORIZONTAL', () => sortHorizontalPortalCandidates(tiles, candidates))

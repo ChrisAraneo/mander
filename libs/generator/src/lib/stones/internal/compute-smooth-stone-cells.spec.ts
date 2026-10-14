@@ -1,9 +1,9 @@
 import { TILE_DIRT, type Tile } from '@mander/model';
-import { every, flatten, times } from 'lodash-es';
+import { every, flatten, times, toNumber } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { computeSmoothStoneCells } from './compute-smooth-stone-cells';
-import type { Field } from './field';
+import type { Field } from './types/field';
 
 const LEVEL: Tile[][] = [[TILE_DIRT]];
 
@@ -17,7 +17,7 @@ const createField = (value: number): Field =>
 const createBlockWithPillar = (): Field =>
   times(SIZE, (row) =>
     times(SIZE, (column) =>
-      Number(row >= SIZE / 2 || (row >= 2 && column === PILLAR_COLUMN)),
+      toNumber(row >= SIZE / 2 || (row >= 2 && column === PILLAR_COLUMN)),
     ),
   );
 

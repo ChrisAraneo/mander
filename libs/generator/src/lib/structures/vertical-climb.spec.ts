@@ -14,6 +14,7 @@ import {
   padStart,
   size,
   times,
+  toString,
 } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
@@ -29,7 +30,7 @@ const SECTORS = 2;
 const createDate = (day: number): Date => new Date(Date.UTC(2026, 0, 1 + day));
 
 const formatStructureName = (index: number): string =>
-  `VERTICAL_${padStart(String(index + 1), 3, '0')}`;
+  `VERTICAL_${padStart(toString(index + 1), 3, '0')}`;
 
 const createClimb = (structure: VerticalStructure): Level =>
   chain(

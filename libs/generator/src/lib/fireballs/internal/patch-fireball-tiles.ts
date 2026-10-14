@@ -1,7 +1,8 @@
+import type { Tile } from '@mander/model';
 import { patchTiles } from '../../structures/patch-tiles';
-import type { createFireballPatches } from './create-fireball-patches';
+import type { FireballPatch } from './types/fireball-patch';
 
 export const patchFireballTiles = ({
   tiles,
   patches,
-}: ReturnType<typeof createFireballPatches>) => patchTiles(tiles, patches);
+}: FireballPatch): Tile[][] => patchTiles(tiles, patches);

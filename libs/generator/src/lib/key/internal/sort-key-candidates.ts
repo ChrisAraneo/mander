@@ -1,13 +1,14 @@
 import { match } from 'ts-pattern';
-import type { filterKeyCandidates } from './filter-key-candidates';
 import { sortHorizontalKeyCandidates } from './sort-horizontal-key-candidates';
 import { sortVerticalKeyCandidates } from './sort-vertical-key-candidates';
+import type { KeyCandidates } from './types/key-candidates';
+import type { SortedKeyCandidates } from './types/sorted-key-candidates';
 
 export const sortKeyCandidates = ({
   tiles,
   levelType,
   candidates,
-}: ReturnType<typeof filterKeyCandidates>) => ({
+}: KeyCandidates): SortedKeyCandidates => ({
   tiles,
   candidates: match(levelType)
     .with('HORIZONTAL', () => sortHorizontalKeyCandidates(tiles, candidates))

@@ -1,6 +1,6 @@
 import { type createRandom, wrapHue } from '@mander/utils';
 import { computeHueAwayFromEntity } from './compute-hue-away-from-entity';
-import type { Ground } from './ground';
+import type { PaletteGround } from './types/palette-ground';
 
 const GROUND_HUES = [
   26, 32, 38, 44, 18, 52, 70, 90, 350, 330, 4, 12, 22, 48, 58, 80, 100, 116,
@@ -29,7 +29,7 @@ const CAP_LIGHTNESS_MAX = 54;
 
 export const createRandomGround = (
   random: ReturnType<typeof createRandom>,
-): Ground => ({
+): PaletteGround => ({
   hue: random.pick(GROUND_HUES),
   saturation: random.rollInt(GROUND_SATURATION_MIN, GROUND_SATURATION_MAX),
   lightness: random.rollInt(GROUND_LIGHTNESS_MIN, GROUND_LIGHTNESS_MAX),

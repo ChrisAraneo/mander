@@ -1,9 +1,11 @@
 import { VERTICAL_HEIGHT } from '@mander/structures';
 import { map, max } from 'lodash-es';
 import { VERTICAL_GROUND_DEPTH } from '../../consts';
-import type { Placement } from './placement';
+import type { StructurePlacement } from './types/structure-placement';
 
-export const computeStackedHeight = (placements: Placement[]): number =>
+export const computeStackedHeight = (
+  placements: StructurePlacement[],
+): number =>
   max(
     map(
       placements,

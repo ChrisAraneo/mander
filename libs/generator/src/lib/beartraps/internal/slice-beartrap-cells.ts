@@ -1,17 +1,12 @@
 import { round, size, take } from 'lodash-es';
-import type { Cell } from '../../types/cell';
-import type { sortBeartrapCellsRandomly } from './sort-beartrap-cells-randomly';
+import type { BeartrapShuffledCells } from './types/beartrap-shuffled-cells';
+import type { BeartrapSlice } from './types/beartrap-slice';
 
 export const sliceBeartrapCells = ({
   tiles,
   rate,
   cells,
-}: ReturnType<typeof sortBeartrapCellsRandomly>): BeartrapSlice => ({
+}: BeartrapShuffledCells): BeartrapSlice => ({
   tiles,
   cells: take(cells, round(size(cells) * rate)),
 });
-
-export interface BeartrapSlice {
-  tiles: number[][];
-  cells: Cell[];
-}

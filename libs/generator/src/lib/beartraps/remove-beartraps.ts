@@ -12,7 +12,7 @@ export const removeBeartraps = (
   tiles: Tile[][],
   levelNumber: number,
   random: ReturnType<typeof createRandom>,
-) =>
+): Tile[][] =>
   flow(
     getBeartrapRemovalRate,
     filterBeartrapCells,

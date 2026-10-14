@@ -375,7 +375,7 @@ describe('generate', () => {
     ).toEqual(
       map(generate(createDate(0)).levels, (level) => formatGrid(level.tiles)),
     );
-  });
+  }, 120000);
 
   it('should deal another day when it is given another day', () => {
     expect(

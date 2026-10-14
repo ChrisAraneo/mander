@@ -2,7 +2,7 @@ import type { ItemRarity } from '@mander/model';
 import { filter, isEmpty, some } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { EVERYDAY_POOL_BY_TYPE } from '../../consts';
-import type { ChestItemType } from '../types/chest-item-type';
+import type { ChestItemType } from '../../types/chest-item-type';
 
 export const filterTypesHolding = (
   typesLeft: ChestItemType[],

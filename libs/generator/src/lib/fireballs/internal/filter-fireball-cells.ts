@@ -1,12 +1,13 @@
 import { TILE_FIREBALL } from '@mander/model';
 import { match } from 'ts-pattern';
 import { filterTileCells } from '../../structures/filter-tile-cells';
-import type { computeFireballsLit } from './compute-fireballs-lit';
+import type { FireballCells } from './types/fireball-cells';
+import type { FireballLighting } from './types/fireball-lighting';
 
 export const filterFireballCells = ({
   tiles,
   lit,
-}: ReturnType<typeof computeFireballsLit>) => ({
+}: FireballLighting): FireballCells => ({
   tiles,
   cells: match(lit)
     .with(true, () => [])

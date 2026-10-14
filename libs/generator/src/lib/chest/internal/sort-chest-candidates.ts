@@ -1,12 +1,13 @@
 import { sortBy } from 'lodash-es';
 import { match } from 'ts-pattern';
-import type { filterChestCandidatesByPortal } from './filter-chest-candidates-by-portal';
+import type { ChestCandidates } from './types/chest-candidates';
+import type { SortedChestCandidates } from './types/sorted-chest-candidates';
 
 export const sortChestCandidates = ({
   tiles,
   levelType,
   candidates,
-}: ReturnType<typeof filterChestCandidatesByPortal>) => ({
+}: ChestCandidates): SortedChestCandidates => ({
   tiles,
   candidates: match(levelType)
     .with('HORIZONTAL', () =>

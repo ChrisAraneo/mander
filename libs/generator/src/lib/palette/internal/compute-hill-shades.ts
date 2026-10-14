@@ -1,5 +1,5 @@
 import type { Hsl } from '@mander/utils';
-import type { Sky } from './sky';
+import type { PaletteSky } from './types/palette-sky';
 
 const HILL_SATURATION_DROP = 6;
 
@@ -7,7 +7,7 @@ const FAR_HILL_LIGHTNESS_GAIN = 10;
 
 const NEAR_HILL_LIGHTNESS_GAIN = 4;
 
-export const computeHillShades = (sky: Sky): readonly [Hsl, Hsl] => [
+export const computeHillShades = (sky: PaletteSky): readonly [Hsl, Hsl] => [
   {
     hue: sky.hue,
     saturation: sky.saturation - HILL_SATURATION_DROP,

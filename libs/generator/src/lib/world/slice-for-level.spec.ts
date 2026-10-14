@@ -44,6 +44,10 @@ describe('sliceForLevel', () => {
     );
   });
 
+  it('should give no structures when its category holds none', () => {
+    expect(sliceForLevel(WORLD, ['VERTICAL'], 0)).toEqual([]);
+  });
+
   it('should not change the old structures or level categories when it slices a share', () => {
     const world: WorldStructures = {
       NORMAL: [...WORLD.NORMAL],

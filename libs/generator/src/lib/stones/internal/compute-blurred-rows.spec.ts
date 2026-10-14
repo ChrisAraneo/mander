@@ -1,4 +1,4 @@
-import { times } from 'lodash-es';
+import { times, toNumber } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { computeBlurredRows } from './compute-blurred-rows';
@@ -14,7 +14,7 @@ describe('computeBlurredRows', () => {
 
   it('should spread a lone cell out along its row when it blurs the field', () => {
     const blurred = computeBlurredRows([
-      times(21, (column) => Number(column === 10)),
+      times(21, (column) => toNumber(column === 10)),
     ]);
 
     expect(blurred[0][10]).toBeCloseTo(12 / TOTAL_WEIGHT);
@@ -25,7 +25,7 @@ describe('computeBlurredRows', () => {
 
   it('should repeat the edge cell when the blur reaches past the end of the row', () => {
     expect(
-      computeBlurredRows([times(20, (column) => Number(column === 0))])[0][0],
+      computeBlurredRows([times(20, (column) => toNumber(column === 0))])[0][0],
     ).toBeCloseTo(EDGE_WEIGHT / TOTAL_WEIGHT);
   });
 

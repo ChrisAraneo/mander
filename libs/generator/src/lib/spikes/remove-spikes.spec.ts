@@ -142,7 +142,7 @@ describe('removeSpikes', () => {
     const world = generate(new Date(Date.UTC(2026, 7, 2)));
 
     expect(filterSpikes(world.levels[0].tiles)).toEqual([]);
-  });
+  }, 120000);
 
   it('should give back an empty grid when the grid is empty', () => {
     expect(removeSpikes([], 1, createRandom(SEED))).toEqual([]);

@@ -38,6 +38,17 @@ describe('takeRandomWorldStructures', () => {
     );
   });
 
+  it('should pick no structures when the world has no levels', () => {
+    expect(
+      takeRandomWorldStructures({
+        name: 'WORLD',
+        palette: PALETTE,
+        levelCategories: [],
+        random: createRandom('DAY-1'),
+      }).worldStructures,
+    ).toEqual({ NORMAL: [], HARD: [], VERTICAL: [] });
+  });
+
   it('should pass the name on when it picks the structures', () => {
     expect(takeRandomWith('DAY-1').name).toBe('WORLD');
   });

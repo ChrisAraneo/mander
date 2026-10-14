@@ -7,7 +7,10 @@ import { getTopPlayerSpawnCandidate } from './internal/get-top-player-spawn-cand
 import { patchPlayerSpawnTiles } from './internal/patch-player-spawn-tiles';
 import { sortPlayerSpawnCandidates } from './internal/sort-player-spawn-candidates';
 
-export const addPlayerSpawn = (tiles: Tile[][], levelType: LevelType) =>
+export const addPlayerSpawn = (
+  tiles: Tile[][],
+  levelType: LevelType,
+): Tile[][] =>
   flow(
     filterPlayerSpawnCandidates,
     sortPlayerSpawnCandidates,

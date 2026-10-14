@@ -1,7 +1,6 @@
+import type { Tile } from '@mander/model';
 import { patchTiles } from '../../structures/patch-tiles';
-import type { createKeyPatches } from './create-key-patches';
+import type { KeyPatch } from './types/key-patch';
 
-export const patchKeyTiles = ({
-  tiles,
-  patches,
-}: ReturnType<typeof createKeyPatches>) => patchTiles(tiles, patches);
+export const patchKeyTiles = ({ tiles, patches }: KeyPatch): Tile[][] =>
+  patchTiles(tiles, patches);

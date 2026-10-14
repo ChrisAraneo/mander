@@ -5,7 +5,7 @@ import { createCannonPatches } from './internal/create-cannon-patches';
 import { filterCannonCells } from './internal/filter-cannon-cells';
 import { patchCannonTiles } from './internal/patch-cannon-tiles';
 
-export const removeCannons = (tiles: Tile[][], levelNumber: number) =>
+export const removeCannons = (tiles: Tile[][], levelNumber: number): Tile[][] =>
   flow(
     computeCannonsArmed,
     filterCannonCells,

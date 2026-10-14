@@ -12,7 +12,7 @@ export const removeSpikes = (
   tiles: Tile[][],
   levelNumber: number,
   random: ReturnType<typeof createRandom>,
-) =>
+): Tile[][] =>
   flow(
     getSpikeRemovalRate,
     filterSpikeCells,

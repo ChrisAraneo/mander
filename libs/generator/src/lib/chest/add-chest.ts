@@ -8,7 +8,7 @@ import { getTopChestCandidate } from './internal/get-top-chest-candidate';
 import { patchChestTiles } from './internal/patch-chest-tiles';
 import { sortChestCandidates } from './internal/sort-chest-candidates';
 
-export const addChest = (tiles: Tile[][], levelType: LevelType) =>
+export const addChest = (tiles: Tile[][], levelType: LevelType): Tile[][] =>
   flow(
     filterChestCandidates,
     filterChestCandidatesByPortal,

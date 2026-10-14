@@ -1,7 +1,6 @@
+import type { Tile } from '@mander/model';
 import { patchTiles } from '../../structures/patch-tiles';
-import type { createCannonPatches } from './create-cannon-patches';
+import type { CannonPatch } from './types/cannon-patch';
 
-export const patchCannonTiles = ({
-  tiles,
-  patches,
-}: ReturnType<typeof createCannonPatches>) => patchTiles(tiles, patches);
+export const patchCannonTiles = ({ tiles, patches }: CannonPatch): Tile[][] =>
+  patchTiles(tiles, patches);

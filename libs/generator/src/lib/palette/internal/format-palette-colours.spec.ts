@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import { formatPaletteColours } from './format-palette-colours';
-import type { Ground } from './ground';
-import type { Sky } from './sky';
+import type { PaletteGround } from './types/palette-ground';
+import type { PaletteSky } from './types/palette-sky';
 
-const SKY: Sky = {
+const SKY: PaletteSky = {
   hue: 200,
   glowHue: 30,
   saturation: 30,
@@ -12,7 +12,7 @@ const SKY: Sky = {
   topLightness: 30,
 };
 
-const GROUND: Ground = {
+const GROUND: PaletteGround = {
   hue: 40,
   saturation: 25,
   lightness: 32,

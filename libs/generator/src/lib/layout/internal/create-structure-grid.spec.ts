@@ -11,16 +11,16 @@ import { describe, expect, it } from 'vitest';
 
 import { VERTICAL_GROUND_DEPTH } from '../../consts';
 import { createStructureGrid } from './create-structure-grid';
-import type { Placement } from './placement';
+import type { StructurePlacement } from './types/structure-placement';
 
 const SECTOR: Sector = [[], []];
 
-const JOINED: Placement[] = [
+const JOINED: StructurePlacement[] = [
   { structure: SECTOR, row: 2, column: 0 },
   { structure: SECTOR, row: 0, column: STRUCTURE_WIDTH },
 ];
 
-const STACKED: Placement[] = [
+const STACKED: StructurePlacement[] = [
   { structure: SECTOR, row: VERTICAL_BAND_HEIGHT, column: 0 },
   { structure: SECTOR, row: 0, column: 0 },
 ];

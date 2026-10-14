@@ -3,12 +3,13 @@ import { createAirGrid } from '../../structures/create-air-grid';
 import { computeGridWidth } from './compute-grid-width';
 import { computeJoinedHeight } from './compute-joined-height';
 import { computeStackedHeight } from './compute-stacked-height';
-import type { computeStructurePlacements } from './compute-structure-placements';
+import type { StructureGrid } from './types/structure-grid';
+import type { StructureLayout } from './types/structure-layout';
 
 export const createStructureGrid = ({
   levelType,
   placements,
-}: ReturnType<typeof computeStructurePlacements>) => ({
+}: StructureLayout): StructureGrid => ({
   levelType,
   placements,
   tiles: createAirGrid(

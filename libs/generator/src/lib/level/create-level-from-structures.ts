@@ -1,3 +1,4 @@
+import type { GameLevel } from '@mander/engine';
 import type { Sector } from '@mander/structures';
 import type { createRandom } from '@mander/utils';
 import { flow } from 'lodash-es';
@@ -13,7 +14,7 @@ export const createLevelFromStructures = (
   levelNumber: number,
   structures: Sector[],
   random: ReturnType<typeof createRandom>,
-) =>
+): GameLevel =>
   flow(
     createLevelLayers,
     removeLevelWeapons,

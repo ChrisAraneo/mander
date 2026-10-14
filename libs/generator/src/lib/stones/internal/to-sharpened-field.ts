@@ -1,6 +1,6 @@
 import { map } from 'lodash-es';
-import type { Field } from './field';
 import { toFlag } from './to-flag';
+import type { Field } from './types/field';
 
 const STONE_SHARE = 0.5;
 

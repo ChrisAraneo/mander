@@ -1,5 +1,5 @@
 import { addPadding } from '../../padding/add-padding';
-import type { addLevelEnds } from './add-level-ends';
+import type { LevelDraft } from './types/level-draft';
 
 export const addLevelPadding = ({
   levelNumber,
@@ -8,7 +8,7 @@ export const addLevelPadding = ({
   tiles,
   backTiles,
   random,
-}: ReturnType<typeof addLevelEnds>) => ({
+}: LevelDraft): LevelDraft => ({
   levelNumber,
   levelType,
   structures,

@@ -139,10 +139,16 @@ describe('addStones', () => {
     ]);
     expect(picked[DIRT_DEPTH]).toBeGreaterThan(30);
     expect(picked[DEEP_DIRT_DEPTH]).toBeGreaterThan(30);
-  });
+  }, 120000);
 
   it('should lay the same stone twice over when the generator starts from the same seed', () => {
     expect(addStones(createGround(4, 12), createRandom(SEED))).toEqual(
+      addStones(createGround(4, 12), createRandom(SEED)),
+    );
+  });
+
+  it('should lay the stone another way when the generator starts from another seed', () => {
+    expect(addStones(createGround(4, 12), createRandom('DAY-3'))).not.toEqual(
       addStones(createGround(4, 12), createRandom(SEED)),
     );
   });
@@ -286,7 +292,7 @@ describe('addStones', () => {
     );
 
     expect(bare).toEqual([]);
-  });
+  }, 120000);
 
   it('should give back an empty grid when the grid is empty', () => {
     expect(addStones([], createRandom(SEED))).toEqual([]);

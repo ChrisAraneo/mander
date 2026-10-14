@@ -1,6 +1,6 @@
 import { reduce, times } from 'lodash-es';
 import { computeBlurredField } from './compute-blurred-field';
-import type { Field } from './field';
+import type { Field } from './types/field';
 
 const BLUR_PASSES = 2;
 

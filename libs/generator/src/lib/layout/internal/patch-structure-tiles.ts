@@ -1,11 +1,12 @@
+import type { Layers } from '@mander/model';
 import { patchTiles } from '../../structures/patch-tiles';
-import type { createStructurePatches } from './create-structure-patches';
+import type { StructurePatch } from './types/structure-patch';
 
 export const patchStructureTiles = ({
   tiles,
   frontPatches,
   backPatches,
-}: ReturnType<typeof createStructurePatches>) => ({
+}: StructurePatch): Layers => ({
   tiles: patchTiles(tiles, frontPatches),
   backTiles: patchTiles(tiles, backPatches),
 });

@@ -13,7 +13,7 @@ export const addGems = (
   tiles: Tile[][],
   levelType: LevelType,
   random: ReturnType<typeof createRandom>,
-) =>
+): Tile[][] =>
   flow(
     filterGemCandidates,
     splitGemCandidates,

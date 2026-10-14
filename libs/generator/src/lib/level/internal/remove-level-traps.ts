@@ -1,6 +1,6 @@
 import { removeBeartraps } from '../../beartraps/remove-beartraps';
 import { removeSpikes } from '../../spikes/remove-spikes';
-import type { addLevelPadding } from './add-level-padding';
+import type { LevelDraft } from './types/level-draft';
 
 export const removeLevelTraps = ({
   levelNumber,
@@ -9,7 +9,7 @@ export const removeLevelTraps = ({
   tiles,
   backTiles,
   random,
-}: ReturnType<typeof addLevelPadding>) => ({
+}: LevelDraft): LevelDraft => ({
   levelNumber,
   levelType,
   structures,

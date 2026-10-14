@@ -4,6 +4,7 @@ import { CHEST_HEIGHT } from '../../consts';
 import { filterStandingSpots } from '../../structures/filter-standing-spots';
 import { filterStandingSurfaceSpots } from '../../structures/filter-standing-surface-spots';
 import type { LevelType } from '../../types/level-type';
+import type { ChestCandidates } from './types/chest-candidates';
 
 export const filterChestCandidates = ({
   tiles,
@@ -11,7 +12,7 @@ export const filterChestCandidates = ({
 }: {
   tiles: Tile[][];
   levelType: LevelType;
-}) => ({
+}): ChestCandidates => ({
   tiles,
   levelType,
   candidates: match(levelType)

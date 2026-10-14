@@ -1,12 +1,13 @@
 import { sortBy } from 'lodash-es';
-import type { filterSpikeCells } from './filter-spike-cells';
+import type { SpikeCells } from './types/spike-cells';
+import type { SpikeShuffledCells } from './types/spike-shuffled-cells';
 
 export const sortSpikeCellsRandomly = ({
   tiles,
   rate,
   cells,
   random,
-}: ReturnType<typeof filterSpikeCells>) => ({
+}: SpikeCells): SpikeShuffledCells => ({
   tiles,
   rate,
   cells: sortBy(cells, () => random.rollFloat()),

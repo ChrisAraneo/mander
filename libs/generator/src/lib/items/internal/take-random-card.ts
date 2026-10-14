@@ -1,14 +1,14 @@
 import type { ItemRarity } from '@mander/model';
 import type { createRandom } from '@mander/utils';
 import { filterTypesHolding } from './filter-types-holding';
-import type { Picking } from './picking';
 import { takeRandomItemOfType } from './take-random-item-of-type';
+import type { ChestPicking } from './types/chest-picking';
 
 export const takeRandomCard = (
-  picking: Picking,
+  picking: ChestPicking,
   rarity: ItemRarity,
   random: ReturnType<typeof createRandom>,
-): Picking =>
+): ChestPicking =>
   takeRandomItemOfType(
     picking,
     random.pick(filterTypesHolding(picking.typesLeft, rarity)),

@@ -7,8 +7,8 @@ import {
 import { map, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { Placement } from './placement';
 import { splitStructureLayers } from './split-structure-layers';
+import type { StructurePlacement } from './types/structure-placement';
 
 const FRONT = times(VERTICAL_HEIGHT, () => [TILE_DIRT]);
 
@@ -16,7 +16,7 @@ const BACK = times(VERTICAL_HEIGHT, () => [TILE_BRICK]);
 
 const SECTOR: Sector = [FRONT, BACK];
 
-const PLACEMENTS: Placement[] = [
+const PLACEMENTS: StructurePlacement[] = [
   { structure: SECTOR, row: 4, column: 0 },
   { structure: SECTOR, row: 0, column: 20 },
 ];

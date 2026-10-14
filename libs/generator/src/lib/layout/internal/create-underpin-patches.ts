@@ -2,7 +2,7 @@ import { isSolidTile, type Tile, TILE_AIR } from '@mander/model';
 import { STRUCTURE_HEIGHT } from '@mander/structures';
 import { filter, flatMap, map, range, size, uniqBy } from 'lodash-es';
 import type { TilePatch } from '../../types/tile-patch';
-import type { LayerPlacement } from './layer-placement';
+import type { LayerPlacement } from './types/layer-placement';
 
 const BOTTOM_ROW = STRUCTURE_HEIGHT - 1;
 

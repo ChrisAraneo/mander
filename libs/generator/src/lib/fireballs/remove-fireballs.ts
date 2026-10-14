@@ -5,7 +5,10 @@ import { createFireballPatches } from './internal/create-fireball-patches';
 import { filterFireballCells } from './internal/filter-fireball-cells';
 import { patchFireballTiles } from './internal/patch-fireball-tiles';
 
-export const removeFireballs = (tiles: Tile[][], levelNumber: number) =>
+export const removeFireballs = (
+  tiles: Tile[][],
+  levelNumber: number,
+): Tile[][] =>
   flow(
     computeFireballsLit,
     filterFireballCells,

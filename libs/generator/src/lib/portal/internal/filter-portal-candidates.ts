@@ -3,6 +3,7 @@ import { match } from 'ts-pattern';
 import { filterStandingSpots } from '../../structures/filter-standing-spots';
 import { filterStandingSurfaceSpots } from '../../structures/filter-standing-surface-spots';
 import type { LevelType } from '../../types/level-type';
+import type { PortalCandidates } from './types/portal-candidates';
 
 export const filterPortalCandidates = ({
   tiles,
@@ -10,7 +11,7 @@ export const filterPortalCandidates = ({
 }: {
   tiles: Tile[][];
   levelType: LevelType;
-}) => ({
+}): PortalCandidates => ({
   tiles,
   levelType,
   candidates: match(levelType)

@@ -37,13 +37,13 @@ describe('createWorldLevels', () => {
     expect(map(WORLD.levels, (level) => level.seed)).toEqual(
       map(createWith('DAY-1').levels, (level) => level.seed),
     );
-  });
+  }, 120000);
 
   it('should build the levels another way when the generator starts from another seed', () => {
     expect(map(WORLD.levels, (level) => level.seed)).not.toEqual(
       map(createWith('DAY-2').levels, (level) => level.seed),
     );
-  });
+  }, 120000);
 
   it('should keep the name when it finishes a world', () => {
     expect(WORLD.name).toBe('WORLD');

@@ -1,10 +1,11 @@
-import type { createPaletteSky } from './create-palette-sky';
 import { createRandomGround } from './create-random-ground';
+import type { PaletteDraft } from './types/palette-draft';
+import type { PaletteSkyDraft } from './types/palette-sky-draft';
 
 export const createPaletteGround = ({
   sky,
   random,
-}: ReturnType<typeof createPaletteSky>) => ({
+}: PaletteSkyDraft): PaletteDraft => ({
   sky,
   ground: createRandomGround(random),
 });

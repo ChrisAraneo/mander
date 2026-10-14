@@ -1,14 +1,14 @@
 import { TILE_STONE } from '@mander/model';
 import { flatMap } from 'lodash-es';
 import { match } from 'ts-pattern';
-import type { removeLoneStones } from './remove-lone-stones';
-
-const STONE_FLAG = 1;
+import { STONE_FLAG } from '../../consts';
+import type { StoneKeptCells } from './types/stone-kept-cells';
+import type { StonePatch } from './types/stone-patch';
 
 export const createStonePatches = ({
   tiles,
   cells,
-}: ReturnType<typeof removeLoneStones>) => ({
+}: StoneKeptCells): StonePatch => ({
   tiles,
   patches: flatMap(cells, (flags, row) =>
     flatMap(flags, (stone, column) =>

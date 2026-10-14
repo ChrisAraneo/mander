@@ -1,5 +1,5 @@
 import { createRandom } from '@mander/utils';
-import { map, size, times, uniq } from 'lodash-es';
+import { map, size, times, toString, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { findChestType } from './find-chest-type';
@@ -52,7 +52,7 @@ describe('takeRandomEverydayItems', () => {
       size(
         uniq(
           times(30, (index) =>
-            String(
+            toString(
               map(
                 takeRandomEverydayItems(
                   ['COMMON', 'RARE'],

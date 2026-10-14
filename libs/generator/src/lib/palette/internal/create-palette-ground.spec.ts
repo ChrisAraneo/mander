@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest';
 
 import { createPaletteGround } from './create-palette-ground';
 import { createRandomGround } from './create-random-ground';
-import type { Sky } from './sky';
+import type { PaletteSky } from './types/palette-sky';
 
-const SKY: Sky = {
+const SKY: PaletteSky = {
   hue: 200,
   glowHue: 30,
   saturation: 30,

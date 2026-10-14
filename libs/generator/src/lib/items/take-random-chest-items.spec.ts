@@ -33,9 +33,9 @@ import {
   CHEST_ITEM_TYPES,
   RARITY_CHANCE,
 } from '../consts';
+import type { ChestItemType } from '../types/chest-item-type';
 import { findChestType } from './internal/find-chest-type';
 import { takeRandomChestItems } from './take-random-chest-items';
-import type { ChestItemType } from './types/chest-item-type';
 
 const SEED = 'PROBE-SEED';
 

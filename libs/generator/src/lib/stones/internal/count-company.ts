@@ -1,5 +1,5 @@
 import { sum } from 'lodash-es';
-import type { Field } from './field';
+import type { Field } from './types/field';
 
 export const countCompany = (
   blobs: Field,

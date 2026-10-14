@@ -1,7 +1,6 @@
+import type { Tile } from '@mander/model';
 import { patchTiles } from '../../structures/patch-tiles';
-import type { createGemPatches } from './create-gem-patches';
+import type { GemPatch } from './types/gem-patch';
 
-export const patchGemTiles = ({
-  tiles,
-  patches,
-}: ReturnType<typeof createGemPatches>) => patchTiles(tiles, patches);
+export const patchGemTiles = ({ tiles, patches }: GemPatch): Tile[][] =>
+  patchTiles(tiles, patches);

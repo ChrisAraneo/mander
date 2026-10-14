@@ -1,6 +1,6 @@
 import { addPlayerSpawn } from '../../player-spawn/add-player-spawn';
 import { addPortal } from '../../portal/add-portal';
-import type { removeLevelWeapons } from './remove-level-weapons';
+import type { LevelDraft } from './types/level-draft';
 
 export const addLevelEnds = ({
   levelNumber,
@@ -9,7 +9,7 @@ export const addLevelEnds = ({
   tiles,
   backTiles,
   random,
-}: ReturnType<typeof removeLevelWeapons>) => ({
+}: LevelDraft): LevelDraft => ({
   levelNumber,
   levelType,
   structures,

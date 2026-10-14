@@ -1,12 +1,13 @@
 import { filter, flatMap, map, range, size } from 'lodash-es';
-import type { getSpikeRemovalRate } from './get-spike-removal-rate';
 import { isClearableSpikeTile } from './is-clearable-spike-tile';
+import type { SpikeCells } from './types/spike-cells';
+import type { SpikeRemovalRate } from './types/spike-removal-rate';
 
 export const filterSpikeCells = ({
   tiles,
   rate,
   random,
-}: ReturnType<typeof getSpikeRemovalRate>) => ({
+}: SpikeRemovalRate): SpikeCells => ({
   tiles,
   rate,
   cells: flatMap(tiles, (cells, row) =>

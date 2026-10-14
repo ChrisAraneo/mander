@@ -4,7 +4,7 @@ import { map, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { createStructurePatches } from './create-structure-patches';
-import type { LayerPlacement } from './layer-placement';
+import type { LayerPlacement } from './types/layer-placement';
 
 const LEVEL: Tile[][] = times(STRUCTURE_HEIGHT + 1, () => [TILE_AIR]);
 

@@ -1,10 +1,8 @@
 import { SKY_HEIGHT } from '../../consts';
-import type { computeMissingDepth } from './compute-missing-depth';
+import type { PaddingDepth } from './types/padding-depth';
+import type { PaddingPlan } from './types/padding-plan';
 
-export const createPadding = ({
-  tiles,
-  depth,
-}: ReturnType<typeof computeMissingDepth>) => ({
+export const createPadding = ({ tiles, depth }: PaddingDepth): PaddingPlan => ({
   tiles,
   padding: {
     sky: SKY_HEIGHT,

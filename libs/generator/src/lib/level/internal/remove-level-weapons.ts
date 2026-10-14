@@ -1,6 +1,6 @@
 import { removeCannons } from '../../cannons/remove-cannons';
 import { removeFireballs } from '../../fireballs/remove-fireballs';
-import type { createLevelLayers } from './create-level-layers';
+import type { LevelDraft } from './types/level-draft';
 
 export const removeLevelWeapons = ({
   levelNumber,
@@ -9,7 +9,7 @@ export const removeLevelWeapons = ({
   tiles,
   backTiles,
   random,
-}: ReturnType<typeof createLevelLayers>) => ({
+}: LevelDraft): LevelDraft => ({
   levelNumber,
   levelType,
   structures,

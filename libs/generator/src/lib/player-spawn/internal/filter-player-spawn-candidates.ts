@@ -3,6 +3,7 @@ import { match } from 'ts-pattern';
 import type { LevelType } from '../../types/level-type';
 import { filterHeadroomSpots } from './filter-headroom-spots';
 import { filterSurfaceSpots } from './filter-surface-spots';
+import type { PlayerSpawnCandidates } from './types/player-spawn-candidates';
 
 export const filterPlayerSpawnCandidates = ({
   tiles,
@@ -10,7 +11,7 @@ export const filterPlayerSpawnCandidates = ({
 }: {
   tiles: Tile[][];
   levelType: LevelType;
-}) => ({
+}): PlayerSpawnCandidates => ({
   tiles,
   levelType,
   candidates: match(levelType)

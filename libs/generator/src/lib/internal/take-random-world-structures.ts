@@ -1,12 +1,13 @@
 import { takeRandomCategoryStructures } from '../world/take-random-category-structures';
-import type { createWorldLevelCategories } from './create-world-level-categories';
+import type { WorldDrawnStructures } from './types/world-drawn-structures';
+import type { WorldLevelCategories } from './types/world-level-categories';
 
 export const takeRandomWorldStructures = ({
   name,
   palette,
   levelCategories,
   random,
-}: ReturnType<typeof createWorldLevelCategories>) => ({
+}: WorldLevelCategories): WorldDrawnStructures => ({
   name,
   palette,
   levelCategories,

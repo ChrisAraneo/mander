@@ -1,20 +1,23 @@
 import type { Tile } from '@mander/model';
 import { flow } from 'lodash-es';
 import { addPaddingRows } from './internal/add-padding-rows';
-import { computeMissingDepth } from './internal/compute-missing-depth';
-import { createBedrockRows } from './internal/create-bedrock-rows';
+import { computePaddingMissingDepth } from './internal/compute-padding-missing-depth';
 import { createPadding } from './internal/create-padding';
-import { createSkyRows } from './internal/create-sky-rows';
-import { findLowestFilledRow } from './internal/find-lowest-filled-row';
-import { getFloorRow } from './internal/get-floor-row';
+import { createPaddingBedrockRows } from './internal/create-padding-bedrock-rows';
+import { createPaddingSkyRows } from './internal/create-padding-sky-rows';
+import { findPaddingLowestFilledRow } from './internal/find-padding-lowest-filled-row';
+import { getPaddingFloorRow } from './internal/get-padding-floor-row';
 
-export const addPadding = (tiles: Tile[][], front = tiles) =>
+export const addPadding = (
+  tiles: Tile[][],
+  front: Tile[][] = tiles,
+): Tile[][] =>
   flow(
-    findLowestFilledRow,
-    computeMissingDepth,
+    findPaddingLowestFilledRow,
+    computePaddingMissingDepth,
     createPadding,
-    getFloorRow,
-    createSkyRows,
-    createBedrockRows,
+    getPaddingFloorRow,
+    createPaddingSkyRows,
+    createPaddingBedrockRows,
     addPaddingRows,
   )({ tiles, front });

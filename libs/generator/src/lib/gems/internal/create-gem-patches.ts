@@ -1,12 +1,13 @@
 import { TILE_GEM } from '@mander/model';
 import { map } from 'lodash-es';
 import { GEM_REST_HEIGHT } from '../../consts';
-import type { filterGemCandidatesApart } from './filter-gem-candidates-apart';
+import type { ApartGemCandidates } from './types/apart-gem-candidates';
+import type { GemPatch } from './types/gem-patch';
 
 export const createGemPatches = ({
   tiles,
   candidates,
-}: ReturnType<typeof filterGemCandidatesApart>) => ({
+}: ApartGemCandidates): GemPatch => ({
   tiles,
   patches: map(candidates, ({ row, column }) => ({
     row: row - GEM_REST_HEIGHT,

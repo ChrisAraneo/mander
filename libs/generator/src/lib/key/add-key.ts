@@ -7,7 +7,7 @@ import { getTopKeyCandidate } from './internal/get-top-key-candidate';
 import { patchKeyTiles } from './internal/patch-key-tiles';
 import { sortKeyCandidates } from './internal/sort-key-candidates';
 
-export const addKey = (tiles: Tile[][], levelType: LevelType) =>
+export const addKey = (tiles: Tile[][], levelType: LevelType): Tile[][] =>
   flow(
     filterKeyCandidates,
     sortKeyCandidates,

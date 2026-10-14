@@ -1,19 +1,15 @@
 import { TILE_BEARTRAP } from '@mander/model';
-import { filter, flatMap, map, range, size } from 'lodash-es';
-import type { getBeartrapRemovalRate } from './get-beartrap-removal-rate';
+import { filterTileCells } from '../../structures/filter-tile-cells';
+import type { BeartrapCells } from './types/beartrap-cells';
+import type { BeartrapRemovalRate } from './types/beartrap-removal-rate';
 
 export const filterBeartrapCells = ({
   tiles,
   rate,
   random,
-}: ReturnType<typeof getBeartrapRemovalRate>) => ({
+}: BeartrapRemovalRate): BeartrapCells => ({
   tiles,
   rate,
-  cells: flatMap(tiles, (cells, row) =>
-    map(
-      filter(range(size(cells)), (column) => cells[column] === TILE_BEARTRAP),
-      (column) => ({ row, column }),
-    ),
-  ),
+  cells: filterTileCells(tiles, TILE_BEARTRAP),
   random,
 });

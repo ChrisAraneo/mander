@@ -1,4 +1,4 @@
-import { range } from 'lodash-es';
+import { range, toNumber } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { computeTapAverage } from './compute-tap-average';
@@ -23,16 +23,16 @@ describe('computeTapAverage', () => {
   });
 
   it('should weigh the middle tap the most when only the middle tap sees a value', () => {
-    expect(computeTapAverage((offset) => Number(offset === 0))).toBeCloseTo(
+    expect(computeTapAverage((offset) => toNumber(offset === 0))).toBeCloseTo(
       12 / TOTAL_WEIGHT,
     );
   });
 
   it('should weigh the farthest taps the least when only the farthest taps see a value', () => {
-    expect(computeTapAverage((offset) => Number(offset === 8))).toBeCloseTo(
+    expect(computeTapAverage((offset) => toNumber(offset === 8))).toBeCloseTo(
       2 / TOTAL_WEIGHT,
     );
-    expect(computeTapAverage((offset) => Number(offset === -8))).toBeCloseTo(
+    expect(computeTapAverage((offset) => toNumber(offset === -8))).toBeCloseTo(
       2 / TOTAL_WEIGHT,
     );
   });

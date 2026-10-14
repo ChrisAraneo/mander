@@ -1,10 +1,11 @@
 import { head } from 'lodash-es';
-import type { sortPortalCandidates } from './sort-portal-candidates';
+import type { SortedPortalCandidates } from './types/sorted-portal-candidates';
+import type { TopPortalCandidate } from './types/top-portal-candidate';
 
 export const getTopPortalCandidate = ({
   tiles,
   candidates,
-}: ReturnType<typeof sortPortalCandidates>) => ({
+}: SortedPortalCandidates): TopPortalCandidate => ({
   tiles,
   candidate: head(candidates),
 });

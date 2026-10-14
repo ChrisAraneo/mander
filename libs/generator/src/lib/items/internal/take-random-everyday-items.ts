@@ -2,9 +2,9 @@ import type { Item, ItemRarity } from '@mander/model';
 import type { createRandom } from '@mander/utils';
 import { filter, isEmpty, reduce } from 'lodash-es';
 import { CHEST_ITEM_TYPES, EVERYDAY_POOL_BY_TYPE } from '../../consts';
-import type { ChestItemType } from '../types/chest-item-type';
-import type { Picking } from './picking';
+import type { ChestItemType } from '../../types/chest-item-type';
 import { takeRandomCard } from './take-random-card';
+import type { ChestPicking } from './types/chest-picking';
 
 const EVERYDAY_TYPES: readonly ChestItemType[] = Object.freeze(
   filter(CHEST_ITEM_TYPES, (type) => !isEmpty(EVERYDAY_POOL_BY_TYPE[type])),
@@ -16,7 +16,7 @@ export const takeRandomEverydayItems = (
 ): Item[] =>
   reduce(
     rarities,
-    (picking: Picking, rarity): Picking =>
+    (picking: ChestPicking, rarity): ChestPicking =>
       takeRandomCard(picking, rarity, random),
     { picked: [], typesLeft: [...EVERYDAY_TYPES] },
   ).picked;

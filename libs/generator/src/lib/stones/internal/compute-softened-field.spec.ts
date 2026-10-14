@@ -1,4 +1,4 @@
-import { times } from 'lodash-es';
+import { times, toNumber } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { computeBlurredField } from './compute-blurred-field';
@@ -10,7 +10,7 @@ const MIDDLE = 20;
 
 const createDot = (): number[][] =>
   times(SIZE, (row) =>
-    times(SIZE, (column) => Number(row === MIDDLE && column === MIDDLE)),
+    times(SIZE, (column) => toNumber(row === MIDDLE && column === MIDDLE)),
   );
 
 describe('computeSoftenedField', () => {

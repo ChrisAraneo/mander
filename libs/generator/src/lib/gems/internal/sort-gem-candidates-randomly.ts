@@ -1,14 +1,15 @@
 import { match } from 'ts-pattern';
 import { sortByColumnRandomly } from './sort-by-column-randomly';
 import { sortBySpotRandomly } from './sort-by-spot-randomly';
-import type { splitGemCandidates } from './split-gem-candidates';
+import type { GemSlots } from './types/gem-slots';
+import type { ShuffledGemSlots } from './types/shuffled-gem-slots';
 
 export const sortGemCandidatesRandomly = ({
   tiles,
   levelType,
   slots,
   random,
-}: ReturnType<typeof splitGemCandidates>) => ({
+}: GemSlots): ShuffledGemSlots => ({
   tiles,
   levelType,
   slots: match(levelType)

@@ -1,14 +1,15 @@
 import { match } from 'ts-pattern';
-import type { filterGemCandidates } from './filter-gem-candidates';
 import { splitIntoColumnSlots } from './split-into-column-slots';
 import { splitIntoRowSlots } from './split-into-row-slots';
+import type { GemCandidates } from './types/gem-candidates';
+import type { GemSlots } from './types/gem-slots';
 
 export const splitGemCandidates = ({
   tiles,
   levelType,
   candidates,
   random,
-}: ReturnType<typeof filterGemCandidates>) => ({
+}: GemCandidates): GemSlots => ({
   tiles,
   levelType,
   slots: match(levelType)

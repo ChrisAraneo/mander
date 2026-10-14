@@ -4,7 +4,7 @@ import { patchTiles } from '../../structures/patch-tiles';
 import type { TilePatch } from '../../types/tile-patch';
 import { createGroundPatches } from './create-ground-patches';
 import { createPaintPatches } from './create-paint-patches';
-import type { LayerPlacement } from './layer-placement';
+import type { LayerPlacement } from './types/layer-placement';
 
 export const createGroundedPatches = (
   tiles: Tile[][],

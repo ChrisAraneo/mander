@@ -1,7 +1,7 @@
 import { isSolidTile, type Tile } from '@mander/model';
 import { map, reduce } from 'lodash-es';
 import { match } from 'ts-pattern';
-import type { Field } from './field';
+import type { Field } from './types/field';
 
 const UNBURIED = -1;
 

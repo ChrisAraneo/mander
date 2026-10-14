@@ -7,7 +7,7 @@ import { getTopPortalCandidate } from './internal/get-top-portal-candidate';
 import { patchPortalTiles } from './internal/patch-portal-tiles';
 import { sortPortalCandidates } from './internal/sort-portal-candidates';
 
-export const addPortal = (tiles: Tile[][], levelType: LevelType) =>
+export const addPortal = (tiles: Tile[][], levelType: LevelType): Tile[][] =>
   flow(
     filterPortalCandidates,
     sortPortalCandidates,

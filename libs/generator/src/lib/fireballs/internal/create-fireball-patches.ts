@@ -1,11 +1,12 @@
 import { map } from 'lodash-es';
 import { computeAverageNeighbourTile } from './compute-average-neighbour-tile';
-import type { filterFireballCells } from './filter-fireball-cells';
+import type { FireballCells } from './types/fireball-cells';
+import type { FireballPatch } from './types/fireball-patch';
 
 export const createFireballPatches = ({
   tiles,
   cells,
-}: ReturnType<typeof filterFireballCells>) => ({
+}: FireballCells): FireballPatch => ({
   tiles,
   patches: map(cells, ({ row, column }) => ({
     row,

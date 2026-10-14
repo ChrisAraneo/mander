@@ -4,6 +4,7 @@ import { KEY_HEIGHT } from '../../consts';
 import { filterStandingSpots } from '../../structures/filter-standing-spots';
 import { filterStandingSurfaceSpots } from '../../structures/filter-standing-surface-spots';
 import type { LevelType } from '../../types/level-type';
+import type { KeyCandidates } from './types/key-candidates';
 
 export const filterKeyCandidates = ({
   tiles,
@@ -11,7 +12,7 @@ export const filterKeyCandidates = ({
 }: {
   tiles: Tile[][];
   levelType: LevelType;
-}) => ({
+}): KeyCandidates => ({
   tiles,
   levelType,
   candidates: match(levelType)

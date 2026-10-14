@@ -1,5 +1,5 @@
 import type { createRandom } from '@mander/utils';
-import type { Sky } from './sky';
+import type { PaletteSky } from './types/palette-sky';
 
 const SKY_HUES = [
   172, 186, 196, 206, 216, 228, 240, 254, 268, 284, 300, 320, 136, 150, 162,
@@ -22,7 +22,7 @@ const SKY_TOP_LIGHTNESS_MAX = 34;
 
 export const createRandomSky = (
   random: ReturnType<typeof createRandom>,
-): Sky => ({
+): PaletteSky => ({
   hue: random.pick(SKY_HUES),
   glowHue: random.pick(GLOW_HUES),
   saturation: random.rollInt(SKY_SATURATION_MIN, SKY_SATURATION_MAX),

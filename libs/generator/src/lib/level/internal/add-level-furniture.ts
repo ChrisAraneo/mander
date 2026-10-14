@@ -2,7 +2,8 @@ import { addChest } from '../../chest/add-chest';
 import { addGems } from '../../gems/add-gems';
 import { addKey } from '../../key/add-key';
 import { addStones } from '../../stones/add-stones';
-import type { removeLevelTraps } from './remove-level-traps';
+import type { FurnishedLevel } from './types/furnished-level';
+import type { LevelDraft } from './types/level-draft';
 
 export const addLevelFurniture = ({
   levelNumber,
@@ -11,7 +12,7 @@ export const addLevelFurniture = ({
   tiles,
   backTiles,
   random,
-}: ReturnType<typeof removeLevelTraps>) => ({
+}: LevelDraft): FurnishedLevel => ({
   levelNumber,
   structures,
   tiles: addStones(

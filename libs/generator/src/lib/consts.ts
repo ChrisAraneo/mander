@@ -24,7 +24,7 @@ import {
 } from '@mander/model';
 import { STRUCTURE_WIDTH } from '@mander/structures';
 import { filter, flatMap, mapValues, reject } from 'lodash-es';
-import type { ChestItemType } from './items/types/chest-item-type';
+import type { ChestItemType } from './types/chest-item-type';
 
 export const LEVELS_PER_DAY = 8;
 
@@ -50,14 +50,6 @@ export const FIRST_FIREBALL_LEVEL = 4;
 
 export const LAST_FIREBALL_LEVEL = 8;
 
-export const SPIKE_REMOVAL_RATES: readonly number[] = Object.freeze([
-  1, 0.8, 0.6, 0.3,
-]);
-
-export const BEARTRAP_REMOVAL_RATES: readonly number[] = Object.freeze([
-  0.5, 0.35, 0.2,
-]);
-
 export const KEY_HEIGHT = 1;
 
 export const CHEST_HEIGHT = 1;
@@ -75,6 +67,8 @@ export const SLOT_WIDTH = STRUCTURE_WIDTH / GEMS_PER_STRUCTURE;
 export const DIRT_DEPTH = 3;
 
 export const DEEP_DIRT_DEPTH = 4;
+
+export const STONE_FLAG = 1;
 
 export const SKY_HEIGHT = 20;
 

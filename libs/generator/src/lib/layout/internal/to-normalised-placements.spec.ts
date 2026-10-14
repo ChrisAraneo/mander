@@ -2,17 +2,17 @@ import type { Sector } from '@mander/structures';
 import { map } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { Placement } from './placement';
 import { toNormalisedPlacements } from './to-normalised-placements';
+import type { StructurePlacement } from './types/structure-placement';
 
 const SECTOR: Sector = [[], []];
 
 const createPlacements = (
   positions: { row: number; column: number }[],
-): Placement[] =>
+): StructurePlacement[] =>
   map(positions, ({ row, column }) => ({ structure: SECTOR, row, column }));
 
-const getPositions = (placements: Placement[]) =>
+const getPositions = (placements: StructurePlacement[]) =>
   map(toNormalisedPlacements(placements), ({ row, column }) => ({
     row,
     column,

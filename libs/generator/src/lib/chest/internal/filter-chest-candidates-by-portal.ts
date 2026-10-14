@@ -1,13 +1,13 @@
 import { match } from 'ts-pattern';
-import type { filterChestCandidates } from './filter-chest-candidates';
 import { filterHorizontalChestCandidates } from './filter-horizontal-chest-candidates';
 import { filterVerticalChestCandidates } from './filter-vertical-chest-candidates';
+import type { ChestCandidates } from './types/chest-candidates';
 
 export const filterChestCandidatesByPortal = ({
   tiles,
   levelType,
   candidates,
-}: ReturnType<typeof filterChestCandidates>) => ({
+}: ChestCandidates): ChestCandidates => ({
   tiles,
   levelType,
   candidates: match(levelType)

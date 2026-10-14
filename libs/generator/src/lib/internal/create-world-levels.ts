@@ -1,8 +1,9 @@
+import type { RenderedWorld } from '@mander/render';
 import { times } from 'lodash-es';
 import { LEVELS_PER_DAY } from '../consts';
 import { createLevelFromStructures } from '../level/create-level-from-structures';
 import { sliceForLevel } from '../world/slice-for-level';
-import type { takeRandomWorldStructures } from './take-random-world-structures';
+import type { WorldDrawnStructures } from './types/world-drawn-structures';
 
 export const createWorldLevels = ({
   name,
@@ -10,7 +11,7 @@ export const createWorldLevels = ({
   levelCategories,
   worldStructures,
   random,
-}: ReturnType<typeof takeRandomWorldStructures>) => ({
+}: WorldDrawnStructures): RenderedWorld => ({
   name,
   levels: times(LEVELS_PER_DAY, (index) =>
     createLevelFromStructures(

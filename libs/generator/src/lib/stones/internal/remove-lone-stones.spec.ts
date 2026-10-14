@@ -1,8 +1,8 @@
 import { TILE_DIRT, type Tile } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
-import type { Field } from './field';
 import { removeLoneStones } from './remove-lone-stones';
+import type { Field } from './types/field';
 
 const LEVEL: Tile[][] = [[TILE_DIRT]];
 

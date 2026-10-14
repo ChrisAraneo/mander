@@ -1,6 +1,6 @@
 import type { ItemRarity } from '@mander/model';
 import { createRandom } from '@mander/utils';
-import { every, map, size, times, uniq } from 'lodash-es';
+import { every, map, size, times, toString, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { takeRandomChestItemsByRarity } from './take-random-chest-items-by-rarity';
@@ -33,7 +33,7 @@ describe('takeRandomChestItemsByRarity', () => {
       size(
         uniq(
           times(30, (day) =>
-            String(
+            toString(
               map(takeRandomFrom(`DAY-${day}`, ['COMMON', 'RARE'], 0), 'id'),
             ),
           ),
