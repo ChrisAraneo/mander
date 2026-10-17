@@ -1,6 +1,5 @@
 import type { Fireball } from '@mander/model';
 import type { Point } from '@mander/utils';
-
 import { FIREBALL_ORBIT_RADIUS } from './consts';
 
 export const getFireballPosition = (

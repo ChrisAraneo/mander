@@ -6,20 +6,39 @@ import {
   TILE_PORTAL,
   TILE_SPAWN,
 } from '@mander/model';
-import { filter, map, size, times } from 'lodash-es';
+import { filter, head, map, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import type { RecordableAction } from '../../actions/actions';
 import type { GameLevel } from '../../types/game-level';
-import { encodeReplay } from './encode-replay';
+import type { RecordedAction } from '../recorder/types/recorded-action';
 import type { Replay } from '../recorder/types/replay';
+import type { RecordableAction } from '../types/recordable-action';
 import { decodeReplay } from './decode-replay';
+import { encodeReplay } from './encode-replay';
 
-const WIDTH = 20;
-const HEIGHT = 12;
-const GROUND_ROW = 9;
+const LEGEND: Record<string, Tile> = {
+  '.': TILE_AIR,
+  '#': TILE_DIRT,
+  S: TILE_SPAWN,
+  P: TILE_PORTAL,
+};
 
-const item = (id: string): Item => ({
+const ROWS = [
+  '....................',
+  '....................',
+  '....................',
+  '....................',
+  '....................',
+  '....................',
+  '....................',
+  '....................',
+  '..S............P....',
+  '####################',
+  '####################',
+  '####################',
+];
+
+const createItem = (id: string): Item => ({
   id,
   name: id,
   description: id,
@@ -27,26 +46,18 @@ const item = (id: string): Item => ({
   effect: { kind: 'NONE' },
 });
 
-const testLevel = (seed: string): GameLevel => {
-  const tiles: Tile[][] = times(HEIGHT, (row) =>
-    times(WIDTH, (): Tile => (row >= GROUND_ROW ? TILE_DIRT : TILE_AIR)),
-  );
-  tiles[GROUND_ROW - 1][2] = TILE_SPAWN;
-  tiles[GROUND_ROW - 1][15] = TILE_PORTAL;
+const createTestLevel = (seed: string): GameLevel => ({
+  seed,
+  width: size(head(ROWS)),
+  height: size(ROWS),
+  tiles: map(ROWS, (row) => map(row, (symbol) => LEGEND[symbol])),
+  chestItems: [createItem('CARD-0')],
+  hornedEnemyChance: 0,
+});
 
-  return {
-    seed,
-    width: WIDTH,
-    height: HEIGHT,
-    tiles,
-    chestItems: [item('CARD-0')],
-    hornedEnemyChance: 0,
-  };
-};
+const LEVELS: GameLevel[] = [createTestLevel('ONE'), createTestLevel('TWO')];
 
-const LEVELS: GameLevel[] = [testLevel('ONE'), testLevel('TWO')];
-
-const script: RecordableAction[] = [
+const SCRIPT: RecordableAction[] = [
   { type: 'MOVE_RIGHT_START' },
   { type: 'JUMP_START' },
   { type: 'JUMP_STOP' },
@@ -62,31 +73,31 @@ const script: RecordableAction[] = [
   { type: 'RESTART', level: LEVELS[0] },
 ];
 
-const recorded = (): Replay => ({
+const createReplay = (): Replay => ({
   worldName: 'PACK-WORLD',
-  steps: size(script) * 4,
-  entries: map(script, (action, index) => ({ atStep: index * 4, action })),
+  steps: size(SCRIPT) * 4,
+  entries: map(SCRIPT, (action, index) => ({ atStep: index * 4, action })),
 });
 
 describe('encodeReplay', () => {
   it('should bring every action back the way it went in when the replay is unpacked', () => {
-    const restored = decodeReplay(encodeReplay(recorded()), LEVELS);
+    const restored = decodeReplay(encodeReplay(createReplay()), LEVELS);
 
     expect(restored.worldName).toBe('PACK-WORLD');
-    expect(map(restored.entries, 'action')).toEqual(script);
-    expect(map(restored.entries, 'atStep')).toEqual(
-      map(script, (_, index) => index * 4),
+    expect(map(restored.entries, (entry) => entry.action)).toEqual(SCRIPT);
+    expect(map(restored.entries, (entry) => entry.atStep)).toEqual(
+      map(SCRIPT, (_, index) => index * 4),
     );
   });
 
   it('should carry the step count through when the replay is unpacked', () => {
-    expect(decodeReplay(encodeReplay(recorded()), LEVELS).steps).toBe(
-      size(script) * 4,
+    expect(decodeReplay(encodeReplay(createReplay()), LEVELS).steps).toBe(
+      size(SCRIPT) * 4,
     );
   });
 
   it('should leave the level grids behind when it packs a replay', () => {
-    const written = JSON.stringify(encodeReplay(recorded()));
+    const written = JSON.stringify(encodeReplay(createReplay()));
 
     expect(written).not.toContain('"tiles"');
     expect(written).not.toContain('"chestItems"');
@@ -96,9 +107,9 @@ describe('encodeReplay', () => {
     const long: Replay = {
       worldName: 'W',
       steps: 36_000,
-      entries: times(40, (index) => ({
+      entries: times(40, (index): RecordedAction => ({
         atStep: index * 900,
-        action: { type: 'JUMP_START' } as RecordableAction,
+        action: { type: 'JUMP_START' },
       })),
     };
 

@@ -1,6 +1,5 @@
 import type { Player } from '@mander/model';
 import type { Point } from '@mander/utils';
-
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from './consts';
 
 export const getPlayerCentre = (player: Player): Point => ({

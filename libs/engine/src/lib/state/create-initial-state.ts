@@ -1,17 +1,16 @@
 import { findGemTiles, type Item } from '@mander/model';
 import { chain } from '@mander/utils';
-
-import type { GameLevel } from '../types/game-level';
 import { countStartingAmmo } from '../reducer/bullet/count-starting-ammo';
 import { createCannons } from '../reducer/cannon/create-cannons';
 import { createEnemies } from '../reducer/enemy/create-enemies';
 import { createFallingSpikes } from '../reducer/falling-spike/create-falling-spikes';
 import { createFireballs } from '../reducer/fireball/create-fireballs';
 import { createPlayerFireballs } from '../reducer/fireball/create-player-fireballs';
-import { createPlayer } from '../reducer/player/create-player';
 import { countStartingHearts } from '../reducer/player/count-starting-hearts';
+import { createPlayer } from '../reducer/player/create-player';
 import { countStartingStars } from '../reducer/use-star/count-starting-stars';
-import type { GameState } from './types/game-state';
+import type { GameLevel } from '../types/game-level';
+import type { GameState } from '../types/game-state';
 
 export const createInitialState = (
   level: GameLevel,

@@ -1,7 +1,6 @@
 import { findSpawnTile, type Level, TILE_SIZE } from '@mander/model';
 import type { Point } from '@mander/utils';
 import { match, P } from 'ts-pattern';
-
 import { PLAYER_HEIGHT } from './consts';
 
 const { nullish } = P;

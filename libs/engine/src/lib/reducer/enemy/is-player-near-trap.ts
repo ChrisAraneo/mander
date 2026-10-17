@@ -1,13 +1,6 @@
 import type { Enemy, Player } from '@mander/model';
-
-import { getPlayerCentre } from '../player/get-player-centre';
 import { isAlive } from '../player/is-alive';
-import { BEARTRAP_TRIGGER_RANGE } from './consts';
-import { getEnemyCentre } from './get-enemy-centre';
-
-const isWithinRange = (trap: Enemy, player: Player): boolean =>
-  Math.abs(getPlayerCentre(player).x - getEnemyCentre(trap).x) <=
-  BEARTRAP_TRIGGER_RANGE;
+import { isWithinBeartrapRange } from './internal/is-within-beartrap-range';
 
 export const isPlayerNearTrap = (trap: Enemy, player: Player): boolean =>
-  isAlive(player) && isWithinRange(trap, player);
+  isAlive(player) && isWithinBeartrapRange(trap, player);

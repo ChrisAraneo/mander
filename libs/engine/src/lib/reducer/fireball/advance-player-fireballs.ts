@@ -1,6 +1,5 @@
 import { type Fireball, MAX_TICK_SECONDS, type Player } from '@mander/model';
 import { map } from 'lodash-es';
-
 import { getPlayerCentre } from '../player/get-player-centre';
 import { PLAYER_FIREBALL_ANGULAR_SPEED } from './consts';
 import { stepFireball } from './step-fireball';

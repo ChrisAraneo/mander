@@ -1,12 +1,7 @@
 import type { Fireball } from '@mander/model';
-
 import { FIREBALL_ANGULAR_SPEED } from './consts';
-import { getSpinDirection } from './get-spin-direction';
-
-const FULL_TURN = Math.PI * 2;
-
-const wrapAngle = (angle: number): number =>
-  ((angle % FULL_TURN) + FULL_TURN) % FULL_TURN;
+import { computeWrappedAngle } from './internal/compute-wrapped-angle';
+import { toSpinDirection } from './internal/to-spin-direction';
 
 export const stepFireball = (
   fireball: Fireball,
@@ -14,8 +9,8 @@ export const stepFireball = (
   angularSpeed = FIREBALL_ANGULAR_SPEED,
 ): Fireball => ({
   ...fireball,
-  angle: wrapAngle(
+  angle: computeWrappedAngle(
     fireball.angle +
-      getSpinDirection(fireball.spin) * angularSpeed * deltaSeconds,
+      toSpinDirection(fireball.spin) * angularSpeed * deltaSeconds,
   ),
 });

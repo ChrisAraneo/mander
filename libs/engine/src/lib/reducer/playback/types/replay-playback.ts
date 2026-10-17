@@ -1,4 +1,4 @@
-import type { GameState } from '../../../state/types/game-state';
+import type { GameState } from '../../../types/game-state';
 
 export interface ReplayPlayback {
   step: number;

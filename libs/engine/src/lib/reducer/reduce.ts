@@ -1,24 +1,23 @@
 import { FIXED_STEP_SECONDS } from '@mander/model';
 import { chain } from '@mander/utils';
 import { match } from 'ts-pattern';
-
-import type { Action } from '../actions/actions';
-import type { GameState } from '../state/types/game-state';
-import { chooseItem } from './choose-item/choose-item';
-import { close } from './close/close';
-import { interact } from './interact/interact';
-import { jumpStart } from './jump-start/jump-start';
-import { jumpStop } from './jump-stop/jump-stop';
-import { loadLevel } from './load-level/load-level';
-import { moveLeftStart } from './move-left-start/move-left-start';
-import { moveLeftStop } from './move-left-stop/move-left-stop';
-import { moveRightStart } from './move-right-start/move-right-start';
-import { moveRightStop } from './move-right-stop/move-right-stop';
-import { respawn } from './respawn/respawn';
-import { restart } from './restart/restart';
+import type { GameState } from '../types/game-state';
+import { handleChooseItem } from './choose-item/handle-choose-item';
+import { handleClose } from './close/handle-close';
+import { handleInteract } from './interact/handle-interact';
+import { handleJumpStart } from './jump-start/handle-jump-start';
+import { handleJumpStop } from './jump-stop/handle-jump-stop';
+import { handleLoadLevel } from './load-level/handle-load-level';
+import { handleMoveLeftStart } from './move-left-start/handle-move-left-start';
+import { handleMoveLeftStop } from './move-left-stop/handle-move-left-stop';
+import { handleMoveRightStart } from './move-right-start/handle-move-right-start';
+import { handleMoveRightStop } from './move-right-stop/handle-move-right-stop';
+import { handleRespawn } from './respawn/handle-respawn';
+import { handleRestart } from './restart/handle-restart';
 import { shoot } from './shoot/shoot';
-import { tick } from './tick/tick';
-import { toggleMoonMagnet } from './toggle-moon-magnet/toggle-moon-magnet';
+import { handleTick } from './tick/handle-tick';
+import { handleToggleMoonMagnet } from './toggle-moon-magnet/handle-toggle-moon-magnet';
+import type { Action } from './types/action';
 import { useStar } from './use-star/use-star';
 
 export const reduce = (state: GameState, action: Action): GameState =>
@@ -26,24 +25,28 @@ export const reduce = (state: GameState, action: Action): GameState =>
     .thru((startTime) => ({
       startTime,
       newState: match(action)
-        .with({ type: 'TICK' }, () => tick(state, FIXED_STEP_SECONDS))
-        .with({ type: 'MOVE_LEFT_START' }, () => moveLeftStart(state))
-        .with({ type: 'MOVE_LEFT_STOP' }, () => moveLeftStop(state))
-        .with({ type: 'MOVE_RIGHT_START' }, () => moveRightStart(state))
-        .with({ type: 'MOVE_RIGHT_STOP' }, () => moveRightStop(state))
-        .with({ type: 'JUMP_START' }, () => jumpStart(state))
-        .with({ type: 'JUMP_STOP' }, () => jumpStop(state))
-        .with({ type: 'INTERACT' }, () => interact(state))
-        .with({ type: 'CHOOSE_ITEM' }, ({ index }) => chooseItem(state, index))
+        .with({ type: 'TICK' }, () => handleTick(state, FIXED_STEP_SECONDS))
+        .with({ type: 'MOVE_LEFT_START' }, () => handleMoveLeftStart(state))
+        .with({ type: 'MOVE_LEFT_STOP' }, () => handleMoveLeftStop(state))
+        .with({ type: 'MOVE_RIGHT_START' }, () => handleMoveRightStart(state))
+        .with({ type: 'MOVE_RIGHT_STOP' }, () => handleMoveRightStop(state))
+        .with({ type: 'JUMP_START' }, () => handleJumpStart(state))
+        .with({ type: 'JUMP_STOP' }, () => handleJumpStop(state))
+        .with({ type: 'INTERACT' }, () => handleInteract(state))
+        .with({ type: 'CHOOSE_ITEM' }, ({ index }) =>
+          handleChooseItem(state, index),
+        )
         .with({ type: 'USE_STAR' }, () => useStar(state))
         .with({ type: 'SHOOT' }, () => shoot(state))
-        .with({ type: 'TOGGLE_MOON_MAGNET' }, () => toggleMoonMagnet(state))
-        .with({ type: 'CLOSE' }, () => close(state))
-        .with({ type: 'RESPAWN' }, () => respawn(state))
-        .with({ type: 'LOAD_LEVEL' }, ({ level, levelIndex }) =>
-          loadLevel(state, level, levelIndex),
+        .with({ type: 'TOGGLE_MOON_MAGNET' }, () =>
+          handleToggleMoonMagnet(state),
         )
-        .with({ type: 'RESTART' }, ({ level }) => restart(level))
+        .with({ type: 'CLOSE' }, () => handleClose(state))
+        .with({ type: 'RESPAWN' }, () => handleRespawn(state))
+        .with({ type: 'LOAD_LEVEL' }, ({ level, levelIndex }) =>
+          handleLoadLevel(state, level, levelIndex),
+        )
+        .with({ type: 'RESTART' }, ({ level }) => handleRestart(level))
         .exhaustive(),
     }))
     .thru(({ startTime, newState }) => ({
