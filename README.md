@@ -1,3 +1,3 @@
 # Mander
 
-Mander is a classic 2D platformer game.
+Mander is a classic retro 2D platformer game.
