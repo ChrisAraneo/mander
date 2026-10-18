@@ -76,7 +76,7 @@ describe('renderGame', () => {
       renderGame(context, state, PALETTE, VIEWPORT),
     );
 
-    expect(fingerprint).toBe('556:0XSZZTG1288N6N');
+    expect(fingerprint).toBe('558:1R8PU2M0V2M0H8');
   });
 
   it('should centre a small level in the view when the level is narrower than the view', () => {

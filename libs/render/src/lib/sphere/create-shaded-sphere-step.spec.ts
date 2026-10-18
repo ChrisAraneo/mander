@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
 import { drawRecorded } from '../../test/draw-recorded';
-import { ICE_BULLET } from './consts';
-import { createBulletBodyStep } from './create-bullet-body-step';
+import { ICE_BULLET } from '../bullet/consts';
+import { createShadedSphereStep } from './create-shaded-sphere-step';
 
-describe('createBulletBodyStep', () => {
-  it('should draw the ice ball with its shine when it is given a centre and a radius', () => {
-    const calls = drawRecorded(createBulletBodyStep(10, 20, 6, ICE_BULLET));
+describe('createShadedSphereStep', () => {
+  it('should draw the shaded ball with its shine when it is given a centre and a radius', () => {
+    const calls = drawRecorded(createShadedSphereStep(10, 20, 6, ICE_BULLET));
 
     expect(calls).toEqual([
       'save()',

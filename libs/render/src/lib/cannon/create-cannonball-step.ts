@@ -1,29 +1,21 @@
 import type { Cannonball } from '@mander/model';
-import { chain } from '@mander/utils';
-import { createScaleStep } from '../canvas/create-scale-step';
-import { createSequenceStep } from '../canvas/create-sequence-step';
-import { createTranslateStep } from '../canvas/create-translate-step';
-import { drawRestore } from '../canvas/draw-restore';
-import { drawSave } from '../canvas/draw-save';
-import { computeVelocityFacing } from '../compute-velocity-facing';
+import { createProjectileStep } from '../projectile/create-projectile-step';
+import { createShadedSphereStep } from '../sphere/create-shaded-sphere-step';
+import { createTrailStep } from '../trail/create-trail-step';
 import type { CanvasStep } from '../types/canvas-step';
-import { CANNONBALL_RADIUS } from './internal/consts';
-import { drawCannonballIron } from './internal/draw-cannonball-iron';
-import { drawCannonballTrail } from './internal/draw-cannonball-trail';
+import { CANNONBALL_IRON, CANNONBALL_RADIUS } from './internal/consts';
+
+const TRAIL_LENGTH = 15;
+
+const TRAIL_HEIGHT = 3.2;
+
+const TRAIL_COLOR = 'RGBA(255, 158, 61, 0.45)';
 
 export const createCannonballStep = (cannonball: Cannonball): CanvasStep =>
-  chain(computeVelocityFacing(cannonball.velocity.x.current))
-    .thru((facing) =>
-      createSequenceStep([
-        drawSave,
-        createTranslateStep(
-          cannonball.position.x + CANNONBALL_RADIUS,
-          cannonball.position.y + CANNONBALL_RADIUS,
-        ),
-        createScaleStep(facing, 1),
-        drawCannonballTrail,
-        drawCannonballIron,
-        drawRestore,
-      ]),
-    )
-    .value();
+  createProjectileStep(
+    cannonball.position,
+    CANNONBALL_RADIUS,
+    cannonball.velocity.x.current,
+    createTrailStep(TRAIL_COLOR, TRAIL_LENGTH, TRAIL_HEIGHT),
+    createShadedSphereStep(0, 0, CANNONBALL_RADIUS, CANNONBALL_IRON),
+  );

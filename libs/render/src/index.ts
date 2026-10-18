@@ -1,6 +1,5 @@
 export * from './lib/bullet/types/bullet-colors';
 export * from './lib/bullet/consts';
-export * from './lib/bullet/create-bullet-body-step';
 export * from './lib/bullet/create-bullet-step';
 export * from './lib/bullet/draw-bullets';
 export * from './lib/cannon/create-cannon-step';

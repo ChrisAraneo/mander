@@ -1,24 +1,22 @@
 import { BULLET_SIZE } from '@mander/engine';
 import type { Bullet } from '@mander/model';
-import { createScaleStep } from '../canvas/create-scale-step';
-import { createSequenceStep } from '../canvas/create-sequence-step';
-import { createTranslateStep } from '../canvas/create-translate-step';
-import { drawRestore } from '../canvas/draw-restore';
-import { drawSave } from '../canvas/draw-save';
-import { computeVelocityFacing } from '../compute-velocity-facing';
+import { createProjectileStep } from '../projectile/create-projectile-step';
+import { createShadedSphereStep } from '../sphere/create-shaded-sphere-step';
+import { createTrailStep } from '../trail/create-trail-step';
 import type { CanvasStep } from '../types/canvas-step';
 import { ICE_BULLET } from './consts';
-import { createBulletBodyStep } from './create-bullet-body-step';
-import { drawBulletTrail } from './internal/draw-bullet-trail';
 
 const RADIUS = BULLET_SIZE / 2;
 
+const TRAIL_LENGTH = 18;
+
+const TRAIL_HEIGHT = 2.8;
+
 export const createBulletStep = (bullet: Bullet): CanvasStep =>
-  createSequenceStep([
-    drawSave,
-    createTranslateStep(bullet.position.x + RADIUS, bullet.position.y + RADIUS),
-    createScaleStep(computeVelocityFacing(bullet.velocity.x.current), 1),
-    drawBulletTrail,
-    createBulletBodyStep(0, 0, RADIUS, ICE_BULLET),
-    drawRestore,
-  ]);
+  createProjectileStep(
+    bullet.position,
+    RADIUS,
+    bullet.velocity.x.current,
+    createTrailStep(ICE_BULLET.trail, TRAIL_LENGTH, TRAIL_HEIGHT),
+    createShadedSphereStep(0, 0, RADIUS, ICE_BULLET),
+  );

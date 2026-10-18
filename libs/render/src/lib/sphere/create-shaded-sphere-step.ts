@@ -9,13 +9,13 @@ import { drawRestore } from '../canvas/draw-restore';
 import { drawSave } from '../canvas/draw-save';
 import { outline } from '../stroke/outline';
 import type { CanvasStep } from '../types/canvas-step';
-import type { BulletColors } from './types/bullet-colors';
+import type { SphereColors } from './types/sphere-colors';
 
-export const createBulletBodyStep = (
+export const createShadedSphereStep = (
   centerX: number,
   centerY: number,
   radius: number,
-  colors: BulletColors,
+  colors: SphereColors,
 ): CanvasStep =>
   createSequenceStep([
     drawSave,
