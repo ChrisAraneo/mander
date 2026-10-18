@@ -1,12 +1,12 @@
-import { createLinearGradient } from '../../canvas/create-linear-gradient';
-import type { GemColors } from '../../types/gem-colors';
+import { createLinearGradient } from '../canvas/create-linear-gradient';
+import type { ShadeColors } from '../types/shade-colors';
 
-export const createGemShapeFill = (
+export const createShadeFill = (
   context: CanvasRenderingContext2D,
   centerX: number,
   centerY: number,
   halfHeight: number,
-  colors: GemColors,
+  colors: ShadeColors,
 ): CanvasGradient =>
   createLinearGradient(
     context,

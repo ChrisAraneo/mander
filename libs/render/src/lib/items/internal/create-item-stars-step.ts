@@ -3,13 +3,13 @@ import { map } from 'lodash-es';
 import { createSequenceStep } from '../../canvas/create-sequence-step';
 import { createStarStep } from '../../star/create-star-step';
 import type { CanvasStep } from '../../types/canvas-step';
-import type { StarColors } from '../../types/star-colors';
+import type { ShadeColors } from '../../types/shade-colors';
 import { getStarCluster } from './get-star-cluster';
 
 export const createItemStarsStep = (
   count: number,
   size: number,
-  colors: StarColors,
+  colors: ShadeColors,
 ): CanvasStep =>
   chain(getStarCluster(count))
     .thru((cluster) =>

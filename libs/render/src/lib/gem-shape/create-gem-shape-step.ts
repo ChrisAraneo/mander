@@ -8,11 +8,11 @@ import { drawFill } from '../canvas/draw-fill';
 import { drawRestore } from '../canvas/draw-restore';
 import { drawSave } from '../canvas/draw-save';
 import { drawStroke } from '../canvas/draw-stroke';
+import { createShadeFill } from '../shade/create-shade-fill';
 import { outline } from '../stroke/outline';
 import type { CanvasStep } from '../types/canvas-step';
-import type { GemColors } from '../types/gem-colors';
+import type { ShadeColors } from '../types/shade-colors';
 import { CROWN } from './internal/consts';
-import { createGemShapeFill } from './internal/create-gem-shape-fill';
 import { createGemShapePathStep } from './internal/create-gem-shape-path-step';
 
 export const createGemShapeStep = (
@@ -20,20 +20,14 @@ export const createGemShapeStep = (
   centerY: number,
   halfWidth: number,
   halfHeight: number,
-  colors: GemColors,
+  colors: ShadeColors,
 ): CanvasStep =>
   createSequenceStep([
     drawSave,
     createGemShapePathStep(centerX, centerY, halfWidth, halfHeight),
     outline(),
     createContextStyleStep((context) => ({
-      fillStyle: createGemShapeFill(
-        context,
-        centerX,
-        centerY,
-        halfHeight,
-        colors,
-      ),
+      fillStyle: createShadeFill(context, centerX, centerY, halfHeight, colors),
     })),
     drawFill,
     drawRestore,

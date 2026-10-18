@@ -1,5 +1,5 @@
 import { draw } from '../canvas/draw';
-import type { GemColors } from '../types/gem-colors';
+import type { ShadeColors } from '../types/shade-colors';
 import { createGemShapeStep } from './create-gem-shape-step';
 
 export const drawGemShape = (
@@ -8,7 +8,7 @@ export const drawGemShape = (
   centerY: number,
   halfWidth: number,
   halfHeight: number,
-  colors: GemColors,
+  colors: ShadeColors,
 ): void =>
   draw(
     context,
