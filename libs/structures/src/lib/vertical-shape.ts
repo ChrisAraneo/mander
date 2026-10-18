@@ -1,5 +1,5 @@
 import { isSolidTile, TILE_AIR } from '@mander/model';
-import { drop, every, filter, includes, map, range, some } from 'lodash-es';
+import { every, filter, includes, map, range, some } from 'lodash-es';
 
 import { STRUCTURE_END, STRUCTURE_START } from './special-tiles';
 
@@ -89,14 +89,6 @@ const isMarkerAt = (
 const formatSpan = (columns: readonly number[]): string =>
   `${columns[0]}-${columns[columns.length - 1]}`;
 
-const findPlatformRows = (structure: Grid): number[] =>
-  filter(range(VERTICAL_LAUNCH_ROW, VERTICAL_LANDING_ROW + 1), (row) =>
-    some(structure[row], isSolidTile),
-  );
-
-const areStepsWithinReach = (rows: readonly number[]): boolean =>
-  every(drop(rows), (row, index) => row - rows[index] <= VERTICAL_AIR_GAP + 1);
-
 interface Rule {
   message: string;
   isMet: (structure: Grid) => boolean;
@@ -150,11 +142,6 @@ const RULES: readonly Rule[] = Object.freeze([
           areSolidAcross(structure, VERTICAL_LANDING_ROW, band) &&
           areEmptyAcross(structure, VERTICAL_HEADROOM_ROWS, band),
       ),
-  },
-  {
-    message: `no platform may sit more than ${VERTICAL_AIR_GAP} rows of air above the one below it, which is as high as the player jumps`,
-    isMet: (structure: Grid) =>
-      areStepsWithinReach(findPlatformRows(structure)),
   },
 ]);
 
