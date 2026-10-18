@@ -1,6 +1,6 @@
 import type { Point } from '@mander/utils';
 
-export interface BulletCluster {
-  radius: number;
+export interface ItemCluster {
+  scale: number;
   spots: readonly Point[];
 }

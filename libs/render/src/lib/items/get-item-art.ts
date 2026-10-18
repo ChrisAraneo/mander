@@ -22,17 +22,17 @@ import {
   PURPLE_GEM_COLORS,
   PINK_GEM_COLORS,
 } from '../gem-shape/consts';
+import { createCountedArt } from './internal/create-counted-art';
 import { createGemArt } from './internal/create-gem-art';
-import { createHeartsArt } from './internal/create-hearts-art';
 import { createStarsArt } from './internal/create-stars-art';
 import { toEffectItemArt } from './internal/to-effect-item-art';
 import type { ItemArt } from './types/item-art';
 
 const ART_BY_ITEM_ID: Readonly<Partial<Record<string, ItemArt>>> =
   Object.freeze({
-    [HEART.id]: createHeartsArt(1),
-    [DOUBLE_HEART.id]: createHeartsArt(2),
-    [TRIPLE_HEART.id]: createHeartsArt(3),
+    [HEART.id]: createCountedArt('HEARTS', 1),
+    [DOUBLE_HEART.id]: createCountedArt('HEARTS', 2),
+    [TRIPLE_HEART.id]: createCountedArt('HEARTS', 3),
     [STAR.id]: createStarsArt(1),
     [DOUBLE_STAR.id]: createStarsArt(2),
     [RED_GEM.id]: createGemArt(RED_GEM_COLORS),

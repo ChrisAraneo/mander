@@ -1,26 +1,17 @@
-import { chain } from '@mander/utils';
-import { map } from 'lodash-es';
 import { ICE_BULLET } from '../../bullet/consts';
-import { createSequenceStep } from '../../canvas/create-sequence-step';
 import { createShadedSphereStep } from '../../sphere/create-shaded-sphere-step';
 import type { CanvasStep } from '../../types/canvas-step';
-import { getBulletCluster } from './get-bullet-cluster';
+import { BULLET_CLUSTERS } from './consts';
+import { createItemClusterStep } from './create-item-cluster-step';
+import { getItemCluster } from './get-item-cluster';
 
 export const createItemBulletsStep = (
   count: number,
   size: number,
 ): CanvasStep =>
-  chain(getBulletCluster(count))
-    .thru((cluster) =>
-      createSequenceStep(
-        map(cluster.spots, (spot) =>
-          createShadedSphereStep(
-            size * spot.x,
-            size * spot.y,
-            size * cluster.radius,
-            ICE_BULLET,
-          ),
-        ),
-      ),
-    )
-    .value();
+  createItemClusterStep(
+    getItemCluster(BULLET_CLUSTERS, count),
+    size,
+    (centerX, centerY, scale) =>
+      createShadedSphereStep(centerX, centerY, scale, ICE_BULLET),
+  );

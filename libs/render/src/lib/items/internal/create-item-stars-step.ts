@@ -1,27 +1,18 @@
-import { chain } from '@mander/utils';
-import { map } from 'lodash-es';
-import { createSequenceStep } from '../../canvas/create-sequence-step';
 import { createStarStep } from '../../star/create-star-step';
 import type { CanvasStep } from '../../types/canvas-step';
 import type { ShadeColors } from '../../types/shade-colors';
-import { getStarCluster } from './get-star-cluster';
+import { STAR_CLUSTERS } from './consts';
+import { createItemClusterStep } from './create-item-cluster-step';
+import { getItemCluster } from './get-item-cluster';
 
 export const createItemStarsStep = (
   count: number,
   size: number,
   colors: ShadeColors,
 ): CanvasStep =>
-  chain(getStarCluster(count))
-    .thru((cluster) =>
-      createSequenceStep(
-        map(cluster.spots, (spot) =>
-          createStarStep(
-            size * spot.x,
-            size * spot.y,
-            size * cluster.radius,
-            colors,
-          ),
-        ),
-      ),
-    )
-    .value();
+  createItemClusterStep(
+    getItemCluster(STAR_CLUSTERS, count),
+    size,
+    (centerX, centerY, scale) =>
+      createStarStep(centerX, centerY, scale, colors),
+  );
