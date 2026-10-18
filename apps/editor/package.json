@@ -1,6 +1,8 @@
 {
-  "name": "editor",
+  "name": "@mander/editor",
   "private": true,
+  "license": "MIT",
+  "author": "Krzysztof Pająk (Chris Araneo) <chris.araneo@gmail.com>",
   "type": "module",
   "scripts": {
     "dev": "vite",

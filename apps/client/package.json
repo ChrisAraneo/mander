@@ -1,6 +1,8 @@
 {
-  "name": "client",
+  "name": "@mander/client",
   "private": true,
+  "license": "MIT",
+  "author": "Krzysztof Pająk (Chris Araneo) <chris.araneo@gmail.com>",
   "type": "module",
   "scripts": {
     "dev": "vite",

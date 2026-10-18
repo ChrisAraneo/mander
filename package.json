@@ -1,16 +1,18 @@
 {
-  "name": "@mander/source",
+  "name": "@mander",
   "version": "0.7.0",
   "private": true,
   "license": "MIT",
+  "author": "Krzysztof Pająk (Chris Araneo) <chris.araneo@gmail.com>",
+  "description": "Mander is a classic retro 2D platformer game.",
   "workspaces": [
     "apps/*",
     "libs/*"
   ],
   "scripts": {
-    "dev": "nx dev client",
-    "build": "nx build client",
-    "preview": "nx preview client",
+    "dev": "nx dev @mander/client",
+    "build": "nx build @mander/client",
+    "preview": "nx preview @mander/client",
     "test": "nx run-many -t test",
     "typecheck": "nx run-many -t typecheck",
     "lint": "eslint .",

@@ -1,6 +1,8 @@
 {
   "name": "@mander/structures",
   "private": true,
+  "license": "MIT",
+  "author": "Krzysztof Pająk (Chris Araneo) <chris.araneo@gmail.com>",
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
