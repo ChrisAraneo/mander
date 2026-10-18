@@ -1,9 +1,9 @@
+import { createRandom } from '@mander/engine';
 import {
   HARD_STRUCTURES,
   NORMAL_STRUCTURES,
   VERTICAL_STRUCTURES,
 } from '@mander/structures';
-import { createRandom } from '@mander/utils';
 import { difference, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

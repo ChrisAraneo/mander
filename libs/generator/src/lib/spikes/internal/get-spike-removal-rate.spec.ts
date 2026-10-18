@@ -1,5 +1,5 @@
+import { createRandom } from '@mander/engine';
 import { TILE_SPIKE, type Tile } from '@mander/model';
-import { createRandom } from '@mander/utils';
 import { describe, expect, it } from 'vitest';
 
 import { getSpikeRemovalRate } from './get-spike-removal-rate';

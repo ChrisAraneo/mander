@@ -1,5 +1,4 @@
-import type { Cannonball, Enemy } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Cannonball, type Enemy, chain } from '@mander/model';
 import { match } from 'ts-pattern';
 import { filterStrikingCannonballs } from '../../cannon/filter-striking-cannonballs';
 import { isBurning } from '../../fireball/is-burning';

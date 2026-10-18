@@ -1,16 +1,5 @@
-import {
-  FIXED_STEP_SECONDS,
-  type Item,
-  type Tile,
-  TILE_AIR,
-  TILE_CHEST,
-  TILE_DIRT,
-  TILE_KEY,
-  TILE_PORTAL,
-  TILE_SPAWN,
-} from '@mander/model';
-import { chain, tapEffect } from '@mander/utils';
-import { head, map, omit, reduce as fold, size, times } from 'lodash-es';
+import { FIXED_STEP_SECONDS, type Item, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_KEY, TILE_PORTAL, TILE_SPAWN, chain } from '@mander/model';
+import { head, map, omit, reduce as fold, size, times, tap } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -98,7 +87,7 @@ const runScript = (): { state: GameState; replay: Replay } =>
         SCRIPT,
         (state, action) =>
           reduce(
-            tapEffect(state, () => recorder.record(action)),
+            tap(state, () => recorder.record(action)),
             action,
           ),
         createState(),

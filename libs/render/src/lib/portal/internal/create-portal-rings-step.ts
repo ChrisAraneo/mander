@@ -1,4 +1,4 @@
-import type { Rectangle } from '@mander/utils';
+import type { Rectangle } from '@mander/model';
 import { map, range } from 'lodash-es';
 import { createSequenceStep } from '../../canvas/create-sequence-step';
 import { createStyleStep } from '../../canvas/create-style-step';

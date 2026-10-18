@@ -1,5 +1,4 @@
-import type { Item } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Item, chain } from '@mander/model';
 import { concat } from 'lodash-es';
 import type { GameState } from '../../../types/game-state';
 import { createPlayerFireballs } from '../../fireball/create-player-fireballs';

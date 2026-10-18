@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { toFacing } from '../../internal/to-facing';
 import { computeEnemyHop } from './compute-enemy-hop';
 import type { EnemyStepDelta } from './types/enemy-step-delta';

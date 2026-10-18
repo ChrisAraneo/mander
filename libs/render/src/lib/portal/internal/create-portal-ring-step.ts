@@ -1,4 +1,4 @@
-import type { Rectangle } from '@mander/utils';
+import type { Rectangle } from '@mander/model';
 import { createEllipseStep } from '../../canvas/create-ellipse-step';
 import { createSequenceStep } from '../../canvas/create-sequence-step';
 import { drawBeginPath } from '../../canvas/draw-begin-path';

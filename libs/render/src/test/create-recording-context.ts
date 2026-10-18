@@ -1,5 +1,5 @@
-import { chain, tapEffect } from '@mander/utils';
-import { includes } from 'lodash-es';
+import { chain } from '@mander/model';
+import { includes, tap } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { createRecordedGradient } from './internal/create-recorded-gradient';
 import type { CanvasCall } from './types/canvas-call';
@@ -26,7 +26,7 @@ export const createRecordingContext = (): RecordingContext =>
                 )
                 .otherwise(() => calls.push({ name: String(name), args })),
           set: (_, name, value) =>
-            tapEffect(true, () =>
+            tap(true, () =>
               calls.push({ name: `set ${String(name)}`, args: [value] }),
             ),
         },

@@ -1,6 +1,5 @@
 import { padStart, toUpper } from 'lodash-es';
-
-import { createXmur3 } from './create-xmur3.ts';
+import { createXmur3 } from './internal/create-xmur3';
 
 export const hashString = (input: string): string => {
   const hash = createXmur3(input);

@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { computeHorizontalMove } from '../../collision/compute-horizontal-move';
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../consts';
 import { computeBlockedVelocityX } from './compute-blocked-velocity-x';

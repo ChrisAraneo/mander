@@ -1,5 +1,5 @@
+import { createRandom } from '@mander/engine';
 import { TILE_BEARTRAP, type Tile } from '@mander/model';
-import { createRandom } from '@mander/utils';
 import { map, range, sortBy, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

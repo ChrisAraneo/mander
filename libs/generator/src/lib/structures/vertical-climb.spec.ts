@@ -1,10 +1,9 @@
 import { checkPlayerReach, isReachableCell } from '@mander/engine';
-import { findTile, type Level, TILE_PORTAL } from '@mander/model';
+import { findTile, type Level, TILE_PORTAL, chain } from '@mander/model';
 import {
   type VerticalStructure,
   VERTICAL_STRUCTURES,
 } from '@mander/structures';
-import { chain } from '@mander/utils';
 import {
   filter,
   includes,

@@ -1,4 +1,4 @@
-import { hashString } from '@mander/utils';
+import { hashString } from '@mander/engine';
 import { flow } from 'lodash-es';
 import { formatDateSeed } from './internal/format-date-seed';
 

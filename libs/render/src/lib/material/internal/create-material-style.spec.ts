@@ -1,10 +1,10 @@
 import { TILE_DIRT, TILE_WOOD } from '@mander/model';
-import type { Hsl } from '@mander/utils';
 import { describe, expect, it } from 'vitest';
 
 import type { Palette } from '../../types/palette';
 import { HIGHLIGHT, JOINT, WOOD_JOINT } from '../consts';
 import { createMaterialStyle } from './create-material-style';
+import type { Hsl } from '../../color/types/hsl';
 
 const PALETTE: Palette = {
   sky: ['HSL(210, 30%, 12%)', 'HSL(210, 30%, 22%)', 'HSL(210, 30%, 28%)'],

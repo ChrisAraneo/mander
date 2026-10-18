@@ -1,6 +1,6 @@
+import type { createRandom } from '@mander/engine';
 import type { Tile } from '@mander/model';
 import type { Sector } from '@mander/structures';
-import type { createRandom } from '@mander/utils';
 import type { LevelType } from '../../../types/level-type';
 
 export interface LevelDraft {

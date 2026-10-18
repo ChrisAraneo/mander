@@ -1,4 +1,4 @@
-import type { Point } from '@mander/utils';
+import type { Point } from '@mander/model';
 import type { Hitbox } from '../../types/hitbox';
 import { FIREBALL_HITBOX_INSET, FIREBALL_SIZE } from '../consts';
 

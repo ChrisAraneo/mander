@@ -1,5 +1,4 @@
-import type { Level } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Level, chain } from '@mander/model';
 import { match, P } from 'ts-pattern';
 import { computeReachedCells } from './internal/compute-reached-cells';
 import { createReachMap } from './internal/create-reach-map';

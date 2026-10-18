@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { noop } from 'lodash-es';
 import type { CanvasStep } from '../types/canvas-step';
 import { createSequenceStep } from './create-sequence-step';

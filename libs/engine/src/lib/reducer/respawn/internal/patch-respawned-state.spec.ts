@@ -1,16 +1,4 @@
-import {
-  MOON_MAGNET,
-  type Player,
-  type Tile,
-  TILE_AIR,
-  TILE_CANNON,
-  TILE_DIRT,
-  TILE_ENEMY,
-  TILE_FIREBALL,
-  TILE_SPAWN,
-  TILE_SPIKE_FALLING,
-} from '@mander/model';
-import { chain } from '@mander/utils';
+import { MOON_MAGNET, type Player, type Tile, TILE_AIR, TILE_CANNON, TILE_DIRT, TILE_ENEMY, TILE_FIREBALL, TILE_SPAWN, TILE_SPIKE_FALLING, chain } from '@mander/model';
 import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

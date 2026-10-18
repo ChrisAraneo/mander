@@ -1,14 +1,4 @@
-import {
-  type Enemy,
-  type Level,
-  type Player,
-  type Tile,
-  TILE_AIR,
-  TILE_BEARTRAP,
-  TILE_DIRT,
-  TILE_SIZE,
-} from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Enemy, type Level, type Player, type Tile, TILE_AIR, TILE_BEARTRAP, TILE_DIRT, TILE_SIZE, chain } from '@mander/model';
 import { map, size, times } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';

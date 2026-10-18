@@ -1,5 +1,5 @@
+import type { createRandom } from '@mander/engine';
 import type { Tile } from '@mander/model';
-import type { createRandom } from '@mander/utils';
 
 export interface SpikeRemovalRate {
   tiles: Tile[][];

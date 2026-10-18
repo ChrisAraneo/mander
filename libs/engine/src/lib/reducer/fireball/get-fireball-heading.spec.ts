@@ -1,12 +1,4 @@
-import {
-  type Fireball,
-  type FireballSpin,
-  type Level,
-  type Tile,
-  TILE_DIRT,
-  TILE_FIREBALL,
-} from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Fireball, type FireballSpin, type Level, type Tile, TILE_DIRT, TILE_FIREBALL, chain } from '@mander/model';
 import { head, map, reduce, round, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

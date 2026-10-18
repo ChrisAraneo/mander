@@ -1,4 +1,4 @@
-import type { Point } from '@mander/utils';
+import type { Point } from '../geometry/point';
 import type { Level } from '../level/level';
 import { findTiles } from '../tile/find-tiles';
 import { TILE_BEARTRAP } from './beartrap-spawn';

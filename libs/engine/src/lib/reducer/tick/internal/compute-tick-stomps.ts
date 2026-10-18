@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { match } from 'ts-pattern';
 import { patchStompBounce } from './patch-stomp-bounce';
 import type { TickBounce } from './types/tick-bounce';

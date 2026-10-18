@@ -1,4 +1,4 @@
-import type { createRandom } from '@mander/utils';
+import type { createRandom } from '@mander/engine';
 import { createPalette } from '../palette/create-palette';
 import type { WorldPalette } from './types/world-palette';
 

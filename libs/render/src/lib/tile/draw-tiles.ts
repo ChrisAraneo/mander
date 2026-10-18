@@ -1,5 +1,4 @@
-import type { Level } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Level, chain } from '@mander/model';
 import { flatMap, map } from 'lodash-es';
 import { draw } from '../canvas/draw';
 import { createMaterialPalette } from '../material/create-material-palette';

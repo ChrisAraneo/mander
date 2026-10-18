@@ -1,5 +1,4 @@
-import { TILE_SIZE } from '@mander/model';
-import { chain } from '@mander/utils';
+import { TILE_SIZE, chain } from '@mander/model';
 import { map, round } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

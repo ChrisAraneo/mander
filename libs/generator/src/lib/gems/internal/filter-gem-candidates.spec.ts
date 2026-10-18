@@ -1,5 +1,5 @@
+import { createRandom } from '@mander/engine';
 import { TILE_AIR, TILE_DIRT, TILE_GEM, type Tile } from '@mander/model';
-import { createRandom } from '@mander/utils';
 import { map } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

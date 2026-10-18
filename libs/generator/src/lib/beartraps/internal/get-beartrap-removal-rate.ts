@@ -1,5 +1,5 @@
+import type { createRandom } from '@mander/engine';
 import type { Tile } from '@mander/model';
-import type { createRandom } from '@mander/utils';
 import type { BeartrapRemovalRate } from './types/beartrap-removal-rate';
 
 const BEARTRAP_REMOVAL_RATES: readonly number[] = Object.freeze([

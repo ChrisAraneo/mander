@@ -1,6 +1,6 @@
-import { SOLID_TILES, type Tile } from '@mander/model';
-import { type Hsl, chain } from '@mander/utils';
+import { SOLID_TILES, type Tile, chain } from '@mander/model';
 import { map } from 'lodash-es';
+import type { Hsl } from '../../color/types/hsl';
 import type { MaterialPalette } from '../../types/material-palette';
 import type { MaterialStyle } from '../../types/material-style';
 import type { Palette } from '../../types/palette';

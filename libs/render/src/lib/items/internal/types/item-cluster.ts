@@ -1,4 +1,4 @@
-import type { Point } from '@mander/utils';
+import type { Point } from '@mander/model';
 
 export interface ItemCluster {
   scale: number;

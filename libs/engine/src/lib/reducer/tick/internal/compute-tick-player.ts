@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { isNull } from 'lodash-es';
 import type { GameState } from '../../../types/game-state';
 import { isAlive } from '../../player/is-alive';

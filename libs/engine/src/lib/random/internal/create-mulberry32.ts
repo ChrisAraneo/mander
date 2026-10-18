@@ -1,4 +1,4 @@
-import { chain } from '../functions/chain.ts';
+import { chain } from '@mander/model';
 
 const STEP = 0x6d_2b_79_f5;
 

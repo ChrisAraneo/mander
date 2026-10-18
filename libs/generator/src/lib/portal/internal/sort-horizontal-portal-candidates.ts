@@ -1,5 +1,4 @@
-import type { Tile } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Tile, chain } from '@mander/model';
 import { indexOf, size, sortBy } from 'lodash-es';
 import { match } from 'ts-pattern';
 import type { Spot } from '../../types/spot';

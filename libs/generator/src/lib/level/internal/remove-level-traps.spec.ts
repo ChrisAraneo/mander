@@ -1,3 +1,4 @@
+import { createRandom } from '@mander/engine';
 import {
   TILE_AIR,
   TILE_BEARTRAP,
@@ -6,7 +7,6 @@ import {
   type Tile,
 } from '@mander/model';
 import type { Sector } from '@mander/structures';
-import { createRandom } from '@mander/utils';
 import { filter, flatten, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

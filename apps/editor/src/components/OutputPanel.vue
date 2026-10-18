@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { noop } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { computed, ref } from 'vue';

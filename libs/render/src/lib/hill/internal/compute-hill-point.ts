@@ -1,4 +1,4 @@
-import { type Point, chain } from '@mander/utils';
+import { type Point, chain } from '@mander/model';
 import type { HillLayer } from '../types/hill-layer';
 
 const HILL_WAVELENGTH = 210;

@@ -12,15 +12,15 @@ import {
   decodeReplay,
 } from '@mander/engine';
 import { generate } from '@mander/generator';
+import { chain } from '@mander/model';
 import {
   getPlayerFocus,
   interpolateState,
   renderGame,
   syncViewport,
 } from '@mander/render';
-import { chain, tapEffect } from '@mander/utils';
-import { assign, noop, size } from 'lodash-es';
-import { merge, scan, Subject, type Subscription, tap } from 'rxjs';
+import { assign, noop, size, tap } from 'lodash-es';
+import { merge, scan, Subject, type Subscription, tap as tapStream } from 'rxjs';
 import { match, P } from 'ts-pattern';
 import {
   onMounted,
@@ -134,7 +134,7 @@ const endRun = (
   match(isRunOver(world, next))
     .with(true, () =>
       archive.save(
-        tapEffect(next, () => recorder.stop()),
+        tap(next, () => recorder.stop()),
         getEndOutcome(next),
       ),
     )
@@ -147,9 +147,9 @@ const restartRun = (
 ): void =>
   chain(state)
     .thru((current) =>
-      tapEffect(current, () => archive.save(current, 'ABANDONED')),
+      tap(current, () => archive.save(current, 'ABANDONED')),
     )
-    .thru((current) => tapEffect(current, () => recorder.reset()))
+    .thru((current) => tap(current, () => recorder.reset()))
     .thru(() => archive.reset())
     .value();
 
@@ -179,16 +179,16 @@ const createStateHandler =
   ) =>
   (frame: GameFrame): void =>
     void chain({ previous: state.value, next: frame.current })
-      .thru((step) => tapEffect(step, () => assign(cell, { frame })))
-      .thru((step) => tapEffect(step, () => setRef(state, step.next)))
+      .thru((step) => tap(step, () => assign(cell, { frame })))
+      .thru((step) => tap(step, () => setRef(state, step.next)))
       .thru((step) =>
-        tapEffect(step, () => syncDebugGlobals(step.next, dispatch)),
+        tap(step, () => syncDebugGlobals(step.next, dispatch)),
       )
       .thru((step) =>
-        tapEffect(step, () => persistProgress(world, step.previous, step.next)),
+        tap(step, () => persistProgress(world, step.previous, step.next)),
       )
       .thru((step) =>
-        tapEffect(step, () => endRun(world, recorder, archive, step.next)),
+        tap(step, () => endRun(world, recorder, archive, step.next)),
       )
       .value();
 
@@ -220,9 +220,9 @@ const startOnMount = (
 ): void =>
   match(openCanvas(cell, canvas))
     .with(nonNullable, () =>
-      chain(tapEffect(cell, () => saveScore(initial.score)))
+      chain(tap(cell, () => saveScore(initial.score)))
         .thru((current) =>
-          tapEffect(current, () =>
+          tap(current, () =>
             recordPlayedWorld({ name: world.name, day }),
           ),
         )
@@ -236,7 +236,7 @@ const startOnMount = (
               actions,
             )
               .pipe(
-                tap(onCapture),
+                tapStream(onCapture),
                 scan(advanceFrame, createStartFrame(initial)),
               )
               .subscribe(onNext)
@@ -253,7 +253,7 @@ export const useGame = (
   canvas: Ref<HTMLCanvasElement | null>,
 ): GameController =>
   chain(generate(new Date(day)))
-    .thru((world) => tapEffect(world, () => logWorldMeta(world)))
+    .thru((world) => tap(world, () => logWorldMeta(world)))
     .thru((world) => ({ world, initial: createStartState(world) }))
     .thru((setup) => ({
       ...setup,
@@ -307,7 +307,7 @@ export const useGame = (
       }),
     }))
     .thru((setup) =>
-      tapEffect(setup, () =>
+      tap(setup, () =>
         onMounted(() =>
           startOnMount(
             setup.cell,
@@ -332,18 +332,18 @@ export const useGame = (
       ),
     )
     .thru((setup) =>
-      tapEffect(setup, () =>
+      tap(setup, () =>
         onUnmounted(() =>
           chain(setup.cell)
             .thru((cell) =>
-              tapEffect(cell, () =>
+              tap(cell, () =>
                 setup.archive.save(setup.state.value, 'ABANDONED'),
               ),
             )
             .thru((cell) =>
-              tapEffect(cell, () => cell.subscription?.unsubscribe()),
+              tap(cell, () => cell.subscription?.unsubscribe()),
             )
-            .thru((cell) => tapEffect(cell, () => cell.keyboard?.dispose()))
+            .thru((cell) => tap(cell, () => cell.keyboard?.dispose()))
             .thru((cell) => closeCanvas(cell))
             .value(),
         ),
@@ -371,7 +371,7 @@ export const useGame = (
           .value(),
       restart: () =>
         chain(setup.world.levels[0])
-          .thru((level) => tapEffect(level, () => saveScore(0)))
+          .thru((level) => tap(level, () => saveScore(0)))
           .thru((level) => setup.actions$.next({ type: 'RESTART', level }))
           .value(),
     }))

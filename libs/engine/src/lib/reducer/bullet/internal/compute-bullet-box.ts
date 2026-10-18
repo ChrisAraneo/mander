@@ -1,5 +1,4 @@
-import type { Bullet } from '@mander/model';
-import type { Rectangle } from '@mander/utils';
+import type { Bullet, Rectangle } from '@mander/model';
 import { BULLET_HITBOX_INSET, BULLET_SIZE } from '../consts';
 
 export const computeBulletBox = (bullet: Bullet): Rectangle => ({

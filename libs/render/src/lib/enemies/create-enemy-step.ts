@@ -1,6 +1,5 @@
 import { ENEMY_DEATH_SECONDS, isAlive } from '@mander/engine';
-import type { Enemy } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Enemy, chain } from '@mander/model';
 import { assign } from 'lodash-es';
 import { createScaleStep } from '../canvas/create-scale-step';
 import { createSequenceStep } from '../canvas/create-sequence-step';

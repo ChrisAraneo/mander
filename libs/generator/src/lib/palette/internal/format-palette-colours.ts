@@ -1,5 +1,4 @@
-import type { Palette } from '@mander/render';
-import { formatHslCss } from '@mander/utils';
+import { type Palette, formatHslCss } from '@mander/render';
 import { computeHillShades } from './compute-hill-shades';
 import { computeSkyStops } from './compute-sky-stops';
 import { formatHillShades } from './format-hill-shades';

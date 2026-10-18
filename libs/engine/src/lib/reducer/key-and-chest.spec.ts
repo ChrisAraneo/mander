@@ -1,15 +1,4 @@
-import {
-  type Item,
-  type Tile,
-  TILE_AIR,
-  TILE_CHEST,
-  TILE_DIRT,
-  TILE_KEY,
-  TILE_PORTAL,
-  TILE_SIZE,
-  TILE_SPAWN,
-} from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Item, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, chain } from '@mander/model';
 import { head, map, omit, reduce as fold, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

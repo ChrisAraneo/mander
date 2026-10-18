@@ -65,3 +65,8 @@ export * from './lib/world/get-camera-axis';
 export * from './lib/world/interpolate-state';
 export * from './lib/world/render-game';
 export * from './lib/world/types/rendered-world';
+export * from './lib/color/types/hsl';
+export * from './lib/color/format-hsl-css';
+export * from './lib/color/parse-hsl';
+export * from './lib/color/shift-hsl';
+export * from './lib/color/wrap-hue';

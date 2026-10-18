@@ -1,5 +1,4 @@
-import { getEntityRectangle, GEM_ENTITY_BOX } from '@mander/model';
-import { type Point, chain } from '@mander/utils';
+import { getEntityRectangle, GEM_ENTITY_BOX, type Point, chain } from '@mander/model';
 import { CYAN_GEM_COLORS } from '../gem-shape/consts';
 import { createGemShapeStep } from '../gem-shape/create-gem-shape-step';
 import type { CanvasStep } from '../types/canvas-step';

@@ -1,5 +1,4 @@
-import type { Cannon, Player } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Cannon, type Player, chain } from '@mander/model';
 import { compact, map } from 'lodash-es';
 import { createCannonTickShot } from './internal/create-cannon-tick-shot';
 import { patchCannonAim } from './internal/patch-cannon-aim';

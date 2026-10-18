@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import type { Viewport } from '../types/viewport';
 import { getDeviceSize } from './get-device-size';
 import { getViewportScale } from './get-viewport-scale';

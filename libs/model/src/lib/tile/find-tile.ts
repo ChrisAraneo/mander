@@ -1,5 +1,6 @@
-import { chain, type Point } from '@mander/utils';
 import { indexOf } from 'lodash-es';
+import { chain } from '../functions/chain';
+import type { Point } from '../geometry/point';
 import type { Level } from '../level/level';
 import type { Tile } from './tile';
 

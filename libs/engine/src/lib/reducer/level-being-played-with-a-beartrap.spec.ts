@@ -1,14 +1,4 @@
-import {
-  type Level,
-  type Tile,
-  TILE_AIR,
-  TILE_BEARTRAP,
-  TILE_DIRT,
-  TILE_ENEMY,
-  TILE_SIZE,
-  TILE_SPAWN,
-} from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Level, type Tile, TILE_AIR, TILE_BEARTRAP, TILE_DIRT, TILE_ENEMY, TILE_SIZE, TILE_SPAWN, chain } from '@mander/model';
 import { find, map, reduce as fold, size, times } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';

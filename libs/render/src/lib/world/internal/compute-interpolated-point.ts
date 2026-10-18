@@ -1,5 +1,4 @@
-import { TILE_SIZE } from '@mander/model';
-import type { Point } from '@mander/utils';
+import { TILE_SIZE, type Point } from '@mander/model';
 import { match } from 'ts-pattern';
 import { computeInterpolatedValue } from './compute-interpolated-value';
 

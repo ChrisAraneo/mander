@@ -1,4 +1,4 @@
-import type { createRandom } from '@mander/utils';
+import type { createRandom } from '@mander/engine';
 import { STRUCTURES_PER_LEVEL } from '../consts';
 import { countOccurrences } from './internal/count-occurrences';
 import { takeRandomStructures } from './internal/take-random-structures';

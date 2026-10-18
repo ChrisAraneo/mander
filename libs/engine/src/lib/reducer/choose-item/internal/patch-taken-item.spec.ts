@@ -1,12 +1,4 @@
-import {
-  DOUBLE_HEART,
-  type Item,
-  RED_GEM,
-  STAR,
-  TILE_DIRT,
-  TWO_BULLETS,
-} from '@mander/model';
-import { chain } from '@mander/utils';
+import { DOUBLE_HEART, type Item, RED_GEM, STAR, TILE_DIRT, TWO_BULLETS, chain } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
 import { createInitialState } from '../../../state/create-initial-state';

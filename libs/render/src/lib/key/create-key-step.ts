@@ -1,4 +1,4 @@
-import { type Rectangle, chain } from '@mander/utils';
+import { type Rectangle, chain } from '@mander/model';
 import { createSequenceStep } from '../canvas/create-sequence-step';
 import { drawRestore } from '../canvas/draw-restore';
 import { drawSave } from '../canvas/draw-save';

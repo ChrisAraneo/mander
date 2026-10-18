@@ -1,5 +1,4 @@
-import { type Layers, TILE_AIR } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Layers, TILE_AIR, chain } from '@mander/model';
 import { head, map, range, size, times } from 'lodash-es';
 
 const fillGrid = (

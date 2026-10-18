@@ -1,5 +1,4 @@
-import { type Tile, TILE_BRICK } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Tile, TILE_BRICK, chain } from '@mander/model';
 import { filter, maxBy, size, uniq } from 'lodash-es';
 import { getNeighbourTiles } from '../../structures/get-neighbour-tiles';
 import { isAverageableTile } from './is-averageable-tile';

@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { computeLanding } from '../../collision/compute-landing';
 import { computeVerticalMove } from '../../collision/compute-vertical-move';
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../consts';

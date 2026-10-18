@@ -1,4 +1,4 @@
-import type { createRandom } from '@mander/utils';
+import type { createRandom } from '@mander/engine';
 import type { PaletteSky } from './palette-sky';
 
 export interface PaletteSkyDraft {

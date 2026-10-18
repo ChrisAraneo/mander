@@ -1,4 +1,5 @@
-import { type createRandom, wrapHue } from '@mander/utils';
+import type { createRandom } from '@mander/engine';
+import { wrapHue } from '@mander/render';
 import { computeHueAwayFromEntity } from './compute-hue-away-from-entity';
 import type { PaletteGround } from './types/palette-ground';
 

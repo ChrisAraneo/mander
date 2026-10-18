@@ -1,17 +1,4 @@
-import {
-  type Enemy,
-  type Fireball,
-  type Item,
-  MAX_TICK_SECONDS,
-  MOON_MAGNET,
-  type Player,
-  type Tile,
-  TILE_AIR,
-  TILE_DIRT,
-  TILE_SIZE,
-  TILE_SPAWN,
-} from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Enemy, type Fireball, type Item, MAX_TICK_SECONDS, MOON_MAGNET, type Player, type Tile, TILE_AIR, TILE_DIRT, TILE_SIZE, TILE_SPAWN, chain } from '@mander/model';
 import { isNull, map, size, times } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';

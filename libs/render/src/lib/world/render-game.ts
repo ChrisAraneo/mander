@@ -1,6 +1,5 @@
 import type { GameState } from '@mander/engine';
-import { TILE_SIZE } from '@mander/model';
-import { chain } from '@mander/utils';
+import { TILE_SIZE, chain } from '@mander/model';
 import { map } from 'lodash-es';
 import { createBulletStep } from '../bullet/create-bullet-step';
 import { createCannonStep } from '../cannon/create-cannon-step';

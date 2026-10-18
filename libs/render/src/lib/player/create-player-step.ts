@@ -1,6 +1,5 @@
 import { isAlive, PLAYER_DEATH_SECONDS, PLAYER_WIDTH } from '@mander/engine';
-import type { Player } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Player, chain } from '@mander/model';
 import { createRotateStep } from '../canvas/create-rotate-step';
 import { createScaleStep } from '../canvas/create-scale-step';
 import { createSequenceStep } from '../canvas/create-sequence-step';

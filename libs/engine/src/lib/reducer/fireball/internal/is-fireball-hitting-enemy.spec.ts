@@ -1,11 +1,4 @@
-import {
-  type Enemy,
-  type Tile,
-  TILE_AIR,
-  TILE_DIRT,
-  TILE_ENEMY,
-} from '@mander/model';
-import type { Point } from '@mander/utils';
+import { type Enemy, type Tile, TILE_AIR, TILE_DIRT, TILE_ENEMY, type Point } from '@mander/model';
 import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

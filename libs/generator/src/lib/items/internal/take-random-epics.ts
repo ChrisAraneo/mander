@@ -1,5 +1,5 @@
+import type { createRandom } from '@mander/engine';
 import type { Item } from '@mander/model';
-import type { createRandom } from '@mander/utils';
 import { concat, includes, reduce, reject, size, times } from 'lodash-es';
 import { EPIC_POOL } from '../../consts';
 

@@ -1,5 +1,5 @@
+import { createRandom } from '@mander/engine';
 import type { ItemRarity } from '@mander/model';
-import { createRandom } from '@mander/utils';
 import { describe, expect, it } from 'vitest';
 
 import { countChestEpics } from './count-chest-epics';

@@ -92,3 +92,5 @@ export * from './lib/state/create-initial-state';
 export * from './lib/types/game-state';
 export * from './lib/types/game-status';
 export * from './lib/types/input-state';
+export * from './lib/random/create-random';
+export * from './lib/random/hash-string';

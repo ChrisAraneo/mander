@@ -1,4 +1,4 @@
-import type { Rectangle } from '@mander/utils';
+import type { Rectangle } from '@mander/model';
 import { match } from 'ts-pattern';
 import { createFillRectStep } from '../../canvas/create-fill-rect-step';
 import { createRectStep } from '../../canvas/create-rect-step';

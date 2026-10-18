@@ -1,5 +1,4 @@
-import { type Bullet, isSpike, type Level } from '@mander/model';
-import { chain, type Point } from '@mander/utils';
+import { type Bullet, isSpike, type Level, chain, type Point } from '@mander/model';
 import { find, flatMap, map } from 'lodash-es';
 import { computeTileRange } from '../../collision/compute-tile-range';
 import { computeBulletBox } from './compute-bullet-box';

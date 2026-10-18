@@ -1,5 +1,6 @@
+import type { createRandom } from '@mander/engine';
+import { chain } from '@mander/model';
 import type { Sector } from '@mander/structures';
-import { chain, type createRandom } from '@mander/utils';
 import { ceil, flatMap, range, size, sortBy, take } from 'lodash-es';
 import type { LevelCategory } from '../types/level-category';
 import { getStructures } from './get-structures';

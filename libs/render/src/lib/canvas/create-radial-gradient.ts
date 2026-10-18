@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import type { ColorStop } from '../types/color-stop';
 import { addStops } from './add-stops';
 

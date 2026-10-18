@@ -1,5 +1,4 @@
-import { getBackTileAt, type Level, TILE_SIZE } from '@mander/model';
-import { chain } from '@mander/utils';
+import { getBackTileAt, type Level, TILE_SIZE, chain } from '@mander/model';
 import { createFillRectStep } from '../canvas/create-fill-rect-step';
 import { createSequenceStep } from '../canvas/create-sequence-step';
 import { createStyleStep } from '../canvas/create-style-step';

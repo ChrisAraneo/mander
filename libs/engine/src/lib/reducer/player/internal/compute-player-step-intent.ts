@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { computePlayerJump } from './compute-player-jump';
 import { isFacingRightFor } from './is-facing-right-for';
 import { toHorizontalDirection } from './to-horizontal-direction';

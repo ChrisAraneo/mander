@@ -1,11 +1,4 @@
-import {
-  computeSpikeTriangles,
-  getSpikeOrientation,
-  getSpikeShape,
-  type Level,
-  TILE_SIZE,
-} from '@mander/model';
-import { chain } from '@mander/utils';
+import { computeSpikeTriangles, getSpikeOrientation, getSpikeShape, type Level, TILE_SIZE, chain } from '@mander/model';
 import { map } from 'lodash-es';
 import { createSequenceStep } from '../canvas/create-sequence-step';
 import type { CanvasStep } from '../types/canvas-step';

@@ -1,5 +1,4 @@
-import { type Enemy, type Level, MAX_TICK_SECONDS } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Enemy, type Level, MAX_TICK_SECONDS, chain } from '@mander/model';
 import { clamp } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { computeVerticalMove } from '../../collision/compute-vertical-move';

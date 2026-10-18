@@ -1,4 +1,4 @@
-import { wrapHue } from '@mander/utils';
+import { wrapHue } from '@mander/render';
 import { match, P } from 'ts-pattern';
 import { ENTITY_HUE } from '../../consts';
 

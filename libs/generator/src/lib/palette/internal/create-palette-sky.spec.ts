@@ -1,4 +1,4 @@
-import { createRandom } from '@mander/utils';
+import { createRandom } from '@mander/engine';
 import { describe, expect, it } from 'vitest';
 
 import { createPaletteSky } from './create-palette-sky';

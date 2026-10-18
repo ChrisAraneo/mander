@@ -1,4 +1,4 @@
-import { chain, type Point } from '@mander/utils';
+import { chain, type Point } from '@mander/model';
 import { filter, includes } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { crushEnemies } from '../../enemy/crush-enemies';

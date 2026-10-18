@@ -1,15 +1,4 @@
-import {
-  type FallingSpike,
-  type Level,
-  PRONG_HEIGHT,
-  type Player,
-  type Tile,
-  TILE_AIR,
-  TILE_DIRT,
-  TILE_SIZE,
-  TILE_SPIKE_FALLING,
-} from '@mander/model';
-import { chain } from '@mander/utils';
+import { type FallingSpike, type Level, PRONG_HEIGHT, type Player, type Tile, TILE_AIR, TILE_DIRT, TILE_SIZE, TILE_SPIKE_FALLING, chain } from '@mander/model';
 import { times } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';

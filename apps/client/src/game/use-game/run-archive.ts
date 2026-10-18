@@ -3,8 +3,8 @@ import {
   type GameState,
   type PackedReplay,
 } from '@mander/engine';
-import { chain, tapEffect } from '@mander/utils';
-import { assign, noop } from 'lodash-es';
+import { chain } from '@mander/model';
+import { assign, noop, tap } from 'lodash-es';
 import { match } from 'ts-pattern';
 
 import { archiveRun, type FinishedRun, type RunOutcome } from '../storage';
@@ -67,7 +67,7 @@ const createSaver =
         match(isSaving)
           .with(true, () =>
             archiveRun(
-              tapEffect(
+              tap(
                 createFinishedRun(source, state, outcome, seconds),
                 () => mutate(cell, { isSaved: true }),
               ),

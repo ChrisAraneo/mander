@@ -1,10 +1,10 @@
-import type { Triangle } from '@mander/utils';
 import { forEach, map, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { TILE_SIZE } from '../tile/consts';
 import { computeSpikeTriangles } from './compute-spike-triangles';
 import { PRONG_HEIGHT, PRONG_PITCH, PRONG_WIDTH, SPIKE_PRONGS } from './spike';
+import type { Triangle } from '../geometry/triangle';
 
 const TILE_X = 4;
 const TILE_Y = 3;

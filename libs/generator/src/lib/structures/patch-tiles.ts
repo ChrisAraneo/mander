@@ -1,5 +1,4 @@
-import type { Tile } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Tile, chain } from '@mander/model';
 import { groupBy, map } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import type { TilePatch } from '../types/tile-patch';

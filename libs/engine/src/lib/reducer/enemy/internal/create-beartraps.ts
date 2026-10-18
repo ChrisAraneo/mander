@@ -1,5 +1,4 @@
-import { type Enemy, findBeartrapTiles } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Enemy, findBeartrapTiles, chain } from '@mander/model';
 import { map } from 'lodash-es';
 import type { GameLevel } from '../../../types/game-level';
 import { BEARTRAP_JUMP_VELOCITY } from '../consts';

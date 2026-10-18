@@ -1,10 +1,11 @@
+import { createRandom } from '@mander/engine';
+import { chain } from '@mander/model';
 import {
   getStructureName,
   HARD_STRUCTURES,
   NORMAL_STRUCTURES,
   type Sector,
 } from '@mander/structures';
-import { chain, createRandom } from '@mander/utils';
 import {
   difference,
   filter,

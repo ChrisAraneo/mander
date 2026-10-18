@@ -1,11 +1,6 @@
-import {
-  type Fireball,
-  findFireballTiles,
-  type Level,
-  TILE_SIZE,
-} from '@mander/model';
-import { chain, createRandom } from '@mander/utils';
+import { type Fireball, findFireballTiles, type Level, TILE_SIZE, chain } from '@mander/model';
 import { map } from 'lodash-es';
+import { createRandom } from '../../random/create-random';
 import { FIREBALL_ANTICLOCKWISE_CHANCE } from './consts';
 import { computeFireballStartingAngle } from './internal/compute-fireball-starting-angle';
 import { toFireballSpin } from './internal/to-fireball-spin';

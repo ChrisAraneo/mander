@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { map } from 'lodash-es';
 import { createLineToStep } from '../canvas/create-line-to-step';
 import { createMoveToStep } from '../canvas/create-move-to-step';
@@ -9,9 +9,9 @@ import { drawClosePath } from '../canvas/draw-close-path';
 import { drawFill } from '../canvas/draw-fill';
 import type { CanvasStep } from '../types/canvas-step';
 import type { Viewport } from '../types/viewport';
-import type { HillLayer } from './types/hill-layer';
 import { computeHillPoint } from './internal/compute-hill-point';
 import { computeHillStepsAcross } from './internal/compute-hill-steps-across';
+import type { HillLayer } from './types/hill-layer';
 
 export const createHillLayerStep = (
   cameraX: number,

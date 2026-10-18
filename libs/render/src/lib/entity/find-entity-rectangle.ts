@@ -1,5 +1,4 @@
-import { type EntityBox, getEntityRectangle } from '@mander/model';
-import type { Point, Rectangle } from '@mander/utils';
+import { type EntityBox, getEntityRectangle, type Point, type Rectangle } from '@mander/model';
 import { constant } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 

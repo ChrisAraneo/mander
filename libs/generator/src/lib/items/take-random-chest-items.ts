@@ -1,5 +1,5 @@
+import type { createRandom } from '@mander/engine';
 import type { Item } from '@mander/model';
-import type { createRandom } from '@mander/utils';
 import { flow } from 'lodash-es';
 import { countChestEpics } from './internal/count-chest-epics';
 import { takeRandomChestItemsByRarity } from './internal/take-random-chest-items-by-rarity';

@@ -1,4 +1,4 @@
-import { type createRandom, hashString } from '@mander/utils';
+import { type createRandom, hashString } from '@mander/engine';
 import { toString } from 'lodash-es';
 
 export const hashLevelSeed = (

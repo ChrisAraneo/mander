@@ -1,3 +1,4 @@
+import { createRandom } from '@mander/engine';
 import {
   isSolidTile,
   type Tile,
@@ -7,7 +8,6 @@ import {
   TILE_SPIKE,
   TILE_STONE,
 } from '@mander/model';
-import { createRandom } from '@mander/utils';
 import {
   countBy,
   every,

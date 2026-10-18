@@ -1,5 +1,6 @@
+import { createRandom } from '@mander/engine';
+import { chain } from '@mander/model';
 import type { RenderedWorld } from '@mander/render';
-import { chain, createRandom } from '@mander/utils';
 import { flow } from 'lodash-es';
 import { createWorldLevelCategories } from './internal/create-world-level-categories';
 import { createWorldLevels } from './internal/create-world-levels';

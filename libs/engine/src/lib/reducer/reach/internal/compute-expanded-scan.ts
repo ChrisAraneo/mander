@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { size } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { MAX_NODES } from '../consts';

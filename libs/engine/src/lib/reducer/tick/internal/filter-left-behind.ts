@@ -1,5 +1,4 @@
-import { GEM_ENTITY_BOX, type Player } from '@mander/model';
-import type { Point } from '@mander/utils';
+import { GEM_ENTITY_BOX, type Player, type Point } from '@mander/model';
 import { filter } from 'lodash-es';
 import { PICKUP_RANGE } from '../consts';
 import { isNearTile } from './is-near-tile';

@@ -1,5 +1,5 @@
+import { chain } from '@mander/model';
 import type { Sector } from '@mander/structures';
-import { chain } from '@mander/utils';
 import { floor, size, slice } from 'lodash-es';
 import { countEarlierCopies } from './internal/count-earlier-copies';
 import { countOccurrences } from './internal/count-occurrences';

@@ -1,5 +1,5 @@
-import type { Tile } from '@mander/model';
-import { chain, type createRandom } from '@mander/utils';
+import type { createRandom } from '@mander/engine';
+import { type Tile, chain } from '@mander/model';
 import { map, size, sortBy, times } from 'lodash-es';
 import type { Spot } from '../../types/spot';
 

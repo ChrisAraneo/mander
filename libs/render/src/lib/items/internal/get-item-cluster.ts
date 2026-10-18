@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { findLast, keys, map, round, sortBy } from 'lodash-es';
 import type { ItemCluster } from './types/item-cluster';
 

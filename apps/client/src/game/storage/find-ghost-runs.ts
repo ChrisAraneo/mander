@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { filter, find, take } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 

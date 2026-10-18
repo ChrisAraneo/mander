@@ -1,5 +1,4 @@
-import type { Player } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Player, chain } from '@mander/model';
 import type { GameState } from '../../../types/game-state';
 import { advanceBullets } from '../../bullet/advance-bullets';
 import { advanceFallingSpikes } from '../../falling-spike/advance-falling-spikes';

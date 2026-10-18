@@ -1,14 +1,4 @@
-import type {
-  Bullet,
-  Cannon,
-  Cannonball,
-  Enemy,
-  FallingSpike,
-  Fireball,
-  Item,
-  Player,
-} from '@mander/model';
-import type { Point } from '@mander/utils';
+import type { Bullet, Cannon, Cannonball, Enemy, FallingSpike, Fireball, Item, Player, Point } from '@mander/model';
 import type { GameLevel } from './game-level';
 import type { GameStatus } from './game-status';
 import type { InputState } from './input-state';

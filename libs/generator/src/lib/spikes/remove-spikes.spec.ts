@@ -1,3 +1,4 @@
+import { createRandom } from '@mander/engine';
 import {
   isSpikeTile,
   type Tile,
@@ -6,7 +7,6 @@ import {
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
 } from '@mander/model';
-import { createRandom } from '@mander/utils';
 import {
   every,
   filter,

@@ -6,10 +6,9 @@ import {
   isReplayFinished,
   type Replay,
 } from '@mander/engine';
-import { FIXED_STEP_SECONDS } from '@mander/model';
+import { FIXED_STEP_SECONDS, chain } from '@mander/model';
 import { interpolateState } from '@mander/render';
-import { chain, tapEffect } from '@mander/utils';
-import { assign, indexOf, noop, size } from 'lodash-es';
+import { assign, indexOf, noop, size, tap } from 'lodash-es';
 import type { Subscription } from 'rxjs';
 import { match, P } from 'ts-pattern';
 import { onUnmounted, ref, type Ref } from 'vue';
@@ -138,7 +137,7 @@ const createPlay =
     onPulse: (pulse: Pulse) => void,
   ) =>
   (): void =>
-    chain(tapEffect(cell, (current) => current.subscription?.unsubscribe()))
+    chain(tap(cell, (current) => current.subscription?.unsubscribe()))
       .thru((current) => assign(current, { recording: source.getReplay() }))
       .thru((current) =>
         setRef(
@@ -166,7 +165,7 @@ const createPlay =
 
 const createStop =
   (cell: ReplayCell, refs: ReplayRefs, source: ReplaySource) => (): void =>
-    chain(tapEffect(cell, (current) => current.subscription?.unsubscribe()))
+    chain(tap(cell, (current) => current.subscription?.unsubscribe()))
       .thru((current) =>
         assign(current, { subscription: null, frame: null, ghosts: [] }),
       )
@@ -211,7 +210,7 @@ export const useReplay = (source: ReplaySource): ReplayController =>
       stop: createStop(ctx.cell, ctx.refs, source),
     }))
     .thru((ctx) =>
-      tapEffect(ctx, () =>
+      tap(ctx, () =>
         onUnmounted(() => ctx.cell.subscription?.unsubscribe()),
       ),
     )

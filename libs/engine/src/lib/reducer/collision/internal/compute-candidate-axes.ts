@@ -1,4 +1,4 @@
-import type { Triangle } from '@mander/utils';
+import type { Triangle } from '@mander/model';
 import { computeEdgeAxes } from './compute-edge-axes';
 import type { Axis } from './types/axis';
 

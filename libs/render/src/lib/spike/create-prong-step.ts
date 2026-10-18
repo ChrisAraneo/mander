@@ -1,4 +1,4 @@
-import type { Triangle } from '@mander/utils';
+import type { Triangle } from '@mander/model';
 import { createContextStyleStep } from '../canvas/create-context-style-step';
 import { createLineToStep } from '../canvas/create-line-to-step';
 import { createLinearGradient } from '../canvas/create-linear-gradient';

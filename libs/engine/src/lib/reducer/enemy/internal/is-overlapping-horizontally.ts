@@ -1,5 +1,4 @@
-import type { Enemy, Player } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Enemy, type Player, chain } from '@mander/model';
 import { computePlayerHitbox } from '../../player/compute-player-hitbox';
 import { computeEnemyHitbox } from '../compute-enemy-hitbox';
 import { STOMP_GRACE_X } from '../consts';

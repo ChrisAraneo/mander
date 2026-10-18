@@ -1,5 +1,5 @@
+import type { createRandom } from '@mander/engine';
 import type { Palette } from '@mander/render';
-import type { createRandom } from '@mander/utils';
 import type { LevelCategory } from '../../world/types/level-category';
 import type { WorldStructures } from '../../world/types/world-structures';
 

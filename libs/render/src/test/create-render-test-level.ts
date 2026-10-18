@@ -1,26 +1,5 @@
 import type { GameLevel } from '@mander/engine';
-import {
-  type Tile,
-  TILE_AIR,
-  TILE_BEARTRAP,
-  TILE_BRICK,
-  TILE_CANNON,
-  TILE_CERAMIC,
-  TILE_CHEST,
-  TILE_DIRT,
-  TILE_ENEMY,
-  TILE_FIREBALL,
-  TILE_GEM,
-  TILE_KEY,
-  TILE_PORTAL,
-  TILE_SPAWN,
-  TILE_SPIKE,
-  TILE_SPIKE_CEILING,
-  TILE_SPIKE_FALLING,
-  TILE_STONE,
-  TILE_WOOD,
-} from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Tile, TILE_AIR, TILE_BEARTRAP, TILE_BRICK, TILE_CANNON, TILE_CERAMIC, TILE_CHEST, TILE_DIRT, TILE_ENEMY, TILE_FIREBALL, TILE_GEM, TILE_KEY, TILE_PORTAL, TILE_SPAWN, TILE_SPIKE, TILE_SPIKE_CEILING, TILE_SPIKE_FALLING, TILE_STONE, TILE_WOOD, chain } from '@mander/model';
 import { head, map, size } from 'lodash-es';
 
 const LEGEND: Readonly<Record<string, Tile>> = Object.freeze({

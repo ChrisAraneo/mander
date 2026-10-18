@@ -1,4 +1,4 @@
-import type { Hsl } from '@mander/utils';
+import type { Hsl } from '@mander/render';
 import type { PaletteSky } from './types/palette-sky';
 
 const SKY_MIDDLE_LIGHTNESS_GAIN = 16;

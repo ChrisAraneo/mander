@@ -1,6 +1,7 @@
-import { parseHsl, shiftHsl } from '@mander/utils';
 import { assign } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
+import { parseHsl } from '../color/parse-hsl';
+import { shiftHsl } from '../color/shift-hsl';
 
 describe('hsl maths', () => {
   it('should read the colour back when it is written the way the palette writes it', () => {

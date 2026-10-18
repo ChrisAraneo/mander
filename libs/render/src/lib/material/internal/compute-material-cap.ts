@@ -1,6 +1,8 @@
 import { type Tile, TILE_DIRT } from '@mander/model';
-import { type Hsl, formatHslCss, shiftHsl } from '@mander/utils';
 import { match } from 'ts-pattern';
+import { formatHslCss } from '../../color/format-hsl-css';
+import { shiftHsl } from '../../color/shift-hsl';
+import type { Hsl } from '../../color/types/hsl';
 import type { Palette } from '../../types/palette';
 import { CAP_LIGHTNESS_GAIN } from '../consts';
 import type { MaterialCap } from './types/material-cap';

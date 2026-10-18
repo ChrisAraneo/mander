@@ -1,11 +1,11 @@
 import { TILE_AIR, TILE_BRICK } from '@mander/model';
-import type { Hsl } from '@mander/utils';
 import { describe, expect, it } from 'vitest';
 
 import type { Palette } from '../../types/palette';
 import { DIRT_STYLE } from '../consts';
 import { createGroundedMaterialPalette } from './create-grounded-material-palette';
 import { createMaterialStyle } from './create-material-style';
+import type { Hsl } from '../../color/types/hsl';
 
 const PALETTE: Palette = {
   sky: ['HSL(210, 30%, 12%)', 'HSL(210, 30%, 22%)', 'HSL(210, 30%, 28%)'],

@@ -1,5 +1,4 @@
-import { FIXED_STEP_SECONDS } from '@mander/model';
-import { chain } from '@mander/utils';
+import { FIXED_STEP_SECONDS, chain } from '@mander/model';
 import { match } from 'ts-pattern';
 import type { GameState } from '../types/game-state';
 import { handleChooseItem } from './choose-item/handle-choose-item';

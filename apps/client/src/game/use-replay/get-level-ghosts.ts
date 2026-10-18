@@ -1,6 +1,6 @@
 import type { GameState } from '@mander/engine';
+import { chain } from '@mander/model';
 import type { Ghost } from '@mander/render';
-import { chain } from '@mander/utils';
 import { filter, map } from 'lodash-es';
 
 export const getLevelGhosts = (

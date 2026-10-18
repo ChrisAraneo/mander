@@ -1,5 +1,4 @@
-import type { Enemy, Level } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Enemy, type Level, chain } from '@mander/model';
 import { patchDyingEnemy } from './patch-dying-enemy';
 
 export const patchFadingEnemy = (

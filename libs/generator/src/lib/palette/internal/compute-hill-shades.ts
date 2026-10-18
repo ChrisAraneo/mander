@@ -1,4 +1,4 @@
-import type { Hsl } from '@mander/utils';
+import type { Hsl } from '@mander/render';
 import type { PaletteSky } from './types/palette-sky';
 
 const HILL_SATURATION_DROP = 6;

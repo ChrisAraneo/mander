@@ -1,9 +1,9 @@
+import { createRandom } from '@mander/engine';
 import {
   NORMAL_STRUCTURES,
   type Sector,
   VERTICAL_STRUCTURES,
 } from '@mander/structures';
-import { createRandom } from '@mander/utils';
 import { take } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

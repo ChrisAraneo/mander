@@ -1,5 +1,4 @@
-import { type Level, TILE_AIR } from '@mander/model';
-import type { Point } from '@mander/utils';
+import { type Level, TILE_AIR, type Point } from '@mander/model';
 import { map } from 'lodash-es';
 import { match } from 'ts-pattern';
 

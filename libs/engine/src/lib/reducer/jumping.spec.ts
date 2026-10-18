@@ -1,16 +1,4 @@
-import {
-  type Item,
-  MAX_JUMP_TILES,
-  type Tile,
-  TILE_AIR,
-  TILE_CHEST,
-  TILE_DIRT,
-  TILE_KEY,
-  TILE_PORTAL,
-  TILE_SIZE,
-  TILE_SPAWN,
-} from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Item, MAX_JUMP_TILES, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, chain } from '@mander/model';
 import { head, map, size } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';

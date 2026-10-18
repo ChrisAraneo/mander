@@ -1,6 +1,5 @@
-import type { GameLevel } from '@mander/engine';
+import type { GameLevel, createRandom } from '@mander/engine';
 import type { Sector } from '@mander/structures';
-import type { createRandom } from '@mander/utils';
 import { flow } from 'lodash-es';
 import { addLevelEnds } from './internal/add-level-ends';
 import { addLevelFurniture } from './internal/add-level-furniture';

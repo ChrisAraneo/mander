@@ -1,4 +1,5 @@
-import { chain, hashString } from '@mander/utils';
+import { hashString } from '@mander/engine';
+import { chain } from '@mander/model';
 import { join, size } from 'lodash-es';
 import { drawRecorded } from './draw-recorded';
 

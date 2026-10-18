@@ -1,3 +1,4 @@
+import { createRandom } from '@mander/engine';
 import {
   BOOTS_OF_CLOUDS,
   BULLET,
@@ -9,7 +10,6 @@ import {
   TWO_BULLETS,
   VAMPIRE_SLAYER_BULLET_RAIN,
 } from '@mander/model';
-import { createRandom } from '@mander/utils';
 import {
   countBy,
   every,

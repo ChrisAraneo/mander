@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { assign, noop } from 'lodash-es';
 import { match } from 'ts-pattern';
 import type { Action } from '../types/action';

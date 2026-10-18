@@ -1,5 +1,4 @@
-import type { Enemy } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Enemy, chain } from '@mander/model';
 import { filter, map } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { isArmedBeartrap } from './internal/is-armed-beartrap';

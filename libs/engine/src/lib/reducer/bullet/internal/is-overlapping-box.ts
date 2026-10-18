@@ -1,4 +1,4 @@
-import type { Rectangle } from '@mander/utils';
+import type { Rectangle } from '@mander/model';
 
 export const isOverlappingBox = (
   box: Rectangle,

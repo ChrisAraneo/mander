@@ -1,4 +1,3 @@
-import type { Triangle } from '@mander/utils';
 import { forEach } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
@@ -7,6 +6,7 @@ import { TERMINAL_VELOCITY } from '../world/consts';
 import type { FallingSpike } from './falling-spike';
 import { computeFallingSpikeTriangles } from './compute-falling-spike-triangles';
 import { PRONG_HEIGHT, PRONG_WIDTH } from './spike';
+import type { Triangle } from '../geometry/triangle';
 
 const PIXEL_X = 4 * TILE_SIZE;
 const PIXEL_Y = 3 * TILE_SIZE;

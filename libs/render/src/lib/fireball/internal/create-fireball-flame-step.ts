@@ -1,6 +1,5 @@
 import { getFireballHeading } from '@mander/engine';
-import type { Fireball } from '@mander/model';
-import type { Point } from '@mander/utils';
+import type { Fireball, Point } from '@mander/model';
 import type { CanvasStep } from '../../types/canvas-step';
 import { createFlameStep } from '../create-flame-step';
 import { getFlicker } from '../get-flicker';

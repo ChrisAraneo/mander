@@ -1,5 +1,4 @@
-import type { Tile } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Tile, chain } from '@mander/model';
 import { patchTiles } from '../../structures/patch-tiles';
 import type { TilePatch } from '../../types/tile-patch';
 import { createPaintPatches } from './create-paint-patches';

@@ -1,6 +1,6 @@
-import { type Enemy, findEnemyTiles, isSolid } from '@mander/model';
-import { chain, createRandom } from '@mander/utils';
+import { type Enemy, findEnemyTiles, isSolid, chain } from '@mander/model';
 import { map } from 'lodash-es';
+import { createRandom } from '../../../random/create-random';
 import type { GameLevel } from '../../../types/game-level';
 import { computeEnemySpawnX } from './compute-enemy-spawn-x';
 import { computeEnemySpawnY } from './compute-enemy-spawn-y';

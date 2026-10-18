@@ -1,11 +1,4 @@
-import {
-  GRAVITY,
-  type Level,
-  MAX_TICK_SECONDS,
-  type Player,
-  TERMINAL_VELOCITY,
-} from '@mander/model';
-import { chain } from '@mander/utils';
+import { GRAVITY, type Level, MAX_TICK_SECONDS, type Player, TERMINAL_VELOCITY, chain } from '@mander/model';
 import { min } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { PLAYER_DEATH_SECONDS } from './consts';

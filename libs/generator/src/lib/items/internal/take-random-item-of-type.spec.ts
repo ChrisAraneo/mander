@@ -1,5 +1,5 @@
+import { createRandom } from '@mander/engine';
 import { RED_GEM } from '@mander/model';
-import { createRandom } from '@mander/utils';
 import { includes, map, size, times, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

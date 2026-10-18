@@ -1,16 +1,4 @@
-import {
-  type Item,
-  type Tile,
-  TILE_AIR,
-  TILE_CANNON,
-  TILE_CHEST,
-  TILE_DIRT,
-  TILE_KEY,
-  TILE_PORTAL,
-  TILE_SIZE,
-  TILE_SPAWN,
-} from '@mander/model';
-import { chain, type Point } from '@mander/utils';
+import { type Item, type Tile, TILE_AIR, TILE_CANNON, TILE_CHEST, TILE_DIRT, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, chain, type Point } from '@mander/model';
 import {
   ceil,
   filter,

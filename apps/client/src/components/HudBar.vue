@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { range } from 'lodash-es';
-import { chain } from '@mander/utils';
-import { match } from 'ts-pattern';
 import {
   countStartingFireballs,
   type GameState,
   hasMoonMagnet,
   isWarded,
 } from '@mander/engine';
+import { chain } from '@mander/model';
+import { range } from 'lodash-es';
+import { match } from 'ts-pattern';
+import { computed } from 'vue';
 import { isDebug } from '../game/debug';
 import { formatClock } from '../game/format';
 

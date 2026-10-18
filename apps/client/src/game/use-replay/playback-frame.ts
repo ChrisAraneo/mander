@@ -4,7 +4,7 @@ import {
   type Replay,
   type ReplayPlayback,
 } from '@mander/engine';
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { match, P } from 'ts-pattern';
 
 export interface PlaybackFrame {

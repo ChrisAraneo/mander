@@ -1,5 +1,4 @@
-import { type FallingSpike, GRAVITY, type Level } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type FallingSpike, GRAVITY, type Level, chain } from '@mander/model';
 import { match } from 'ts-pattern';
 import { computeVerticalMove } from '../../collision/compute-vertical-move';
 import {

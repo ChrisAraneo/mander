@@ -1,4 +1,4 @@
-import { formatHslCss, type Hsl } from '@mander/utils';
+import { formatHslCss, type Hsl } from '@mander/render';
 
 export const formatSkyStops = ([top, middle, horizon]: readonly [
   Hsl,

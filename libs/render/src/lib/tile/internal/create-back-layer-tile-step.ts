@@ -1,5 +1,4 @@
-import { type Level, getBackTileAt, isSolidTile } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Level, getBackTileAt, isSolidTile, chain } from '@mander/model';
 import { match } from 'ts-pattern';
 import { drawNothing } from '../../canvas/draw-nothing';
 import type { CanvasStep } from '../../types/canvas-step';

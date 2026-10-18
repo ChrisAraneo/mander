@@ -1,3 +1,4 @@
+import { createRandom } from '@mander/engine';
 import {
   TILE_AIR,
   TILE_BEARTRAP,
@@ -5,7 +6,6 @@ import {
   TILE_SPIKE,
   type Tile,
 } from '@mander/model';
-import { createRandom } from '@mander/utils';
 import { describe, expect, it } from 'vitest';
 
 import { filterBeartrapCells } from './filter-beartrap-cells';

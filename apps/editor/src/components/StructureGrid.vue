@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { type Layers, TILE_AIR, TILE_SIZE } from '@mander/model';
+import { type Layers, TILE_AIR, TILE_SIZE, chain } from '@mander/model';
 import { STRUCTURE_WIDTH } from '@mander/structures';
-import { chain, tapEffect } from '@mander/utils';
-import { forEach, noop, range, size } from 'lodash-es';
+import { forEach, noop, range, size, tap } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
@@ -54,21 +53,21 @@ const strokeLine = (
   toY: number,
 ): void =>
   chain(target)
-    .thru((ready) => tapEffect(ready, () => ready.beginPath()))
-    .thru((ready) => tapEffect(ready, () => ready.moveTo(fromX, fromY)))
-    .thru((ready) => tapEffect(ready, () => ready.lineTo(toX, toY)))
+    .thru((ready) => tap(ready, () => ready.beginPath()))
+    .thru((ready) => tap(ready, () => ready.moveTo(fromX, fromY)))
+    .thru((ready) => tap(ready, () => ready.lineTo(toX, toY)))
     .thru((ready) => ready.stroke())
     .value();
 
 const drawGridLines = (target: CanvasRenderingContext2D): void =>
   void chain(target)
     .thru((ready) =>
-      tapEffect(ready, () =>
+      tap(ready, () =>
         Object.assign(ready, { strokeStyle: GRID_LINE, lineWidth: 1 }),
       ),
     )
     .thru((ready) =>
-      tapEffect(ready, () =>
+      tap(ready, () =>
         forEach(range(STRUCTURE_WIDTH + 1), (column) =>
           strokeLine(
             ready,
@@ -99,7 +98,7 @@ const drawHover = (target: CanvasRenderingContext2D): void =>
     .otherwise((cell) =>
       chain(target)
         .thru((ready) =>
-          tapEffect(ready, () =>
+          tap(ready, () =>
             Object.assign(ready, { strokeStyle: HOVER_LINE, lineWidth: 2 }),
           ),
         )
@@ -120,9 +119,9 @@ const repaint = (): void =>
     .otherwise((target) =>
       chain(target)
         .thru((ready) =>
-          tapEffect(ready, () => drawStructure(ready, props.sketch)),
+          tap(ready, () => drawStructure(ready, props.sketch)),
         )
-        .thru((ready) => tapEffect(ready, () => drawGridLines(ready)))
+        .thru((ready) => tap(ready, () => drawGridLines(ready)))
         .thru((ready) => drawHover(ready))
         .value(),
     );
@@ -165,10 +164,10 @@ const start = (event: PointerEvent): void =>
       )
         .thru((value) => setRef(strokeValue, value))
         .thru((value) =>
-          tapEffect(value, () => setRef(strokeLayer, props.brush.layer)),
+          tap(value, () => setRef(strokeLayer, props.brush.layer)),
         )
-        .thru((value) => tapEffect(value, () => setRef(isPainting, true)))
-        .thru((value) => tapEffect(value, () => emit('strokeStart')))
+        .thru((value) => tap(value, () => setRef(isPainting, true)))
+        .thru((value) => tap(value, () => emit('strokeStart')))
         .thru((value) =>
           emit('paint', cell.row, cell.column, value, strokeLayer.value),
         )

@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { map, slice } from 'lodash-es';
 import { applyActions } from '../../apply-actions';
 import type { Replay } from '../../recorder/types/replay';

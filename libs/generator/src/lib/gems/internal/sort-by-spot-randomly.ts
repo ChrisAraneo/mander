@@ -1,4 +1,4 @@
-import type { createRandom } from '@mander/utils';
+import type { createRandom } from '@mander/engine';
 import { map, sortBy } from 'lodash-es';
 import type { Spot } from '../../types/spot';
 

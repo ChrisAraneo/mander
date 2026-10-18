@@ -1,5 +1,4 @@
-import type { Cannon } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Cannon, chain } from '@mander/model';
 import { createConditionalStep } from '../canvas/create-conditional-step';
 import { createScaleStep } from '../canvas/create-scale-step';
 import { createSequenceStep } from '../canvas/create-sequence-step';

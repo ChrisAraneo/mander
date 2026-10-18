@@ -1,5 +1,4 @@
-import { findGemTiles, type Item } from '@mander/model';
-import { chain } from '@mander/utils';
+import { findGemTiles, type Item, chain } from '@mander/model';
 import { countStartingAmmo } from '../reducer/bullet/count-starting-ammo';
 import { createCannons } from '../reducer/cannon/create-cannons';
 import { createEnemies } from '../reducer/enemy/create-enemies';

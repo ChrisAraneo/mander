@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { match } from 'ts-pattern';
 import { SUBSTEP } from '../consts';
 import type { AxisMove } from '../types/axis-move';

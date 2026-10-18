@@ -1,3 +1,4 @@
+import { chain } from '@mander/model';
 import {
   getFront,
   type Sector,
@@ -6,7 +7,6 @@ import {
   STRUCTURE_START,
   STRUCTURE_WIDTH,
 } from '@mander/structures';
-import { chain } from '@mander/utils';
 import { find, indexOf, map } from 'lodash-es';
 import type { Cell } from '../../types/cell';
 import type { StructurePlacement } from './types/structure-placement';

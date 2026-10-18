@@ -1,5 +1,4 @@
-import type { Enemy, Level, Player } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Enemy, type Level, type Player, chain } from '@mander/model';
 import { match } from 'ts-pattern';
 import { isOverlappingSpike } from '../../spike/is-overlapping-spike';
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from '../consts';

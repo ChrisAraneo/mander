@@ -1,3 +1,4 @@
+import { createRandom } from '@mander/engine';
 import {
   TILE_AIR,
   TILE_DIRT,
@@ -6,7 +7,6 @@ import {
   TILE_SPIKE_FALLING,
   type Tile,
 } from '@mander/model';
-import { createRandom } from '@mander/utils';
 import { describe, expect, it } from 'vitest';
 
 import { filterSpikeCells } from './filter-spike-cells';

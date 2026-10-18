@@ -1,10 +1,10 @@
+import { createRandom } from '@mander/engine';
 import { findTile, TILE_PORTAL, TILE_SPAWN } from '@mander/model';
 import {
   NORMAL_STRUCTURES,
   type Sector,
   VERTICAL_STRUCTURES,
 } from '@mander/structures';
-import { createRandom } from '@mander/utils';
 import { cloneDeep, map, size, take } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

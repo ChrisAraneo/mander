@@ -1,4 +1,4 @@
-import { hashString } from '@mander/utils';
+import { hashString } from '@mander/engine';
 import { describe, expect, it } from 'vitest';
 
 import { computeWorldName } from './compute-world-name';

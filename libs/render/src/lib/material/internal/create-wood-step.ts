@@ -1,5 +1,4 @@
-import { TILE_SIZE } from '@mander/model';
-import { chain } from '@mander/utils';
+import { TILE_SIZE, chain } from '@mander/model';
 import { map, range } from 'lodash-es';
 import { createSequenceStep } from '../../canvas/create-sequence-step';
 import type { CanvasStep } from '../../types/canvas-step';

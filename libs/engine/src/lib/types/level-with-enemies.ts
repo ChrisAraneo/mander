@@ -1,5 +1,4 @@
-import type { Level } from '@mander/model';
-import type { Point } from '@mander/utils';
+import type { Level, Point } from '@mander/model';
 
 export interface LevelWithEnemies extends Level {
   enemies: Point[];

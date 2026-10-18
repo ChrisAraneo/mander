@@ -1,5 +1,4 @@
-import { computeFallingSpikeTriangles, type FallingSpike } from '@mander/model';
-import { chain } from '@mander/utils';
+import { computeFallingSpikeTriangles, type FallingSpike, chain } from '@mander/model';
 import { map } from 'lodash-es';
 import { createSequenceStep } from '../canvas/create-sequence-step';
 import type { CanvasStep } from '../types/canvas-step';

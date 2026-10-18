@@ -1,5 +1,4 @@
-import { tapEffect } from '@mander/utils';
-import { noop } from 'lodash-es';
+import { noop, tap } from 'lodash-es';
 import type { CanvasCall } from '../types/canvas-call';
 
 export const createRecordedGradient = (
@@ -7,7 +6,7 @@ export const createRecordedGradient = (
   name: string,
   args: unknown[],
 ): CanvasGradient =>
-  tapEffect<CanvasGradient>(
+  tap<CanvasGradient>(
     {
       addColorStop: (offset, color) =>
         noop(calls.push({ name: 'addColorStop', args: [offset, color] })),

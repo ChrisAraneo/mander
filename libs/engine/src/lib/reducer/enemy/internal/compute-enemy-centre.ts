@@ -1,5 +1,4 @@
-import type { Enemy } from '@mander/model';
-import type { Point } from '@mander/utils';
+import type { Enemy, Point } from '@mander/model';
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from '../consts';
 
 export const computeEnemyCentre = (enemy: Enemy): Point => ({

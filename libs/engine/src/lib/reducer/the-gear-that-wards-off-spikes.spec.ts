@@ -1,20 +1,4 @@
-import {
-  BOOTS_OF_CLOUDS,
-  type Item,
-  type Tile,
-  TILE_AIR,
-  TILE_CHEST,
-  TILE_DIRT,
-  TILE_ENEMY,
-  TILE_KEY,
-  TILE_PORTAL,
-  TILE_SIZE,
-  TILE_SPAWN,
-  TILE_SPIKE,
-  TILE_SPIKE_CEILING,
-  TITANIUM_HELMET,
-} from '@mander/model';
-import { chain, type Point } from '@mander/utils';
+import { BOOTS_OF_CLOUDS, type Item, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_ENEMY, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, TILE_SPIKE, TILE_SPIKE_CEILING, TITANIUM_HELMET, chain, type Point } from '@mander/model';
 import { ceil, head, map, reduce as fold, size, some, times } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';

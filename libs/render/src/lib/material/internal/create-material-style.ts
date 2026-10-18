@@ -1,6 +1,8 @@
-import type { Tile } from '@mander/model';
-import { type Hsl, chain, shiftHsl, formatHslCss } from '@mander/utils';
+import { type Tile, chain } from '@mander/model';
 import { assign } from 'lodash-es';
+import { formatHslCss } from '../../color/format-hsl-css';
+import { shiftHsl } from '../../color/shift-hsl';
+import type { Hsl } from '../../color/types/hsl';
 import type { MaterialStyle } from '../../types/material-style';
 import type { Palette } from '../../types/palette';
 import { HIGHLIGHT } from '../consts';

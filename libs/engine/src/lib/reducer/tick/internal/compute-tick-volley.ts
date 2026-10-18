@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { resolveVolley } from '../../bullet/resolve-volley';
 import { patchStruckEnemies } from './patch-struck-enemies';
 import type { TickHarm } from './types/tick-harm';

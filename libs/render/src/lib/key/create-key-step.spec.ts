@@ -1,4 +1,4 @@
-import type { Rectangle } from '@mander/utils';
+import type { Rectangle } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
 import { drawRecorded } from '../../test/draw-recorded';

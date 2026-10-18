@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { type Layers, TILE_AIR, TILE_SIZE } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Layers, TILE_AIR, TILE_SIZE, chain } from '@mander/model';
 import { noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { onMounted, ref, watch } from 'vue';

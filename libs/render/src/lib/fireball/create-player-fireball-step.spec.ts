@@ -2,14 +2,8 @@ import {
   createPlayerFireballs,
   getPlayerFireballPosition,
 } from '@mander/engine';
-import {
-  type Fireball,
-  MOON_MAGNET,
-  type Player,
-  TILE_SIZE,
-} from '@mander/model';
-import { chain, tapEffect } from '@mander/utils';
-import { filter, find, map, some } from 'lodash-es';
+import { type Fireball, MOON_MAGNET, type Player, TILE_SIZE, chain } from '@mander/model';
+import { filter, find, map, some, tap } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { createRecordingContext } from '../../test/create-recording-context';
@@ -34,7 +28,7 @@ const STANDING: Player = {
 const drawCalls = (step: CanvasStep): CanvasCall[] =>
   chain(createRecordingContext())
     .thru((recording) =>
-      tapEffect(recording, ({ context }) => draw(context, step)),
+      tap(recording, ({ context }) => draw(context, step)),
     )
     .thru(({ calls }) => calls)
     .value();

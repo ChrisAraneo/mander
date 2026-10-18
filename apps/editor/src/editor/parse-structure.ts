@@ -1,5 +1,4 @@
-import type { Layers } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Layers, chain } from '@mander/model';
 import { compact, filter, map, size, split, trim } from 'lodash-es';
 
 import { parseAlias } from '@mander/structures';

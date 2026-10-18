@@ -1,5 +1,5 @@
+import { createRandom } from '@mander/engine';
 import type { ItemRarity } from '@mander/model';
-import { createRandom } from '@mander/utils';
 import { every, map, size, times, toString, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

@@ -1,5 +1,5 @@
+import type { createRandom } from '@mander/engine';
 import type { Tile } from '@mander/model';
-import type { createRandom } from '@mander/utils';
 import { match } from 'ts-pattern';
 import { DEEP_DIRT_DEPTH, DIRT_DEPTH } from '../../consts';
 import type { StoneDirtDepth } from './types/stone-dirt-depth';

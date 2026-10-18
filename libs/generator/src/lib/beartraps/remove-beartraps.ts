@@ -1,5 +1,5 @@
+import type { createRandom } from '@mander/engine';
 import type { Tile } from '@mander/model';
-import type { createRandom } from '@mander/utils';
 import { flow } from 'lodash-es';
 import { createBeartrapPatches } from './internal/create-beartrap-patches';
 import { filterBeartrapCells } from './internal/filter-beartrap-cells';

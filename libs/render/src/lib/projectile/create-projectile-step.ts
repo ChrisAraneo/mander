@@ -1,4 +1,4 @@
-import type { Point } from '@mander/utils';
+import type { Point } from '@mander/model';
 import { createScaleStep } from '../canvas/create-scale-step';
 import { createSequenceStep } from '../canvas/create-sequence-step';
 import { createTranslateStep } from '../canvas/create-translate-step';

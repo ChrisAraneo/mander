@@ -6,7 +6,6 @@ import {
   TILE_STONE,
   TILE_WOOD,
 } from '@mander/model';
-import { parseHsl } from '@mander/utils';
 import { get, map } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
@@ -15,6 +14,7 @@ import type { Palette } from '../types/palette';
 import { DIRT_STYLE, STONE_STYLE } from './consts';
 import { createMaterialPalette } from './create-material-palette';
 import { getMaterialStyle } from './get-material-style';
+import { parseHsl } from '../color/parse-hsl';
 
 const { nullish } = P;
 

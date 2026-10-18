@@ -1,7 +1,6 @@
 import { floor } from 'lodash-es';
-
-import { createMulberry32 } from './create-mulberry32.ts';
-import { createXmur3 } from './create-xmur3.ts';
+import { createMulberry32 } from './internal/create-mulberry32';
+import { createXmur3 } from './internal/create-xmur3';
 
 export const createRandom = (seed: string) => {
   const rollFloat = createMulberry32(createXmur3(seed)());

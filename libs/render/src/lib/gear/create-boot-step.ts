@@ -1,4 +1,4 @@
-import type { Point } from '@mander/utils';
+import type { Point } from '@mander/model';
 import { map } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { createContextStyleStep } from '../canvas/create-context-style-step';

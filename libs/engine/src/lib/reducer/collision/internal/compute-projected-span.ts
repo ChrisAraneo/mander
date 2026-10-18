@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { defaultTo, map, max, min } from 'lodash-es';
 import type { Axis } from './types/axis';
 import type { Span } from './types/span';

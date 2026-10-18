@@ -1,12 +1,5 @@
-import {
-  type Level,
-  TILE_AIR,
-  TILE_BRICK,
-  TILE_DIRT,
-  TILE_SIZE,
-} from '@mander/model';
-import { chain, tapEffect } from '@mander/utils';
-import { dropRight, flatMap, last, reduce, reverse, some } from 'lodash-es';
+import { type Level, TILE_AIR, TILE_BRICK, TILE_DIRT, TILE_SIZE, chain } from '@mander/model';
+import { dropRight, flatMap, last, reduce, reverse, some, tap } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -76,7 +69,7 @@ const drawFills = (
 ): Fill[] =>
   chain(createRecordingContext())
     .thru((recording) =>
-      tapEffect(recording, ({ context }) =>
+      tap(recording, ({ context }) =>
         draw(context, createBackTileStep(level, column, row, style)),
       ),
     )

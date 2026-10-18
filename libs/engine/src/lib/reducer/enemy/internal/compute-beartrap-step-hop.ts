@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { computeBeartrapHop } from './compute-beartrap-hop';
 import type { BeartrapStepDelta } from './types/beartrap-step-delta';
 import type { BeartrapStepIntent } from './types/beartrap-step-intent';

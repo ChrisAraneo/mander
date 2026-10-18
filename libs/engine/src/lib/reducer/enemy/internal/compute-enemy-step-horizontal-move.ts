@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { computeHorizontalMove } from '../../collision/compute-horizontal-move';
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from '../consts';
 import { computeBlockedFacing } from './compute-blocked-facing';

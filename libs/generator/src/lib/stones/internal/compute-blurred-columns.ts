@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { map, size, times } from 'lodash-es';
 import { computeClampedIndex } from './compute-clamped-index';
 import { computeTapAverage } from './compute-tap-average';

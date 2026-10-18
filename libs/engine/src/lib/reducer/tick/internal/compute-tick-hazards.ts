@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { match } from 'ts-pattern';
 import { createRespawnedTickHazards } from './create-respawned-tick-hazards';
 import { patchMovedTickHazards } from './patch-moved-tick-hazards';

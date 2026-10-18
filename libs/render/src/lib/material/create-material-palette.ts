@@ -1,5 +1,5 @@
-import { parseHsl } from '@mander/utils';
 import { match, P } from 'ts-pattern';
+import { parseHsl } from '../color/parse-hsl';
 import type { MaterialPalette } from '../types/material-palette';
 import type { Palette } from '../types/palette';
 import { getMaterialStyle } from './get-material-style';

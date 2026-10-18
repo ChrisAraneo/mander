@@ -1,4 +1,6 @@
-import { chain, createRandom, wrapHue } from '@mander/utils';
+import { createRandom } from '@mander/engine';
+import { chain } from '@mander/model';
+import { wrapHue } from '@mander/render';
 import { every, map, size, times, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

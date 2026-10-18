@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { createArcStep } from '../../canvas/create-arc-step';
 import { createLineToStep } from '../../canvas/create-line-to-step';
 import { createSequenceStep } from '../../canvas/create-sequence-step';

@@ -1,5 +1,4 @@
-import type { Player } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Player, chain } from '@mander/model';
 import { match } from 'ts-pattern';
 import { stepPlayer } from '../../player/step-player';
 import { FRAME_SECONDS } from '../consts';

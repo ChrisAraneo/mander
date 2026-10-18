@@ -1,5 +1,4 @@
-import { type Fireball, MAX_TICK_SECONDS } from '@mander/model';
-import { chain, type Point } from '@mander/utils';
+import { type Fireball, MAX_TICK_SECONDS, chain, type Point } from '@mander/model';
 import { times } from 'lodash-es';
 import { PLAYER_FIREBALL_ANGULAR_SPEED } from '../consts';
 import { getPlayerFireballPosition } from '../get-player-fireball-position';

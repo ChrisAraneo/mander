@@ -1,5 +1,5 @@
-import type { Point } from '@mander/utils';
 import { match } from 'ts-pattern';
+import type { Point } from '../geometry/point';
 import type { Level } from '../level/level';
 import { TILE_PORTAL } from './portal';
 

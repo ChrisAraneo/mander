@@ -1,5 +1,5 @@
+import type { createRandom } from '@mander/engine';
 import type { Tile } from '@mander/model';
-import type { createRandom } from '@mander/utils';
 import { flow } from 'lodash-es';
 import { computeSmoothStoneCells } from './internal/compute-smooth-stone-cells';
 import { computeStoneDeepDirtCells } from './internal/compute-stone-deep-dirt-cells';

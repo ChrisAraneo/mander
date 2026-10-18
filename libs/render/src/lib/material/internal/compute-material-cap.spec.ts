@@ -1,9 +1,9 @@
 import { TILE_DIRT, TILE_STONE } from '@mander/model';
-import type { Hsl } from '@mander/utils';
 import { describe, expect, it } from 'vitest';
 
 import type { Palette } from '../../types/palette';
 import { computeMaterialCap } from './compute-material-cap';
+import type { Hsl } from '../../color/types/hsl';
 
 const PALETTE: Palette = {
   sky: ['HSL(210, 30%, 12%)', 'HSL(210, 30%, 22%)', 'HSL(210, 30%, 28%)'],

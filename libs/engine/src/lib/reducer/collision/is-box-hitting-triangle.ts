@@ -1,4 +1,4 @@
-import { chain, type Triangle } from '@mander/utils';
+import { chain, type Triangle } from '@mander/model';
 import { every } from 'lodash-es';
 import { computeBoxCorners } from './internal/compute-box-corners';
 import { computeCandidateAxes } from './internal/compute-candidate-axes';

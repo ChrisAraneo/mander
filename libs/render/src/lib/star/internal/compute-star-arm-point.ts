@@ -1,4 +1,4 @@
-import { type Point, chain } from '@mander/utils';
+import { type Point, chain } from '@mander/model';
 import { match } from 'ts-pattern';
 import { ARMS } from './consts';
 

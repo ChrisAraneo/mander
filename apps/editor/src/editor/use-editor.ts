@@ -1,7 +1,6 @@
-import { type Layers, TILE_AIR } from '@mander/model';
+import { type Layers, TILE_AIR, chain } from '@mander/model';
 import { STRUCTURE_END, STRUCTURE_START } from '@mander/structures';
-import { chain, tapEffect } from '@mander/utils';
-import { concat, includes, last, map, noop, size, slice } from 'lodash-es';
+import { concat, includes, last, map, noop, size, slice, tap } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { computed, ref, type Ref, watch } from 'vue';
 
@@ -93,7 +92,7 @@ export const useEditor = (pool: Readonly<Ref<Pool>>) =>
           )
           .value(),
       replace: (next: Layers): void =>
-        void chain(tapEffect(next, () => state.remember()))
+        void chain(tap(next, () => state.remember()))
           .thru((sketch) =>
             setRef(state.sketch, fillSketch(cloneSketch(sketch))),
           )
@@ -115,7 +114,7 @@ export const useEditor = (pool: Readonly<Ref<Pool>>) =>
           .value(),
     }))
     .thru((state) =>
-      tapEffect(state, () =>
+      tap(state, () =>
         watch(pool, (next) =>
           match(size(state.sketch.value.tiles) === getHeight(next))
             .with(true, noop)

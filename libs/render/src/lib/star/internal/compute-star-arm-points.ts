@@ -1,4 +1,4 @@
-import type { Point } from '@mander/utils';
+import type { Point } from '@mander/model';
 import { map, range } from 'lodash-es';
 import { computeStarArmPoint } from './compute-star-arm-point';
 import { ARMS } from './consts';

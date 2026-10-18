@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { WHITE_FIREBALL } from '../../fireball/consts';
 import { createFlameStep } from '../../fireball/create-flame-step';
 import type { CanvasStep } from '../../types/canvas-step';

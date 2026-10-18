@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import type { GameState } from '../../../types/game-state';
 import { createCannons } from '../../cannon/create-cannons';
 import { createEnemies } from '../../enemy/create-enemies';

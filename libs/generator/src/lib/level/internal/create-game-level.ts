@@ -1,6 +1,5 @@
 import type { GameLevel } from '@mander/engine';
-import type { Layers } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Layers, chain } from '@mander/model';
 import { size } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { takeRandomChestItems } from '../../items/take-random-chest-items';

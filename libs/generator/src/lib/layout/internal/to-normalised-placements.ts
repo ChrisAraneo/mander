@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { map, min } from 'lodash-es';
 import type { StructurePlacement } from './types/structure-placement';
 

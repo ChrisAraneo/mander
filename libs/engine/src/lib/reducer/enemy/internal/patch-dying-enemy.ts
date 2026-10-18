@@ -1,11 +1,4 @@
-import {
-  type Enemy,
-  GRAVITY,
-  type Level,
-  MAX_TICK_SECONDS,
-  TERMINAL_VELOCITY,
-} from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Enemy, GRAVITY, type Level, MAX_TICK_SECONDS, TERMINAL_VELOCITY, chain } from '@mander/model';
 import { match } from 'ts-pattern';
 import { computeVerticalMove } from '../../collision/compute-vertical-move';
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from '../consts';

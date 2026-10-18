@@ -1,5 +1,5 @@
+import type { createRandom } from '@mander/engine';
 import type { Tile } from '@mander/model';
-import type { createRandom } from '@mander/utils';
 import { match } from 'ts-pattern';
 import { GEM_REST_HEIGHT } from '../../consts';
 import { filterStandingSpots } from '../../structures/filter-standing-spots';

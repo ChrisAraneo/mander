@@ -1,4 +1,4 @@
-import type { Rectangle } from '@mander/utils';
+import type { Rectangle } from '@mander/model';
 import { createContextStyleStep } from '../../canvas/create-context-style-step';
 import { createEllipseStep } from '../../canvas/create-ellipse-step';
 import { createRadialGradient } from '../../canvas/create-radial-gradient';
