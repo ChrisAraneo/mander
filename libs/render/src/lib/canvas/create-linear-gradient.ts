@@ -1,15 +1,15 @@
 import { chain } from '@mander/utils';
-import type { ColorStop } from './color-stop';
+import type { ColorStop } from '../types/color-stop';
 import { addStops } from './add-stops';
 
 export const createLinearGradient = (
   context: CanvasRenderingContext2D,
-  x0: number,
-  y0: number,
-  x1: number,
-  y1: number,
+  startX: number,
+  startY: number,
+  endX: number,
+  endY: number,
   stops: readonly ColorStop[],
 ): CanvasGradient =>
-  chain(context.createLinearGradient(x0, y0, x1, y1))
+  chain(context.createLinearGradient(startX, startY, endX, endY))
     .thru(addStops(stops))
     .value();

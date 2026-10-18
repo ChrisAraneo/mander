@@ -1,9 +1,8 @@
 import { chain } from '@mander/utils';
-
+import type { Viewport } from '../types/viewport';
 import { getDeviceSize } from './get-device-size';
-import { resizeCanvas } from './resize-canvas';
 import { getViewportScale } from './get-viewport-scale';
-import type { Viewport } from './viewport';
+import { resizeCanvas } from './resize-canvas';
 
 export const syncViewport = (canvas: HTMLCanvasElement): Viewport =>
   chain({ size: getDeviceSize(canvas), scale: getViewportScale(canvas) })

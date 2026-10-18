@@ -1,57 +1,19 @@
-import {
-  beginPath,
-  type CanvasStep,
-  closePath,
-  fill,
-  traceLineTo,
-  createLinearGradient,
-  moveTo,
-  restore,
-  save,
-  sequence,
-  stroke,
-  applyStyle,
-  applyStyleWith,
-} from '../canvas';
-import { outline } from '../stroke';
-import type { GemColors } from './gem-colors';
-
-const CROWN = 0.25;
-
-const traceGemShape = (
-  centerX: number,
-  centerY: number,
-  halfWidth: number,
-  halfHeight: number,
-): CanvasStep =>
-  sequence([
-    beginPath,
-    moveTo(centerX, centerY - halfHeight),
-    traceLineTo(centerX + halfWidth, centerY - halfHeight * CROWN),
-    traceLineTo(centerX, centerY + halfHeight),
-    traceLineTo(centerX - halfWidth, centerY - halfHeight * CROWN),
-    closePath,
-  ]);
-
-const createGemShapeFill = (
-  context: CanvasRenderingContext2D,
-  centerX: number,
-  centerY: number,
-  halfHeight: number,
-  colors: GemColors,
-): CanvasGradient =>
-  createLinearGradient(
-    context,
-    centerX,
-    centerY - halfHeight,
-    centerX,
-    centerY + halfHeight,
-    [
-      [0, colors.light],
-      [0.45, colors.base],
-      [1, colors.deep],
-    ],
-  );
+import { createContextStyleStep } from '../canvas/create-context-style-step';
+import { createLineToStep } from '../canvas/create-line-to-step';
+import { createMoveToStep } from '../canvas/create-move-to-step';
+import { createSequenceStep } from '../canvas/create-sequence-step';
+import { createStyleStep } from '../canvas/create-style-step';
+import { drawBeginPath } from '../canvas/draw-begin-path';
+import { drawFill } from '../canvas/draw-fill';
+import { drawRestore } from '../canvas/draw-restore';
+import { drawSave } from '../canvas/draw-save';
+import { drawStroke } from '../canvas/draw-stroke';
+import { outline } from '../stroke/outline';
+import type { CanvasStep } from '../types/canvas-step';
+import type { GemColors } from '../types/gem-colors';
+import { CROWN } from './internal/consts';
+import { createGemShapeFill } from './internal/create-gem-shape-fill';
+import { createGemShapePathStep } from './internal/create-gem-shape-path-step';
 
 export const createGemShapeStep = (
   centerX: number,
@@ -60,11 +22,11 @@ export const createGemShapeStep = (
   halfHeight: number,
   colors: GemColors,
 ): CanvasStep =>
-  sequence([
-    save,
-    traceGemShape(centerX, centerY, halfWidth, halfHeight),
+  createSequenceStep([
+    drawSave,
+    createGemShapePathStep(centerX, centerY, halfWidth, halfHeight),
     outline(),
-    applyStyleWith((context) => ({
+    createContextStyleStep((context) => ({
       fillStyle: createGemShapeFill(
         context,
         centerX,
@@ -73,11 +35,11 @@ export const createGemShapeStep = (
         colors,
       ),
     })),
-    fill,
-    restore,
-    applyStyle({ strokeStyle: colors.deep, lineWidth: 1 }),
-    beginPath,
-    moveTo(centerX - halfWidth, centerY - halfHeight * CROWN),
-    traceLineTo(centerX + halfWidth, centerY - halfHeight * CROWN),
-    stroke,
+    drawFill,
+    drawRestore,
+    createStyleStep({ strokeStyle: colors.deep, lineWidth: 1 }),
+    drawBeginPath,
+    createMoveToStep(centerX - halfWidth, centerY - halfHeight * CROWN),
+    createLineToStep(centerX + halfWidth, centerY - halfHeight * CROWN),
+    drawStroke,
   ]);

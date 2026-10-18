@@ -1,14 +1,13 @@
 import type { GameState } from '@mander/engine';
 import { map } from 'lodash-es';
-
-import { paint } from '../canvas';
+import { draw } from '../canvas/draw';
 import { createFireballStep } from './create-fireball-step';
 
 export const drawFireballs = (
   context: CanvasRenderingContext2D,
   state: GameState,
 ): void =>
-  paint(
+  draw(
     context,
     ...map(state.fireballs, (fireball) =>
       createFireballStep(fireball, state.time),

@@ -1,6 +1,5 @@
 import type { Level } from '@mander/model';
-
-import { paint } from '../canvas';
+import { draw } from '../canvas/draw';
 import { createTileEdgesStep } from './create-tile-edges-step';
 
 export const strokeTileEdges = (
@@ -8,4 +7,4 @@ export const strokeTileEdges = (
   level: Level,
   column: number,
   row: number,
-): void => paint(context, createTileEdgesStep(level, column, row));
+): void => draw(context, createTileEdgesStep(level, column, row));

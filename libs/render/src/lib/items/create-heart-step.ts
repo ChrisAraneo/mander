@@ -1,72 +1,25 @@
-import {
-  applyStyleWith,
-  beginPath,
-  type CanvasStep,
-  closePath,
-  createLinearGradient,
-  fill,
-  restore,
-  save,
-  sequence,
-  traceArc,
-  traceLineTo,
-} from '../canvas';
-import { outline } from '../stroke';
-
-const HEART_LIGHT = '#FFC2CE';
-const HEART_BASE = '#FF5470';
-const HEART_DEEP = '#8E1B33';
-
-const HEART_LIFT = 0.3;
-const HEART_TIP = 1.7;
-
-const traceHeart = (
-  centerX: number,
-  centerY: number,
-  lobe: number,
-): CanvasStep => {
-  const shoulder = centerY - lobe * HEART_LIFT;
-
-  return sequence([
-    beginPath,
-    traceArc(centerX - lobe, shoulder, lobe, Math.PI, 0),
-    traceArc(centerX + lobe, shoulder, lobe, Math.PI, 0),
-    traceLineTo(centerX, shoulder + lobe * HEART_TIP),
-    closePath,
-  ]);
-};
-
-const createHeartFill = (
-  context: CanvasRenderingContext2D,
-  centerX: number,
-  centerY: number,
-  lobe: number,
-): CanvasGradient =>
-  createLinearGradient(
-    context,
-    centerX - lobe,
-    centerY - lobe * 1.3,
-    centerX + lobe,
-    centerY + lobe * HEART_TIP,
-    [
-      [0, HEART_LIGHT],
-      [0.4, HEART_BASE],
-      [1, HEART_DEEP],
-    ],
-  );
+import { createContextStyleStep } from '../canvas/create-context-style-step';
+import { createSequenceStep } from '../canvas/create-sequence-step';
+import { drawFill } from '../canvas/draw-fill';
+import { drawRestore } from '../canvas/draw-restore';
+import { drawSave } from '../canvas/draw-save';
+import { outline } from '../stroke/outline';
+import type { CanvasStep } from '../types/canvas-step';
+import { createHeartFill } from './internal/create-heart-fill';
+import { createHeartPathStep } from './internal/create-heart-path-step';
 
 export const createHeartStep = (
   centerX: number,
   centerY: number,
   lobe: number,
 ): CanvasStep =>
-  sequence([
-    save,
-    traceHeart(centerX, centerY, lobe),
+  createSequenceStep([
+    drawSave,
+    createHeartPathStep(centerX, centerY, lobe),
     outline(),
-    applyStyleWith((context) => ({
+    createContextStyleStep((context) => ({
       fillStyle: createHeartFill(context, centerX, centerY, lobe),
     })),
-    fill,
-    restore,
+    drawFill,
+    drawRestore,
   ]);

@@ -1,6 +1,5 @@
 import { type GameState, PLAYER_HEIGHT, PLAYER_WIDTH } from '@mander/engine';
-
-import type { Focus } from './focus';
+import type { Focus } from '../types/focus';
 
 export const getPlayerFocus = (state: GameState): Focus => ({
   x: state.player.position.x + PLAYER_WIDTH / 2,

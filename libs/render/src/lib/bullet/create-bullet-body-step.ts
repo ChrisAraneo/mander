@@ -1,17 +1,15 @@
-import {
-  applyStyle,
-  applyStyleWith,
-  beginPath,
-  type CanvasStep,
-  createRadialGradient,
-  fill,
-  restore,
-  save,
-  sequence,
-  traceArc,
-} from '../canvas';
-import { outline } from '../stroke';
-import type { BulletColors } from './bullet-colors';
+import { createArcStep } from '../canvas/create-arc-step';
+import { createContextStyleStep } from '../canvas/create-context-style-step';
+import { createRadialGradient } from '../canvas/create-radial-gradient';
+import { createSequenceStep } from '../canvas/create-sequence-step';
+import { createStyleStep } from '../canvas/create-style-step';
+import { drawBeginPath } from '../canvas/draw-begin-path';
+import { drawFill } from '../canvas/draw-fill';
+import { drawRestore } from '../canvas/draw-restore';
+import { drawSave } from '../canvas/draw-save';
+import { outline } from '../stroke/outline';
+import type { CanvasStep } from '../types/canvas-step';
+import type { BulletColors } from './types/bullet-colors';
 
 export const createBulletBodyStep = (
   centerX: number,
@@ -19,12 +17,12 @@ export const createBulletBodyStep = (
   radius: number,
   colors: BulletColors,
 ): CanvasStep =>
-  sequence([
-    save,
-    beginPath,
-    traceArc(centerX, centerY, radius, 0, Math.PI * 2),
+  createSequenceStep([
+    drawSave,
+    drawBeginPath,
+    createArcStep(centerX, centerY, radius, 0, Math.PI * 2),
     outline(),
-    applyStyleWith((context) => ({
+    createContextStyleStep((context) => ({
       fillStyle: createRadialGradient(
         context,
         centerX - radius / 3,
@@ -39,16 +37,16 @@ export const createBulletBodyStep = (
         ],
       ),
     })),
-    fill,
-    restore,
-    applyStyle({ fillStyle: colors.shine }),
-    beginPath,
-    traceArc(
+    drawFill,
+    drawRestore,
+    createStyleStep({ fillStyle: colors.shine }),
+    drawBeginPath,
+    createArcStep(
       centerX - radius / 3,
       centerY - radius / 3,
       radius / 4,
       0,
       Math.PI * 2,
     ),
-    fill,
+    drawFill,
   ]);

@@ -1,16 +1,7 @@
-import { clamp } from 'lodash-es';
 import { match } from 'ts-pattern';
-
-import { snapToDevicePixel } from '../viewport';
-
-const centreView = (viewSize: number, worldSize: number): number =>
-  (worldSize - viewSize) / 2;
-
-const followFocus = (
-  focusAt: number,
-  viewSize: number,
-  worldSize: number,
-): number => clamp(focusAt - viewSize / 2, 0, worldSize - viewSize);
+import { snapToDevicePixel } from '../viewport/snap-to-device-pixel';
+import { computeCenteredCameraAxis } from './internal/compute-centered-camera-axis';
+import { computeFollowingCameraAxis } from './internal/compute-following-camera-axis';
 
 export const getCameraAxis = (
   focusAt: number,
@@ -20,7 +11,9 @@ export const getCameraAxis = (
 ): number =>
   snapToDevicePixel(
     match(worldSize < viewSize)
-      .with(true, () => centreView(viewSize, worldSize))
-      .otherwise(() => followFocus(focusAt, viewSize, worldSize)),
+      .with(true, () => computeCenteredCameraAxis(viewSize, worldSize))
+      .otherwise(() =>
+        computeFollowingCameraAxis(focusAt, viewSize, worldSize),
+      ),
     scale,
   );

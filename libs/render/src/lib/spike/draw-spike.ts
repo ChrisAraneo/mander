@@ -1,11 +1,10 @@
 import type { Level } from '@mander/model';
-
-import { paint } from '../canvas';
+import { draw } from '../canvas/draw';
 import { createSpikeStep } from './create-spike-step';
 
 export const drawSpike = (
   context: CanvasRenderingContext2D,
   level: Level,
-  tileX: number,
-  tileY: number,
-): void => paint(context, createSpikeStep(level, tileX, tileY));
+  column: number,
+  row: number,
+): void => draw(context, createSpikeStep(level, column, row));

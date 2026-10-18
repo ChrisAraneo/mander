@@ -1,94 +1,29 @@
-import { chain } from '@mander/utils';
-import { CANNONBALL_SIZE } from '@mander/engine';
 import type { Cannonball } from '@mander/model';
-import { match } from 'ts-pattern';
-
-import {
-  applyStyle,
-  applyStyleWith,
-  beginPath,
-  type CanvasStep,
-  createRadialGradient,
-  fill,
-  restore,
-  save,
-  scale,
-  sequence,
-  traceArc,
-  traceEllipse,
-  translate,
-} from '../canvas';
-import { outline } from '../stroke';
-
-const RADIUS = CANNONBALL_SIZE / 2;
-
-const TRAIL_LENGTH = 15;
-const TRAIL_HEIGHT = 3.2;
-
-const IRON_LIGHT = '#7C8496';
-const IRON_DARK = '#171C26';
-const TRAIL_COLOR = 'RGBA(255, 158, 61, 0.45)';
-const SHINE_COLOR = 'RGBA(255, 255, 255, 0.55)';
-
-const drawTrail: CanvasStep = sequence([
-  applyStyle({ fillStyle: TRAIL_COLOR }),
-  beginPath,
-  traceEllipse(
-    -TRAIL_LENGTH / 2,
-    0,
-    TRAIL_LENGTH,
-    TRAIL_HEIGHT,
-    0,
-    0,
-    Math.PI * 2,
-  ),
-  fill,
-]);
-
-const drawIron: CanvasStep = sequence([
-  beginPath,
-  traceArc(0, 0, RADIUS, 0, Math.PI * 2),
-  outline(),
-  applyStyleWith((context) => ({
-    fillStyle: createRadialGradient(
-      context,
-      -RADIUS / 3,
-      -RADIUS / 3,
-      1,
-      0,
-      0,
-      RADIUS,
-      [
-        [0, IRON_LIGHT],
-        [1, IRON_DARK],
-      ],
-    ),
-  })),
-  fill,
-  applyStyle({ fillStyle: SHINE_COLOR }),
-  beginPath,
-  traceArc(-RADIUS / 3, -RADIUS / 3, RADIUS / 4, 0, Math.PI * 2),
-  fill,
-]);
-
-const getFacing = (cannonball: Cannonball): number =>
-  match(cannonball.velocity.x.current < 0)
-    .with(true, () => -1)
-    .otherwise(() => 1);
+import { chain } from '@mander/utils';
+import { createScaleStep } from '../canvas/create-scale-step';
+import { createSequenceStep } from '../canvas/create-sequence-step';
+import { createTranslateStep } from '../canvas/create-translate-step';
+import { drawRestore } from '../canvas/draw-restore';
+import { drawSave } from '../canvas/draw-save';
+import { computeVelocityFacing } from '../compute-velocity-facing';
+import type { CanvasStep } from '../types/canvas-step';
+import { CANNONBALL_RADIUS } from './internal/consts';
+import { drawCannonballIron } from './internal/draw-cannonball-iron';
+import { drawCannonballTrail } from './internal/draw-cannonball-trail';
 
 export const createCannonballStep = (cannonball: Cannonball): CanvasStep =>
-  chain(getFacing(cannonball))
+  chain(computeVelocityFacing(cannonball.velocity.x.current))
     .thru((facing) =>
-      sequence([
-        save,
-        translate(
-          cannonball.position.x + RADIUS,
-          cannonball.position.y + RADIUS,
+      createSequenceStep([
+        drawSave,
+        createTranslateStep(
+          cannonball.position.x + CANNONBALL_RADIUS,
+          cannonball.position.y + CANNONBALL_RADIUS,
         ),
-        scale(facing, 1),
-        drawTrail,
-        drawIron,
-        restore,
+        createScaleStep(facing, 1),
+        drawCannonballTrail,
+        drawCannonballIron,
+        drawRestore,
       ]),
     )
     .value();

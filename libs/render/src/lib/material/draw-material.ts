@@ -1,7 +1,6 @@
 import type { Tile } from '@mander/model';
-
-import { paint } from '../canvas';
-import type { MaterialStyle } from './material-style';
+import { draw } from '../canvas/draw';
+import type { MaterialStyle } from '../types/material-style';
 import { createMaterialStep } from './create-material-step';
 
 export const drawMaterial = (
@@ -10,4 +9,4 @@ export const drawMaterial = (
   pixelX: number,
   pixelY: number,
   style: MaterialStyle,
-): void => paint(context, createMaterialStep(tile, pixelX, pixelY, style));
+): void => draw(context, createMaterialStep(tile, pixelX, pixelY, style));

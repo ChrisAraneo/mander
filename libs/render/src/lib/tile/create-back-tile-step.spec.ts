@@ -5,13 +5,20 @@ import {
   TILE_DIRT,
   TILE_SIZE,
 } from '@mander/model';
-import { chain } from '@mander/utils';
-import { first, last, map, some } from 'lodash-es';
+import { chain, tapEffect } from '@mander/utils';
+import { dropRight, flatMap, last, reduce, reverse, some } from 'lodash-es';
+import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
-import { paint } from '../canvas';
-import { BACK_SHADE, getMaterialStyle } from '../material';
-import { STROKE_COLOR } from '../stroke';
+import { createRecordingContext } from '../../test/create-recording-context';
+import { createRenderTestLevel } from '../../test/create-render-test-level';
+import { drawRecorded } from '../../test/draw-recorded';
+import type { CanvasCall } from '../../test/types/canvas-call';
+import { draw } from '../canvas/draw';
+import { BACK_SHADE } from '../material/consts';
+import { getMaterialStyle } from '../material/get-material-style';
+import { STROKE_COLOR } from '../stroke/consts';
+import type { MaterialStyle } from '../types/material-style';
 import { createBackTileStep } from './create-back-tile-step';
 import { isSolidAt } from './is-solid-at';
 
@@ -23,43 +30,60 @@ interface Fill {
   height: number;
 }
 
-interface Recorder {
+interface FillState {
+  style: string;
+  stack: string[];
   fills: Fill[];
-  context: CanvasRenderingContext2D;
 }
 
-interface Saved {
-  fillStyle: string;
-}
+const EMPTY_STATE: FillState = { style: '', stack: [], fills: [] };
 
-interface Stub extends Saved {
-  fillRect(x: number, y: number, width: number, height: number): void;
-  save(): void;
-  restore(): void;
-}
-
-const stub = (fills: Fill[], stack: Saved[]): Stub => ({
-  fillStyle: '',
-  fillRect(x: number, y: number, width: number, height: number): void {
-    fills.push({ style: this.fillStyle, x, y, width, height });
-  },
-  save(): void {
-    stack.push({ fillStyle: this.fillStyle });
-  },
-  restore(): void {
-    Object.assign(this, stack.pop());
-  },
-});
-
-const recorder = (): Recorder =>
-  chain({ fills: [] as Fill[], stack: [] as Saved[] })
-    .thru(({ fills, stack }) => ({
-      fills,
-      context: stub(fills, stack) as unknown as CanvasRenderingContext2D,
+const patchFillState = (state: FillState, call: CanvasCall): FillState =>
+  match(call.name)
+    .with('set fillStyle', (): FillState => ({
+      ...state,
+      style: String(call.args[0]),
     }))
+    .with('save', (): FillState => ({
+      ...state,
+      stack: [...state.stack, state.style],
+    }))
+    .with('restore', (): FillState => ({
+      ...state,
+      style: last(state.stack) ?? state.style,
+      stack: dropRight(state.stack),
+    }))
+    .with('fillRect', (): FillState => ({
+      ...state,
+      fills: [
+        ...state.fills,
+        {
+          style: state.style,
+          x: Number(call.args[0]),
+          y: Number(call.args[1]),
+          width: Number(call.args[2]),
+          height: Number(call.args[3]),
+        },
+      ],
+    }))
+    .otherwise(() => state);
+
+const drawFills = (
+  level: Level,
+  column: number,
+  row: number,
+  style: MaterialStyle,
+): Fill[] =>
+  chain(createRecordingContext())
+    .thru((recording) =>
+      tapEffect(recording, ({ context }) =>
+        draw(context, createBackTileStep(level, column, row, style)),
+      ),
+    )
+    .thru(({ calls }) => reduce(calls, patchFillState, EMPTY_STATE).fills)
     .value();
 
-const level = (backTile: number): Level => ({
+const createBackLevel = (backTile: number): Level => ({
   seed: '',
   width: 1,
   height: 1,
@@ -68,16 +92,8 @@ const level = (backTile: number): Level => ({
   chestItems: [],
 });
 
-const painted = (backTile: number): Fill[] =>
-  chain(recorder())
-    .tap(({ context }) =>
-      paint(
-        context,
-        createBackTileStep(level(backTile), 0, 0, getMaterialStyle(backTile)),
-      ),
-    )
-    .thru(({ fills }) => fills)
-    .value();
+const drawBackFills = (backTile: number): Fill[] =>
+  drawFills(createBackLevel(backTile), 0, 0, getMaterialStyle(backTile));
 
 const isCovering = (fill: Fill): boolean =>
   fill.x === 0 &&
@@ -87,23 +103,23 @@ const isCovering = (fill: Fill): boolean =>
 
 describe('createBackTileStep', () => {
   it('should lay the material down solid when it paints a background tile, so the sky is not seen through the level', () => {
-    const base = first(painted(TILE_BRICK));
+    const [base] = drawBackFills(TILE_BRICK);
 
     expect(base?.style).toBe(getMaterialStyle(TILE_BRICK).base);
-    expect(isCovering(base as Fill)).toBe(true);
+    expect(isCovering(base)).toBe(true);
   });
 
   it('should shade the whole tile down last when it paints a background tile, which is what sends it to the back', () => {
-    const shade = last(painted(TILE_BRICK));
+    const [shade] = reverse([...drawBackFills(TILE_BRICK)]);
 
     expect(shade?.style).toBe(BACK_SHADE);
-    expect(isCovering(shade as Fill)).toBe(true);
+    expect(isCovering(shade)).toBe(true);
   });
 
   it('should draw no border when the tile belongs to the back layer', () => {
     expect(
       some(
-        map([TILE_BRICK, TILE_DIRT], painted).flat(),
+        flatMap([TILE_BRICK, TILE_DIRT], drawBackFills),
         (fill) => fill.style === STROKE_COLOR,
       ),
     ).toBe(false);
@@ -112,7 +128,7 @@ describe('createBackTileStep', () => {
   it('should cap the background block when nothing stands over it', () => {
     expect(
       some(
-        painted(TILE_DIRT),
+        drawBackFills(TILE_DIRT),
         (fill) => fill.style === getMaterialStyle(TILE_DIRT).cap,
       ),
     ).toBe(true);
@@ -131,17 +147,38 @@ describe('createBackTileStep', () => {
     expect(isSolidAt(covered, 0, 0)).toBe(true);
     expect(
       some(
-        chain(recorder())
-          .tap(({ context }) =>
-            paint(
-              context,
-              createBackTileStep(covered, 0, 1, getMaterialStyle(TILE_DIRT)),
-            ),
-          )
-          .thru(({ fills }) => fills)
-          .value(),
+        drawFills(covered, 0, 1, getMaterialStyle(TILE_DIRT)),
         (fill) => fill.style === getMaterialStyle(TILE_DIRT).cap,
       ),
     ).toBe(false);
+  });
+
+  it('should draw the brick, its cap and the shade in order when a back tile has open air above it', () => {
+    const level = createRenderTestLevel(['.'], ['B']);
+
+    const calls = drawRecorded(
+      createBackTileStep(level, 0, 0, getMaterialStyle(TILE_BRICK)),
+    );
+
+    expect(calls).toEqual([
+      'save()',
+      'set fillStyle(#9C4F3F)',
+      'fillRect(0, 0, 32, 32)',
+      'set fillStyle(RGBA(0, 0, 0, 0.26))',
+      'fillRect(0, 8, 32, 1)',
+      'fillRect(0, 16, 32, 1)',
+      'fillRect(0, 24, 32, 1)',
+      'fillRect(16, 0, 1, 8)',
+      'fillRect(8, 8, 1, 8)',
+      'fillRect(16, 16, 1, 8)',
+      'fillRect(8, 24, 1, 8)',
+      'set fillStyle(#B25C49)',
+      'fillRect(0, 0, 32, 7)',
+      'set fillStyle(#C86E59)',
+      'fillRect(0, 0, 32, 3)',
+      'restore()',
+      'set fillStyle(RGBA(15, 13, 22, 0.46))',
+      'fillRect(0, 0, 32, 32)',
+    ]);
   });
 });

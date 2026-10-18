@@ -1,5 +1,5 @@
+import type { Ghost } from '../types/ghost';
 import { drawPlayer } from './draw-player';
-import type { Ghost } from './ghost';
 
 export const drawGhost = (
   context: CanvasRenderingContext2D,

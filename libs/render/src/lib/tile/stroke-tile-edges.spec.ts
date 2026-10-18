@@ -1,4 +1,3 @@
-import { chain } from '@mander/utils';
 import {
   type Level,
   type Tile,
@@ -7,11 +6,13 @@ import {
   TILE_SIZE,
   TILE_SPIKE,
 } from '@mander/model';
+import { chain, tapEffect } from '@mander/utils';
 import { filter, map, size, some, split } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
-import { STROKE_WIDTH } from '../stroke';
+import { createRecordingContext } from '../../test/create-recording-context';
+import { STROKE_WIDTH } from '../stroke/consts';
 import { strokeTileEdges } from './stroke-tile-edges';
 
 const toTile = (cell: string): Tile =>
@@ -20,7 +21,7 @@ const toTile = (cell: string): Tile =>
     .with('^', () => TILE_SPIKE)
     .otherwise(() => TILE_AIR);
 
-const tileMap = (rows: string[]): Level =>
+const createEdgeLevel = (rows: string[]): Level =>
   chain(rows)
     .thru((lines) => map(lines, (row) => map(split(row, ''), toTile)))
     .thru((tiles) => ({
@@ -39,27 +40,24 @@ interface Bar {
   height: number;
 }
 
-interface Recorder {
-  bars: Bar[];
-  context: CanvasRenderingContext2D;
-}
-
-const recorder = (): Recorder =>
-  chain([] as Bar[])
-    .thru((bars) => ({
-      bars,
-      context: {
-        fillStyle: '',
-        fillRect: (x: number, y: number, width: number, height: number) =>
-          bars.push({ x, y, width, height }),
-      } as unknown as CanvasRenderingContext2D,
-    }))
-    .value();
-
-const barsFor = (level: Level, column: number, row: number): Bar[] =>
-  chain(recorder())
-    .tap(({ context }) => strokeTileEdges(context, level, column, row))
-    .thru(({ bars }) => bars)
+const drawEdgeBars = (level: Level, column: number, row: number): Bar[] =>
+  chain(createRecordingContext())
+    .thru((recording) =>
+      tapEffect(recording, ({ context }) =>
+        strokeTileEdges(context, level, column, row),
+      ),
+    )
+    .thru(({ calls }) =>
+      map(
+        filter(calls, (call) => call.name === 'fillRect'),
+        (call): Bar => ({
+          x: Number(call.args[0]),
+          y: Number(call.args[1]),
+          width: Number(call.args[2]),
+          height: Number(call.args[3]),
+        }),
+      ),
+    )
     .value();
 
 const isTop = (bar: Bar, row: number): boolean =>
@@ -85,7 +83,7 @@ const isTopLeftSquare = (bar: Bar, column: number, row: number): boolean =>
 
 describe('strokeTileEdges', () => {
   it('should outline all four sides when the block stands alone', () => {
-    const bars = barsFor(tileMap(['...', '.#.', '...']), 1, 1);
+    const bars = drawEdgeBars(createEdgeLevel(['...', '.#.', '...']), 1, 1);
 
     expect(bars).toHaveLength(4);
     expect(some(bars, (bar) => isTop(bar, 1))).toBe(true);
@@ -95,13 +93,13 @@ describe('strokeTileEdges', () => {
   });
 
   it('should leave the edge bare when the block shares it with a neighbour', () => {
-    const bars = barsFor(tileMap(['.#.', '###', '.#.']), 1, 1);
+    const bars = drawEdgeBars(createEdgeLevel(['.#.', '###', '.#.']), 1, 1);
 
     expect(filter(bars, (bar) => !isCornerSquare(bar))).toHaveLength(0);
   });
 
   it('should draw only the sides that face open air when the block sits in a wall', () => {
-    const bars = barsFor(tileMap(['...', '###', '...']), 1, 1);
+    const bars = drawEdgeBars(createEdgeLevel(['...', '###', '...']), 1, 1);
 
     expect(bars).toHaveLength(2);
     expect(some(bars, (bar) => isTop(bar, 1))).toBe(true);
@@ -109,7 +107,7 @@ describe('strokeTileEdges', () => {
   });
 
   it('should keep every bar inside the tile it belongs to when it outlines one', () => {
-    const bars = barsFor(tileMap(['...', '.#.', '...']), 1, 1);
+    const bars = drawEdgeBars(createEdgeLevel(['...', '.#.', '...']), 1, 1);
 
     expect(
       filter(
@@ -124,13 +122,13 @@ describe('strokeTileEdges', () => {
   });
 
   it('should outline the edge when the block shares it with a spike', () => {
-    const bars = barsFor(tileMap(['.^.', '###', '###']), 1, 1);
+    const bars = drawEdgeBars(createEdgeLevel(['.^.', '###', '###']), 1, 1);
 
     expect(some(bars, (bar) => isTop(bar, 1))).toBe(true);
   });
 
   it('should outline the edges when they face off the level', () => {
-    const bars = barsFor(tileMap(['##', '##']), 0, 0);
+    const bars = drawEdgeBars(createEdgeLevel(['##', '##']), 0, 0);
 
     expect(bars).toHaveLength(2);
     expect(some(bars, (bar) => isTop(bar, 0))).toBe(true);
@@ -138,27 +136,27 @@ describe('strokeTileEdges', () => {
   });
 
   it('should fill the notch when an inside corner leaves one', () => {
-    const bars = barsFor(tileMap(['.#', '##']), 1, 1);
+    const bars = drawEdgeBars(createEdgeLevel(['.#', '##']), 1, 1);
 
     expect(bars).toHaveLength(3);
     expect(some(bars, (bar) => isTopLeftSquare(bar, 1, 1))).toBe(true);
   });
 
   it('should leave the corner alone when its own sides already face air', () => {
-    const bars = barsFor(tileMap(['..', '.#']), 1, 1);
+    const bars = drawEdgeBars(createEdgeLevel(['..', '.#']), 1, 1);
 
     expect(bars).toHaveLength(4);
     expect(some(bars, isCornerSquare)).toBe(false);
   });
 
   it('should leave the corner alone when the diagonal is filled in', () => {
-    expect(some(barsFor(tileMap(['##', '##']), 1, 1), isCornerSquare)).toBe(
-      false,
-    );
+    expect(
+      some(drawEdgeBars(createEdgeLevel(['##', '##']), 1, 1), isCornerSquare),
+    ).toBe(false);
   });
 
   it('should fill all four notches when the block is nipped at every diagonal', () => {
-    const bars = barsFor(tileMap(['.#.', '###', '.#.']), 1, 1);
+    const bars = drawEdgeBars(createEdgeLevel(['.#.', '###', '.#.']), 1, 1);
 
     expect(bars).toHaveLength(4);
     expect(filter(bars, isCornerSquare)).toHaveLength(4);
