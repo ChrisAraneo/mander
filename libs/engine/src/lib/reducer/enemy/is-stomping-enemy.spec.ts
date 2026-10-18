@@ -13,25 +13,36 @@ import { isStompingEnemy } from './is-stomping-enemy';
 const DELTA_SECONDS = 1 / 60;
 
 const ENEMY_X = 100;
+
 const ENEMY_Y = 200;
 
-const enemyAt = (y = ENEMY_Y, vy = 0): Enemy => ({
+const HEAD = ENEMY_Y + ENEMY_HITBOX_INSET;
+
+const BELLY = ENEMY_Y + ENEMY_HEIGHT / 2;
+
+const FLOOR = ENEMY_Y + ENEMY_HEIGHT;
+
+const createEnemyAt = (top = ENEMY_Y, velocityY = 0): Enemy => ({
   kind: 'HOPPING',
-  position: { x: ENEMY_X, y },
+  position: { x: ENEMY_X, y: top },
   velocity: {
     x: { current: 0, max: 78 },
-    y: { current: vy, max: ENEMY_JUMP_VELOCITY },
+    y: { current: velocityY, max: ENEMY_JUMP_VELOCITY },
   },
   timers: { death: null },
-  spawn: { x: ENEMY_X, y },
+  spawn: { x: ENEMY_X, y: top },
   statuses: { isFacingRight: true, isGrounded: true },
 });
 
-const playerWithFeetAt = (feetY: number, x = ENEMY_X, vy = 400): Player => ({
-  position: { x, y: feetY - PLAYER_HEIGHT },
+const createPlayerWithFeetAt = (
+  feetY: number,
+  left = ENEMY_X,
+  velocityY = 400,
+): Player => ({
+  position: { x: left, y: feetY - PLAYER_HEIGHT },
   velocity: {
     x: { current: 0, max: 200 },
-    y: { current: vy, max: 520 },
+    y: { current: velocityY, max: 520 },
   },
   hearts: { value: 5 },
   timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
@@ -46,16 +57,12 @@ const isStomping = (previous: Player, player: Player, enemy: Enemy): boolean =>
   isStompingEnemy(previous, player, enemy, DELTA_SECONDS);
 
 describe('isStompingEnemy', () => {
-  const head = ENEMY_Y + ENEMY_HITBOX_INSET;
-  const belly = ENEMY_Y + ENEMY_HEIGHT / 2;
-  const floor = ENEMY_Y + ENEMY_HEIGHT;
-
   it('should kill the enemy when the falling player lands on it', () => {
     expect(
       isStomping(
-        playerWithFeetAt(head - 10),
-        playerWithFeetAt(head + 4),
-        enemyAt(),
+        createPlayerWithFeetAt(HEAD - 10),
+        createPlayerWithFeetAt(HEAD + 4),
+        createEnemyAt(),
       ),
     ).toBe(true);
   });
@@ -63,9 +70,9 @@ describe('isStompingEnemy', () => {
   it('should kill the enemy when the player falls straight past it in a single tick', () => {
     expect(
       isStomping(
-        playerWithFeetAt(head - 20),
-        playerWithFeetAt(floor + 20, ENEMY_X, 1150),
-        enemyAt(),
+        createPlayerWithFeetAt(HEAD - 20),
+        createPlayerWithFeetAt(FLOOR + 20, ENEMY_X, 1150),
+        createEnemyAt(),
       ),
     ).toBe(true);
   });
@@ -73,20 +80,21 @@ describe('isStompingEnemy', () => {
   it('should kill the enemy when the player meets it a little way into its head', () => {
     expect(
       isStomping(
-        playerWithFeetAt(belly),
-        playerWithFeetAt(belly + 8),
-        enemyAt(),
+        createPlayerWithFeetAt(BELLY),
+        createPlayerWithFeetAt(BELLY + 8),
+        createEnemyAt(),
       ),
     ).toBe(true);
   });
 
   it('should kill the enemy when it hops up into the falling player', () => {
     const risen = ENEMY_JUMP_VELOCITY * DELTA_SECONDS;
+
     expect(
       isStomping(
-        playerWithFeetAt(head + 6),
-        playerWithFeetAt(head + 13),
-        enemyAt(ENEMY_Y - risen, -ENEMY_JUMP_VELOCITY),
+        createPlayerWithFeetAt(HEAD + 6),
+        createPlayerWithFeetAt(HEAD + 13),
+        createEnemyAt(ENEMY_Y - risen, -ENEMY_JUMP_VELOCITY),
       ),
     ).toBe(true);
   });
@@ -94,9 +102,9 @@ describe('isStompingEnemy', () => {
   it('should kill the enemy when the very edge of the player clips it', () => {
     expect(
       isStomping(
-        playerWithFeetAt(head - 6, ENEMY_X - 17),
-        playerWithFeetAt(head + 2, ENEMY_X - 17),
-        enemyAt(),
+        createPlayerWithFeetAt(HEAD - 6, ENEMY_X - 17),
+        createPlayerWithFeetAt(HEAD + 2, ENEMY_X - 17),
+        createEnemyAt(),
       ),
     ).toBe(true);
   });
@@ -104,9 +112,9 @@ describe('isStompingEnemy', () => {
   it('should spare the enemy when the player only walks into it from the same floor', () => {
     expect(
       isStomping(
-        playerWithFeetAt(floor, ENEMY_X - 12, 0),
-        playerWithFeetAt(floor, ENEMY_X - 10, 0),
-        enemyAt(),
+        createPlayerWithFeetAt(FLOOR, ENEMY_X - 12, 0),
+        createPlayerWithFeetAt(FLOOR, ENEMY_X - 10, 0),
+        createEnemyAt(),
       ),
     ).toBe(false);
   });
@@ -114,9 +122,9 @@ describe('isStompingEnemy', () => {
   it('should spare the enemy when a player already sunk past its belly strikes it side-on', () => {
     expect(
       isStomping(
-        playerWithFeetAt(floor),
-        playerWithFeetAt(floor + 6),
-        enemyAt(),
+        createPlayerWithFeetAt(FLOOR),
+        createPlayerWithFeetAt(FLOOR + 6),
+        createEnemyAt(),
       ),
     ).toBe(false);
   });
@@ -124,9 +132,9 @@ describe('isStompingEnemy', () => {
   it('should spare the enemy when the player is rising into it from below', () => {
     expect(
       isStomping(
-        playerWithFeetAt(head + 6, ENEMY_X, -400),
-        playerWithFeetAt(head - 2, ENEMY_X, -400),
-        enemyAt(),
+        createPlayerWithFeetAt(HEAD + 6, ENEMY_X, -400),
+        createPlayerWithFeetAt(HEAD - 2, ENEMY_X, -400),
+        createEnemyAt(),
       ),
     ).toBe(false);
   });
@@ -134,9 +142,9 @@ describe('isStompingEnemy', () => {
   it('should spare the enemy when it drops onto the player from above', () => {
     expect(
       isStomping(
-        playerWithFeetAt(floor + 4),
-        playerWithFeetAt(floor + 11),
-        enemyAt(ENEMY_Y, 400),
+        createPlayerWithFeetAt(FLOOR + 4),
+        createPlayerWithFeetAt(FLOOR + 11),
+        createEnemyAt(ENEMY_Y, 400),
       ),
     ).toBe(false);
   });
@@ -144,9 +152,9 @@ describe('isStompingEnemy', () => {
   it('should spare the enemy when it stands clear of the falling player', () => {
     expect(
       isStomping(
-        playerWithFeetAt(head - 10, ENEMY_X - ENEMY_WIDTH * 2),
-        playerWithFeetAt(head + 4, ENEMY_X - ENEMY_WIDTH * 2),
-        enemyAt(),
+        createPlayerWithFeetAt(HEAD - 10, ENEMY_X - ENEMY_WIDTH * 2),
+        createPlayerWithFeetAt(HEAD + 4, ENEMY_X - ENEMY_WIDTH * 2),
+        createEnemyAt(),
       ),
     ).toBe(false);
   });
@@ -154,9 +162,9 @@ describe('isStompingEnemy', () => {
   it('should spare the enemy when the player has not reached it yet', () => {
     expect(
       isStomping(
-        playerWithFeetAt(head - 40),
-        playerWithFeetAt(head - 10),
-        enemyAt(),
+        createPlayerWithFeetAt(HEAD - 40),
+        createPlayerWithFeetAt(HEAD - 10),
+        createEnemyAt(),
       ),
     ).toBe(false);
   });

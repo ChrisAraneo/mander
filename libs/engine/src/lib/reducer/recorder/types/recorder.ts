@@ -1,4 +1,4 @@
-import type { Action } from '../../../actions/actions';
+import type { Action } from '../../types/action';
 import type { Replay } from './replay';
 
 export interface Recorder {

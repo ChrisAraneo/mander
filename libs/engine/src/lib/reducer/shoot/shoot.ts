@@ -1,9 +1,7 @@
-import { concat } from 'lodash-es';
 import { match, P } from 'ts-pattern';
-
-import type { GameState } from '../../state/types/game-state';
-import { fireBullet } from '../bullet/fire-bullet';
+import type { GameState } from '../../types/game-state';
 import { isAlive } from '../player/is-alive';
+import { patchFiredBullet } from './internal/patch-fired-bullet';
 
 const { number } = P;
 
@@ -13,12 +11,7 @@ export const shoot = (state: GameState): GameState =>
     isAlive: isAlive(state.player),
     ammo: state.ammo,
   })
-    .with(
-      { status: 'PLAYING', isAlive: true, ammo: number.gte(1) },
-      (): GameState => ({
-        ...state,
-        ammo: state.ammo - 1,
-        bullets: concat(state.bullets, fireBullet(state.player)),
-      }),
+    .with({ status: 'PLAYING', isAlive: true, ammo: number.gte(1) }, () =>
+      patchFiredBullet(state),
     )
-    .otherwise((): GameState => state);
+    .otherwise(() => state);

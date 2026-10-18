@@ -1,11 +1,11 @@
 import { times } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import type { Triangle } from '@mander/utils';
 import { TILE_SIZE } from '../tile/consts';
 import { PRONG_HEIGHT, PRONG_PITCH, PRONG_WIDTH, SPIKE_PRONGS } from './spike';
 import type { SpikeOrientation } from './spike-orientation';
 import type { SpikeShape } from './spike-shape';
+import type { Triangle } from '../geometry/triangle';
 
 export const computeSpikeTriangles = (
   pixelX: number,

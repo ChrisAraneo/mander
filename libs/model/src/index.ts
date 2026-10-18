@@ -90,3 +90,7 @@ export * from './lib/enemies/flying-enemy';
 export * from './lib/enemies/beartrap-spawn';
 export * from './lib/enemies/is-beartrap';
 export * from './lib/enemies/beartrap-enemy';
+export * from './lib/functions/chain';
+export * from './lib/geometry/point';
+export * from './lib/geometry/rectangle';
+export * from './lib/geometry/triangle';

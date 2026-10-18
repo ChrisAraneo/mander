@@ -4,7 +4,7 @@ import {
   createFallingSpikes,
   createFireballs,
 } from '@mander/engine';
-import { type Layers, TILE_SIZE } from '@mander/model';
+import { type Layers, TILE_SIZE, chain } from '@mander/model';
 import {
   drawCannon,
   drawEnemy,
@@ -14,8 +14,7 @@ import {
   type Palette,
 } from '@mander/render';
 import { STRUCTURE_END, STRUCTURE_START } from '@mander/structures';
-import { chain, tapEffect } from '@mander/utils';
-import { forEach, includes, map } from 'lodash-es';
+import { forEach, includes, map, tap } from 'lodash-es';
 
 import { drawMarker } from './draw-marker';
 import { drawOrbit } from './draw-orbit';
@@ -56,12 +55,12 @@ export const drawStructure = (
       height: level.height * TILE_SIZE,
     }))
     .thru((scene) =>
-      tapEffect(scene, () =>
+      tap(scene, () =>
         context.clearRect(0, 0, scene.width, scene.height),
       ),
     )
     .thru((scene) =>
-      tapEffect(scene, () =>
+      tap(scene, () =>
         drawTiles(context, scene.level, NO_PALETTE, 0, 0, {
           width: scene.width,
           height: scene.height,
@@ -70,32 +69,32 @@ export const drawStructure = (
       ),
     )
     .thru((scene) =>
-      tapEffect(scene, () =>
+      tap(scene, () =>
         forEach(createCannons(scene.level), (cannon) =>
           drawCannon(context, cannon),
         ),
       ),
     )
     .thru((scene) =>
-      tapEffect(scene, () =>
+      tap(scene, () =>
         forEach(createEnemies(scene.level), (enemy) =>
           drawEnemy(context, enemy, 0),
         ),
       ),
     )
     .thru((scene) =>
-      tapEffect(scene, () =>
+      tap(scene, () =>
         forEach(createFallingSpikes(scene.level), (spike) =>
           drawFallingSpike(context, spike),
         ),
       ),
     )
     .thru((scene) =>
-      tapEffect(scene, () =>
+      tap(scene, () =>
         forEach(createFireballs(scene.level), (fireball) =>
           chain(fireball)
             .thru((orbiting) =>
-              tapEffect(orbiting, () => drawOrbit(context, orbiting)),
+              tap(orbiting, () => drawOrbit(context, orbiting)),
             )
             .thru((orbiting) => drawFireball(context, orbiting, 0))
             .value(),

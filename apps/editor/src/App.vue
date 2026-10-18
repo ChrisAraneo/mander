@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { chain } from '@mander/model';
 import { STRUCTURE_WIDTH } from '@mander/structures';
-import { chain, tapEffect } from '@mander/utils';
-import { filter, find, noop, size } from 'lodash-es';
+import { filter, find, noop, size, tap } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
@@ -59,8 +59,8 @@ const loadStructure = (structure: string): void =>
     .with(nullish, noop)
     .otherwise((entry) =>
       chain(entry)
-        .thru((found) => tapEffect(found, () => editor.replace(found.sketch)))
-        .thru((found) => tapEffect(found, () => setRef(pool, found.pool)))
+        .thru((found) => tap(found, () => editor.replace(found.sketch)))
+        .thru((found) => tap(found, () => setRef(pool, found.pool)))
         .thru((found) => setRef(name, found.name))
         .value(),
     );
@@ -71,7 +71,7 @@ const handleUndoShortcut = (event: KeyboardEvent): void =>
   match(event.key === UNDO_KEY && (event.ctrlKey || event.metaKey))
     .with(true, () =>
       chain(event)
-        .thru((pressed) => tapEffect(pressed, () => pressed.preventDefault()))
+        .thru((pressed) => tap(pressed, () => pressed.preventDefault()))
         .thru(() => editor.undo())
         .value(),
     )

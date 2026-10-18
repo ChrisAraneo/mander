@@ -4,16 +4,15 @@ import {
   type GameState,
   reduce,
 } from '@mander/engine';
-import type { Level } from '@mander/model';
 import { generate } from '@mander/generator';
+import { type Level, chain } from '@mander/model';
 import {
   getMidLevelFocus,
   interpolateState,
   renderGame,
   syncViewport,
 } from '@mander/render';
-import { chain, tapEffect } from '@mander/utils';
-import { assign, clamp, noop } from 'lodash-es';
+import { assign, clamp, noop, tap } from 'lodash-es';
 import { scan, type Subscription } from 'rxjs';
 import { match, P } from 'ts-pattern';
 import { onMounted, onUnmounted, type Ref } from 'vue';
@@ -48,7 +47,7 @@ const createStartFrame = (state: GameState): BackdropFrame => ({
   current: state,
 });
 
-const keepPlaying = (idle: GameState, next: GameState): GameState =>
+const filterPlaying = (idle: GameState, next: GameState): GameState =>
   match(next.status)
     .with('PLAYING', () => next)
     .otherwise(() => idle);
@@ -56,7 +55,7 @@ const keepPlaying = (idle: GameState, next: GameState): GameState =>
 const advance =
   (idle: GameState) =>
   (frame: BackdropFrame, action: Action): BackdropFrame =>
-    chain(keepPlaying(idle, reduce(frame.current, action)))
+    chain(filterPlaying(idle, reduce(frame.current, action)))
       .thru((current): BackdropFrame => ({ previous: frame.current, current }))
       .value();
 
@@ -130,18 +129,18 @@ export const useBackdrop = (
         ),
     }))
     .thru((setup) =>
-      tapEffect(setup, () =>
+      tap(setup, () =>
         onMounted(() =>
           startOnMount(setup.cell, canvas, setup.idle, setup.renderState),
         ),
       ),
     )
     .thru((setup) =>
-      tapEffect(setup, () =>
+      tap(setup, () =>
         onUnmounted(() =>
           chain(setup.cell)
             .thru((cell) =>
-              tapEffect(cell, () => cell.subscription?.unsubscribe()),
+              tap(cell, () => cell.subscription?.unsubscribe()),
             )
             .thru((cell) => closeCanvas(cell))
             .value(),

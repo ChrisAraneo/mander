@@ -2,12 +2,12 @@ import {
   createInitialState,
   type GameState,
   type Replay,
-  unpackReplay,
+  decodeReplay,
 } from '@mander/engine';
 import { generate } from '@mander/generator';
+import { chain } from '@mander/model';
 import { getPlayerFocus, renderGame, syncViewport } from '@mander/render';
-import { chain, tapEffect } from '@mander/utils';
-import { map, noop } from 'lodash-es';
+import { map, noop, tap } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { onMounted, onUnmounted, type Ref } from 'vue';
 
@@ -32,7 +32,7 @@ export const useArchive = (
     .thru((world) => ({
       world,
       cell: createCanvasCell(),
-      recording: unpackReplay(source.replay, world.levels),
+      recording: decodeReplay(source.replay, world.levels),
       rivals: findGhostRuns(loadSave(), world.name, source.id),
     }))
     .thru((setup) => ({
@@ -55,7 +55,7 @@ export const useArchive = (
         getReplay: () => setup.recording,
         getGhosts: (): Replay[] =>
           map(setup.rivals, (run) =>
-            unpackReplay(run.replay, setup.world.levels),
+            decodeReplay(run.replay, setup.world.levels),
           ),
         getInitialState: () => createInitialState(setup.world.levels[0], 0, []),
         render: setup.renderState,
@@ -63,12 +63,12 @@ export const useArchive = (
       }),
     }))
     .thru((setup) =>
-      tapEffect(setup, () =>
+      tap(setup, () =>
         onMounted(() => playOnMount(setup.cell, canvas, setup.replay)),
       ),
     )
     .thru((setup) =>
-      tapEffect(setup, () => onUnmounted(() => setup.replay.stop())),
+      tap(setup, () => onUnmounted(() => setup.replay.stop())),
     )
     .thru(({ replay }) => replay)
     .value();

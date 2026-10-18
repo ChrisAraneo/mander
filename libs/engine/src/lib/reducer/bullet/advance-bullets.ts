@@ -1,8 +1,7 @@
 import { type Bullet, type Level, MAX_TICK_SECONDS } from '@mander/model';
 import { filter, map } from 'lodash-es';
-
-import { hasLeftLevel } from './has-left-level';
-import { stepBullet } from './step-bullet';
+import { isBulletOutOfLevel } from './internal/is-bullet-out-of-level';
+import { patchBulletPosition } from './internal/patch-bullet-position';
 
 export const advanceBullets = (
   level: Level,
@@ -11,7 +10,7 @@ export const advanceBullets = (
 ): Bullet[] =>
   filter(
     map(bullets, (bullet) =>
-      stepBullet(bullet, Math.min(elapsedSeconds, MAX_TICK_SECONDS)),
+      patchBulletPosition(bullet, Math.min(elapsedSeconds, MAX_TICK_SECONDS)),
     ),
-    (bullet) => !hasLeftLevel(level, bullet),
+    (bullet) => !isBulletOutOfLevel(level, bullet),
   );

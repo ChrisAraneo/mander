@@ -1,9 +1,5 @@
 import { round } from 'lodash-es';
-
-export interface DeviceSize {
-  width: number;
-  height: number;
-}
+import type { DeviceSize } from './types/device-size';
 
 export const getDeviceSize = (canvas: HTMLCanvasElement): DeviceSize => ({
   width: round(

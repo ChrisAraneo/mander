@@ -1,7 +1,7 @@
 import { difference, isEmpty, map, reduce, uniq } from 'lodash-es';
 import { match } from 'ts-pattern';
 
-import { appendName, listNames } from './append-name.ts';
+import { appendName, getNames } from './append-name.ts';
 
 const IMPORT = /import \{([^}]*)\} from '\.\/consts';/;
 
@@ -14,7 +14,7 @@ export const mergeAliases = (source: string, text: string): string =>
   match(IMPORT.exec(source))
     .with(null, () => source)
     .otherwise(([statement, list]) =>
-      match(difference(findAliases(text), listNames(list)))
+      match(difference(findAliases(text), getNames(list)))
         .when(isEmpty, () => source)
         .otherwise((missing) =>
           source.replace(statement, () =>

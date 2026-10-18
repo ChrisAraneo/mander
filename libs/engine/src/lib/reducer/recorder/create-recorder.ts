@@ -1,44 +1,36 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { assign, noop } from 'lodash-es';
 import { match } from 'ts-pattern';
-
-import type { Action } from '../../actions/actions';
-import type { RecordedAction } from './types/recorded-action';
+import type { Action } from '../types/action';
+import { createEmptyRecorderState } from './internal/create-empty-recorder-state';
+import type { RecorderState } from './internal/types/recorder-state';
 import type { Recorder } from './types/recorder';
 
-interface RecorderState {
-  entries: RecordedAction[];
-  step: number;
-  isRecording: boolean;
-}
+const patchRecorderState = (
+  state: RecorderState,
+  patch: Partial<RecorderState>,
+): void => void assign(state, patch);
 
-const createEmptyState = (): RecorderState => ({
-  entries: [],
-  step: 0,
-  isRecording: true,
-});
-
-const mutate = (state: RecorderState, patch: Partial<RecorderState>): void =>
-  void assign(state, patch);
-
-const append = (state: RecorderState, action: Action): void =>
+const addRecordedAction = (state: RecorderState, action: Action): void =>
   match(action)
-    .with({ type: 'TICK' }, () => mutate(state, { step: state.step + 1 }))
+    .with({ type: 'TICK' }, () =>
+      patchRecorderState(state, { step: state.step + 1 }),
+    )
     .otherwise((input) =>
-      mutate(state, {
+      patchRecorderState(state, {
         entries: [...state.entries, { atStep: state.step, action: input }],
       }),
     );
 
 export const createRecorder = (worldName: string): Recorder =>
-  chain(createEmptyState())
+  chain(createEmptyRecorderState())
     .thru((state): Recorder => ({
       record: (action) =>
         match(state.isRecording)
-          .with(true, () => append(state, action))
+          .with(true, () => addRecordedAction(state, action))
           .otherwise(noop),
-      stop: () => mutate(state, { isRecording: false }),
-      reset: () => mutate(state, createEmptyState()),
+      stop: () => patchRecorderState(state, { isRecording: false }),
+      reset: () => patchRecorderState(state, createEmptyRecorderState()),
       snapshot: () => ({
         worldName,
         steps: state.step,

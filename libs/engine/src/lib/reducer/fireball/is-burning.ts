@@ -1,7 +1,6 @@
 import type { Fireball, Player } from '@mander/model';
 import { some } from 'lodash-es';
 import { match } from 'ts-pattern';
-
 import { isTouchingFireball } from './is-touching-fireball';
 
 export const isBurning = (player: Player, fireballs: Fireball[]): boolean =>

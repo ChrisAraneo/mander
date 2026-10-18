@@ -1,5 +1,4 @@
 import { round } from 'lodash-es';
-
 import {
   LEVEL_SCORE_BASE,
   LEVEL_SCORE_MIN,

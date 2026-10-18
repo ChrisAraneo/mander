@@ -1,33 +1,39 @@
 import type { GameState } from '@mander/engine';
-import { TILE_SIZE } from '@mander/model';
-import { chain } from '@mander/utils';
+import { TILE_SIZE, chain } from '@mander/model';
 import { map } from 'lodash-es';
-
-import {
-  paint,
-  restore,
-  run,
-  save,
-  sequence,
-  setTransform,
-  translate,
-} from '../canvas';
-import { drawBullets } from '../bullet';
-import { drawCannon, drawCannonballs } from '../cannon';
-import { drawChest } from '../chest';
-import { drawGems } from '../gem';
-import { drawEnemy } from '../enemies';
-import { drawFireballs, drawPlayerFireballs } from '../fireball';
-import { type Focus, getPlayerFocus } from '../focus';
-import { drawHillLayer, HILL_LAYERS } from '../hill';
-import { drawKey } from '../key';
-import type { Palette } from '../palette';
-import { drawGhost, drawPlayer, type Ghost } from '../player';
-import { drawPortal } from '../portal';
-import { drawSky } from '../sky';
-import { drawFallingSpike } from '../spike';
-import { drawTiles } from '../tile';
-import type { Viewport } from '../viewport';
+import { createBulletStep } from '../bullet/create-bullet-step';
+import { createCannonStep } from '../cannon/create-cannon-step';
+import { createCannonballStep } from '../cannon/create-cannonball-step';
+import { createActionStep } from '../canvas/create-action-step';
+import { createEachStep } from '../canvas/create-each-step';
+import { createOptionalStep } from '../canvas/create-optional-step';
+import { createSequenceStep } from '../canvas/create-sequence-step';
+import { createSetTransformStep } from '../canvas/create-set-transform-step';
+import { createTranslateStep } from '../canvas/create-translate-step';
+import { draw } from '../canvas/draw';
+import { drawRestore } from '../canvas/draw-restore';
+import { drawSave } from '../canvas/draw-save';
+import { createChestStep } from '../chest/create-chest-step';
+import { findChestRectangle } from '../chest/find-chest-rectangle';
+import { createEnemyStep } from '../enemies/create-enemy-step';
+import { createFireballStep } from '../fireball/create-fireball-step';
+import { createPlayerFireballStep } from '../fireball/create-player-fireball-step';
+import { getPlayerFocus } from '../focus/get-player-focus';
+import { createGemStep } from '../gem/create-gem-step';
+import { HILL_LAYERS } from '../hill/consts';
+import { createHillLayerStep } from '../hill/create-hill-layer-step';
+import { createKeyStep } from '../key/create-key-step';
+import { findKeyRectangle } from '../key/find-key-rectangle';
+import { createPlayerStep } from '../player/create-player-step';
+import { createPortalStep } from '../portal/create-portal-step';
+import { findPortalRectangle } from '../portal/find-portal-rectangle';
+import { drawSky } from '../sky/draw-sky';
+import { createFallingSpikeStep } from '../spike/create-falling-spike-step';
+import { drawTiles } from '../tile/draw-tiles';
+import type { Focus } from '../types/focus';
+import type { Ghost } from '../types/ghost';
+import type { Palette } from '../types/palette';
+import type { Viewport } from '../types/viewport';
 import { getCameraAxis } from './get-camera-axis';
 
 export const renderGame = (
@@ -54,56 +60,48 @@ export const renderGame = (
       ),
     }))
     .thru(({ cameraX, cameraY }) =>
-      paint(
+      draw(
         context,
-        setTransform(viewport.scale, 0, 0, viewport.scale, 0, 0),
-        run((target) => drawSky(target, palette, viewport)),
-        sequence(
+        createSetTransformStep(viewport.scale, 0, 0, viewport.scale, 0, 0),
+        createActionStep((target) => drawSky(target, palette, viewport)),
+        createSequenceStep(
           map(HILL_LAYERS, (layer, index) =>
-            run((target) =>
-              drawHillLayer(
-                target,
-                cameraX,
-                layer,
-                palette.hills[index],
-                viewport,
-              ),
-            ),
+            createHillLayerStep(cameraX, layer, palette.hills[index], viewport),
           ),
         ),
-        save,
-        translate(-cameraX, -cameraY),
-        run((target) =>
+        drawSave,
+        createTranslateStep(-cameraX, -cameraY),
+        createActionStep((target) =>
           drawTiles(target, state.level, palette, cameraX, cameraY, viewport),
         ),
-        sequence(
-          map(state.cannons, (cannon) =>
-            run((target) => drawCannon(target, cannon)),
-          ),
+        createEachStep(state.cannons, createCannonStep),
+        createEachStep(state.gems, (tile) => createGemStep(tile, state.time)),
+        createOptionalStep(findKeyRectangle(state), (box) =>
+          createKeyStep(box, state.time),
         ),
-        run((target) => drawGems(target, state)),
-        run((target) => drawKey(target, state)),
-        run((target) => drawChest(target, state)),
-        run((target) => drawPortal(target, state)),
-        sequence(
-          map(state.enemies, (enemy) =>
-            run((target) => drawEnemy(target, enemy, state.time)),
-          ),
+        createOptionalStep(findChestRectangle(state.level), (box) =>
+          createChestStep(box, state),
         ),
-        sequence(
-          map(state.fallingSpikes, (spike) =>
-            run((target) => drawFallingSpike(target, spike)),
-          ),
+        createOptionalStep(findPortalRectangle(state.level), (box) =>
+          createPortalStep(box, state),
         ),
-        sequence(
-          map(ghosts, (ghost) => run((target) => drawGhost(target, ghost))),
+        createEachStep(state.enemies, (enemy) =>
+          createEnemyStep(enemy, state.time),
         ),
-        run((target) => drawPlayer(target, state.player, state.time)),
-        run((target) => drawCannonballs(target, state)),
-        run((target) => drawFireballs(target, state)),
-        run((target) => drawPlayerFireballs(target, state)),
-        run((target) => drawBullets(target, state)),
-        restore,
+        createEachStep(state.fallingSpikes, createFallingSpikeStep),
+        createEachStep(ghosts, (ghost) =>
+          createPlayerStep(ghost.player, ghost.time),
+        ),
+        createPlayerStep(state.player, state.time),
+        createEachStep(state.cannonballs, createCannonballStep),
+        createEachStep(state.fireballs, (fireball) =>
+          createFireballStep(fireball, state.time),
+        ),
+        createEachStep(state.playerFireballs, (fireball) =>
+          createPlayerFireballStep(fireball, state.time),
+        ),
+        createEachStep(state.bullets, createBulletStep),
+        drawRestore,
       ),
     )
     .value();

@@ -1,0 +1,23 @@
+import type { createRandom } from '@mander/engine';
+import type { Tile } from '@mander/model';
+import type { SpikeRemovalRate } from './types/spike-removal-rate';
+
+const SPIKE_REMOVAL_RATES: readonly number[] = Object.freeze([
+  1, 0.8, 0.6, 0.3,
+]);
+
+const NOTHING_REMOVED = 0;
+
+export const getSpikeRemovalRate = ({
+  tiles,
+  levelNumber,
+  random,
+}: {
+  tiles: Tile[][];
+  levelNumber: number;
+  random: ReturnType<typeof createRandom>;
+}): SpikeRemovalRate => ({
+  tiles,
+  rate: SPIKE_REMOVAL_RATES[levelNumber - 1] ?? NOTHING_REMOVED,
+  random,
+});

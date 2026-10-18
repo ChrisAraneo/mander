@@ -140,7 +140,7 @@ the one above it, so a climb of `n` sectors is `n * 21 + 1` rows tall.
 ```
 row  0   the shaft the player leaves through — empty, with the end (99) at column 9
 row  1   the ledge it leaves from — a platform of at least one block from column 9
-rows 2-17 the climb, no platform more than three rows of air above the one below
+rows 2-17 the climb
 row 18   the ledge the player lands on, across columns 3-6 or 13-16, with columns
          8-11 left open so the sector below can be jumped out of
 rows 19-21 the hall the player arrives in — empty, with the start (98) at column 9

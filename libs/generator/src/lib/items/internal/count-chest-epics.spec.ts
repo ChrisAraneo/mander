@@ -1,0 +1,38 @@
+import { createRandom } from '@mander/engine';
+import type { ItemRarity } from '@mander/model';
+import { describe, expect, it } from 'vitest';
+
+import { countChestEpics } from './count-chest-epics';
+
+const RANDOM = createRandom('DAY-1');
+
+const countIn = (rarities: ItemRarity[]) =>
+  countChestEpics({ rarities, random: RANDOM }).epics;
+
+describe('countChestEpics', () => {
+  it('should count the epic rarities when some turn up', () => {
+    expect(countIn(['EPIC', 'COMMON', 'EPIC'])).toBe(2);
+  });
+
+  it('should count nothing when no epic turns up', () => {
+    expect(countIn(['COMMON', 'RARE'])).toBe(0);
+  });
+
+  it('should count nothing when there are no rarities', () => {
+    expect(countIn([])).toBe(0);
+  });
+
+  it('should pass the generator on when it counts the epics', () => {
+    expect(countChestEpics({ rarities: [], random: RANDOM }).random).toBe(
+      RANDOM,
+    );
+  });
+
+  it('should pass the rarities on when it counts the epics', () => {
+    const rarities: ItemRarity[] = ['EPIC', 'COMMON'];
+
+    expect(countChestEpics({ rarities, random: RANDOM }).rarities).toBe(
+      rarities,
+    );
+  });
+});

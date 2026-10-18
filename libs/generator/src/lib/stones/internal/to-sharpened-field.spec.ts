@@ -1,0 +1,21 @@
+import { describe, expect, it } from 'vitest';
+
+import { toSharpenedField } from './to-sharpened-field';
+
+describe('toSharpenedField', () => {
+  it('should turn a cell to one when it is half or more', () => {
+    expect(toSharpenedField([[0.5, 0.8, 1]])).toEqual([[1, 1, 1]]);
+  });
+
+  it('should turn a cell to zero when it is under half', () => {
+    expect(toSharpenedField([[0, 0.2, 0.49]])).toEqual([[0, 0, 0]]);
+  });
+
+  it('should sharpen every row when the field has several', () => {
+    expect(toSharpenedField([[0.3], [0.7]])).toEqual([[0], [1]]);
+  });
+
+  it('should give back an empty field when the field is empty', () => {
+    expect(toSharpenedField([])).toEqual([]);
+  });
+});

@@ -1,4 +1,4 @@
-export type PackedEntry = number[];
+import type { PackedEntry } from './packed-entry';
 
 export interface PackedReplay {
   worldName: string;

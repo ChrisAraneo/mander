@@ -1,178 +1,39 @@
-import { chain } from '@mander/utils';
-import { type Cannon, TILE_SIZE } from '@mander/model';
-import { clamp, map } from 'lodash-es';
-import { match } from 'ts-pattern';
-
-import {
-  applyStyle,
-  applyStyleWith,
-  beginPath,
-  type CanvasStep,
-  createLinearGradient,
-  fill,
-  fillRect,
-  restore,
-  runWhen,
-  save,
-  scale,
-  sequence,
-  traceArc,
-  traceRoundRect,
-  translate,
-} from '../canvas';
-import { outline } from '../stroke';
-
-const HALF_TILE = TILE_SIZE / 2;
-
-const MOUNT_INSET = 1;
-const MOUNT_RADIUS = 5;
-
-const RIVET_RADIUS = 1.5;
-const RIVET_INSET = 5;
-
-const BARREL_BACK = -5;
-const BARREL_LENGTH = HALF_TILE + 7;
-const BARREL_HEIGHT = 13;
-
-const MUZZLE_WIDTH = 5;
-const MUZZLE_OVERHANG = 2.5;
-
-const TRUNNION_RADIUS = 5;
-
-const CHARGE_RADIUS = 6;
-const CHARGE_SECONDS = 0.7;
-
-const IRON = '#454E62';
-const IRON_LIGHT = '#6B7690';
-const IRON_DARK = '#1D2330';
-const BARREL_LIT = '#8892A8';
-const CHARGE_COLOR = '#FF9E3D';
-
-const drawMount: CanvasStep = sequence([
-  beginPath,
-  traceRoundRect(
-    -HALF_TILE + MOUNT_INSET,
-    -HALF_TILE + MOUNT_INSET,
-    TILE_SIZE - MOUNT_INSET * 2,
-    TILE_SIZE - MOUNT_INSET * 2,
-    MOUNT_RADIUS,
-  ),
-  outline(),
-  applyStyleWith((context) => ({
-    fillStyle: createLinearGradient(context, 0, -HALF_TILE, 0, HALF_TILE, [
-      [0, IRON],
-      [1, IRON_DARK],
-    ]),
-  })),
-  fill,
-  applyStyle({ fillStyle: IRON_LIGHT }),
-  fillRect(-HALF_TILE + 4, -HALF_TILE + 3, TILE_SIZE - 8, 3),
-]);
-
-const RIVET_CORNERS: readonly number[][] = [
-  [-1, -1],
-  [1, -1],
-  [-1, 1],
-  [1, 1],
-];
-
-const createRivetStep = (sideX: number, sideY: number): CanvasStep =>
-  sequence([
-    beginPath,
-    traceArc(
-      sideX * (HALF_TILE - RIVET_INSET),
-      sideY * (HALF_TILE - RIVET_INSET),
-      RIVET_RADIUS,
-      0,
-      Math.PI * 2,
-    ),
-    fill,
-  ]);
-
-const drawRivets: CanvasStep = sequence([
-  applyStyle({ fillStyle: IRON_DARK }),
-  sequence(
-    map(RIVET_CORNERS, ([sideX, sideY]) => createRivetStep(sideX, sideY)),
-  ),
-]);
-
-const drawBarrel: CanvasStep = sequence([
-  beginPath,
-  traceRoundRect(
-    BARREL_BACK,
-    -BARREL_HEIGHT / 2,
-    BARREL_LENGTH - BARREL_BACK,
-    BARREL_HEIGHT,
-    3,
-  ),
-  traceRoundRect(
-    BARREL_LENGTH - MUZZLE_WIDTH,
-    -BARREL_HEIGHT / 2 - MUZZLE_OVERHANG,
-    MUZZLE_WIDTH,
-    BARREL_HEIGHT + MUZZLE_OVERHANG * 2,
-    2,
-  ),
-  outline(),
-  applyStyleWith((context) => ({
-    fillStyle: createLinearGradient(
-      context,
-      0,
-      -BARREL_HEIGHT / 2,
-      0,
-      BARREL_HEIGHT / 2,
-      [
-        [0, BARREL_LIT],
-        [0.45, IRON],
-        [1, IRON_DARK],
-      ],
-    ),
-  })),
-  fill,
-]);
-
-const drawTrunnion: CanvasStep = sequence([
-  beginPath,
-  traceArc(BARREL_BACK + 1, 0, TRUNNION_RADIUS, 0, Math.PI * 2),
-  outline(),
-  applyStyle({ fillStyle: IRON_LIGHT }),
-  fill,
-  applyStyle({ fillStyle: IRON_DARK }),
-  beginPath,
-  traceArc(BARREL_BACK + 1, 0, TRUNNION_RADIUS / 2.5, 0, Math.PI * 2),
-  fill,
-]);
-
-const createChargeStep = (charge: number): CanvasStep =>
-  sequence([
-    save,
-    applyStyle({ fillStyle: CHARGE_COLOR }),
-    beginPath,
-    traceArc(BARREL_LENGTH - 1, 0, CHARGE_RADIUS * charge, 0, Math.PI * 2),
-    fill,
-    restore,
-  ]);
-
-const getFacing = (cannon: Cannon): number =>
-  match(cannon.statuses.isFacingRight)
-    .with(true, () => 1)
-    .otherwise(() => -1);
-
-const getCharge = (cannon: Cannon): number =>
-  clamp(1 - cannon.timers.reload / CHARGE_SECONDS, 0, 1);
+import { type Cannon, chain } from '@mander/model';
+import { createConditionalStep } from '../canvas/create-conditional-step';
+import { createScaleStep } from '../canvas/create-scale-step';
+import { createSequenceStep } from '../canvas/create-sequence-step';
+import { createTranslateStep } from '../canvas/create-translate-step';
+import { drawRestore } from '../canvas/draw-restore';
+import { drawSave } from '../canvas/draw-save';
+import { computeFacing } from '../compute-facing';
+import type { CanvasStep } from '../types/canvas-step';
+import { computeCannonCharge } from './internal/compute-cannon-charge';
+import { HALF_TILE } from './internal/consts';
+import { createCannonChargeStep } from './internal/create-cannon-charge-step';
+import { drawCannonBarrel } from './internal/draw-cannon-barrel';
+import { drawCannonMount } from './internal/draw-cannon-mount';
+import { drawCannonRivets } from './internal/draw-cannon-rivets';
+import { drawCannonTrunnion } from './internal/draw-cannon-trunnion';
 
 export const createCannonStep = (cannon: Cannon): CanvasStep =>
-  chain({ facing: getFacing(cannon), charge: getCharge(cannon) })
+  chain({
+    facing: computeFacing(cannon.statuses.isFacingRight),
+    charge: computeCannonCharge(cannon),
+  })
     .thru(({ facing, charge }) =>
-      sequence([
-        save,
-        translate(cannon.position.x + HALF_TILE, cannon.position.y + HALF_TILE),
-        drawMount,
-        drawRivets,
-        scale(facing, 1),
-        drawBarrel,
-        drawTrunnion,
-        runWhen(charge > 0, createChargeStep(charge)),
-        restore,
+      createSequenceStep([
+        drawSave,
+        createTranslateStep(
+          cannon.position.x + HALF_TILE,
+          cannon.position.y + HALF_TILE,
+        ),
+        drawCannonMount,
+        drawCannonRivets,
+        createScaleStep(facing, 1),
+        drawCannonBarrel,
+        drawCannonTrunnion,
+        createConditionalStep(charge > 0, createCannonChargeStep(charge)),
+        drawRestore,
       ]),
     )
     .value();

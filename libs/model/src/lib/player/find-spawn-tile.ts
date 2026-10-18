@@ -1,6 +1,6 @@
-import type { Point } from '@mander/utils';
-import { findTile } from '../tile/find-tile';
+import type { Point } from '../geometry/point';
 import type { Level } from '../level/level';
+import { findTile } from '../tile/find-tile';
 import { TILE_SPAWN } from './spawn';
 
 export const findSpawnTile = (level: Level): Point | null =>

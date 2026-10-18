@@ -1,19 +1,19 @@
-import type { GearColors } from './gear-colors';
+import type { ShadeColors } from '../types/shade-colors';
 
-export const CLOUD_LEATHER: GearColors = {
+export const CLOUD_LEATHER: Readonly<ShadeColors> = Object.freeze({
   light: '#F4FBFF',
   base: '#9FD2F0',
   deep: '#2F5C7E',
-};
+});
 
 export const CLOUD_PUFF = '#F2FAFF';
 
 export const CLOUD_SOLE = '#5C7EA0';
 
-export const TITANIUM: GearColors = {
+export const TITANIUM: Readonly<ShadeColors> = Object.freeze({
   light: '#F0F5FA',
   base: '#9AA7B8',
   deep: '#2E3743',
-};
+});
 
 export const VISOR_DARK = '#141A24';

@@ -1,13 +1,11 @@
-import { filter, map, times } from 'lodash-es';
+import { filter, map, range } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { VERTICAL_LEVELS } from '../consts';
+import { LEVELS_PER_DAY, VERTICAL_LEVELS } from '../consts';
 import { isMirrored } from './is-mirrored';
 import { isVertical } from './is-vertical';
 
-const LEVELS_A_DAY = 8;
-
-const levelNumbers = times(LEVELS_A_DAY, (index) => index + 1);
+const LEVEL_NUMBERS = range(1, LEVELS_PER_DAY + 1);
 
 describe('isVertical', () => {
   it('should send the player up when the level is the second or the fifth', () => {
@@ -17,7 +15,7 @@ describe('isVertical', () => {
   });
 
   it('should leave the level running sideways when it is any other of the day', () => {
-    expect(filter(levelNumbers, isVertical)).toEqual([2, 5]);
+    expect(filter(LEVEL_NUMBERS, isVertical)).toEqual([2, 5]);
   });
 
   it('should never stand the level up when it is the one the player starts the day on', () => {
@@ -26,13 +24,16 @@ describe('isVertical', () => {
 
   it('should never turn the level around as well when it stands it up', () => {
     expect(
-      filter(levelNumbers, (level) => isVertical(level) && isMirrored(level)),
+      filter(
+        LEVEL_NUMBERS,
+        (levelNumber) => isVertical(levelNumber) && isMirrored(levelNumber),
+      ),
     ).toEqual([]);
   });
 
   it('should answer the same for a level number when the day it falls on changes', () => {
-    expect(map(levelNumbers, isVertical)).toEqual(
-      map(levelNumbers, isVertical),
+    expect(map(LEVEL_NUMBERS, isVertical)).toEqual(
+      map(LEVEL_NUMBERS, isVertical),
     );
   });
 });

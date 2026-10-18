@@ -4,8 +4,8 @@ import {
   isReplayFinished,
   type Replay,
 } from '@mander/engine';
+import { chain } from '@mander/model';
 import { interpolateState } from '@mander/render';
-import { chain } from '@mander/utils';
 import { filter, map } from 'lodash-es';
 import { match } from 'ts-pattern';
 

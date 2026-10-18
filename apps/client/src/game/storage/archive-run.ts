@@ -1,5 +1,5 @@
 import type { PackedReplay } from '@mander/engine';
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { match } from 'ts-pattern';
 
 import { addCompletedWorld } from './complete-world';

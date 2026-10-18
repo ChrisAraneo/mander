@@ -1,11 +1,6 @@
 import type { HazardKind, Item } from '@mander/model';
 import { some } from 'lodash-es';
-import { match } from 'ts-pattern';
-
-export const canWard = (item: Item, hazard: HazardKind): boolean =>
-  match(item.effect)
-    .with({ kind: 'WARD' }, (effect) => effect.hazard === hazard)
-    .otherwise(() => false);
+import { canWard } from './can-ward';
 
 export const isWarded = (
   inventory: readonly Item[],

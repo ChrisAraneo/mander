@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { assign, noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import type { Ref } from 'vue';

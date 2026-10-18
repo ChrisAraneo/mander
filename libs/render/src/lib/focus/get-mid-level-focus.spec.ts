@@ -1,11 +1,4 @@
-import { chain } from '@mander/utils';
-import {
-  type Level,
-  type Tile,
-  TILE_AIR,
-  TILE_DIRT,
-  TILE_SIZE,
-} from '@mander/model';
+import { type Level, type Tile, TILE_AIR, TILE_DIRT, TILE_SIZE, chain } from '@mander/model';
 import { map, size, split } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
@@ -17,7 +10,7 @@ const toTile = (cell: string): Tile =>
     .with('#', () => TILE_DIRT)
     .otherwise(() => TILE_AIR);
 
-const tileMap = (rows: string[]): Level =>
+const createFocusLevel = (rows: string[]): Level =>
   chain(rows)
     .thru((lines) => map(lines, (row) => map(split(row, ''), toTile)))
     .thru((tiles) => ({
@@ -29,7 +22,7 @@ const tileMap = (rows: string[]): Level =>
     }))
     .value();
 
-const LEVEL = tileMap([
+const LEVEL = createFocusLevel([
   '..........',
   '..###.....',
   '..........',
@@ -56,7 +49,7 @@ describe('getMidLevelFocus', () => {
   });
 
   it('should settle halfway down when the level has no floor to find', () => {
-    const empty = tileMap(['....', '....', '....', '....']);
+    const empty = createFocusLevel(['....', '....', '....', '....']);
 
     expect(getMidLevelFocus(empty).y).toBe((4 / 2) * TILE_SIZE);
   });

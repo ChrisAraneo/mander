@@ -1,23 +1,17 @@
-import type { Enemy } from '@mander/model';
-import { filter, map, some } from 'lodash-es';
+import { type Enemy, chain } from '@mander/model';
+import { filter, map } from 'lodash-es';
+import { match } from 'ts-pattern';
+import { isArmedBeartrap } from './internal/is-armed-beartrap';
+import { isCaughtByBeartrap } from './internal/is-caught-by-beartrap';
+import { startEnemyDeath } from './start-enemy-death';
 
-import { isAlive } from '../player/is-alive';
-import { areEnemiesOverlapping } from './are-enemies-overlapping';
-import { killEnemy } from './kill-enemy';
-
-const isTrap = (enemy: Enemy): boolean => enemy.kind === 'BEARTRAP';
-
-const isArmedTrap = (enemy: Enemy): boolean => isTrap(enemy) && isAlive(enemy);
-
-const isCaught = (traps: Enemy[], prey: Enemy): boolean =>
-  isAlive(prey) &&
-  !isTrap(prey) &&
-  some(traps, (trap) => areEnemiesOverlapping(trap, prey));
-
-export const crushEnemies = (enemies: Enemy[]): Enemy[] => {
-  const traps = filter(enemies, isArmedTrap);
-
-  return map(enemies, (enemy) =>
-    isCaught(traps, enemy) ? killEnemy(enemy) : enemy,
-  );
-};
+export const crushEnemies = (enemies: Enemy[]): Enemy[] =>
+  chain(filter(enemies, isArmedBeartrap))
+    .thru((traps) =>
+      map(enemies, (enemy) =>
+        match(isCaughtByBeartrap(traps, enemy))
+          .with(true, () => startEnemyDeath(enemy))
+          .otherwise(() => enemy),
+      ),
+    )
+    .value();

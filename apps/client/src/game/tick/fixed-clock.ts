@@ -1,6 +1,5 @@
 import type { Action } from '@mander/engine';
-import { FIXED_STEP_MS } from '@mander/model';
-import { chain } from '@mander/utils';
+import { FIXED_STEP_MS, chain } from '@mander/model';
 import { times } from 'lodash-es';
 import {
   animationFrames,

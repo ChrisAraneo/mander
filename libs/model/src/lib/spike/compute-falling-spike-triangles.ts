@@ -1,5 +1,5 @@
-import type { Triangle } from '@mander/utils';
 
+import type { Triangle } from '../geometry/triangle';
 import { computeSpikeTriangles } from './compute-spike-triangles';
 import type { FallingSpike } from './falling-spike';
 

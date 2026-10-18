@@ -1,4 +1,4 @@
-import { chain } from '@mander/utils';
+import { chain } from '@mander/model';
 import { floor, padStart } from 'lodash-es';
 
 export const formatClock = (seconds: number): string =>

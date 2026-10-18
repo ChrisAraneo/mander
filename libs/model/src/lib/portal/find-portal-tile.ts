@@ -1,10 +1,10 @@
-import type { Point } from '@mander/utils';
 import { match, P } from 'ts-pattern';
 
 import { findTile } from '../tile/find-tile';
 import type { Level } from '../level/level';
 import { TILE_PORTAL } from './portal';
 import { findPortalBottomTile } from './find-portal-bottom-tile';
+import type { Point } from '../geometry/point';
 
 const { nullish } = P;
 

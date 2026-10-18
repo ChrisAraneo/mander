@@ -1,17 +1,26 @@
-import { chain } from '@mander/utils';
-import type { ColorStop } from './color-stop';
+import { chain } from '@mander/model';
+import type { ColorStop } from '../types/color-stop';
 import { addStops } from './add-stops';
 
 export const createRadialGradient = (
   context: CanvasRenderingContext2D,
-  x0: number,
-  y0: number,
-  r0: number,
-  x1: number,
-  y1: number,
-  r1: number,
+  startX: number,
+  startY: number,
+  startRadius: number,
+  endX: number,
+  endY: number,
+  endRadius: number,
   stops: readonly ColorStop[],
 ): CanvasGradient =>
-  chain(context.createRadialGradient(x0, y0, r0, x1, y1, r1))
+  chain(
+    context.createRadialGradient(
+      startX,
+      startY,
+      startRadius,
+      endX,
+      endY,
+      endRadius,
+    ),
+  )
     .thru(addStops(stops))
     .value();

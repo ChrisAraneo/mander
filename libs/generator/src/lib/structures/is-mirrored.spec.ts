@@ -1,12 +1,10 @@
-import { filter, map, times } from 'lodash-es';
+import { filter, map, range } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { MIRRORED_LEVELS } from '../consts';
+import { LEVELS_PER_DAY, MIRRORED_LEVELS } from '../consts';
 import { isMirrored } from './is-mirrored';
 
-const LEVELS_A_DAY = 8;
-
-const levelNumbers = times(LEVELS_A_DAY, (index) => index + 1);
+const LEVEL_NUMBERS = range(1, LEVELS_PER_DAY + 1);
 
 describe('isMirrored', () => {
   it('should turn the level around when it is the third or the sixth', () => {
@@ -16,7 +14,7 @@ describe('isMirrored', () => {
   });
 
   it('should leave the level running the way it was built when it is any other of the day', () => {
-    expect(filter(levelNumbers, isMirrored)).toEqual([3, 6]);
+    expect(filter(LEVEL_NUMBERS, isMirrored)).toEqual([3, 6]);
   });
 
   it('should never turn the level around when it is the one the player starts the day on', () => {
@@ -24,8 +22,8 @@ describe('isMirrored', () => {
   });
 
   it('should answer the same for a level number when the day it falls on changes', () => {
-    expect(map(levelNumbers, isMirrored)).toEqual(
-      map(levelNumbers, isMirrored),
+    expect(map(LEVEL_NUMBERS, isMirrored)).toEqual(
+      map(LEVEL_NUMBERS, isMirrored),
     );
   });
 });

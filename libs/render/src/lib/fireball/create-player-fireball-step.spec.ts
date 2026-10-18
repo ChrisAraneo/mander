@@ -2,71 +2,16 @@ import {
   createPlayerFireballs,
   getPlayerFireballPosition,
 } from '@mander/engine';
-import {
-  type Fireball,
-  MOON_MAGNET,
-  type Player,
-  TILE_SIZE,
-} from '@mander/model';
-import { filter, map, some } from 'lodash-es';
+import { type Fireball, MOON_MAGNET, type Player, TILE_SIZE, chain } from '@mander/model';
+import { filter, find, map, some, tap } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { type CanvasStep, paint } from '../canvas';
-import { EMBER_FIREBALL, WHITE_FIREBALL } from './fireball-colors';
-import { createFireballStep } from './create-fireball-step';
+import { createRecordingContext } from '../../test/create-recording-context';
+import type { CanvasCall } from '../../test/types/canvas-call';
+import { draw } from '../canvas/draw';
+import type { CanvasStep } from '../types/canvas-step';
+import { EMBER_FIREBALL, WHITE_FIREBALL } from './consts';
 import { createPlayerFireballStep } from './create-player-fireball-step';
-
-interface Call {
-  name: string;
-  args: unknown[];
-}
-
-interface Recorder {
-  context: CanvasRenderingContext2D;
-  calls: Call[];
-}
-
-const recorder = (): Recorder => {
-  const calls: Call[] = [];
-  const record =
-    (name: string) =>
-    (...args: unknown[]): void => {
-      calls.push({ name, args });
-    };
-
-  const context = {
-    save: record('save'),
-    restore: record('restore'),
-    translate: record('translate'),
-    rotate: record('rotate'),
-    beginPath: record('beginPath'),
-    arc: record('arc'),
-    ellipse: record('ellipse'),
-    fill: record('fill'),
-    stroke: record('stroke'),
-    createRadialGradient: (...args: unknown[]) => {
-      calls.push({ name: 'createRadialGradient', args });
-
-      return { addColorStop: record('addColorStop') };
-    },
-  };
-
-  return { context: context as unknown as CanvasRenderingContext2D, calls };
-};
-
-const painted = (step: CanvasStep): Call[] => {
-  const { context, calls } = recorder();
-
-  paint(context, step);
-
-  return calls;
-};
-
-const colorsIn = (calls: Call[]): unknown[] =>
-  map(filter(calls, { name: 'addColorStop' }), ({ args }) => args[1]);
-
-const movedTo = (calls: Call[]): Call | undefined =>
-  filter(calls, { name: 'translate' })[0];
 
 const STANDING: Player = {
   position: { x: 4 * TILE_SIZE, y: 2 * TILE_SIZE },
@@ -80,13 +25,30 @@ const STANDING: Player = {
   },
 };
 
-const circling = (): Fireball[] =>
+const drawCalls = (step: CanvasStep): CanvasCall[] =>
+  chain(createRecordingContext())
+    .thru((recording) =>
+      tap(recording, ({ context }) => draw(context, step)),
+    )
+    .thru(({ calls }) => calls)
+    .value();
+
+const filterStopColours = (calls: CanvasCall[]): unknown[] =>
+  map(
+    filter(calls, (call) => call.name === 'addColorStop'),
+    (call) => call.args[1],
+  );
+
+const findTranslation = (calls: CanvasCall[]): CanvasCall | undefined =>
+  find(calls, (call) => call.name === 'translate');
+
+const createCirclingFireballs = (): Fireball[] =>
   createPlayerFireballs([MOON_MAGNET], STANDING);
 
 describe('createPlayerFireballStep', () => {
   it('should paint the fireball white rather than in embers when it circles the player', () => {
-    const colors = colorsIn(
-      painted(createPlayerFireballStep(circling()[0], 0)),
+    const colors = filterStopColours(
+      drawCalls(createPlayerFireballStep(createCirclingFireballs()[0], 0)),
     );
 
     expect(colors).toEqual([
@@ -98,43 +60,21 @@ describe('createPlayerFireballStep', () => {
   });
 
   it('should paint the fireball where it orbits when it circles the player', () => {
-    const [fireball] = circling();
+    const [fireball] = createCirclingFireballs();
     const at = getPlayerFireballPosition(fireball);
 
     expect(
-      movedTo(painted(createPlayerFireballStep(fireball, 0)))?.args,
+      findTranslation(drawCalls(createPlayerFireballStep(fireball, 0)))?.args,
     ).toEqual([at.x, at.y]);
   });
 
   it('should paint the two of them apart when both circle the player', () => {
-    const [first, second] = circling();
+    const [first, second] = createCirclingFireballs();
 
     expect(
-      movedTo(painted(createPlayerFireballStep(first, 0)))?.args,
-    ).not.toEqual(movedTo(painted(createPlayerFireballStep(second, 0)))?.args);
-  });
-});
-
-describe('createFireballStep', () => {
-  const bolted: Fireball = {
-    spin: 'CLOCKWISE',
-    origin: { x: 200, y: 200 },
-    angle: 0,
-  };
-
-  it('should keep the fireball burning in embers when it is bolted to the level', () => {
-    expect(colorsIn(painted(createFireballStep(bolted, 0)))).toEqual([
-      EMBER_FIREBALL.core,
-      EMBER_FIREBALL.flame,
-      EMBER_FIREBALL.edge,
-    ]);
-  });
-
-  it('should keep the fireball out at its own orbit when it is bolted to the level', () => {
-    const [circlingPlayer] = circling();
-
-    expect(movedTo(painted(createFireballStep(bolted, 0)))?.args).not.toEqual(
-      movedTo(painted(createPlayerFireballStep(circlingPlayer, 0)))?.args,
+      findTranslation(drawCalls(createPlayerFireballStep(first, 0)))?.args,
+    ).not.toEqual(
+      findTranslation(drawCalls(createPlayerFireballStep(second, 0)))?.args,
     );
   });
 });

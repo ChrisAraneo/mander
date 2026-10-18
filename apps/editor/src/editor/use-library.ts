@@ -1,5 +1,4 @@
-import type { Layers } from '@mander/model';
-import { chain } from '@mander/utils';
+import { type Layers, chain } from '@mander/model';
 import { noop } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { ref } from 'vue';

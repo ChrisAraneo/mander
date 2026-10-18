@@ -12,7 +12,6 @@
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
-    "@mander/model": "*",
-    "@mander/utils": "*"
+    "@mander/model": "*"
   }
 }

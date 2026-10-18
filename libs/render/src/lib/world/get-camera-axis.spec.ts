@@ -1,3 +1,4 @@
+import { round } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { getCameraAxis } from './get-camera-axis';
@@ -37,7 +38,7 @@ describe('getCameraAxis', () => {
 
   it('should leave the camera on a device pixel when the focus falls between two', () => {
     expect(getCameraAxis(1237.4213, VIEW, 4480, 2)).toBe(
-      Math.round((1237.4213 - VIEW / 2) * 2) / 2,
+      round((1237.4213 - VIEW / 2) * 2) / 2,
     );
   });
 });

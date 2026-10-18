@@ -5,7 +5,6 @@ import {
   TILE_SIZE,
 } from '@mander/model';
 import { map } from 'lodash-es';
-
 import { CANNON_RELOAD_SECONDS } from './consts';
 
 export const createCannons = (level: Level): Cannon[] =>

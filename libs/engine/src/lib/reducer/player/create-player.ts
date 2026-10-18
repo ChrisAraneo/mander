@@ -1,8 +1,7 @@
 import type { Level, Player } from '@mander/model';
-
+import { createBasePlayerVelocity } from './create-base-player-velocity';
 import { getSpawnPosition } from './get-spawn-position';
 import type { PlayerAttributes } from './types/player-attributes';
-import { createBasePlayerVelocity } from './create-base-player-velocity';
 
 export const createPlayer = (
   level: Level,

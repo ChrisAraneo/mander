@@ -1,0 +1,141 @@
+import {
+  type Level,
+  type Tile,
+  TILE_AIR,
+  TILE_DIRT,
+  TILE_SPIKE,
+} from '@mander/model';
+import { every, includes, map, range, size } from 'lodash-es';
+import { match } from 'ts-pattern';
+import { describe, expect, it } from 'vitest';
+
+import { checkPlayerReach } from './check-player-reach';
+import { isReachableCell } from './is-reachable-cell';
+
+const WIDTH = 20;
+
+const HEIGHT = 8;
+
+const AIR_ROW: Tile[] = map(range(WIDTH), (): Tile => TILE_AIR);
+
+const GROUND_ROW: Tile[] = map(range(WIDTH), (): Tile => TILE_DIRT);
+
+const createTileMap = (rows: Record<number, Tile[]>): Level => ({
+  seed: 'TEST',
+  width: WIDTH,
+  height: HEIGHT,
+  tiles: map(range(HEIGHT), (row) => rows[row] ?? AIR_ROW),
+  chestItems: [],
+});
+
+const createPitRow = (from: number, to: number): Tile[] =>
+  map(GROUND_ROW, (tile, column) =>
+    match(column >= from && column <= to)
+      .with(true, (): Tile => TILE_AIR)
+      .otherwise(() => tile),
+  );
+
+const createPlatformRow = (columns: number[]): Tile[] =>
+  map(AIR_ROW, (tile, column) =>
+    match(includes(columns, column))
+      .with(true, (): Tile => TILE_DIRT)
+      .otherwise(() => tile),
+  );
+
+const FLAT = createTileMap({ 7: GROUND_ROW });
+
+const PERCH = createTileMap({
+  4: createPlatformRow([8, 9, 10]),
+  7: GROUND_ROW,
+});
+
+const TOWER = createTileMap({
+  1: createPlatformRow([8, 9, 10]),
+  7: GROUND_ROW,
+});
+
+const LEDGE_5 = createTileMap({
+  2: createPlatformRow(range(10, 20)),
+  7: GROUND_ROW,
+});
+
+const LEDGE_4 = createTileMap({
+  3: createPlatformRow(range(10, 20)),
+  7: GROUND_ROW,
+});
+
+const PIT_5 = createTileMap({ 7: createPitRow(5, 9) });
+
+const PIT_6 = createTileMap({ 7: createPitRow(5, 10) });
+
+const SPIKE_RUN = createTileMap({
+  6: map(AIR_ROW, (tile, column) =>
+    match(column === 8)
+      .with(true, (): Tile => TILE_SPIKE)
+      .otherwise(() => tile),
+  ),
+  7: GROUND_ROW,
+});
+
+const FLOATING = createTileMap({ 4: createPlatformRow([8, 9, 10]) });
+
+describe('checkPlayerReach', () => {
+  it('should mark the whole floor as reachable when the tile map is flat', () => {
+    const reach = checkPlayerReach(FLAT);
+
+    expect(
+      every(range(WIDTH), (column) => isReachableCell(reach, 7, column)),
+    ).toBe(true);
+  });
+
+  it('should shape the map like the tiles when it is given a tile map', () => {
+    const reach = checkPlayerReach(FLAT);
+
+    expect(size(reach)).toBe(HEIGHT);
+    expect(every(reach, (cells) => size(cells) === WIDTH)).toBe(true);
+  });
+
+  it('should reach the perch when it stands three cells above the floor', () => {
+    expect(isReachableCell(checkPlayerReach(PERCH), 4, 9)).toBe(true);
+  });
+
+  it('should leave the platform stranded when it stands six cells above the floor', () => {
+    const reach = checkPlayerReach(TOWER);
+
+    expect(isReachableCell(reach, 1, 9)).toBe(false);
+    expect(isReachableCell(reach, 7, 9)).toBe(true);
+  });
+
+  it('should climb the ledge when it is four cells up but not when it is five', () => {
+    expect(isReachableCell(checkPlayerReach(LEDGE_4), 3, 15)).toBe(true);
+    expect(isReachableCell(checkPlayerReach(LEDGE_5), 2, 15)).toBe(false);
+  });
+
+  it('should jump the pit when it is five columns wide but not when it is six', () => {
+    expect(isReachableCell(checkPlayerReach(PIT_5), 7, 15)).toBe(true);
+    expect(isReachableCell(checkPlayerReach(PIT_6), 7, 15)).toBe(false);
+  });
+
+  it('should walk on when the way is barred by spikes rather than walls', () => {
+    expect(isReachableCell(checkPlayerReach(SPIKE_RUN), 7, 15)).toBe(true);
+  });
+
+  it('should reach nothing when the entry column has no floor', () => {
+    const reach = checkPlayerReach(FLOATING);
+
+    expect(
+      every(reach, (cells) =>
+        every(cells, (isReachable) => isReachable === false),
+      ),
+    ).toBe(true);
+  });
+
+  it('should call the cell unreachable when it lies outside the tile map', () => {
+    const reach = checkPlayerReach(FLAT);
+
+    expect(isReachableCell(reach, -1, 0)).toBe(false);
+    expect(isReachableCell(reach, 0, -1)).toBe(false);
+    expect(isReachableCell(reach, HEIGHT, 0)).toBe(false);
+    expect(isReachableCell(reach, 0, WIDTH)).toBe(false);
+  });
+});

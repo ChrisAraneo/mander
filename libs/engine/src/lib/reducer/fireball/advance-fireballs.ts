@@ -1,6 +1,5 @@
 import { type Fireball, MAX_TICK_SECONDS } from '@mander/model';
 import { map } from 'lodash-es';
-
 import { stepFireball } from './step-fireball';
 
 export const advanceFireballs = (

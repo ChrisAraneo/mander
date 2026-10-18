@@ -1,13 +1,8 @@
-import { hashString } from '@mander/utils';
-import { padStart } from 'lodash-es';
+import { hashString } from '@mander/engine';
+import { flow } from 'lodash-es';
+import { formatDateSeed } from './internal/format-date-seed';
 
-const pad2 = (value: number): string => padStart(String(value), 2, '0');
-
-export const computeWorldName = (date: Date): string =>
-  hashString(
-    `${[
-      date.getUTCFullYear(),
-      pad2(date.getUTCMonth() + 1),
-      pad2(date.getUTCDate()),
-    ].join('-')}`,
-  );
+export const computeWorldName: (date: Date) => string = flow(
+  formatDateSeed,
+  hashString,
+);
