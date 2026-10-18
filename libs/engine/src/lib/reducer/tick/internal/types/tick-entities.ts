@@ -1,4 +1,13 @@
-import type { Bullet, Cannon, Cannonball, Enemy, FallingSpike, Fireball, Player, Point } from '@mander/model';
+import type {
+  Bullet,
+  Cannon,
+  Cannonball,
+  Enemy,
+  FallingSpike,
+  Fireball,
+  Player,
+  Point,
+} from '@mander/model';
 import type { GameLevel } from '../../../../types/game-level';
 import type { GameState } from '../../../../types/game-state';
 import type { GameStatus } from '../../../../types/game-status';
@@ -8,7 +17,6 @@ export interface TickEntities {
   deltaSeconds: number;
   cannons: Cannon[];
   fireballs: Fireball[];
-  playerFireballs: Fireball[];
   player: Player;
   deaths: number;
   status: GameStatus;

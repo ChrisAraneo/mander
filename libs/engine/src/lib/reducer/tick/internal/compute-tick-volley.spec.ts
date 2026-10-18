@@ -1,5 +1,4 @@
 import {
-  MOON_MAGNET,
   type Tile,
   TILE_AIR,
   TILE_CANNON,
@@ -53,7 +52,7 @@ const LEVEL = createLevel([
 
 const DELTA_SECONDS = 0.02;
 
-const BASE_STATE = createInitialState(LEVEL, 0, [MOON_MAGNET]);
+const BASE_STATE = createInitialState(LEVEL, 0, []);
 
 const createState = (): GameState => ({
   ...BASE_STATE,
@@ -136,14 +135,6 @@ describe('computeTickVolley', () => {
     expect(volley.deltaSeconds).toBe(tick.deltaSeconds);
   });
 
-  it('should pass on whether the player is alive when the bullets fly', () => {
-    const tick = createTickHarm();
-
-    const volley = computeTickVolley(tick);
-
-    expect(volley.isPlayerAlive).toBe(tick.isPlayerAlive);
-  });
-
   it('should pass the same cannons on when the bullets fly', () => {
     const tick = createTickHarm();
 
@@ -166,14 +157,6 @@ describe('computeTickVolley', () => {
     const volley = computeTickVolley(tick);
 
     expect(volley.fireballs).toBe(tick.fireballs);
-  });
-
-  it('should pass the same fireballs of the player on when the bullets fly', () => {
-    const tick = createTickHarm();
-
-    const volley = computeTickVolley(tick);
-
-    expect(volley.playerFireballs).toBe(tick.playerFireballs);
   });
 
   it('should pass the same cannonball hits on when the bullets fly', () => {

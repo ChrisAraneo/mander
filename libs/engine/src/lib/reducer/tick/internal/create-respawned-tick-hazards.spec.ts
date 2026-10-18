@@ -1,8 +1,6 @@
 import {
   type Bullet,
   type Cannonball,
-  MOON_MAGNET,
-  type Player,
   type Tile,
   TILE_AIR,
   TILE_CANNON,
@@ -21,7 +19,6 @@ import type { GameState } from '../../../types/game-state';
 import { createEnemies } from '../../enemy/create-enemies';
 import { createFallingSpikes } from '../../falling-spike/create-falling-spikes';
 import { createFireballs } from '../../fireball/create-fireballs';
-import { createPlayerFireballs } from '../../fireball/create-player-fireballs';
 import { createReloadedBarrage } from './create-reloaded-barrage';
 import { createRespawnedTickHazards } from './create-respawned-tick-hazards';
 
@@ -57,26 +54,20 @@ const BULLET: Bullet = {
 };
 
 const createState = (): GameState => ({
-  ...createInitialState(LEVEL, 0, [MOON_MAGNET]),
+  ...createInitialState(LEVEL, 0, []),
   enemies: [],
   cannons: [],
   cannonballs: [CANNONBALL],
   fallingSpikes: [],
   fireballs: [],
-  playerFireballs: [],
   bullets: [BULLET],
-});
-
-const createMovedPlayer = (): Player => ({
-  ...createInitialState(LEVEL, 0, [MOON_MAGNET]).player,
-  position: { x: 200, y: 32 },
 });
 
 describe('createRespawnedTickHazards', () => {
   it('should rebuild the enemies, cannons, cannonballs, falling spikes and fireballs from the level when the hazards respawn', () => {
     const state = createState();
 
-    const hazards = createRespawnedTickHazards(state, createMovedPlayer());
+    const hazards = createRespawnedTickHazards(state);
 
     expect(hazards.steppedEnemies).toEqual(createEnemies(LEVEL));
     expect(hazards.cannons).toEqual(createReloadedBarrage(LEVEL).cannons);
@@ -85,16 +76,9 @@ describe('createRespawnedTickHazards', () => {
     expect(hazards.fireballs).toEqual(createFireballs(LEVEL));
   });
 
-  it('should ring the given player with the moons of the inventory and give no flying bullets when the hazards respawn', () => {
-    const state = createState();
-    const player = createMovedPlayer();
+  it('should give no flying bullets when the hazards respawn', () => {
+    const hazards = createRespawnedTickHazards(createState());
 
-    const hazards = createRespawnedTickHazards(state, player);
-
-    expect(hazards.playerFireballs).toEqual(
-      createPlayerFireballs([MOON_MAGNET], player, true),
-    );
-    expect(size(hazards.playerFireballs)).toBe(2);
     expect(hazards.flyingBullets).toEqual([]);
   });
 });

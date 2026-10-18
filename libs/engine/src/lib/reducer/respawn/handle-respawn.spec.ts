@@ -1,4 +1,16 @@
-import { MOON_MAGNET, type Player, type Tile, TILE_AIR, TILE_CANNON, TILE_DIRT, TILE_ENEMY, TILE_FIREBALL, TILE_SPAWN, TILE_SPIKE_FALLING, chain } from '@mander/model';
+import {
+  RED_GEM,
+  type Player,
+  type Tile,
+  TILE_AIR,
+  TILE_CANNON,
+  TILE_DIRT,
+  TILE_ENEMY,
+  TILE_FIREBALL,
+  TILE_SPAWN,
+  TILE_SPIKE_FALLING,
+  chain,
+} from '@mander/model';
 import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
@@ -9,7 +21,6 @@ import { createCannons } from '../cannon/create-cannons';
 import { createEnemies } from '../enemy/create-enemies';
 import { createFallingSpikes } from '../falling-spike/create-falling-spikes';
 import { createFireballs } from '../fireball/create-fireballs';
-import { createPlayerFireballs } from '../fireball/create-player-fireballs';
 import { createPlayer } from '../player/create-player';
 import { handleRespawn } from './handle-respawn';
 
@@ -40,7 +51,7 @@ const LEVEL = createLevel([
 ]);
 
 const createState = (): GameState =>
-  chain(createInitialState(LEVEL, 0, [MOON_MAGNET]))
+  chain(createInitialState(LEVEL, 0, [RED_GEM]))
     .thru((initial): GameState => ({
       ...initial,
       player: {
@@ -58,7 +69,6 @@ const createState = (): GameState =>
       ],
       fallingSpikes: [],
       fireballs: [],
-      playerFireballs: [],
       bullets: [
         {
           position: { x: 120, y: 64 },
@@ -101,23 +111,6 @@ describe('handleRespawn', () => {
     expect(respawned.cannonballs).toEqual([]);
   });
 
-  it('should bring the moons back around the player when the magnet is on', () => {
-    const respawned = handleRespawn(createState());
-
-    expect(respawned.playerFireballs).toEqual(
-      createPlayerFireballs([MOON_MAGNET], createSpawnedPlayer(), true),
-    );
-    expect(respawned.playerFireballs).toHaveLength(2);
-  });
-
-  it('should keep the moons away when the magnet is off', () => {
-    const state: GameState = { ...createState(), isMoonMagnetOn: false };
-
-    const respawned = handleRespawn(state);
-
-    expect(respawned.playerFireballs).toEqual([]);
-  });
-
   it('should keep the score, time, deaths and inventory when the player respawns', () => {
     const state = createState();
 
@@ -131,11 +124,6 @@ describe('handleRespawn', () => {
       cannonballs: [],
       fallingSpikes: createFallingSpikes(LEVEL),
       fireballs: createFireballs(LEVEL),
-      playerFireballs: createPlayerFireballs(
-        [MOON_MAGNET],
-        createSpawnedPlayer(),
-        true,
-      ),
       bullets: [],
     });
   });

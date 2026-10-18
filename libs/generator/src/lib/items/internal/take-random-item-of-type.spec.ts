@@ -1,9 +1,8 @@
 import { createRandom } from '@mander/engine';
 import { RED_GEM } from '@mander/model';
-import { includes, map, size, times, uniq } from 'lodash-es';
+import { map, size, times, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { EVERYDAY_POOL_BY_TYPE } from '../../consts';
 import { findChestType } from './find-chest-type';
 import { takeRandomItemOfType } from './take-random-item-of-type';
 
@@ -20,17 +19,6 @@ describe('takeRandomItemOfType', () => {
 
     expect(map(picked, findChestType)).toEqual(['HEART']);
     expect(map(picked, 'rarity')).toEqual(['RARE']);
-  });
-
-  it('should add any card of the type when the type holds none of the rarity', () => {
-    const { picked } = takeRandomItemOfType(
-      { picked: [], typesLeft: ['HEART'] },
-      'HEART',
-      'EPIC',
-      createRandom(RANDOM_SEED),
-    );
-
-    expect(includes(EVERYDAY_POOL_BY_TYPE.HEART, picked[0])).toBe(true);
   });
 
   it('should add other cards when the generator starts from other seeds', () => {

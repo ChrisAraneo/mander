@@ -7,7 +7,6 @@ import {
   TILE_SIZE,
   TILE_SPAWN,
   TILE_SPIKE_FALLING,
-  TITANIUM_HELMET,
 } from '@mander/model';
 import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
@@ -45,8 +44,6 @@ const LEVEL = createLevel([
 
 const STATE = createInitialState(LEVEL, 0, []);
 
-const HELMETED_STATE = createInitialState(LEVEL, 0, [TITANIUM_HELMET]);
-
 const FALLING_SPIKES = createFallingSpikes(LEVEL);
 
 const createPlayerAt = (left: number, top: number): Player => ({
@@ -60,9 +57,8 @@ const UNDER_SPIKE_PLAYER = createPlayerAt(
 );
 
 describe('isTouchingAnyFallingSpike', () => {
-  it('should say yes when ceiling spikes bite and the player touches a falling spike', () => {
+  it('should say yes when the player touches a falling spike', () => {
     const isTouching = isTouchingAnyFallingSpike(
-      STATE,
       UNDER_SPIKE_PLAYER,
       FALLING_SPIKES,
     );
@@ -70,26 +66,16 @@ describe('isTouchingAnyFallingSpike', () => {
     expect(isTouching).toBe(true);
   });
 
-  it('should say no when the player touches a falling spike while wearing the titanium helmet', () => {
-    const isTouching = isTouchingAnyFallingSpike(
-      HELMETED_STATE,
-      UNDER_SPIKE_PLAYER,
-      FALLING_SPIKES,
-    );
-
-    expect(isTouching).toBe(false);
-  });
-
-  it('should say no when ceiling spikes bite and the player is clear of every falling spike', () => {
+  it('should say no when the player is clear of every falling spike', () => {
     const player = createPlayerAt(7 * TILE_SIZE, 3 * TILE_SIZE);
 
-    const isTouching = isTouchingAnyFallingSpike(STATE, player, FALLING_SPIKES);
+    const isTouching = isTouchingAnyFallingSpike(player, FALLING_SPIKES);
 
     expect(isTouching).toBe(false);
   });
 
   it('should say no when there are no falling spikes', () => {
-    const isTouching = isTouchingAnyFallingSpike(STATE, UNDER_SPIKE_PLAYER, []);
+    const isTouching = isTouchingAnyFallingSpike(UNDER_SPIKE_PLAYER, []);
 
     expect(isTouching).toBe(false);
   });

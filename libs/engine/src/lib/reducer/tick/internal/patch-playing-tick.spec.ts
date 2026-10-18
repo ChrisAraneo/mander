@@ -1,4 +1,15 @@
-import { MOON_MAGNET, type Tile, TILE_AIR, TILE_CANNON, TILE_DIRT, TILE_ENEMY, TILE_FIREBALL, TILE_GEM, TILE_SPAWN, TILE_SPIKE_FALLING, chain } from '@mander/model';
+import {
+  type Tile,
+  TILE_AIR,
+  TILE_CANNON,
+  TILE_DIRT,
+  TILE_ENEMY,
+  TILE_FIREBALL,
+  TILE_GEM,
+  TILE_SPAWN,
+  TILE_SPIKE_FALLING,
+  chain,
+} from '@mander/model';
 import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
@@ -47,7 +58,7 @@ const OPEN_LEVEL = createLevel([
 const DELTA_SECONDS = 0.02;
 
 const createBusyState = (): GameState => ({
-  ...createInitialState(BUSY_LEVEL, 0, [MOON_MAGNET]),
+  ...createInitialState(BUSY_LEVEL, 0, []),
   input: { isLeft: false, isRight: true, isJump: false },
 });
 

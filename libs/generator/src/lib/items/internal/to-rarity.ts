@@ -7,8 +7,4 @@ const { number } = P;
 export const toRarity = (roll: number): ItemRarity =>
   match(roll)
     .with(number.lt(RARITY_CHANCE.COMMON), (): ItemRarity => 'COMMON')
-    .with(
-      number.lt(RARITY_CHANCE.COMMON + RARITY_CHANCE.RARE),
-      (): ItemRarity => 'RARE',
-    )
-    .otherwise((): ItemRarity => 'EPIC');
+    .otherwise((): ItemRarity => 'RARE');

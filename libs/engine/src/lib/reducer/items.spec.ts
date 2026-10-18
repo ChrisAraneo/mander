@@ -1,4 +1,24 @@
-import { BOOTS_OF_CLOUDS, BULLET, DOUBLE_HEART, DOUBLE_STAR, FOUR_BULLETS, type Item, PINK_GEM, RED_GEM, STAR, THREE_BULLETS, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_KEY, TILE_PORTAL, TILE_SPAWN, TITANIUM_HELMET, TRIPLE_STAR, TWO_BULLETS, VAMPIRE_SLAYER_BULLET_RAIN, chain } from '@mander/model';
+import {
+  BULLET,
+  DOUBLE_HEART,
+  DOUBLE_STAR,
+  FOUR_BULLETS,
+  type Item,
+  PINK_GEM,
+  RED_GEM,
+  STAR,
+  THREE_BULLETS,
+  type Tile,
+  TILE_AIR,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SPAWN,
+  TRIPLE_STAR,
+  TWO_BULLETS,
+  chain,
+} from '@mander/model';
 import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
@@ -102,15 +122,6 @@ describe('items', () => {
     expect(state.player.hearts.value, 'and no hearts').toBe(BASE_HEARTS);
   });
 
-  it('should be kept rather than spent when the card is a piece of gear', () => {
-    expect(createChosenItemState(BOOTS_OF_CLOUDS).inventory).toEqual([
-      BOOTS_OF_CLOUDS,
-    ]);
-    expect(createChosenItemState(TITANIUM_HELMET).inventory).toEqual([
-      TITANIUM_HELMET,
-    ]);
-  });
-
   it('should stack on top of the stars already carried when the card is a double star', () => {
     const state = createChosenItemState(STAR);
 
@@ -131,7 +142,6 @@ describe('items', () => {
     expect(createChosenItemState(TWO_BULLETS).ammo).toBe(4);
     expect(createChosenItemState(THREE_BULLETS).ammo).toBe(6);
     expect(createChosenItemState(FOUR_BULLETS).ammo).toBe(8);
-    expect(createChosenItemState(VAMPIRE_SLAYER_BULLET_RAIN).ammo).toBe(9999);
   });
 
   it('should stack on top of the rounds already carried when a second bullet card is taken', () => {

@@ -2,8 +2,6 @@ import type { ItemCluster } from './types/item-cluster';
 
 export const HEART_TIP = 1.7;
 
-const BULLET_RAIN_FROM = 9;
-
 export const HEART_CLUSTERS: Readonly<Record<number, ItemCluster>> =
   Object.freeze({
     1: { scale: 1, spots: [{ x: 0.5, y: 0.46 }] },
@@ -93,20 +91,6 @@ export const BULLET_CLUSTERS: Readonly<Record<number, ItemCluster>> =
         { x: 0.4, y: 0.64 },
         { x: 0.6, y: 0.64 },
         { x: 0.8, y: 0.64 },
-      ],
-    },
-    [BULLET_RAIN_FROM]: {
-      scale: 0.1,
-      spots: [
-        { x: 0.25, y: 0.2 },
-        { x: 0.5, y: 0.14 },
-        { x: 0.75, y: 0.24 },
-        { x: 0.16, y: 0.5 },
-        { x: 0.42, y: 0.46 },
-        { x: 0.68, y: 0.52 },
-        { x: 0.28, y: 0.78 },
-        { x: 0.55, y: 0.8 },
-        { x: 0.8, y: 0.74 },
       ],
     },
   });

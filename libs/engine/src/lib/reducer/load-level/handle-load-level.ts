@@ -4,7 +4,6 @@ import { createCannons } from '../cannon/create-cannons';
 import { createEnemies } from '../enemy/create-enemies';
 import { createFallingSpikes } from '../falling-spike/create-falling-spikes';
 import { createFireballs } from '../fireball/create-fireballs';
-import { createPlayerFireballs } from '../fireball/create-player-fireballs';
 import { createPlayer } from '../player/create-player';
 
 export const handleLoadLevel = (
@@ -23,11 +22,6 @@ export const handleLoadLevel = (
       cannonballs: [],
       fallingSpikes: createFallingSpikes(level),
       fireballs: createFireballs(level),
-      playerFireballs: createPlayerFireballs(
-        state.inventory,
-        player,
-        state.isMoonMagnetOn,
-      ),
       bullets: [],
       gems: findGemTiles(level),
       status: 'PLAYING',

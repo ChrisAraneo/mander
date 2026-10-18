@@ -1,4 +1,13 @@
-import { type Item, type Level, type Tile, TILE_AIR, TILE_DIRT, TILE_SPAWN, TILE_SPIKE_FALLING, TITANIUM_HELMET, chain } from '@mander/model';
+import {
+  type Item,
+  type Level,
+  type Tile,
+  TILE_AIR,
+  TILE_DIRT,
+  TILE_SPAWN,
+  TILE_SPIKE_FALLING,
+  chain,
+} from '@mander/model';
 import { map, reduce as fold, times } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
@@ -69,12 +78,6 @@ describe('a level being played', () => {
 
     expect(struck.player.hearts.value).toBe(BASE_HEARTS - 1);
     expect(struck.fallingSpikes).toEqual([]);
-  });
-
-  it('should glance off when the player wears the helmet that turns ceiling spikes', () => {
-    expect(createPlayedState([TITANIUM_HELMET], 60).player.hearts.value).toBe(
-      BASE_HEARTS,
-    );
   });
 
   it('should hang again when the player respawns', () => {

@@ -31,6 +31,5 @@ export const parseReplayAction = (
     .with('RESTART', () => tryParseRestartAction(levels))
     .with('USE_STAR', (type): RecordableAction => ({ type }))
     .with('SHOOT', (type): RecordableAction => ({ type }))
-    .with('TOGGLE_MOON_MAGNET', (type): RecordableAction => ({ type }))
     .with(nullish, constant(undefined))
     .exhaustive(constant(undefined));

@@ -38,22 +38,6 @@ describe('toEffectItemArt', () => {
     expect(result).toEqual({ kind: 'BULLETS', count: 6 });
   });
 
-  it('should show fireballs when the effect gives fireballs', () => {
-    const result = toEffectItemArt(
-      createEffectItem({ kind: 'FIREBALL', amount: 2 }),
-    );
-
-    expect(result).toEqual({ kind: 'FIREBALLS', count: 2 });
-  });
-
-  it('should show the ward when the effect wards off a hazard', () => {
-    const result = toEffectItemArt(
-      createEffectItem({ kind: 'WARD', hazard: 'FLOOR_SPIKE' }),
-    );
-
-    expect(result).toEqual({ kind: 'BOOTS' });
-  });
-
   it('should show a red gem when the effect only gives score', () => {
     const result = toEffectItemArt(
       createEffectItem({ kind: 'SCORE', amount: 100 }),

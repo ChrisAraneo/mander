@@ -10,7 +10,5 @@ export const countStartingAmmo = (inventory: readonly Item[]): number =>
       .with({ kind: 'SCORE' }, () => 0)
       .with({ kind: 'STAR' }, () => 0)
       .with({ kind: 'BULLET' }, (effect) => effect.amount)
-      .with({ kind: 'FIREBALL' }, () => 0)
-      .with({ kind: 'WARD' }, () => 0)
       .exhaustive(() => 0),
   );

@@ -1,5 +1,4 @@
 import {
-  MOON_MAGNET,
   type Tile,
   TILE_AIR,
   TILE_CANNON,
@@ -44,7 +43,7 @@ const LEVEL = createLevel(['..c.....', '...v..f.', 's...e...', '########']);
 
 const DELTA_SECONDS = 0.02;
 
-const BASE_STATE = createInitialState(LEVEL, 0, [MOON_MAGNET]);
+const BASE_STATE = createInitialState(LEVEL, 0, []);
 
 const createStateWithDeath = (death: number | null): GameState => ({
   ...BASE_STATE,
@@ -152,14 +151,6 @@ describe('computeTickStomps', () => {
     const stomps = computeTickStomps(tick);
 
     expect(stomps.fireballs).toBe(tick.fireballs);
-  });
-
-  it('should pass the same fireballs of the player on when the player lands', () => {
-    const tick = createTickHazards(null);
-
-    const stomps = computeTickStomps(tick);
-
-    expect(stomps.playerFireballs).toBe(tick.playerFireballs);
   });
 
   it('should pass the same flying bullets on when the player lands', () => {

@@ -14,11 +14,9 @@ import type { GameStatus } from '../../../../types/game-status';
 export interface TickVolley {
   state: GameState;
   deltaSeconds: number;
-  isPlayerAlive: boolean;
   cannons: Cannon[];
   flying: Cannonball[];
   fireballs: Fireball[];
-  playerFireballs: Fireball[];
   hits: Cannonball[];
   player: Player;
   deaths: number;

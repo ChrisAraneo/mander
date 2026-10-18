@@ -1,1 +1,1 @@
-export type ChestItemType = 'GEM' | 'BULLET' | 'HEART' | 'STAR' | 'GEAR';
+export type ChestItemType = 'GEM' | 'BULLET' | 'HEART' | 'STAR';

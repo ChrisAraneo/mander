@@ -11,7 +11,7 @@ describe('filterItemsOfRarity', () => {
   });
 
   it('should fall back to every item when none holds the rarity', () => {
-    expect(filterItemsOfRarity([HEART], 'EPIC')).toEqual([HEART]);
+    expect(filterItemsOfRarity([HEART], 'RARE')).toEqual([HEART]);
   });
 
   it('should give no items when there are none', () => {

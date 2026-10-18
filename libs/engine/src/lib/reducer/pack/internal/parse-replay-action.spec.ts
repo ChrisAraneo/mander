@@ -65,10 +65,10 @@ describe('parseReplayAction', () => {
     expect(action).toEqual({ type: 'INTERACT' });
   });
 
-  it('should give back only the action when the entry records toggling the moon magnet', () => {
+  it('should give nothing when the entry holds the code of a retired action', () => {
     const action = parseReplayAction([0, 14], LEVELS);
 
-    expect(action).toEqual({ type: 'TOGGLE_MOON_MAGNET' });
+    expect(action).toBeUndefined();
   });
 
   it('should give nothing when the entry holds an action it has never heard of', () => {

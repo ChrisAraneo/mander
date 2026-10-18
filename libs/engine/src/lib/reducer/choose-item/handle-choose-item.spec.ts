@@ -1,8 +1,6 @@
 import {
-  BOOTS_OF_CLOUDS,
   DOUBLE_HEART,
   type Item,
-  MOON_MAGNET,
   RED_GEM,
   STAR,
   TILE_DIRT,
@@ -123,31 +121,15 @@ describe('handleChooseItem', () => {
     expect(chosen.player.hearts.value).toBe(BASE_HEARTS);
   });
 
-  it('should set fireballs circling the player when the magnet is taken', () => {
-    const chosen = handleChooseItem(createChestState([MOON_MAGNET]), 0);
-
-    expect(chosen.playerFireballs).toHaveLength(2);
-  });
-
-  it('should leave the player unescorted when the item is anything else', () => {
-    expect(
-      handleChooseItem(createChestState([RED_GEM]), 0).playerFireballs,
-    ).toEqual([]);
-  });
-
   it('should keep what another kind gave when a card of one kind is taken', () => {
     const state = handleChooseItem(
-      createChestState([STAR], [TWO_BULLETS, DOUBLE_HEART, MOON_MAGNET]),
+      createChestState([STAR], [TWO_BULLETS, DOUBLE_HEART]),
       0,
     );
 
     expect(state.stars, 'the star it just took').toBe(1);
     expect(state.ammo, 'and the rounds it was already carrying').toBe(4);
     expect(state.player.hearts.value).toBe(BASE_HEARTS + 2);
-    expect(
-      state.playerFireballs,
-      'and the fireballs still circling',
-    ).toHaveLength(2);
   });
 
   it('should stack every kind the player picks up when one chest follows another', () => {
@@ -156,14 +138,14 @@ describe('handleChooseItem', () => {
       { ...bullets, status: 'CHEST', level: createChestLevel([STAR]) },
       0,
     );
-    const gear = handleChooseItem(
-      { ...stars, status: 'CHEST', level: createChestLevel([BOOTS_OF_CLOUDS]) },
+    const gem = handleChooseItem(
+      { ...stars, status: 'CHEST', level: createChestLevel([RED_GEM]) },
       0,
     );
 
-    expect(gear.ammo, 'the rounds survive the star').toBe(4);
-    expect(gear.stars, 'the star survives the gear').toBe(1);
-    expect(gear.inventory).toEqual([TWO_BULLETS, STAR, BOOTS_OF_CLOUDS]);
+    expect(gem.ammo, 'the rounds survive the star').toBe(4);
+    expect(gem.stars, 'the star survives the gem').toBe(1);
+    expect(gem.inventory).toEqual([TWO_BULLETS, STAR, RED_GEM]);
   });
 
   it('should restore base capabilities when an item is taken', () => {

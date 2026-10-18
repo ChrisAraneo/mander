@@ -1,7 +1,6 @@
 import {
   DOUBLE_HEART,
   FIXED_STEP_SECONDS,
-  MOON_MAGNET,
   STAR,
   type Tile,
   TILE_AIR,
@@ -31,7 +30,6 @@ import { handleRespawn } from './respawn/handle-respawn';
 import { handleRestart } from './restart/handle-restart';
 import { shoot } from './shoot/shoot';
 import { handleTick } from './tick/handle-tick';
-import { handleToggleMoonMagnet } from './toggle-moon-magnet/handle-toggle-moon-magnet';
 import { useStar } from './use-star/use-star';
 
 const LEGEND: Record<string, Tile> = {
@@ -60,7 +58,7 @@ const OTHER_LEVEL = createLevel([
 ]);
 
 const createPlayingState = (): GameState =>
-  createInitialState(LEVEL, 0, [MOON_MAGNET, TWO_BULLETS, STAR]);
+  createInitialState(LEVEL, 0, [TWO_BULLETS, STAR]);
 
 const createChestState = (): GameState => ({
   ...createPlayingState(),
@@ -186,16 +184,6 @@ describe('reduce', () => {
 
     expect(omit(reduced, ['updateTime'])).toEqual(
       omit(shoot(state), ['updateTime']),
-    );
-  });
-
-  it('should flip the moon magnet when the action toggles the moon magnet', () => {
-    const state = createPlayingState();
-
-    const reduced = reduce(state, { type: 'TOGGLE_MOON_MAGNET' });
-
-    expect(omit(reduced, ['updateTime'])).toEqual(
-      omit(handleToggleMoonMagnet(state), ['updateTime']),
     );
   });
 

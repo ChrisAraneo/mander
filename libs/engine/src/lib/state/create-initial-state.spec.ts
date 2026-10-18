@@ -87,12 +87,6 @@ describe('createInitialState', () => {
     });
   });
 
-  it('should switch the moon magnet on when the level begins', () => {
-    const state = createInitialState(LEVEL, 0, []);
-
-    expect(state.isMoonMagnetOn).toBe(true);
-  });
-
   it('should list the gems of the level when the level holds gems', () => {
     const state = createInitialState(LEVEL, 0, []);
 

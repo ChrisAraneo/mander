@@ -14,7 +14,7 @@ export const computeTickHazards = ({
 }: TickPlayer): TickHazards =>
   chain(
     match(hasRespawned)
-      .with(true, () => createRespawnedTickHazards(state, moved))
+      .with(true, () => createRespawnedTickHazards(state))
       .otherwise(() => patchMovedTickHazards(state, moved, deltaSeconds)),
   )
     .thru((hazards): TickHazards => ({
@@ -27,7 +27,6 @@ export const computeTickHazards = ({
       flying: hazards.flying,
       fallingSpikes: hazards.fallingSpikes,
       fireballs: hazards.fireballs,
-      playerFireballs: hazards.playerFireballs,
       flyingBullets: hazards.flyingBullets,
     }))
     .value();

@@ -14,10 +14,4 @@ describe('createCountedArt', () => {
 
     expect(result).toEqual({ kind: 'BULLETS', count: 4 });
   });
-
-  it('should make fireball art for the count when the kind is fireballs', () => {
-    const result = createCountedArt('FIREBALLS', 2);
-
-    expect(result).toEqual({ kind: 'FIREBALLS', count: 2 });
-  });
 });

@@ -1,6 +1,5 @@
 import {
   BLUE_GEM,
-  BOOTS_OF_CLOUDS,
   BULLET,
   DOUBLE_HEART,
   DOUBLE_STAR,
@@ -8,15 +7,12 @@ import {
   HEART,
   type Item,
   type ItemEffect,
-  MOON_MAGNET,
   PINK_GEM,
   PURPLE_GEM,
   RED_GEM,
   STAR,
-  TITANIUM_HELMET,
   TRIPLE_HEART,
   TRIPLE_STAR,
-  VAMPIRE_SLAYER_BULLET_RAIN,
   YELLOW_GEM,
 } from '@mander/model';
 import { describe, expect, it } from 'vitest';
@@ -104,24 +100,8 @@ describe('getItemArt', () => {
     });
   });
 
-  it('should show the boots when the item is the boots of clouds', () => {
-    expect(getItemArt(BOOTS_OF_CLOUDS)).toEqual({ kind: 'BOOTS' });
-  });
-
-  it('should show the helmet when the item is the titanium helmet', () => {
-    expect(getItemArt(TITANIUM_HELMET)).toEqual({ kind: 'HELMET' });
-  });
-
   it('should show as many bullets as the effect gives when the item gives bullets', () => {
     expect(getItemArt(BULLET)).toEqual({ kind: 'BULLETS', count: 2 });
-    expect(getItemArt(VAMPIRE_SLAYER_BULLET_RAIN)).toEqual({
-      kind: 'BULLETS',
-      count: 9999,
-    });
-  });
-
-  it('should show as many fireballs as the effect gives when the item gives fireballs', () => {
-    expect(getItemArt(MOON_MAGNET)).toEqual({ kind: 'FIREBALLS', count: 2 });
   });
 
   it('should show as many hearts as the effect gives when an unlisted item gives hearts', () => {
@@ -129,18 +109,6 @@ describe('getItemArt', () => {
       kind: 'HEARTS',
       count: 5,
     });
-  });
-
-  it('should show the boots when an unlisted item wards off floor spikes', () => {
-    expect(
-      getItemArt(createEffectItem({ kind: 'WARD', hazard: 'FLOOR_SPIKE' })),
-    ).toEqual({ kind: 'BOOTS' });
-  });
-
-  it('should show the helmet when an unlisted item wards off ceiling spikes', () => {
-    expect(
-      getItemArt(createEffectItem({ kind: 'WARD', hazard: 'CEILING_SPIKE' })),
-    ).toEqual({ kind: 'HELMET' });
   });
 
   it('should show a red gem when an unlisted item only gives score', () => {

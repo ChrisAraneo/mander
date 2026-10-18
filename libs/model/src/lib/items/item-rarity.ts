@@ -1,1 +1,1 @@
-export type ItemRarity = 'COMMON' | 'RARE' | 'EPIC';
+export type ItemRarity = 'COMMON' | 'RARE';

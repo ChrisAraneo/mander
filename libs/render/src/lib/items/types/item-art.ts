@@ -4,7 +4,4 @@ export type ItemArt =
   | { kind: 'HEARTS'; count: number }
   | { kind: 'GEM'; colors: ShadeColors }
   | { kind: 'STARS'; count: number; colors: ShadeColors }
-  | { kind: 'BULLETS'; count: number }
-  | { kind: 'FIREBALLS'; count: number }
-  | { kind: 'BOOTS' }
-  | { kind: 'HELMET' };
+  | { kind: 'BULLETS'; count: number };

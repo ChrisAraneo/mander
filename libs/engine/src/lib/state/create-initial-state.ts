@@ -4,7 +4,6 @@ import { createCannons } from '../reducer/cannon/create-cannons';
 import { createEnemies } from '../reducer/enemy/create-enemies';
 import { createFallingSpikes } from '../reducer/falling-spike/create-falling-spikes';
 import { createFireballs } from '../reducer/fireball/create-fireballs';
-import { createPlayerFireballs } from '../reducer/fireball/create-player-fireballs';
 import { countStartingHearts } from '../reducer/player/count-starting-hearts';
 import { createPlayer } from '../reducer/player/create-player';
 import { countStartingStars } from '../reducer/use-star/count-starting-stars';
@@ -29,7 +28,6 @@ export const createInitialState = (
       cannonballs: [],
       fallingSpikes: createFallingSpikes(level),
       fireballs: createFireballs(level),
-      playerFireballs: createPlayerFireballs(inventory, player),
       bullets: [],
       ammo: countStartingAmmo(inventory),
       stars: countStartingStars(inventory),
@@ -39,7 +37,6 @@ export const createInitialState = (
       hasKey: false,
       isChestOpened: false,
       inventory,
-      isMoonMagnetOn: true,
       isNearChest: false,
       isNearPortal: false,
       time: 0,

@@ -24,5 +24,4 @@ export const serializeReplayAction = (action: RecordableAction): number[] =>
     .with({ type: 'RESTART' }, ({ type }) => [getActionCode(type)])
     .with({ type: 'USE_STAR' }, ({ type }) => [getActionCode(type)])
     .with({ type: 'SHOOT' }, ({ type }) => [getActionCode(type)])
-    .with({ type: 'TOGGLE_MOON_MAGNET' }, ({ type }) => [getActionCode(type)])
     .exhaustive();

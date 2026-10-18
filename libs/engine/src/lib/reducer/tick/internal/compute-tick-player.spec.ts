@@ -1,5 +1,4 @@
 import {
-  MOON_MAGNET,
   type Tile,
   TILE_AIR,
   TILE_CANNON,
@@ -42,7 +41,7 @@ const LEVEL = createLevel(['..c.....', '...v..f.', 's...e...', '########']);
 
 const DELTA_SECONDS = 0.02;
 
-const BASE_STATE = createInitialState(LEVEL, 0, [MOON_MAGNET]);
+const BASE_STATE = createInitialState(LEVEL, 0, []);
 
 const createStateWithDeath = (death: number | null): GameState => ({
   ...BASE_STATE,

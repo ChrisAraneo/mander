@@ -1,6 +1,14 @@
-import { type Level } from '@mander/model';
-import { SPIKE_ORIENTATIONS } from './consts';
-import { isOverlappingSpikeFacing } from './is-overlapping-spike-facing';
+import {
+  computeSpikeTriangles,
+  getSpikeOrientation,
+  getSpikeShape,
+  isSpike,
+  type Level,
+  TILE_SIZE,
+} from '@mander/model';
+import { some } from 'lodash-es';
+import { computeTileRange } from '../collision/compute-tile-range';
+import { isBoxHittingTriangle } from '../collision/is-box-hitting-triangle';
 
 export const isOverlappingSpike = (
   level: Level,
@@ -9,11 +17,26 @@ export const isOverlappingSpike = (
   boxWidth: number,
   boxHeight: number,
 ): boolean =>
-  isOverlappingSpikeFacing(
-    level,
-    boxLeft,
-    boxTop,
-    boxWidth,
-    boxHeight,
-    SPIKE_ORIENTATIONS,
+  some(computeTileRange(boxTop, boxHeight), (tileY) =>
+    some(
+      computeTileRange(boxLeft, boxWidth),
+      (tileX) =>
+        isSpike(level, tileX, tileY) &&
+        some(
+          computeSpikeTriangles(
+            tileX * TILE_SIZE,
+            tileY * TILE_SIZE,
+            getSpikeOrientation(level, tileX, tileY),
+            getSpikeShape(level, tileX, tileY),
+          ),
+          (triangle) =>
+            isBoxHittingTriangle(
+              boxLeft,
+              boxTop,
+              boxWidth,
+              boxHeight,
+              triangle,
+            ),
+        ),
+    ),
   );

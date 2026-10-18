@@ -1,4 +1,16 @@
-import { MOON_MAGNET, type Player, type Tile, TILE_AIR, TILE_CANNON, TILE_DIRT, TILE_ENEMY, TILE_FIREBALL, TILE_SPAWN, TILE_SPIKE_FALLING, chain } from '@mander/model';
+import {
+  RED_GEM,
+  type Player,
+  type Tile,
+  TILE_AIR,
+  TILE_CANNON,
+  TILE_DIRT,
+  TILE_ENEMY,
+  TILE_FIREBALL,
+  TILE_SPAWN,
+  TILE_SPIKE_FALLING,
+  chain,
+} from '@mander/model';
 import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
@@ -9,7 +21,6 @@ import { createCannons } from '../../cannon/create-cannons';
 import { createEnemies } from '../../enemy/create-enemies';
 import { createFallingSpikes } from '../../falling-spike/create-falling-spikes';
 import { createFireballs } from '../../fireball/create-fireballs';
-import { createPlayerFireballs } from '../../fireball/create-player-fireballs';
 import { createPlayer } from '../../player/create-player';
 import { patchRespawnedState } from './patch-respawned-state';
 
@@ -40,7 +51,7 @@ const LEVEL = createLevel([
 ]);
 
 const createState = (): GameState =>
-  chain(createInitialState(LEVEL, 0, [MOON_MAGNET]))
+  chain(createInitialState(LEVEL, 0, [RED_GEM]))
     .thru((initial): GameState => ({
       ...initial,
       player: {
@@ -58,7 +69,6 @@ const createState = (): GameState =>
       ],
       fallingSpikes: [],
       fireballs: [],
-      playerFireballs: [],
       bullets: [
         {
           position: { x: 120, y: 64 },
@@ -87,15 +97,6 @@ describe('patchRespawnedState', () => {
 
     expect(respawned.cannonballs).toEqual([]);
     expect(respawned.bullets).toEqual([]);
-  });
-
-  it('should bring the moons back around the respawned player when the player carries the magnet', () => {
-    const respawned = patchRespawnedState(createState());
-
-    expect(respawned.playerFireballs).toEqual(
-      createPlayerFireballs([MOON_MAGNET], createSpawnedPlayer(), true),
-    );
-    expect(respawned.playerFireballs).toHaveLength(2);
   });
 
   it('should leave the given state unchanged when the player respawns', () => {

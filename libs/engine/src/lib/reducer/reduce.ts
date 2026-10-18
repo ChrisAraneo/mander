@@ -15,7 +15,6 @@ import { handleRespawn } from './respawn/handle-respawn';
 import { handleRestart } from './restart/handle-restart';
 import { shoot } from './shoot/shoot';
 import { handleTick } from './tick/handle-tick';
-import { handleToggleMoonMagnet } from './toggle-moon-magnet/handle-toggle-moon-magnet';
 import type { Action } from './types/action';
 import { useStar } from './use-star/use-star';
 
@@ -37,9 +36,6 @@ export const reduce = (state: GameState, action: Action): GameState =>
         )
         .with({ type: 'USE_STAR' }, () => useStar(state))
         .with({ type: 'SHOOT' }, () => shoot(state))
-        .with({ type: 'TOGGLE_MOON_MAGNET' }, () =>
-          handleToggleMoonMagnet(state),
-        )
         .with({ type: 'CLOSE' }, () => handleClose(state))
         .with({ type: 'RESPAWN' }, () => handleRespawn(state))
         .with({ type: 'LOAD_LEVEL' }, ({ level, levelIndex }) =>

@@ -483,18 +483,6 @@ describe('generate', () => {
       '1AQ9H6T0WV20OY',
       '0LVWQBK19LQ4SH',
     ]);
-    expect(
-      map(world.levels, (level) => map(level.chestItems, (item) => item.id)),
-    ).toEqual([
-      ['FOUR_BULLETS', 'GREEN_GEM', 'TRIPLE_STAR'],
-      ['TWO_BULLETS', 'PURPLE_GEM', 'DOUBLE_STAR'],
-      ['BLUE_GEM', 'FOUR_BULLETS', 'STAR'],
-      ['STAR', 'DOUBLE_HEART', 'PINK_GEM'],
-      ['VAMPIRE_SLAYER_BULLET_RAIN'],
-      ['STAR', 'PURPLE_GEM', 'DOUBLE_HEART'],
-      ['DOUBLE_STAR', 'BULLET', 'DOUBLE_HEART'],
-      ['BULLET', 'STAR', 'YELLOW_GEM'],
-    ]);
   });
 
   it('should not change the old date when it deals a day', () => {

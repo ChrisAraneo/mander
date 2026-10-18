@@ -5,7 +5,6 @@ import type { ItemArt } from '../types/item-art';
 import { createCountedArt } from './create-counted-art';
 import { createGemArt } from './create-gem-art';
 import { createStarsArt } from './create-stars-art';
-import { createWardArt } from './create-ward-art';
 
 export const toEffectItemArt = (item: Item): ItemArt =>
   match(item.effect)
@@ -16,8 +15,4 @@ export const toEffectItemArt = (item: Item): ItemArt =>
     .with({ kind: 'BULLET' }, ({ amount }) =>
       createCountedArt('BULLETS', amount),
     )
-    .with({ kind: 'FIREBALL' }, ({ amount }) =>
-      createCountedArt('FIREBALLS', amount),
-    )
-    .with({ kind: 'WARD' }, ({ hazard }) => createWardArt(hazard))
     .exhaustive();

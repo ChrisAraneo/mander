@@ -8,6 +8,4 @@ export const getScoreAmount = (item: Item): number =>
     .with({ kind: 'SCORE' }, (effect) => effect.amount)
     .with({ kind: 'STAR' }, () => 0)
     .with({ kind: 'BULLET' }, () => 0)
-    .with({ kind: 'FIREBALL' }, () => 0)
-    .with({ kind: 'WARD' }, () => 0)
     .exhaustive(() => 0);

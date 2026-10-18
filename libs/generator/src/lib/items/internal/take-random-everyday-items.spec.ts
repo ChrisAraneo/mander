@@ -27,18 +27,6 @@ describe('takeRandomEverydayItems', () => {
     expect(size(uniq(map(cards, findChestType)))).toBe(3);
   });
 
-  it('should keep the gear out when it fills an everyday chest', () => {
-    expect(
-      map(
-        takeRandomEverydayItems(
-          ['COMMON', 'RARE', 'COMMON'],
-          createRandom('DAY-2'),
-        ),
-        findChestType,
-      ),
-    ).not.toContain('GEAR');
-  });
-
   it('should fill the chest the same way when the generator starts from the same seed', () => {
     expect(
       takeRandomEverydayItems(['COMMON', 'RARE'], createRandom('DAY-1')),

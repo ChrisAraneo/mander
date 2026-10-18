@@ -1,5 +1,4 @@
 import {
-  BOOTS_OF_CLOUDS,
   BULLET,
   DOUBLE_HEART,
   DOUBLE_STAR,
@@ -7,14 +6,11 @@ import {
   HEART,
   type Item,
   type ItemEffect,
-  MOON_MAGNET,
   PURPLE_GEM,
   RED_GEM,
   STAR,
-  TITANIUM_HELMET,
   TRIPLE_HEART,
   TRIPLE_STAR,
-  VAMPIRE_SLAYER_BULLET_RAIN,
 } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
@@ -91,34 +87,10 @@ describe('drawItem', () => {
     expect(hashDrawnItem(FOUR_BULLETS, SIZE)).toBe('136:19UPO481XV0BYU');
   });
 
-  it('should draw a rain of nine bullets when the item gives a great many', () => {
-    expect(hashDrawnItem(VAMPIRE_SLAYER_BULLET_RAIN, SIZE)).toBe(
-      '153:07POWN813MH234',
-    );
-  });
-
   it('should draw a single bullet when the effect gives no bullets', () => {
     expect(
       hashDrawnItem(createEffectItem({ kind: 'BULLET', amount: 0 }), SIZE),
     ).toBe('17:0G4V1RS1PPUP48');
-  });
-
-  it('should draw two circling fireballs when the item is the moon magnet', () => {
-    expect(hashDrawnItem(MOON_MAGNET, SIZE)).toBe('48:0WN4IKY1GBTW1S');
-  });
-
-  it('should draw three circling fireballs when the effect gives three', () => {
-    expect(
-      hashDrawnItem(createEffectItem({ kind: 'FIREBALL', amount: 3 }), SIZE),
-    ).toBe('72:1YMWF8T0R5EG1U');
-  });
-
-  it('should draw the boots when the item is the boots of clouds', () => {
-    expect(hashDrawnItem(BOOTS_OF_CLOUDS, SIZE)).toBe('54:1MWNJKL04XEKOL');
-  });
-
-  it('should draw the helmet when the item is the titanium helmet', () => {
-    expect(hashDrawnItem(TITANIUM_HELMET, SIZE)).toBe('44:19G89PT0YMPUEM');
   });
 
   it('should draw a red gem when an unlisted item only gives score', () => {

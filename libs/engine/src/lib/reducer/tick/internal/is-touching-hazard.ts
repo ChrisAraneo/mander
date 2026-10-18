@@ -4,8 +4,7 @@ import type { GameState } from '../../../types/game-state';
 import { isTouchingEnemy } from '../../enemy/is-touching-enemy';
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../../player/consts';
 import { isAlive } from '../../player/is-alive';
-import { isOverlappingSpikeFacing } from '../../spike/is-overlapping-spike-facing';
-import { findBitingSpikes } from '../../ward/find-biting-spikes';
+import { isOverlappingSpike } from '../../spike/is-overlapping-spike';
 import { isTouchingAnyFallingSpike } from './is-touching-any-falling-spike';
 
 export const isTouchingHazard = (
@@ -16,15 +15,14 @@ export const isTouchingHazard = (
   hits: Cannonball[],
   isBurned: boolean,
 ): boolean =>
-  isOverlappingSpikeFacing(
+  isOverlappingSpike(
     state.level,
     player.position.x,
     player.position.y,
     PLAYER_WIDTH,
     PLAYER_HEIGHT,
-    findBitingSpikes(state.inventory),
   ) ||
-  isTouchingAnyFallingSpike(state, player, fallingSpikes) ||
+  isTouchingAnyFallingSpike(player, fallingSpikes) ||
   some(enemies, (enemy) => isAlive(enemy) && isTouchingEnemy(player, enemy)) ||
   size(hits) > 0 ||
   isBurned;

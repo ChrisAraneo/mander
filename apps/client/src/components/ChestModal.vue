@@ -1,41 +1,21 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { match } from 'ts-pattern';
 import type { Item } from '@mander/model';
 import ItemArt from './ItemArt.vue';
 
 const props = defineProps<{ items: Item[] }>();
 defineEmits<{ choose: [index: number]; close: [] }>();
 
-const heading = computed(() =>
-  match(props.items.length === 1)
-    .with(true, () => 'Something epic is lying inside…')
-    .otherwise(() => 'The chest creaks open…'),
-);
-
-const prompt = computed(() =>
-  match(props.items.length === 1)
-    .with(
-      true,
-      () => 'One card, nothing beside it — click it or press 1. Esc leaves it.',
-    )
-    .otherwise(
-      () =>
-        `Take one of the ${props.items.length} — click it or press its number. Esc leaves them.`,
-    ),
-);
-
-const leaveLabel = computed(() =>
-  match(props.items.length === 1)
-    .with(true, () => 'Leave it for now (Esc)')
-    .otherwise(() => 'Leave them for now (Esc)'),
+const prompt = computed(
+  () =>
+    `Take one of the ${props.items.length} — click it or press its number. Esc leaves them.`,
 );
 </script>
 
 <template>
   <div class="overlay">
     <div class="panel chest-panel">
-      <h2>{{ heading }}</h2>
+      <h2>The chest creaks open…</h2>
       <p>{{ prompt }}</p>
 
       <div class="cards">
@@ -54,7 +34,7 @@ const leaveLabel = computed(() =>
       </div>
 
       <button class="ghost" @click="$emit('close')">
-        {{ leaveLabel }}
+        Leave them for now (Esc)
       </button>
     </div>
   </div>
@@ -113,16 +93,6 @@ const leaveLabel = computed(() =>
   box-shadow: 0 8px 24px rgba(127, 195, 255, 0.25);
 }
 
-.card.epic {
-  border-color: #6a4a9e;
-}
-
-.card.epic:hover,
-.card.epic:focus-visible {
-  border-color: #c9a2ff;
-  box-shadow: 0 8px 24px rgba(201, 162, 255, 0.3);
-}
-
 .slot {
   align-self: center;
   width: 20px;
@@ -145,10 +115,6 @@ const leaveLabel = computed(() =>
 
 .card.rare .rarity {
   color: #7fc3ff;
-}
-
-.card.epic .rarity {
-  color: #c9a2ff;
 }
 
 .name {

@@ -13,12 +13,10 @@ import type { GameStatus } from '../../../../types/game-status';
 export interface TickHarm {
   state: GameState;
   deltaSeconds: number;
-  isPlayerAlive: boolean;
   cannons: Cannon[];
   flying: Cannonball[];
   fallingSpikes: FallingSpike[];
   fireballs: Fireball[];
-  playerFireballs: Fireball[];
   flyingBullets: Bullet[];
   afterStomps: Enemy[];
   gored: Enemy[];

@@ -1,4 +1,14 @@
-import { MOON_MAGNET, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_GEM, TILE_KEY, TILE_PORTAL, TILE_SPAWN, chain } from '@mander/model';
+import {
+  type Tile,
+  TILE_AIR,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_GEM,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SPAWN,
+  chain,
+} from '@mander/model';
 import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
@@ -53,7 +63,7 @@ const NEAR_CHEST_LEFT = 200;
 
 const NEAR_PORTAL_LEFT = 290;
 
-const BASE_STATE = createInitialState(LEVEL, 0, [MOON_MAGNET]);
+const BASE_STATE = createInitialState(LEVEL, 0, []);
 
 const createState = (overrides: Partial<GameState>): GameState => ({
   ...BASE_STATE,
@@ -223,7 +233,6 @@ describe('patchTickState', () => {
     expect(state.cannonballs).toBe(entities.cannonballs);
     expect(state.fallingSpikes).toBe(entities.unshot);
     expect(state.fireballs).toBe(entities.fireballs);
-    expect(state.playerFireballs).toBe(entities.playerFireballs);
     expect(state.bullets).toBe(entities.bullets);
   });
 

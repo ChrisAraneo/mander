@@ -26,11 +26,4 @@ describe('getFireballPosition', () => {
       6,
     );
   });
-
-  it('should place the fireball at the given distance when it is given a radius', () => {
-    const position = getFireballPosition(createFireballAt(Math.PI / 2), 10);
-
-    expect(position.x).toBeCloseTo(100, 6);
-    expect(position.y).toBeCloseTo(60, 6);
-  });
 });

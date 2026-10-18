@@ -17,7 +17,6 @@ import { createChestStep } from '../chest/create-chest-step';
 import { findChestRectangle } from '../chest/find-chest-rectangle';
 import { createEnemyStep } from '../enemies/create-enemy-step';
 import { createFireballStep } from '../fireball/create-fireball-step';
-import { createPlayerFireballStep } from '../fireball/create-player-fireball-step';
 import { getPlayerFocus } from '../focus/get-player-focus';
 import { createGemStep } from '../gem/create-gem-step';
 import { HILL_LAYERS } from '../hill/consts';
@@ -96,9 +95,6 @@ export const renderGame = (
         createEachStep(state.cannonballs, createCannonballStep),
         createEachStep(state.fireballs, (fireball) =>
           createFireballStep(fireball, state.time),
-        ),
-        createEachStep(state.playerFireballs, (fireball) =>
-          createPlayerFireballStep(fireball, state.time),
         ),
         createEachStep(state.bullets, createBulletStep),
         drawRestore,

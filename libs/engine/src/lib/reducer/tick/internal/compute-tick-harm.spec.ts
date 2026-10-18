@@ -1,5 +1,4 @@
 import {
-  MOON_MAGNET,
   type Tile,
   TILE_AIR,
   TILE_CANNON,
@@ -48,7 +47,7 @@ const LEVEL = createLevel(['..c.....', '...v..f.', 's...e...', '########']);
 
 const DELTA_SECONDS = 0.02;
 
-const BASE_STATE = createInitialState(LEVEL, 0, [MOON_MAGNET]);
+const BASE_STATE = createInitialState(LEVEL, 0, []);
 
 const createStateWithDeath = (death: number | null): GameState => ({
   ...BASE_STATE,
@@ -148,14 +147,6 @@ describe('computeTickHarm', () => {
     expect(harm.deltaSeconds).toBe(tick.deltaSeconds);
   });
 
-  it('should pass on whether the player is alive when the player is harmed', () => {
-    const tick = createTickStomps(null);
-
-    const harm = computeTickHarm(tick);
-
-    expect(harm.isPlayerAlive).toBe(tick.isPlayerAlive);
-  });
-
   it('should pass the same cannons on when the player is harmed', () => {
     const tick = createTickStomps(null);
 
@@ -186,14 +177,6 @@ describe('computeTickHarm', () => {
     const harm = computeTickHarm(tick);
 
     expect(harm.fireballs).toBe(tick.fireballs);
-  });
-
-  it('should pass the same fireballs of the player on when the player is harmed', () => {
-    const tick = createTickStomps(null);
-
-    const harm = computeTickHarm(tick);
-
-    expect(harm.playerFireballs).toBe(tick.playerFireballs);
   });
 
   it('should pass the same flying bullets on when the player is harmed', () => {

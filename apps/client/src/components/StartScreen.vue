@@ -166,7 +166,7 @@ const formatPlayedWhen = (run: RunRecord): string =>
 
       <p class="controls">
         A / D move · W jump · E interact · Space star · X shoot · Esc close ·
-        Backspace respawn · M moons
+        Backspace respawn
       </p>
     </div>
   </div>

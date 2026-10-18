@@ -1,5 +1,4 @@
 import {
-  MOON_MAGNET,
   type Tile,
   TILE_AIR,
   TILE_CANNON,
@@ -18,7 +17,6 @@ import type { GameLevel } from '../../../types/game-level';
 import type { GameState } from '../../../types/game-state';
 import { fireCannonball } from '../../cannon/fire-cannonball';
 import { crushEnemies } from '../../enemy/crush-enemies';
-import { burnEnemies } from '../../fireball/burn-enemies';
 import { computeTickEntities } from './compute-tick-entities';
 import { computeTickHarm } from './compute-tick-harm';
 import { computeTickHazards } from './compute-tick-hazards';
@@ -57,7 +55,7 @@ const LEVEL = createLevel([
 
 const DELTA_SECONDS = 0.02;
 
-const BASE_STATE = createInitialState(LEVEL, 0, [MOON_MAGNET]);
+const BASE_STATE = createInitialState(LEVEL, 0, []);
 
 const createStateWithDeath = (death: number | null): GameState => ({
   ...BASE_STATE,
@@ -85,23 +83,11 @@ const createTickVolley = (death: number | null): TickVolley =>
   );
 
 describe('computeTickEntities', () => {
-  it('should burn and crush the shot enemies when the player is alive', () => {
+  it('should crush the shot enemies when the entities are updated', () => {
     const tick = createTickVolley(null);
 
     const entities = computeTickEntities(tick);
 
-    expect(tick.isPlayerAlive).toBe(true);
-    expect(entities.enemies).toEqual(
-      crushEnemies(burnEnemies(tick.playerFireballs, tick.shot, DELTA_SECONDS)),
-    );
-  });
-
-  it('should only crush the shot enemies when the player is dying', () => {
-    const tick = createTickVolley(0.1);
-
-    const entities = computeTickEntities(tick);
-
-    expect(tick.isPlayerAlive).toBe(false);
     expect(entities.enemies).toEqual(crushEnemies(tick.shot));
   });
 
@@ -175,14 +161,6 @@ describe('computeTickEntities', () => {
     const entities = computeTickEntities(tick);
 
     expect(entities.fireballs).toBe(tick.fireballs);
-  });
-
-  it('should pass the same fireballs of the player on when the entities are updated', () => {
-    const tick = createTickVolley(null);
-
-    const entities = computeTickEntities(tick);
-
-    expect(entities.playerFireballs).toBe(tick.playerFireballs);
   });
 
   it('should pass the same player on when the entities are updated', () => {

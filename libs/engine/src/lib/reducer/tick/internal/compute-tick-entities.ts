@@ -2,7 +2,6 @@ import { chain, type Point } from '@mander/model';
 import { filter, includes } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { crushEnemies } from '../../enemy/crush-enemies';
-import { burnEnemies } from '../../fireball/burn-enemies';
 import { isAlive } from '../../player/is-alive';
 import { filterLeftBehind } from './filter-left-behind';
 import type { TickEntities } from './types/tick-entities';
@@ -11,11 +10,9 @@ import type { TickVolley } from './types/tick-volley';
 export const computeTickEntities = ({
   state,
   deltaSeconds,
-  isPlayerAlive,
   cannons,
   flying,
   fireballs,
-  playerFireballs,
   hits,
   player,
   deaths,
@@ -26,11 +23,7 @@ export const computeTickEntities = ({
   level,
 }: TickVolley): TickEntities =>
   chain({
-    enemies: crushEnemies(
-      match(isPlayerAlive)
-        .with(true, () => burnEnemies(playerFireballs, shot, deltaSeconds))
-        .otherwise(() => shot),
-    ),
+    enemies: crushEnemies(shot),
     cannonballs: filter(flying, (cannonball) => !includes(hits, cannonball)),
     canReach: isAlive(player),
   })
@@ -39,7 +32,6 @@ export const computeTickEntities = ({
       deltaSeconds,
       cannons,
       fireballs,
-      playerFireballs,
       player,
       deaths,
       status,

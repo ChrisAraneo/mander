@@ -15,7 +15,6 @@ export const computeTickStomps = ({
   flying,
   fallingSpikes,
   fireballs,
-  playerFireballs,
   flyingBullets,
 }: TickHazards): TickStomps =>
   chain(
@@ -42,7 +41,6 @@ export const computeTickStomps = ({
       flying,
       fallingSpikes,
       fireballs,
-      playerFireballs,
       flyingBullets,
       bounced: bounce.player,
       afterStomps: bounce.enemies,

@@ -13,6 +13,5 @@ export interface TickHazardSet {
   flying: Cannonball[];
   fallingSpikes: FallingSpike[];
   fireballs: Fireball[];
-  playerFireballs: Fireball[];
   flyingBullets: Bullet[];
 }

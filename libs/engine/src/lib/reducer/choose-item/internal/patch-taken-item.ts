@@ -1,7 +1,6 @@
 import { type Item, chain } from '@mander/model';
 import { concat } from 'lodash-es';
 import type { GameState } from '../../../types/game-state';
-import { createPlayerFireballs } from '../../fireball/create-player-fireballs';
 import { createBasePlayerVelocity } from '../../player/create-base-player-velocity';
 import { getBulletsAmount } from '../get-bullets-amount';
 import { getScoreAmount } from '../get-score-amount';
@@ -19,11 +18,6 @@ export const patchTakenItem = (state: GameState, item: Item): GameState =>
       isChestOpened: true,
       isNearChest: false,
       inventory,
-      playerFireballs: createPlayerFireballs(
-        inventory,
-        state.player,
-        state.isMoonMagnetOn,
-      ),
       score: state.score + getScoreAmount(item),
       ammo: state.ammo + getBulletsAmount(item),
       stars: state.stars + getStarsAmount(item),

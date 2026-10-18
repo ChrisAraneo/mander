@@ -17,7 +17,6 @@ export interface TickStomps {
   flying: Cannonball[];
   fallingSpikes: FallingSpike[];
   fireballs: Fireball[];
-  playerFireballs: Fireball[];
   flyingBullets: Bullet[];
   bounced: Player;
   afterStomps: Enemy[];

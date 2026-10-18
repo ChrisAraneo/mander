@@ -10,8 +10,6 @@ import {
   BLUE_GEM,
   PURPLE_GEM,
   PINK_GEM,
-  BOOTS_OF_CLOUDS,
-  TITANIUM_HELMET,
   type Item,
 } from '@mander/model';
 import {
@@ -41,8 +39,6 @@ const ART_BY_ITEM_ID: Readonly<Partial<Record<string, ItemArt>>> =
     [BLUE_GEM.id]: createGemArt(BLUE_GEM_COLORS),
     [PURPLE_GEM.id]: createGemArt(PURPLE_GEM_COLORS),
     [PINK_GEM.id]: createGemArt(PINK_GEM_COLORS),
-    [BOOTS_OF_CLOUDS.id]: { kind: 'BOOTS' },
-    [TITANIUM_HELMET.id]: { kind: 'HELMET' },
   });
 
 export const getItemArt = (item: Item): ItemArt =>

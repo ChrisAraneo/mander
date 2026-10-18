@@ -1,4 +1,14 @@
-import type { Bullet, Cannon, Cannonball, Enemy, FallingSpike, Fireball, Item, Player, Point } from '@mander/model';
+import type {
+  Bullet,
+  Cannon,
+  Cannonball,
+  Enemy,
+  FallingSpike,
+  Fireball,
+  Item,
+  Player,
+  Point,
+} from '@mander/model';
 import type { GameLevel } from './game-level';
 import type { GameStatus } from './game-status';
 import type { InputState } from './input-state';
@@ -12,7 +22,6 @@ export interface GameState {
   cannonballs: Cannonball[];
   fallingSpikes: FallingSpike[];
   fireballs: Fireball[];
-  playerFireballs: Fireball[];
   bullets: Bullet[];
   ammo: number;
   stars: number;
@@ -22,7 +31,6 @@ export interface GameState {
   hasKey: boolean;
   isChestOpened: boolean;
   inventory: Item[];
-  isMoonMagnetOn: boolean;
   isNearChest: boolean;
   isNearPortal: boolean;
   time: number;

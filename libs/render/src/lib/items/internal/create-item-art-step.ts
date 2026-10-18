@@ -1,11 +1,8 @@
 import { match } from 'ts-pattern';
-import { createBootStep } from '../../gear/create-boot-step';
-import { createHelmetStep } from '../../gear/create-helmet-step';
 import { createGemShapeStep } from '../../gem-shape/create-gem-shape-step';
 import type { CanvasStep } from '../../types/canvas-step';
 import type { ItemArt } from '../types/item-art';
 import { createItemBulletsStep } from './create-item-bullets-step';
-import { createItemFireballsStep } from './create-item-fireballs-step';
 import { createItemHeartsStep } from './create-item-hearts-step';
 import { createItemStarsStep } from './create-item-stars-step';
 
@@ -31,9 +28,4 @@ export const createItemArtStep = (art: ItemArt, size: number): CanvasStep =>
     .with({ kind: 'BULLETS' }, ({ count }) =>
       createItemBulletsStep(count, size),
     )
-    .with({ kind: 'FIREBALLS' }, ({ count }) =>
-      createItemFireballsStep(count, size),
-    )
-    .with({ kind: 'BOOTS' }, () => createBootStep(0, 0, size))
-    .with({ kind: 'HELMET' }, () => createHelmetStep(0, 0, size))
     .exhaustive();

@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
 import { drawRecorded } from '../../../test/draw-recorded';
-import { hashRecorded } from '../../../test/hash-recorded';
 import { createItemBulletsStep } from './create-item-bullets-step';
 
 describe('createItemBulletsStep', () => {
@@ -44,11 +43,5 @@ describe('createItemBulletsStep', () => {
       'arc(37.5467, 36.2667, 3.04, 0, 6.2832)',
       'fill()',
     ]);
-  });
-
-  it('should draw the rain of nine bullets when the count is very large', () => {
-    const fingerprint = hashRecorded(createItemBulletsStep(9999, 64));
-
-    expect(fingerprint).toBe('153:07POWN813MH234');
   });
 });

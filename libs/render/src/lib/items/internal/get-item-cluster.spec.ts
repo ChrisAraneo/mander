@@ -39,10 +39,4 @@ describe('getItemCluster', () => {
 
     expect(result).toBe(0.13);
   });
-
-  it('should give the rain of nine when the count is very large', () => {
-    const result = getItemCluster(BULLET_CLUSTERS, 9999).scale;
-
-    expect(result).toBe(0.1);
-  });
 });

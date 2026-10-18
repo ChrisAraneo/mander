@@ -15,9 +15,9 @@ describe('getActionCode', () => {
     expect(code).toBe(7);
   });
 
-  it('should give fourteen when the action is toggling the moon magnet', () => {
-    const code = getActionCode('TOGGLE_MOON_MAGNET');
+  it('should give thirteen when the action is shooting', () => {
+    const code = getActionCode('SHOOT');
 
-    expect(code).toBe(14);
+    expect(code).toBe(13);
   });
 });

@@ -3,7 +3,6 @@ import type { GameState } from '../../../types/game-state';
 import { advanceBullets } from '../../bullet/advance-bullets';
 import { advanceFallingSpikes } from '../../falling-spike/advance-falling-spikes';
 import { advanceFireballs } from '../../fireball/advance-fireballs';
-import { advancePlayerFireballs } from '../../fireball/advance-player-fireballs';
 import { patchMovedBarrage } from './patch-moved-barrage';
 import { patchMovedEnemies } from './patch-moved-enemies';
 import type { TickHazardSet } from './types/tick-hazard-set';
@@ -28,11 +27,6 @@ export const patchMovedTickHazards = (
         deltaSeconds,
       ),
       fireballs: advanceFireballs(state.fireballs, deltaSeconds),
-      playerFireballs: advancePlayerFireballs(
-        state.playerFireballs,
-        player,
-        deltaSeconds,
-      ),
       flyingBullets: advanceBullets(state.level, state.bullets, deltaSeconds),
     }))
     .value();

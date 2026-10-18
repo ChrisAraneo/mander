@@ -3,7 +3,7 @@ import {
   FOUR_BULLETS,
   HEART,
   type Item,
-  MOON_MAGNET,
+  RED_GEM,
   STAR,
 } from '@mander/model';
 import { match, P } from 'ts-pattern';
@@ -28,7 +28,7 @@ describe('countStartingAmmo', () => {
   });
 
   it('should count only the bullet items when the inventory also holds other items', () => {
-    const inventory = [STAR, BULLET, HEART, MOON_MAGNET];
+    const inventory = [STAR, BULLET, HEART, RED_GEM];
 
     const ammo = countStartingAmmo(inventory);
 
@@ -36,7 +36,7 @@ describe('countStartingAmmo', () => {
   });
 
   it('should give no bullets when the inventory holds only other items', () => {
-    const inventory = [STAR, HEART, MOON_MAGNET];
+    const inventory = [STAR, HEART, RED_GEM];
 
     const ammo = countStartingAmmo(inventory);
 

@@ -1,17 +1,10 @@
-import { createPlayerFireballs } from '@mander/engine';
-import {
-  type Fireball,
-  MOON_MAGNET,
-  type Player,
-  TILE_SIZE,
-} from '@mander/model';
-import { filter, find, last, map, split, startsWith, trimEnd } from 'lodash-es';
+import type { Fireball } from '@mander/model';
+import { filter, last, map, split, startsWith, trimEnd } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { drawRecorded } from '../../test/draw-recorded';
 import { EMBER_FIREBALL } from './consts';
 import { createFireballStep } from './create-fireball-step';
-import { createPlayerFireballStep } from './create-player-fireball-step';
 
 const CLOCKWISE_FIREBALL: Fireball = {
   spin: 'CLOCKWISE',
@@ -25,26 +18,11 @@ const ANTICLOCKWISE_FIREBALL: Fireball = {
   angle: 1.2,
 };
 
-const STANDING: Player = {
-  position: { x: 4 * TILE_SIZE, y: 2 * TILE_SIZE },
-  velocity: { x: { current: 0, max: 0 }, y: { current: 0, max: 0 } },
-  hearts: { value: 3 },
-  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
-  statuses: {
-    isFacingRight: true,
-    isGrounded: true,
-    isJumpQueued: false,
-  },
-};
-
 const filterStopColours = (calls: string[]): string[] =>
   map(
     filter(calls, (call) => startsWith(call, 'addColorStop(')),
     (call) => trimEnd(last(split(call, ', ')), ')'),
   );
-
-const findTranslation = (calls: string[]): string | undefined =>
-  find(calls, (call) => startsWith(call, 'translate('));
 
 describe('createFireballStep', () => {
   it('should draw the ember fireball on its orbit when it spins clockwise', () => {
@@ -115,17 +93,5 @@ describe('createFireballStep', () => {
         drawRecorded(createFireballStep(CLOCKWISE_FIREBALL, 0)),
       ),
     ).toEqual([EMBER_FIREBALL.core, EMBER_FIREBALL.flame, EMBER_FIREBALL.edge]);
-  });
-
-  it('should keep the fireball out at its own orbit when it is bolted to the level', () => {
-    const [circlingPlayer] = createPlayerFireballs([MOON_MAGNET], STANDING);
-
-    expect(
-      findTranslation(drawRecorded(createFireballStep(CLOCKWISE_FIREBALL, 0))),
-    ).not.toEqual(
-      findTranslation(
-        drawRecorded(createPlayerFireballStep(circlingPlayer, 0)),
-      ),
-    );
   });
 });

@@ -1,7 +1,6 @@
 import {
   type Bullet,
   type Cannonball,
-  MOON_MAGNET,
   type Player,
   type Tile,
   TILE_AIR,
@@ -21,7 +20,6 @@ import type { GameState } from '../../../types/game-state';
 import { advanceBullets } from '../../bullet/advance-bullets';
 import { advanceFallingSpikes } from '../../falling-spike/advance-falling-spikes';
 import { advanceFireballs } from '../../fireball/advance-fireballs';
-import { advancePlayerFireballs } from '../../fireball/advance-player-fireballs';
 import { patchMovedBarrage } from './patch-moved-barrage';
 import { patchMovedEnemies } from './patch-moved-enemies';
 import { patchMovedTickHazards } from './patch-moved-tick-hazards';
@@ -60,13 +58,13 @@ const createBullet = (): Bullet => ({
 });
 
 const createState = (): GameState => ({
-  ...createInitialState(LEVEL, 0, [MOON_MAGNET]),
+  ...createInitialState(LEVEL, 0, []),
   cannonballs: [createCannonball()],
   bullets: [createBullet()],
 });
 
 const createMovedPlayer = (): Player => ({
-  ...createInitialState(LEVEL, 0, [MOON_MAGNET]).player,
+  ...createInitialState(LEVEL, 0, []).player,
   position: { x: 120, y: 32 },
 });
 
@@ -88,11 +86,6 @@ describe('patchMovedTickHazards', () => {
         DELTA_SECONDS,
       ),
       fireballs: advanceFireballs(state.fireballs, DELTA_SECONDS),
-      playerFireballs: advancePlayerFireballs(
-        state.playerFireballs,
-        player,
-        DELTA_SECONDS,
-      ),
       flyingBullets: advanceBullets(LEVEL, state.bullets, DELTA_SECONDS),
     });
   });

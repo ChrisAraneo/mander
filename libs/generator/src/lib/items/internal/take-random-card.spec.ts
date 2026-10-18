@@ -1,23 +1,11 @@
 import { createRandom } from '@mander/engine';
-import { map, size, times, uniq } from 'lodash-es';
+import { size, times, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { findChestType } from './find-chest-type';
 import { takeRandomCard } from './take-random-card';
 
 describe('takeRandomCard', () => {
-  it('should pick a card of a type that holds the rarity when one is left', () => {
-    times(20, (index) => {
-      const { picked } = takeRandomCard(
-        { picked: [], typesLeft: ['GEAR', 'HEART'] },
-        'RARE',
-        createRandom(`DAY-${index}`),
-      );
-
-      expect(map(picked, findChestType), `day ${index}`).toEqual(['HEART']);
-    });
-  });
-
   it('should take the type of the card out of the types left when it picks the card', () => {
     const { picked, typesLeft } = takeRandomCard(
       { picked: [], typesLeft: ['GEM', 'HEART', 'STAR'] },

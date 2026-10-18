@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import {
-  countStartingFireballs,
-  type GameState,
-  hasMoonMagnet,
-  isWarded,
-} from '@mander/engine';
+import type { GameState } from '@mander/engine';
 import { chain } from '@mander/model';
 import { range } from 'lodash-es';
 import { match } from 'ts-pattern';
@@ -33,36 +28,6 @@ const hearts = computed(() =>
 const stars = computed(() => props.state.stars);
 
 const ammo = computed(() => props.state.ammo);
-
-const hasBoots = computed(() => isWarded(props.state.inventory, 'FLOOR_SPIKE'));
-
-const hasHelmet = computed(() =>
-  isWarded(props.state.inventory, 'CEILING_SPIKE'),
-);
-
-const hasMoons = computed(() => hasMoonMagnet(props.state.inventory));
-
-const moons = computed(() => countStartingFireballs(props.state.inventory));
-
-const areMoonsOn = computed(() => props.state.isMoonMagnetOn);
-
-const moonsLabel = computed(() =>
-  match(areMoonsOn.value)
-    .with(true, () => `\u{1F319} ${moons.value} Moons`)
-    .otherwise(() => '\u{1F319} Moons off'),
-);
-
-const moonsTitle = computed(() =>
-  match(areMoonsOn.value)
-    .with(
-      true,
-      () =>
-        'Moon Magnet — moons circle you and burn the enemies they sweep through (M to call them off)',
-    )
-    .otherwise(
-      () => 'Moon Magnet — the moons are called off (M to bring them back)',
-    ),
-);
 
 const shieldSeconds = computed(() => props.state.player.timers.invincibility);
 
@@ -109,25 +74,6 @@ const isDebugShown = isDebug();
         class="chip ammo"
         title="Press X or / to fire a bullet at the enemies"
         >● {{ ammo }} · X</span
-      >
-      <span
-        v-if="hasBoots"
-        class="chip gear"
-        title="Boots of Clouds — floor spikes cannot bite"
-        >☁ Boots</span
-      >
-      <span
-        v-if="hasHelmet"
-        class="chip gear"
-        title="Titanium Helmet — ceiling spikes cannot bite"
-        >⛑ Helmet</span
-      >
-      <span
-        v-if="hasMoons"
-        class="chip gear"
-        :class="{ muted: !areMoonsOn }"
-        :title="moonsTitle"
-        >{{ moonsLabel }}</span
       >
       <span
         v-if="shieldSeconds > 0"
@@ -223,16 +169,6 @@ const isDebugShown = isDebug();
 .ammo {
   color: #7be8ff;
   border-color: #2e5f88;
-}
-
-.gear {
-  color: #c9a2ff;
-  border-color: #6a4a9e;
-}
-
-.gear.muted {
-  color: #7c6a95;
-  border-color: #453763;
 }
 
 .shield {

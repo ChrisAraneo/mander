@@ -6,11 +6,10 @@ import { toSpinDirection } from './internal/to-spin-direction';
 export const stepFireball = (
   fireball: Fireball,
   deltaSeconds: number,
-  angularSpeed = FIREBALL_ANGULAR_SPEED,
 ): Fireball => ({
   ...fireball,
   angle: computeWrappedAngle(
     fireball.angle +
-      toSpinDirection(fireball.spin) * angularSpeed * deltaSeconds,
+      toSpinDirection(fireball.spin) * FIREBALL_ANGULAR_SPEED * deltaSeconds,
   ),
 });

@@ -19,6 +19,5 @@ export interface TickHazards {
   flying: Cannonball[];
   fallingSpikes: FallingSpike[];
   fireballs: Fireball[];
-  playerFireballs: Fireball[];
   flyingBullets: Bullet[];
 }
