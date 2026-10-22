@@ -1,6 +1,6 @@
 import type { Tile } from '@mander/model';
 
-export interface CannonArming {
+export interface FireballRemovalRate {
   tiles: Tile[][];
-  armed: boolean;
+  rate: number;
 }

@@ -22,7 +22,6 @@ import { match, P } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
 import {
-  FIRST_CANNON_LEVEL,
   FIRST_HARD_LEVEL,
   LEVELS_PER_DAY,
   MIRRORED_LEVELS,
@@ -38,6 +37,8 @@ interface Run {
   spawn: Point | null;
   portal: Point | null;
 }
+
+const FIRST_ARMED_LEVEL = 5;
 
 const GEMS_A_CLIMB = 10;
 
@@ -182,7 +183,7 @@ describe('generate', () => {
 
   it('should hold the cannons back when the level is before the fifth', () => {
     const early = flatMap(WORLDS, (world) =>
-      flatMap(times(FIRST_CANNON_LEVEL - 1), (index) =>
+      flatMap(times(FIRST_ARMED_LEVEL - 1), (index) =>
         findCannonTiles(world.levels[index]),
       ),
     );

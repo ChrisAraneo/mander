@@ -1,16 +1,17 @@
 import { HORNED_ENEMY_CHANCE } from '@mander/engine';
-import { match, P } from 'ts-pattern';
-import {
-  FIRST_HORNED_ENEMY_LEVEL,
-  FIRST_MIXED_ENEMY_LEVEL,
-  NO_HORNED_ENEMIES,
-  ONLY_HORNED_ENEMIES,
-} from '../../consts';
 
-const { number } = P;
+const HORNED_ENEMY_CHANCES: readonly number[] = Object.freeze([
+  0,
+  0,
+  HORNED_ENEMY_CHANCE,
+  HORNED_ENEMY_CHANCE,
+  HORNED_ENEMY_CHANCE,
+  1,
+  1,
+  1,
+]);
+
+const NO_HORNED_ENEMIES = 0;
 
 export const getHornedEnemyChance = (levelNumber: number): number =>
-  match(levelNumber)
-    .with(number.gte(FIRST_HORNED_ENEMY_LEVEL), () => ONLY_HORNED_ENEMIES)
-    .with(number.gte(FIRST_MIXED_ENEMY_LEVEL), () => HORNED_ENEMY_CHANCE)
-    .otherwise(() => NO_HORNED_ENEMIES);
+  HORNED_ENEMY_CHANCES[levelNumber - 1] ?? NO_HORNED_ENEMIES;

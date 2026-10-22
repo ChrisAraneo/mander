@@ -9,28 +9,28 @@ const LEVEL: Tile[][] = [
 ];
 
 describe('filterFireballCells', () => {
-  it('should give the spot of every fireball when they are out', () => {
-    expect(filterFireballCells({ tiles: LEVEL, lit: false }).cells).toEqual([
+  it('should give the spot of every fireball when the grid holds some', () => {
+    expect(filterFireballCells({ tiles: LEVEL, rate: 1 }).cells).toEqual([
       { row: 0, column: 1 },
       { row: 1, column: 0 },
     ]);
   });
 
-  it('should give no spots when the fireballs are lit', () => {
-    expect(filterFireballCells({ tiles: LEVEL, lit: true }).cells).toEqual([]);
-  });
-
   it('should give no spots when the grid holds no fireball', () => {
     expect(
-      filterFireballCells({ tiles: [[TILE_DIRT]], lit: false }).cells,
+      filterFireballCells({ tiles: [[TILE_DIRT]], rate: 1 }).cells,
     ).toEqual([]);
   });
 
   it('should give no spots when the grid is empty', () => {
-    expect(filterFireballCells({ tiles: [], lit: false }).cells).toEqual([]);
+    expect(filterFireballCells({ tiles: [], rate: 1 }).cells).toEqual([]);
+  });
+
+  it('should pass the rate on when it looks for fireballs', () => {
+    expect(filterFireballCells({ tiles: LEVEL, rate: 0 }).rate).toBe(0);
   });
 
   it('should keep the grid the same when it looks for fireballs', () => {
-    expect(filterFireballCells({ tiles: LEVEL, lit: false }).tiles).toBe(LEVEL);
+    expect(filterFireballCells({ tiles: LEVEL, rate: 1 }).tiles).toBe(LEVEL);
   });
 });

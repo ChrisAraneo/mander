@@ -10,8 +10,11 @@ import type { Sector } from '@mander/structures';
 import { flatten, includes } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { FIRST_CANNON_LEVEL, FIRST_FIREBALL_LEVEL } from '../../consts';
 import { removeLevelWeapons } from './remove-level-weapons';
+
+const FIRST_LIT_LEVEL = 4;
+
+const FIRST_ARMED_LEVEL = 5;
 
 const RANDOM = createRandom('SEED');
 
@@ -43,14 +46,14 @@ describe('removeLevelWeapons', () => {
   });
 
   it('should leave the fireballs burning and put the cannons out when the level lights fireballs only', () => {
-    const tiles = flatten(removeOn(FIRST_FIREBALL_LEVEL).tiles);
+    const tiles = flatten(removeOn(FIRST_LIT_LEVEL).tiles);
 
     expect(includes(tiles, TILE_CANNON)).toBe(false);
     expect(includes(tiles, TILE_FIREBALL)).toBe(true);
   });
 
   it('should leave both weapons standing when the level arms them', () => {
-    expect(removeOn(FIRST_CANNON_LEVEL).tiles).toEqual(createLevel());
+    expect(removeOn(FIRST_ARMED_LEVEL).tiles).toEqual(createLevel());
   });
 
   it('should give back an empty grid when the grid is empty', () => {

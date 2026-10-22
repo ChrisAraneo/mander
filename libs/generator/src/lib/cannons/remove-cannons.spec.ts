@@ -9,8 +9,9 @@ import {
 import { flatten, includes, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { FIRST_CANNON_LEVEL } from '../consts';
 import { removeCannons } from './remove-cannons';
+
+const FIRST_ARMED_LEVEL = 5;
 
 const createEmplacement = (): Tile[][] => [
   [TILE_AIR, TILE_CANNON, TILE_AIR, TILE_SPIKE],
@@ -19,7 +20,7 @@ const createEmplacement = (): Tile[][] => [
 
 describe('removeCannons', () => {
   it('should fill every cannon in when the level is before the fifth', () => {
-    times(FIRST_CANNON_LEVEL - 1, (index) => {
+    times(FIRST_ARMED_LEVEL - 1, (index) => {
       const levelNumber = index + 1;
 
       expect(
@@ -34,7 +35,7 @@ describe('removeCannons', () => {
 
   it('should leave the cannons standing when the level is the fifth or later', () => {
     times(4, (index) => {
-      const levelNumber = FIRST_CANNON_LEVEL + index;
+      const levelNumber = FIRST_ARMED_LEVEL + index;
 
       expect(
         removeCannons(createEmplacement(), levelNumber),
@@ -86,7 +87,7 @@ describe('removeCannons', () => {
     const tiles = createEmplacement();
 
     removeCannons(tiles, 1);
-    removeCannons(tiles, FIRST_CANNON_LEVEL);
+    removeCannons(tiles, FIRST_ARMED_LEVEL);
 
     expect(tiles).toEqual(createEmplacement());
   });

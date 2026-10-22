@@ -1,7 +1,9 @@
 import { createRandom } from '@mander/engine';
 import { TILE_SPIKE, type Tile } from '@mander/model';
+import { map, range } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
+import { LEVELS_PER_DAY } from '../../consts';
 import { getSpikeRemovalRate } from './get-spike-removal-rate';
 
 const LEVEL: Tile[][] = [[TILE_SPIKE]];
@@ -25,6 +27,12 @@ describe('getSpikeRemovalRate', () => {
   it('should remove no spikes when the level is the fifth or later', () => {
     expect(getRate(5)).toBe(0);
     expect(getRate(8)).toBe(0);
+  });
+
+  it('should hold a rate for every level of the day when it is given each one', () => {
+    expect(map(range(1, LEVELS_PER_DAY + 1), getRate)).toEqual([
+      1, 0.8, 0.6, 0.3, 0, 0, 0, 0,
+    ]);
   });
 
   it('should keep the grid the same when it reads the level number', () => {

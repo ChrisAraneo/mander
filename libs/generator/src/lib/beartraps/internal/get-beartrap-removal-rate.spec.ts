@@ -1,7 +1,9 @@
 import { createRandom } from '@mander/engine';
 import { TILE_BEARTRAP, type Tile } from '@mander/model';
+import { map, range } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
+import { LEVELS_PER_DAY } from '../../consts';
 import { getBeartrapRemovalRate } from './get-beartrap-removal-rate';
 
 const LEVEL: Tile[][] = [[TILE_BEARTRAP]];
@@ -24,6 +26,12 @@ describe('getBeartrapRemovalRate', () => {
   it('should remove no traps when the level is the fourth or later', () => {
     expect(getRate(4)).toBe(0);
     expect(getRate(8)).toBe(0);
+  });
+
+  it('should hold a rate for every level of the day when it is given each one', () => {
+    expect(map(range(1, LEVELS_PER_DAY + 1), getRate)).toEqual([
+      0.5, 0.35, 0.2, 0, 0, 0, 0, 0,
+    ]);
   });
 
   it('should keep the grid the same when it reads the level number', () => {

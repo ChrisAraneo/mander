@@ -11,8 +11,10 @@ import {
 import { flatten, includes, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { FIRST_FIREBALL_LEVEL, LAST_FIREBALL_LEVEL } from '../consts';
+import { LEVELS_PER_DAY } from '../consts';
 import { removeFireballs } from './remove-fireballs';
+
+const FIRST_LIT_LEVEL = 4;
 
 const createForge = (): Tile[][] => [
   [TILE_AIR, TILE_STONE, TILE_AIR, TILE_SPIKE],
@@ -21,7 +23,7 @@ const createForge = (): Tile[][] => [
 
 describe('removeFireballs', () => {
   it('should put every fireball out when the level is before the fourth', () => {
-    times(FIRST_FIREBALL_LEVEL - 1, (index) => {
+    times(FIRST_LIT_LEVEL - 1, (index) => {
       const levelNumber = index + 1;
 
       expect(
@@ -35,23 +37,14 @@ describe('removeFireballs', () => {
   });
 
   it('should leave the fireballs burning when the level is the fourth through the eighth', () => {
-    times(LAST_FIREBALL_LEVEL - FIRST_FIREBALL_LEVEL + 1, (index) => {
-      const levelNumber = FIRST_FIREBALL_LEVEL + index;
+    times(LEVELS_PER_DAY - FIRST_LIT_LEVEL + 1, (index) => {
+      const levelNumber = FIRST_LIT_LEVEL + index;
 
       expect(
         removeFireballs(createForge(), levelNumber),
         `level ${levelNumber}`,
       ).toEqual(createForge());
     });
-  });
-
-  it('should put every fireball out when the level is past the eighth', () => {
-    expect(
-      includes(
-        flatten(removeFireballs(createForge(), LAST_FIREBALL_LEVEL + 1)),
-        TILE_FIREBALL,
-      ),
-    ).toBe(false);
   });
 
   it('should hand the fireball spot over to the blocks when they stand around it', () => {
@@ -125,7 +118,7 @@ describe('removeFireballs', () => {
     const tiles = createForge();
 
     removeFireballs(tiles, 1);
-    removeFireballs(tiles, FIRST_FIREBALL_LEVEL);
+    removeFireballs(tiles, FIRST_LIT_LEVEL);
 
     expect(tiles).toEqual(createForge());
   });

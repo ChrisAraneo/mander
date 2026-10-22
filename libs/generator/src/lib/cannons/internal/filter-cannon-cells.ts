@@ -1,15 +1,13 @@
 import { TILE_CANNON } from '@mander/model';
-import { match } from 'ts-pattern';
 import { filterTileCells } from '../../structures/filter-tile-cells';
-import type { CannonArming } from './types/cannon-arming';
 import type { CannonCells } from './types/cannon-cells';
+import type { CannonRemovalRate } from './types/cannon-removal-rate';
 
 export const filterCannonCells = ({
   tiles,
-  armed,
-}: CannonArming): CannonCells => ({
+  rate,
+}: CannonRemovalRate): CannonCells => ({
   tiles,
-  cells: match(armed)
-    .with(true, () => [])
-    .otherwise(() => filterTileCells(tiles, TILE_CANNON)),
+  rate,
+  cells: filterTileCells(tiles, TILE_CANNON),
 });
