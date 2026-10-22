@@ -17,23 +17,32 @@ const ACROSS: Sector[] = take([...NORMAL_STRUCTURES], 2);
 const UPWARD: Sector[] = take([...VERTICAL_STRUCTURES], 2);
 
 describe('createLevelLayers', () => {
-  it('should mark the level horizontal when it is the first of the day', () => {
+  it('should mark the level horizontal when the variant is a normal one', () => {
     expect(
-      createLevelLayers({ levelNumber: 1, structures: [], random: RANDOM })
-        .levelType,
+      createLevelLayers({
+        levelNumber: 1,
+        levelVariant: 'NORMAL',
+        structures: [],
+        random: RANDOM,
+      }).levelType,
     ).toBe('HORIZONTAL');
   });
 
-  it('should mark the level vertical when it is the second of the day', () => {
+  it('should mark the level vertical when the variant is a vertical one', () => {
     expect(
-      createLevelLayers({ levelNumber: 2, structures: [], random: RANDOM })
-        .levelType,
+      createLevelLayers({
+        levelNumber: 2,
+        levelVariant: 'VERTICAL',
+        structures: [],
+        random: RANDOM,
+      }).levelType,
     ).toBe('VERTICAL');
   });
 
   it('should join the structures across in a horizontal level when it lays them out', () => {
     const { tiles, backTiles } = createLevelLayers({
       levelNumber: 1,
+      levelVariant: 'NORMAL',
       structures: ACROSS,
       random: RANDOM,
     });
@@ -46,6 +55,7 @@ describe('createLevelLayers', () => {
   it('should stack the structures up in a vertical level when it lays them out', () => {
     const { tiles, backTiles } = createLevelLayers({
       levelNumber: 2,
+      levelVariant: 'VERTICAL',
       structures: UPWARD,
       random: RANDOM,
     });
@@ -58,6 +68,7 @@ describe('createLevelLayers', () => {
   it('should give back two empty layers when there are no structures', () => {
     const { tiles, backTiles } = createLevelLayers({
       levelNumber: 1,
+      levelVariant: 'NORMAL',
       structures: [],
       random: RANDOM,
     });
@@ -68,22 +79,42 @@ describe('createLevelLayers', () => {
 
   it('should pass the generator on when it lays the structures out', () => {
     expect(
-      createLevelLayers({ levelNumber: 1, structures: [], random: RANDOM })
-        .random,
+      createLevelLayers({
+        levelNumber: 1,
+        levelVariant: 'NORMAL',
+        structures: [],
+        random: RANDOM,
+      }).random,
     ).toBe(RANDOM);
   });
 
   it('should pass the level number on when it lays the structures out', () => {
     expect(
-      createLevelLayers({ levelNumber: 3, structures: [], random: RANDOM })
-        .levelNumber,
+      createLevelLayers({
+        levelNumber: 3,
+        levelVariant: 'NORMAL',
+        structures: [],
+        random: RANDOM,
+      }).levelNumber,
     ).toBe(3);
+  });
+
+  it('should pass the level variant on when it lays the structures out', () => {
+    expect(
+      createLevelLayers({
+        levelNumber: 3,
+        levelVariant: 'MIRRORED',
+        structures: [],
+        random: RANDOM,
+      }).levelVariant,
+    ).toBe('MIRRORED');
   });
 
   it('should pass the structures on when it lays them out', () => {
     expect(
       createLevelLayers({
         levelNumber: 1,
+        levelVariant: 'NORMAL',
         structures: ACROSS,
         random: RANDOM,
       }).structures,

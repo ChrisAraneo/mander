@@ -14,7 +14,7 @@ import { removeLevelTraps } from './remove-level-traps';
 
 const TRAPS = 20;
 
-const FIRST_UNTOUCHED_LEVEL = 5;
+const FIRST_UNTOUCHED_LEVEL = 6;
 
 const STRUCTURES: Sector[] = [];
 
@@ -32,6 +32,7 @@ const countTiles = (tiles: Tile[][], wanted: Tile): number =>
 const removeOn = (levelNumber: number, random = createRandom('DAY-1')) =>
   removeLevelTraps({
     levelNumber,
+    levelVariant: 'NORMAL',
     levelType: 'HORIZONTAL',
     structures: STRUCTURES,
     tiles: createLevel(),
@@ -40,14 +41,14 @@ const removeOn = (levelNumber: number, random = createRandom('DAY-1')) =>
   });
 
 describe('removeLevelTraps', () => {
-  it('should pull every spike and half the beartraps when the level is the first', () => {
+  it('should pull every spike and every beartrap when the level is the first', () => {
     const { tiles } = removeOn(1);
 
     expect(countTiles(tiles, TILE_SPIKE)).toBe(0);
-    expect(countTiles(tiles, TILE_BEARTRAP)).toBe(TRAPS / 2);
+    expect(countTiles(tiles, TILE_BEARTRAP)).toBe(0);
   });
 
-  it('should leave every trap set when the level is the fifth or later', () => {
+  it('should leave every trap set when the level is the sixth or later', () => {
     expect(removeOn(FIRST_UNTOUCHED_LEVEL).tiles).toEqual(createLevel());
   });
 
@@ -56,8 +57,8 @@ describe('removeLevelTraps', () => {
   });
 
   it('should clear the traps another way when the generator starts from another seed', () => {
-    expect(removeOn(1).tiles[1]).not.toEqual(
-      removeOn(1, createRandom('DAY-2')).tiles[1],
+    expect(removeOn(2).tiles[1]).not.toEqual(
+      removeOn(2, createRandom('DAY-2')).tiles[1],
     );
   });
 
@@ -65,6 +66,7 @@ describe('removeLevelTraps', () => {
     expect(
       removeLevelTraps({
         levelNumber: 1,
+        levelVariant: 'NORMAL',
         levelType: 'HORIZONTAL',
         structures: STRUCTURES,
         tiles: [],
@@ -86,6 +88,10 @@ describe('removeLevelTraps', () => {
 
   it('should pass the level type on when it clears the traps', () => {
     expect(removeOn(1).levelType).toBe('HORIZONTAL');
+  });
+
+  it('should pass the level variant on when it clears the traps', () => {
+    expect(removeOn(1).levelVariant).toBe('NORMAL');
   });
 
   it('should pass the structures on when it clears the traps', () => {

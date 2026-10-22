@@ -24,6 +24,7 @@ const BACK: Tile[][] = [
 const addPaddingIn = (tiles: Tile[][], backTiles: Tile[][]) =>
   addLevelPadding({
     levelNumber: 1,
+    levelVariant: 'NORMAL',
     levelType: 'HORIZONTAL',
     structures: STRUCTURES,
     tiles,
@@ -60,6 +61,10 @@ describe('addLevelPadding', () => {
 
   it('should pass the level type on when it pads the level', () => {
     expect(addPaddingIn([], []).levelType).toBe('HORIZONTAL');
+  });
+
+  it('should pass the level variant on when it pads the level', () => {
+    expect(addPaddingIn([], []).levelVariant).toBe('NORMAL');
   });
 
   it('should pass the structures on when it pads the level', () => {

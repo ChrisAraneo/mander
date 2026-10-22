@@ -16,14 +16,19 @@ describe('getFireballRemovalRate', () => {
     expect(getRate(3)).toBe(1);
   });
 
-  it('should leave the fireballs burning when the level is the fourth or later', () => {
-    expect(getRate(4)).toBe(0);
+  it('should put fewer fireballs out when the level is the fourth or the fifth', () => {
+    expect(getRate(4)).toBe(0.5);
+    expect(getRate(5)).toBe(0.25);
+  });
+
+  it('should leave the fireballs burning when the level is the sixth or later', () => {
+    expect(getRate(6)).toBe(0);
     expect(getRate(8)).toBe(0);
   });
 
   it('should hold a rate for every level of the day when it is given each one', () => {
     expect(map(range(1, LEVELS_PER_DAY + 1), getRate)).toEqual([
-      1, 1, 1, 0, 0, 0, 0, 0,
+      1, 1, 1, 0.5, 0.25, 0, 0, 0,
     ]);
   });
 

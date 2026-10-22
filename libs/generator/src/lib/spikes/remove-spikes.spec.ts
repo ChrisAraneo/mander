@@ -32,7 +32,7 @@ const SEED = 'DAY-1';
 
 const TEETH = 300;
 
-const FIRST_UNTOUCHED_LEVEL = 5;
+const FIRST_UNTOUCHED_LEVEL = 6;
 
 const createToothyFloor = (): Tile[][] => [
   times(TEETH, (): Tile => TILE_SPIKE),
@@ -92,12 +92,13 @@ describe('removeSpikes', () => {
   it('should pull the share the level was promised when it thins one', () => {
     expect(countSpikesLeft(1)).toBe(0);
     expect(countSpikesLeft(2)).toBe(TEETH * 0.2);
-    expect(countSpikesLeft(3)).toBe(TEETH * 0.4);
-    expect(countSpikesLeft(4)).toBe(TEETH * 0.7);
+    expect(countSpikesLeft(3)).toBe(TEETH * 0.35);
+    expect(countSpikesLeft(4)).toBe(TEETH * 0.55);
+    expect(countSpikesLeft(5)).toBe(TEETH * 0.8);
   });
 
-  it('should leave every tooth standing when the level is the fifth or later', () => {
-    times(4, (index) => {
+  it('should leave every tooth standing when the level is the sixth or later', () => {
+    times(3, (index) => {
       const levelNumber = FIRST_UNTOUCHED_LEVEL + index;
 
       expect(

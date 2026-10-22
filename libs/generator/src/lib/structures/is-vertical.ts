@@ -1,5 +1,4 @@
-import { includes } from 'lodash-es';
-import { VERTICAL_LEVELS } from '../consts';
+import type { LevelVariant } from '../types/level-variant';
 
-export const isVertical = (levelNumber: number): boolean =>
-  includes(VERTICAL_LEVELS, levelNumber);
+export const isVertical = (levelVariant: LevelVariant): boolean =>
+  levelVariant === 'VERTICAL';

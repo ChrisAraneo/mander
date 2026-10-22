@@ -31,6 +31,7 @@ const addFurnitureIn = (
 ) =>
   addLevelFurniture({
     levelNumber: 1,
+    levelVariant: 'NORMAL',
     levelType,
     structures: STRUCTURES,
     tiles,
@@ -104,6 +105,10 @@ describe('addLevelFurniture', () => {
 
   it('should pass the level number on when it furnishes the level', () => {
     expect(addFurnitureIn([], 'HORIZONTAL').levelNumber).toBe(1);
+  });
+
+  it('should pass the level variant on when it furnishes the level', () => {
+    expect(addFurnitureIn([], 'HORIZONTAL').levelVariant).toBe('NORMAL');
   });
 
   it('should pass the structures on when it furnishes the level', () => {

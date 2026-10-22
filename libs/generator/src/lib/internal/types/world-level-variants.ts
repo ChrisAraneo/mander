@@ -1,10 +1,10 @@
 import type { createRandom } from '@mander/engine';
 import type { Palette } from '@mander/render';
-import type { LevelCategory } from '../../world/types/level-category';
+import type { LevelVariant } from '../../types/level-variant';
 
-export interface WorldLevelCategories {
+export interface WorldLevelVariants {
   name: string;
   palette: Palette;
-  levelCategories: LevelCategory[];
+  levelVariants: LevelVariant[];
   random: ReturnType<typeof createRandom>;
 }

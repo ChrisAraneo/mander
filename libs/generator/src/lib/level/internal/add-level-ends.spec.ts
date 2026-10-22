@@ -31,6 +31,7 @@ const BACK_LEVEL: Tile[][] = [[TILE_AIR]];
 const addEndsIn = (rows: string[], levelType: LevelType) =>
   addLevelEnds({
     levelNumber: 1,
+    levelVariant: 'NORMAL',
     levelType,
     structures: STRUCTURES,
     tiles: createGrid(rows),
@@ -74,6 +75,10 @@ describe('addLevelEnds', () => {
 
   it('should pass the level type on when it places the ends', () => {
     expect(addEndsIn([], 'VERTICAL').levelType).toBe('VERTICAL');
+  });
+
+  it('should pass the level variant on when it places the ends', () => {
+    expect(addEndsIn([], 'VERTICAL').levelVariant).toBe('NORMAL');
   });
 
   it('should pass the structures on when it places the ends', () => {

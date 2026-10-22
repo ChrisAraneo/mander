@@ -1,5 +1,4 @@
-import { includes } from 'lodash-es';
-import { MIRRORED_LEVELS } from '../consts';
+import type { LevelVariant } from '../types/level-variant';
 
-export const isMirrored = (levelNumber: number): boolean =>
-  includes(MIRRORED_LEVELS, levelNumber);
+export const isMirrored = (levelVariant: LevelVariant): boolean =>
+  levelVariant === 'MIRRORED';

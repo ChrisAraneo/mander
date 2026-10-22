@@ -8,6 +8,7 @@ import type { WorldDrawnStructures } from './types/world-drawn-structures';
 export const createWorldLevels = ({
   name,
   palette,
+  levelVariants,
   levelCategories,
   worldStructures,
   random,
@@ -16,6 +17,7 @@ export const createWorldLevels = ({
   levels: times(LEVELS_PER_DAY, (index) =>
     createLevelFromStructures(
       index + 1,
+      levelVariants[index],
       sliceForLevel(worldStructures, levelCategories, index),
       random,
     ),

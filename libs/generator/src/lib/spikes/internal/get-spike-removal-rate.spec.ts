@@ -18,20 +18,21 @@ describe('getSpikeRemovalRate', () => {
     expect(getRate(1)).toBe(1);
   });
 
-  it('should remove fewer spikes when the level is the second through the fourth', () => {
+  it('should remove fewer spikes when the level is the second through the fifth', () => {
     expect(getRate(2)).toBe(0.8);
-    expect(getRate(3)).toBe(0.6);
-    expect(getRate(4)).toBe(0.3);
+    expect(getRate(3)).toBe(0.65);
+    expect(getRate(4)).toBe(0.45);
+    expect(getRate(5)).toBe(0.2);
   });
 
-  it('should remove no spikes when the level is the fifth or later', () => {
-    expect(getRate(5)).toBe(0);
+  it('should remove no spikes when the level is the sixth or later', () => {
+    expect(getRate(6)).toBe(0);
     expect(getRate(8)).toBe(0);
   });
 
   it('should hold a rate for every level of the day when it is given each one', () => {
     expect(map(range(1, LEVELS_PER_DAY + 1), getRate)).toEqual([
-      1, 0.8, 0.6, 0.3, 0, 0, 0, 0,
+      1, 0.8, 0.65, 0.45, 0.2, 0, 0, 0,
     ]);
   });
 

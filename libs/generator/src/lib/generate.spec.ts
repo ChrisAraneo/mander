@@ -1,13 +1,14 @@
 import { createEnemies, getSpawnPosition, HORNED_ENEMY_CHANCE, PLAYER_HEIGHT, PLAYER_WIDTH, hashString } from '@mander/engine';
 import { findCannonTiles, findGemTiles, findTile, isSolid, isSolidTile, type Level, type Tile, TILE_AIR, TILE_CHEST, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, type Point } from '@mander/model';
+import type { RenderedWorld } from '@mander/render';
 import { STRUCTURE_WIDTH } from '@mander/structures';
 import {
+  countBy,
   every,
   filter,
   flatMap,
   flatten,
   floor,
-  includes,
   isNull,
   join,
   map,
@@ -15,6 +16,8 @@ import {
   size,
   some,
   startsWith,
+  take,
+  takeRight,
   times,
   uniq,
 } from 'lodash-es';
@@ -24,9 +27,7 @@ import { describe, expect, it } from 'vitest';
 import {
   FIRST_HARD_LEVEL,
   LEVELS_PER_DAY,
-  MIRRORED_LEVELS,
   STRUCTURES_PER_LEVEL,
-  VERTICAL_LEVELS,
 } from './consts';
 import { generate } from './generate';
 
@@ -34,11 +35,16 @@ const { number } = P;
 
 interface Run {
   levelNumber: number;
+  isOpenSided: boolean;
   spawn: Point | null;
   portal: Point | null;
 }
 
 const FIRST_ARMED_LEVEL = 5;
+
+const EARLY_LEVELS = FIRST_HARD_LEVEL - 1;
+
+const LEVELS_OF_A_VARIANT = 2;
 
 const GEMS_A_CLIMB = 10;
 
@@ -48,17 +54,16 @@ const DAYS = times(10, createDate);
 
 const WORLDS = map(DAYS, (date) => generate(date));
 
-const toLevelCategoryPrefix = (levelNumber: number): string =>
+const toLevelCategoryPrefix = (level: Level, levelNumber: number): string =>
   match(levelNumber)
     .when(
-      () => includes(VERTICAL_LEVELS, levelNumber),
+      () => level.isOpenSided === true,
       () => 'VERTICAL',
     )
     .with(number.gte(FIRST_HARD_LEVEL), () => 'HARD')
     .otherwise(() => 'NORMAL');
 
-const isCrosswise = (run: Run): boolean =>
-  !includes(VERTICAL_LEVELS, run.levelNumber);
+const isCrosswise = (run: Run): boolean => !run.isOpenSided;
 
 const computeTilesAcross = (start: number, span: number): number[] =>
   range(floor(start / TILE_SIZE), floor((start + span - 1) / TILE_SIZE) + 1);
@@ -77,14 +82,15 @@ const formatGrid = (tiles: Tile[][]): string =>
     '|',
   );
 
-const createRuns = (): Run[] =>
-  flatMap(WORLDS, (world) =>
-    map(world.levels, (level, index): Run => ({
-      levelNumber: index + 1,
-      spawn: findTile(level, TILE_SPAWN),
-      portal: findTile(level, TILE_PORTAL),
-    })),
-  );
+const createWorldRuns = (world: RenderedWorld): Run[] =>
+  map(world.levels, (level, index): Run => ({
+    levelNumber: index + 1,
+    isOpenSided: level.isOpenSided === true,
+    spawn: findTile(level, TILE_SPAWN),
+    portal: findTile(level, TILE_PORTAL),
+  }));
+
+const createRuns = (): Run[] => flatMap(WORLDS, createWorldRuns);
 
 const filterCrosswiseRuns = (): Run[] => filter(createRuns(), isCrosswise);
 
@@ -93,11 +99,25 @@ const filterVerticalRuns = (): Run[] =>
 
 const filterVerticalLevels = (): Level[] =>
   flatMap(WORLDS, (world) =>
-    filter(world.levels, (_, index) => includes(VERTICAL_LEVELS, index + 1)),
+    filter(world.levels, (level) => level.isOpenSided === true),
   );
 
 const isTurned = (run: Run): boolean =>
   !isNull(run.spawn) && !isNull(run.portal) && run.spawn.x > run.portal.x;
+
+const toLevelVariant = (run: Run): string =>
+  match(run)
+    .when(
+      () => run.isOpenSided,
+      () => 'VERTICAL',
+    )
+    .when(isTurned, () => 'MIRRORED')
+    .otherwise(() => 'NORMAL');
+
+const createEarlyVariants = (): string[][] =>
+  map(WORLDS, (world) =>
+    map(take(createWorldRuns(world), EARLY_LEVELS), toLevelVariant),
+  );
 
 const isClimbed = (run: Run): boolean =>
   !isNull(run.spawn) && !isNull(run.portal) && run.spawn.y > run.portal.y;
@@ -203,27 +223,35 @@ describe('generate', () => {
     expect(lost).toEqual([]);
   });
 
-  it('should send the player in from the right when the level is the third or the sixth', () => {
-    const wrongWay = filter(
-      filterCrosswiseRuns(),
-      (run) => includes(MIRRORED_LEVELS, run.levelNumber) && !isTurned(run),
+  it('should deal two levels of every variant over the early levels when it deals a day', () => {
+    expect(map(createEarlyVariants(), (variants) => countBy(variants))).toEqual(
+      map(DAYS, () => ({
+        VERTICAL: LEVELS_OF_A_VARIANT,
+        MIRRORED: LEVELS_OF_A_VARIANT,
+        NORMAL: LEVELS_OF_A_VARIANT,
+      })),
     );
-
-    expect(wrongWay).toEqual([]);
   });
 
-  it('should send the player in from the left when the level is any other it lays out', () => {
-    const wrongWay = filter(
-      filterCrosswiseRuns(),
-      (run) => !includes(MIRRORED_LEVELS, run.levelNumber) && isTurned(run),
+  it('should deal the early levels in another order when it deals another day', () => {
+    const orders = uniq(
+      map(createEarlyVariants(), (variants) => join(variants, ',')),
     );
 
-    expect(wrongWay).toEqual([]);
+    expect(size(orders)).toBeGreaterThan(1);
+  });
+
+  it('should leave the last levels of the day plain when it deals a day', () => {
+    const late = flatMap(WORLDS, (world) =>
+      takeRight(createWorldRuns(world), LEVELS_PER_DAY - EARLY_LEVELS),
+    );
+
+    expect(filter(late, (run) => toLevelVariant(run) !== 'NORMAL')).toEqual([]);
   });
 
   it('should turn two levels around when it deals any day', () => {
     expect(size(filter(filterCrosswiseRuns(), isTurned))).toBe(
-      size(DAYS) * size(MIRRORED_LEVELS),
+      size(DAYS) * LEVELS_OF_A_VARIANT,
     );
   });
 
@@ -260,10 +288,10 @@ describe('generate', () => {
     expect(ragged).toEqual([]);
   });
 
-  it('should stand the level up when it is the second or the fifth', () => {
+  it('should stand two levels up when it deals any day', () => {
     const standing = map(filterVerticalLevels(), (level) => level.width);
 
-    expect(size(standing)).toBe(size(DAYS) * size(VERTICAL_LEVELS));
+    expect(size(standing)).toBe(size(DAYS) * LEVELS_OF_A_VARIANT);
     expect(uniq(standing)).toEqual([STRUCTURE_WIDTH]);
   });
 
@@ -279,7 +307,7 @@ describe('generate', () => {
   it('should send the player up when it stands a level up', () => {
     const wrongWay = filter(filterVerticalRuns(), (run) => !isClimbed(run));
 
-    expect(size(filterVerticalRuns())).toBe(size(DAYS) * size(VERTICAL_LEVELS));
+    expect(size(filterVerticalRuns())).toBe(size(DAYS) * LEVELS_OF_A_VARIANT);
     expect(wrongWay).toEqual([]);
   });
 
@@ -310,21 +338,12 @@ describe('generate', () => {
     expect(buried).toEqual([]);
   });
 
-  it('should leave the sides open when it stands a level up, and wall every other level in', () => {
-    const openness = flatMap(WORLDS, (world) =>
-      map(world.levels, (level, index) => ({
-        levelNumber: index + 1,
-        isOpenSided: level.isOpenSided === true,
-      })),
+  it('should stand no level up past the early ones when it deals a day', () => {
+    const late = flatMap(WORLDS, (world) =>
+      takeRight(world.levels, LEVELS_PER_DAY - EARLY_LEVELS),
     );
 
-    expect(
-      filter(
-        openness,
-        (level) =>
-          level.isOpenSided !== includes(VERTICAL_LEVELS, level.levelNumber),
-      ),
-    ).toEqual([]);
+    expect(filter(late, (level) => level.isOpenSided === true)).toEqual([]);
   });
 
   it('should record every structure when it builds a level from them', () => {
@@ -341,7 +360,8 @@ describe('generate', () => {
       flatMap(world.levels, (level, index) =>
         filter(
           level.meta?.structures ?? [],
-          (name) => !startsWith(name, `${toLevelCategoryPrefix(index + 1)}_`),
+          (name) =>
+            !startsWith(name, `${toLevelCategoryPrefix(level, index + 1)}_`),
         ),
       ),
     );
@@ -375,114 +395,114 @@ describe('generate', () => {
       blockCapHighlight: 'HSL(128, 46%, 57%)',
     });
     expect(map(world.levels, (level) => level.seed)).toEqual([
-      '1USYV7W1E23EZ8',
-      '1FFV5AF0N7NEVK',
-      '1W1K2IN02QCX1D',
-      '11509GQ0NHEUHT',
-      '0HW2Y7R0Z4PS70',
-      '05NNVVG1AL2SBI',
-      '18C8YL700X9SL5',
-      '1QMI5F31YY745J',
+      '1FYUV210J4SW2V',
+      '1N7CO9P0AVSKQL',
+      '1URBZDZ0TR45QO',
+      '1BF0U8S09649DY',
+      '1AX21BR1US01K8',
+      '1LLP2BJ1KZ5C2V',
+      '08EQBLI1DAL3QC',
+      '02HH5KE0ZXQA1R',
     ]);
     expect(map(world.levels, (level) => level.meta?.structures)).toEqual([
       [
-        'NORMAL_071',
-        'NORMAL_110',
-        'NORMAL_058',
-        'NORMAL_098',
-        'NORMAL_079',
-        'NORMAL_093',
-        'NORMAL_157',
-      ],
-      [
-        'VERTICAL_010',
-        'VERTICAL_021',
-        'VERTICAL_016',
-        'VERTICAL_013',
-        'VERTICAL_011',
-        'VERTICAL_022',
-        'VERTICAL_020',
-      ],
-      [
-        'NORMAL_091',
-        'NORMAL_128',
-        'NORMAL_107',
-        'NORMAL_050',
-        'NORMAL_172',
-        'NORMAL_160',
-        'NORMAL_004',
-      ],
-      [
-        'NORMAL_005',
-        'NORMAL_016',
-        'NORMAL_013',
-        'NORMAL_089',
-        'NORMAL_166',
-        'NORMAL_025',
-        'NORMAL_038',
-      ],
-      [
-        'VERTICAL_018',
-        'VERTICAL_001',
-        'VERTICAL_003',
-        'VERTICAL_007',
-        'VERTICAL_012',
-        'VERTICAL_004',
-        'VERTICAL_002',
-      ],
-      [
-        'NORMAL_125',
-        'NORMAL_017',
-        'NORMAL_008',
-        'NORMAL_152',
+        'NORMAL_065',
         'NORMAL_104',
-        'NORMAL_090',
+        'NORMAL_052',
+        'NORMAL_092',
+        'NORMAL_073',
+        'NORMAL_087',
+        'NORMAL_151',
+      ],
+      [
+        'NORMAL_085',
+        'NORMAL_122',
+        'NORMAL_101',
+        'NORMAL_044',
+        'NORMAL_166',
+        'NORMAL_154',
+        'NORMAL_010',
+      ],
+      [
+        'NORMAL_007',
+        'NORMAL_083',
+        'NORMAL_160',
         'NORMAL_019',
+        'NORMAL_032',
+        'NORMAL_119',
+        'NORMAL_011',
       ],
       [
-        'HARD_037',
-        'HARD_035',
-        'HARD_012',
-        'HARD_040',
-        'HARD_034',
-        'HARD_018',
-        'HARD_042',
+        'VERTICAL_004',
+        'VERTICAL_015',
+        'VERTICAL_010',
+        'VERTICAL_007',
+        'VERTICAL_022',
+        'VERTICAL_005',
+        'VERTICAL_016',
       ],
       [
-        'HARD_020',
-        'HARD_033',
-        'HARD_023',
-        'HARD_021',
-        'HARD_008',
-        'HARD_011',
+        'NORMAL_002',
+        'NORMAL_146',
+        'NORMAL_098',
+        'NORMAL_084',
+        'NORMAL_013',
+        'NORMAL_135',
+        'NORMAL_123',
+      ],
+      [
+        'VERTICAL_025',
+        'VERTICAL_014',
+        'VERTICAL_029',
+        'VERTICAL_012',
+        'VERTICAL_001',
+        'VERTICAL_006',
+        'VERTICAL_026',
+      ],
+      [
+        'HARD_031',
+        'HARD_029',
         'HARD_006',
+        'HARD_034',
+        'HARD_028',
+        'HARD_012',
+        'HARD_036',
+      ],
+      [
+        'HARD_014',
+        'HARD_027',
+        'HARD_017',
+        'HARD_015',
+        'HARD_041',
+        'HARD_002',
+        'HARD_005',
       ],
     ]);
     expect(
       map(world.levels, (level) => hashString(formatGrid(level.tiles))),
     ).toEqual([
-      '0GM0HS60TUOUD6',
-      '0MH7SXV114WEO7',
-      '0KE3QXV0CSC975',
-      '1D97R7H0TC83AC',
-      '16AS7GA06X9M9U',
-      '1GCGMFD1K06I77',
-      '12APXMQ0P9TPU3',
-      '0JNTOU41C3SCBZ',
+      '0IY4E860G1H630',
+      '008VSXV0EOOCQI',
+      '1XCH1M301COQXS',
+      '0AOQRP41NFJV27',
+      '1F5RM101CIAE0W',
+      '0YI9VKI13J2E30',
+      '0I15EFI0MM2TBF',
+      '0JSY8YH1CHYNG6',
     ]);
     expect(
       map(world.levels, (level) =>
         hashString(formatGrid(level.backTiles ?? [])),
       ),
     ).toEqual([
-      '0ZBYF5B1GNV34S',
-      '0LA8FUP12Y84L6',
-      '1QFQO2T10OYJRW',
-      '0UM9GWG07TIXDE',
-      '06EK7KL0UYNQ6Q',
-      '0YIE56H045EPM0',
-      '1AQ9H6T0WV20OY',
-      '0LVWQBK19LQ4SH',
+      '1F00HX01SHB2AC',
+      '004QQL61CT8DXV',
+      '1XG2HEC1BR32YP',
+      '1I6U89A0Q16BLQ',
+      '0TEPNPE0OE26OQ',
+      '0J198TP0A78VW9',
+      '08WFNO91M43JA3',
+      '0IDVSJD0Y7EEBG',
     ]);
   });
 

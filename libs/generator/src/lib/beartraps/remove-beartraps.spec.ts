@@ -10,7 +10,7 @@ const SEED = 'DAY-1';
 
 const JAWS = 200;
 
-const FIRST_UNTOUCHED_LEVEL = 4;
+const FIRST_UNTOUCHED_LEVEL = 5;
 
 const createTrapline = (): Tile[][] => [
   times(JAWS, (): Tile => TILE_BEARTRAP),
@@ -46,12 +46,13 @@ describe('removeBeartraps', () => {
   });
 
   it('should pull the share the level was promised when it thins one', () => {
-    expect(countTrapsLeft(1)).toBe(JAWS * 0.5);
-    expect(countTrapsLeft(2)).toBe(JAWS * 0.65);
-    expect(countTrapsLeft(3)).toBe(JAWS * 0.8);
+    expect(countTrapsLeft(1)).toBe(0);
+    expect(countTrapsLeft(2)).toBe(JAWS * 0.4);
+    expect(countTrapsLeft(3)).toBe(JAWS * 0.6);
+    expect(countTrapsLeft(4)).toBe(JAWS * 0.8);
   });
 
-  it('should leave every trap set when the level is the fourth or later', () => {
+  it('should leave every trap set when the level is the fifth or later', () => {
     times(4, (index) => {
       const levelNumber = FIRST_UNTOUCHED_LEVEL + index;
 
@@ -64,7 +65,7 @@ describe('removeBeartraps', () => {
   });
 
   it('should thin the level the same way when the generator starts from the same seed', () => {
-    times(3, (index) => {
+    times(4, (index) => {
       const levelNumber = index + 1;
 
       expect(
@@ -78,9 +79,9 @@ describe('removeBeartraps', () => {
 
   it('should thin the level another way when the generator starts from another seed', () => {
     expect(
-      removeBeartraps(createTrapline(), 1, createRandom('DAY-1'))[0],
+      removeBeartraps(createTrapline(), 2, createRandom('DAY-1'))[0],
     ).not.toEqual(
-      removeBeartraps(createTrapline(), 1, createRandom('DAY-2'))[0],
+      removeBeartraps(createTrapline(), 2, createRandom('DAY-2'))[0],
     );
   });
 

@@ -1,21 +1,23 @@
 import { createRandom } from '@mander/engine';
 import { describe, expect, it } from 'vitest';
 
-import { LEVELS_PER_DAY } from '../consts';
 import { createPalette } from '../palette/create-palette';
 import { createLevelCategories } from '../world/create-level-categories';
+import { createLevelVariants } from '../world/create-level-variants';
 import { takeRandomCategoryStructures } from '../world/take-random-category-structures';
 import { takeRandomWorldStructures } from './take-random-world-structures';
 
 const PALETTE = createPalette(createRandom('DAY-1'));
 
-const LEVEL_CATEGORIES = createLevelCategories(LEVELS_PER_DAY);
+const LEVEL_VARIANTS = createLevelVariants(createRandom('DAY-1'));
+
+const LEVEL_CATEGORIES = createLevelCategories(LEVEL_VARIANTS);
 
 const takeRandomWith = (seed: string) =>
   takeRandomWorldStructures({
     name: 'WORLD',
     palette: PALETTE,
-    levelCategories: LEVEL_CATEGORIES,
+    levelVariants: LEVEL_VARIANTS,
     random: createRandom(seed),
   });
 
@@ -43,7 +45,7 @@ describe('takeRandomWorldStructures', () => {
       takeRandomWorldStructures({
         name: 'WORLD',
         palette: PALETTE,
-        levelCategories: [],
+        levelVariants: [],
         random: createRandom('DAY-1'),
       }).worldStructures,
     ).toEqual({ NORMAL: [], HARD: [], VERTICAL: [] });
@@ -57,8 +59,12 @@ describe('takeRandomWorldStructures', () => {
     expect(takeRandomWith('DAY-1').palette).toBe(PALETTE);
   });
 
-  it('should pass the level categories on when it picks the structures', () => {
-    expect(takeRandomWith('DAY-1').levelCategories).toBe(LEVEL_CATEGORIES);
+  it('should pass the level variants on when it picks the structures', () => {
+    expect(takeRandomWith('DAY-1').levelVariants).toBe(LEVEL_VARIANTS);
+  });
+
+  it('should read the category of every level off its variant when it picks the structures', () => {
+    expect(takeRandomWith('DAY-1').levelCategories).toEqual(LEVEL_CATEGORIES);
   });
 
   it('should pass the generator on when it picks the structures', () => {
@@ -68,7 +74,7 @@ describe('takeRandomWorldStructures', () => {
       takeRandomWorldStructures({
         name: 'WORLD',
         palette: PALETTE,
-        levelCategories: LEVEL_CATEGORIES,
+        levelVariants: LEVEL_VARIANTS,
         random,
       }).random,
     ).toBe(random);

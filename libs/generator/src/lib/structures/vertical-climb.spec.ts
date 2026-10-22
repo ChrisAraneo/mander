@@ -6,7 +6,6 @@ import {
 } from '@mander/structures';
 import {
   filter,
-  includes,
   isNull,
   join,
   map,
@@ -17,7 +16,6 @@ import {
 } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { VERTICAL_LEVELS } from '../consts';
 import { generate } from '../generate';
 import { createStructureLayers } from '../layout/create-structure-layers';
 import { addPadding } from '../padding/add-padding';
@@ -67,9 +65,7 @@ const isPortalReached = (level: Level): boolean =>
     .value();
 
 const filterVerticalLevels = (date: Date): Level[] =>
-  filter(generate(date).levels, (_, index) =>
-    includes(VERTICAL_LEVELS, index + 1),
-  );
+  filter(generate(date).levels, (level) => level.isOpenSided === true);
 
 describe('the climb up a vertical level', () => {
   it('should carry the player out of the top of the next sector when they start on the ground of one', () => {

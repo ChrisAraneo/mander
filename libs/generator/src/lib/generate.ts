@@ -2,7 +2,7 @@ import { createRandom } from '@mander/engine';
 import { chain } from '@mander/model';
 import type { RenderedWorld } from '@mander/render';
 import { flow } from 'lodash-es';
-import { createWorldLevelCategories } from './internal/create-world-level-categories';
+import { createWorldLevelVariants } from './internal/create-world-level-variants';
 import { createWorldLevels } from './internal/create-world-levels';
 import { createWorldPalette } from './internal/create-world-palette';
 import { takeRandomWorldStructures } from './internal/take-random-world-structures';
@@ -13,7 +13,7 @@ export const generate = (date: Date): RenderedWorld =>
     .thru((name) =>
       flow(
         createWorldPalette,
-        createWorldLevelCategories,
+        createWorldLevelVariants,
         takeRandomWorldStructures,
         createWorldLevels,
       )({ name, random: createRandom(name) }),

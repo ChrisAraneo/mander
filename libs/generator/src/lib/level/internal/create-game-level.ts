@@ -13,13 +13,14 @@ import type { FurnishedLevel } from './types/furnished-level';
 
 export const createGameLevel = ({
   levelNumber,
+  levelVariant,
   structures,
   tiles,
   backTiles,
   random,
 }: FurnishedLevel): GameLevel =>
   chain(
-    match(isMirrored(levelNumber))
+    match(isMirrored(levelVariant))
       .with(true, () => toMirroredLayers(tiles, backTiles))
       .otherwise((): Layers => ({ tiles, backTiles })),
   )
@@ -31,7 +32,7 @@ export const createGameLevel = ({
       backTiles: layers.backTiles,
       chestItems: takeRandomChestItems(random),
       hornedEnemyChance: getHornedEnemyChance(levelNumber),
-      isOpenSided: isVertical(levelNumber),
+      isOpenSided: isVertical(levelVariant),
       meta: createLevelMeta(structures),
     }))
     .value();

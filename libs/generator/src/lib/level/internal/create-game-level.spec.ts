@@ -10,6 +10,7 @@ import { getStructureName, NORMAL_STRUCTURES } from '@mander/structures';
 import { map, take } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
+import type { LevelVariant } from '../../types/level-variant';
 import { takeRandomChestItems } from '../../items/take-random-chest-items';
 import { toMirroredTiles } from '../../structures/to-mirrored-tiles';
 import { createGameLevel } from './create-game-level';
@@ -28,9 +29,10 @@ const BACK: Tile[][] = [
   [TILE_AIR, TILE_AIR, TILE_AIR],
 ];
 
-const createOn = (levelNumber: number) =>
+const createOn = (levelNumber: number, levelVariant: LevelVariant = 'NORMAL') =>
   createGameLevel({
     levelNumber,
+    levelVariant,
     structures: STRUCTURES,
     tiles: FRONT,
     backTiles: BACK,
@@ -39,7 +41,7 @@ const createOn = (levelNumber: number) =>
 
 describe('createGameLevel', () => {
   it('should turn both layers around when the level is mirrored', () => {
-    const level = createOn(3);
+    const level = createOn(3, 'MIRRORED');
 
     expect(level.tiles).toEqual(toMirroredTiles(FRONT));
     expect(level.backTiles).toEqual(toMirroredTiles(BACK));
@@ -74,7 +76,7 @@ describe('createGameLevel', () => {
   });
 
   it('should leave the sides open when the level is vertical', () => {
-    expect(createOn(2).isOpenSided).toBe(true);
+    expect(createOn(2, 'VERTICAL').isOpenSided).toBe(true);
   });
 
   it('should wall the sides in when the level is horizontal', () => {
@@ -94,6 +96,7 @@ describe('createGameLevel', () => {
   it('should measure an empty level as nothing when the grid is empty', () => {
     const level = createGameLevel({
       levelNumber: 1,
+      levelVariant: 'NORMAL',
       structures: [],
       tiles: [],
       backTiles: [],
@@ -105,13 +108,14 @@ describe('createGameLevel', () => {
   });
 
   it('should create the same level when the generator starts from the same seed', () => {
-    expect(createOn(3)).toEqual(createOn(3));
+    expect(createOn(3, 'MIRRORED')).toEqual(createOn(3, 'MIRRORED'));
   });
 
   it('should create another level when the generator starts from another seed', () => {
     expect(
       createGameLevel({
         levelNumber: 1,
+        levelVariant: 'NORMAL',
         structures: STRUCTURES,
         tiles: FRONT,
         backTiles: BACK,
@@ -120,6 +124,7 @@ describe('createGameLevel', () => {
     ).not.toEqual(
       createGameLevel({
         levelNumber: 1,
+        levelVariant: 'NORMAL',
         structures: STRUCTURES,
         tiles: FRONT,
         backTiles: BACK,

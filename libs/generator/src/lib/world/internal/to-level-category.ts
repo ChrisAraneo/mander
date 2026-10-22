@@ -1,12 +1,10 @@
-import { match, P } from 'ts-pattern';
-import { FIRST_HARD_LEVEL } from '../../consts';
-import { isVertical } from '../../structures/is-vertical';
+import { match } from 'ts-pattern';
+import type { LevelVariant } from '../../types/level-variant';
 import type { LevelCategory } from '../types/level-category';
 
-const { number } = P;
-
-export const toLevelCategory = (levelNumber: number): LevelCategory =>
-  match(levelNumber)
-    .when(isVertical, (): LevelCategory => 'VERTICAL')
-    .with(number.gte(FIRST_HARD_LEVEL), (): LevelCategory => 'HARD')
-    .otherwise((): LevelCategory => 'NORMAL');
+export const toLevelCategory = (levelVariant: LevelVariant): LevelCategory =>
+  match(levelVariant)
+    .with('VERTICAL', (): LevelCategory => 'VERTICAL')
+    .with('HARD', (): LevelCategory => 'HARD')
+    .with('NORMAL', 'MIRRORED', (): LevelCategory => 'NORMAL')
+    .exhaustive();

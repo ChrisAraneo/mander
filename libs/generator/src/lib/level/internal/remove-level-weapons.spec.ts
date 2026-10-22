@@ -12,9 +12,9 @@ import { describe, expect, it } from 'vitest';
 
 import { removeLevelWeapons } from './remove-level-weapons';
 
-const FIRST_LIT_LEVEL = 4;
+const FIRST_LIT_LEVEL = 5;
 
-const FIRST_ARMED_LEVEL = 5;
+const FIRST_ARMED_LEVEL = 6;
 
 const RANDOM = createRandom('SEED');
 
@@ -30,6 +30,7 @@ const createLevel = (): Tile[][] => [
 const removeOn = (levelNumber: number) =>
   removeLevelWeapons({
     levelNumber,
+    levelVariant: 'NORMAL',
     levelType: 'HORIZONTAL',
     structures: STRUCTURES,
     tiles: createLevel(),
@@ -60,6 +61,7 @@ describe('removeLevelWeapons', () => {
     expect(
       removeLevelWeapons({
         levelNumber: 1,
+        levelVariant: 'NORMAL',
         levelType: 'HORIZONTAL',
         structures: STRUCTURES,
         tiles: [],
@@ -79,6 +81,10 @@ describe('removeLevelWeapons', () => {
 
   it('should pass the level type on when it clears the weapons', () => {
     expect(removeOn(1).levelType).toBe('HORIZONTAL');
+  });
+
+  it('should pass the level variant on when it clears the weapons', () => {
+    expect(removeOn(1).levelVariant).toBe('NORMAL');
   });
 
   it('should pass the structures on when it clears the weapons', () => {

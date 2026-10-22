@@ -1,16 +1,22 @@
+import { chain } from '@mander/model';
+import { createLevelCategories } from '../world/create-level-categories';
 import { takeRandomCategoryStructures } from '../world/take-random-category-structures';
 import type { WorldDrawnStructures } from './types/world-drawn-structures';
-import type { WorldLevelCategories } from './types/world-level-categories';
+import type { WorldLevelVariants } from './types/world-level-variants';
 
 export const takeRandomWorldStructures = ({
   name,
   palette,
-  levelCategories,
+  levelVariants,
   random,
-}: WorldLevelCategories): WorldDrawnStructures => ({
-  name,
-  palette,
-  levelCategories,
-  worldStructures: takeRandomCategoryStructures(levelCategories, random),
-  random,
-});
+}: WorldLevelVariants): WorldDrawnStructures =>
+  chain(createLevelCategories(levelVariants))
+    .thru((levelCategories) => ({
+      name,
+      palette,
+      levelVariants,
+      levelCategories,
+      worldStructures: takeRandomCategoryStructures(levelCategories, random),
+      random,
+    }))
+    .value();

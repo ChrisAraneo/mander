@@ -7,6 +7,7 @@ import type { LevelDraft } from './types/level-draft';
 
 export const addLevelFurniture = ({
   levelNumber,
+  levelVariant,
   levelType,
   structures,
   tiles,
@@ -14,6 +15,7 @@ export const addLevelFurniture = ({
   random,
 }: LevelDraft): FurnishedLevel => ({
   levelNumber,
+  levelVariant,
   structures,
   tiles: addStones(
     addGems(addChest(addKey(tiles, levelType), levelType), levelType, random),

@@ -8,13 +8,24 @@ import {
   TILE_STONE,
   TILE_WOOD,
 } from '@mander/model';
-import { flatten, includes, times } from 'lodash-es';
+import { filter, flatten, includes, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { LEVELS_PER_DAY } from '../consts';
 import { removeFireballs } from './remove-fireballs';
 
 const FIRST_LIT_LEVEL = 4;
+
+const FIRST_UNTOUCHED_LEVEL = 6;
+
+const createFurnace = (): Tile[][] => [
+  [TILE_FIREBALL, TILE_STONE, TILE_FIREBALL, TILE_STONE],
+  [TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT],
+  [TILE_FIREBALL, TILE_STONE, TILE_FIREBALL, TILE_STONE],
+];
+
+const countFireballs = (tiles: Tile[][]): number =>
+  size(filter(flatten(tiles), (tile) => tile === TILE_FIREBALL));
 
 const createForge = (): Tile[][] => [
   [TILE_AIR, TILE_STONE, TILE_AIR, TILE_SPIKE],
@@ -36,9 +47,15 @@ describe('removeFireballs', () => {
     });
   });
 
-  it('should leave the fireballs burning when the level is the fourth through the eighth', () => {
-    times(LEVELS_PER_DAY - FIRST_LIT_LEVEL + 1, (index) => {
-      const levelNumber = FIRST_LIT_LEVEL + index;
+  it('should put the share the level was promised out when it thins the fireballs', () => {
+    expect(countFireballs(createFurnace())).toBe(4);
+    expect(countFireballs(removeFireballs(createFurnace(), 4))).toBe(2);
+    expect(countFireballs(removeFireballs(createFurnace(), 5))).toBe(3);
+  });
+
+  it('should leave the fireballs burning when the level is the sixth or later', () => {
+    times(LEVELS_PER_DAY - FIRST_UNTOUCHED_LEVEL + 1, (index) => {
+      const levelNumber = FIRST_UNTOUCHED_LEVEL + index;
 
       expect(
         removeFireballs(createForge(), levelNumber),

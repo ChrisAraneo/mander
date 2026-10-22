@@ -16,14 +16,19 @@ describe('getCannonRemovalRate', () => {
     expect(getRate(4)).toBe(1);
   });
 
-  it('should leave the cannons standing when the level is the fifth or later', () => {
-    expect(getRate(5)).toBe(0);
+  it('should fill fewer cannons in when the level is the fifth or the sixth', () => {
+    expect(getRate(5)).toBe(0.5);
+    expect(getRate(6)).toBe(0.2);
+  });
+
+  it('should leave the cannons standing when the level is the seventh or later', () => {
+    expect(getRate(7)).toBe(0);
     expect(getRate(8)).toBe(0);
   });
 
   it('should hold a rate for every level of the day when it is given each one', () => {
     expect(map(range(1, LEVELS_PER_DAY + 1), getRate)).toEqual([
-      1, 1, 1, 1, 0, 0, 0, 0,
+      1, 1, 1, 1, 0.5, 0.2, 0, 0,
     ]);
   });
 

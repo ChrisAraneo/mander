@@ -4,7 +4,18 @@ import { createLevelCategories } from './create-level-categories';
 
 describe('createLevelCategories', () => {
   it('should give the category of each level in order when it is given a whole day', () => {
-    expect(createLevelCategories(8)).toEqual([
+    expect(
+      createLevelCategories([
+        'NORMAL',
+        'VERTICAL',
+        'MIRRORED',
+        'NORMAL',
+        'VERTICAL',
+        'MIRRORED',
+        'HARD',
+        'HARD',
+      ]),
+    ).toEqual([
       'NORMAL',
       'VERTICAL',
       'NORMAL',
@@ -17,6 +28,6 @@ describe('createLevelCategories', () => {
   });
 
   it('should give no categories when there are no levels', () => {
-    expect(createLevelCategories(0)).toEqual([]);
+    expect(createLevelCategories([])).toEqual([]);
   });
 });

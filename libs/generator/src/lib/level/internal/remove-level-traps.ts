@@ -4,6 +4,7 @@ import type { LevelDraft } from './types/level-draft';
 
 export const removeLevelTraps = ({
   levelNumber,
+  levelVariant,
   levelType,
   structures,
   tiles,
@@ -11,6 +12,7 @@ export const removeLevelTraps = ({
   random,
 }: LevelDraft): LevelDraft => ({
   levelNumber,
+  levelVariant,
   levelType,
   structures,
   tiles: removeBeartraps(
