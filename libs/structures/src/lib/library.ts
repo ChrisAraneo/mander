@@ -229,6 +229,7 @@ import {
   NORMAL_178,
   NORMAL_179,
   NORMAL_180,
+  NORMAL_181,
   NORMAL_182,
   NORMAL_183,
   NORMAL_184,
@@ -238,6 +239,7 @@ import {
   NORMAL_188,
   NORMAL_189,
   NORMAL_190,
+  NORMAL_191,
   NORMAL_192,
   NORMAL_193,
   NORMAL_194,
@@ -252,7 +254,6 @@ import {
   NORMAL_203,
   NORMAL_204,
   NORMAL_205,
-  NORMAL_181,
 } from './normal';
 import type { Structure, VerticalStructure } from './structure';
 import {
@@ -532,6 +533,7 @@ export const NORMAL_LIBRARY = Object.freeze({
   NORMAL_188,
   NORMAL_189,
   NORMAL_190,
+  NORMAL_191,
   NORMAL_192,
   NORMAL_193,
   NORMAL_194,
