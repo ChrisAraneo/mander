@@ -1,10 +1,9 @@
 import { match, P } from 'ts-pattern';
 import { isStructureText } from '../is-structure-text.ts';
-import type { Pool } from '../types/pool.ts';
 import type { StructurePaths } from '../types/structure-paths.ts';
-import { writeStructureFiles } from '../write-structure-files.ts';
 import type { StructureRequest } from './types/structure-request.ts';
 import type { StructureResponse } from './types/structure-response.ts';
+import { writeSavedResponse } from './write-saved-response.ts';
 
 const { when } = P;
 
@@ -19,16 +18,6 @@ const SHAPELESS_RESPONSE: StructureResponse = {
   status: 400,
   body: { message: 'the grid is not a structure literal' },
 };
-
-const writeSavedResponse = (
-  paths: StructurePaths,
-  name: string,
-  pool: Pool,
-  text: string,
-): Promise<StructureResponse> =>
-  writeStructureFiles(paths, name, pool, text).then(
-    (saved): StructureResponse => ({ status: 200, body: saved }),
-  );
 
 export const writeRequestedStructure = (
   paths: StructurePaths,

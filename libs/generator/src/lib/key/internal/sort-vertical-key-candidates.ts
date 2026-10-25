@@ -1,8 +1,7 @@
 import type { Tile } from '@mander/model';
-import { floor, size, sortBy } from 'lodash-es';
+import { sortBy } from 'lodash-es';
 import type { Spot } from '../../types/spot';
-
-const computeMiddleRow = (tiles: Tile[][]): number => floor(size(tiles) / 2);
+import { computeMiddleRow } from './compute-middle-row';
 
 export const sortVerticalKeyCandidates = (
   tiles: Tile[][],

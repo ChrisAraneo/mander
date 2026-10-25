@@ -72,7 +72,9 @@ const createState = (overrides: Partial<GameState>): GameState => ({
   ...overrides,
 });
 
-const createTickEntities = (overrides: Partial<GameState> = {}): TickEntities =>
+const createTickEntitiesFromState = (
+  overrides: Partial<GameState> = {},
+): TickEntities =>
   computeTickEntities(
     computeTickVolley(
       computeTickHarm(
@@ -93,7 +95,7 @@ const createTickEntitiesAt = (
   canReach: boolean,
   overrides: Partial<GameState> = {},
 ): TickEntities =>
-  pipe(overrides, createTickEntities, (entities): TickEntities => ({
+  pipe(overrides, createTickEntitiesFromState, (entities): TickEntities => ({
     ...entities,
     canReach,
     player: { ...entities.player, position: { x: left, y: 48 } },
@@ -101,7 +103,7 @@ const createTickEntitiesAt = (
 
 describe('patchTickState', () => {
   it('should add the elapsed time to the time of the level when a tick passes', () => {
-    const entities = createTickEntities();
+    const entities = createTickEntitiesFromState();
 
     const state = patchTickState(entities);
 
@@ -109,7 +111,10 @@ describe('patchTickState', () => {
   });
 
   it('should add the gem score for every gem picked up when the player picks up gems', () => {
-    const entities: TickEntities = { ...createTickEntities(), gems: [] };
+    const entities: TickEntities = {
+      ...createTickEntitiesFromState(),
+      gems: [],
+    };
 
     const state = patchTickState(entities);
 
@@ -118,7 +123,7 @@ describe('patchTickState', () => {
   });
 
   it('should keep the score when the player picks up no gem', () => {
-    const tick = createTickEntities();
+    const tick = createTickEntitiesFromState();
     const entities: TickEntities = { ...tick, gems: tick.state.gems };
 
     const state = patchTickState(entities);
@@ -213,7 +218,7 @@ describe('patchTickState', () => {
   });
 
   it('should put the computed level, player, enemies and cannons into the game when a tick passes', () => {
-    const entities = createTickEntities();
+    const entities = createTickEntitiesFromState();
 
     const state = patchTickState(entities);
 
@@ -224,7 +229,7 @@ describe('patchTickState', () => {
   });
 
   it('should put the computed cannonballs, falling spikes, fireballs and bullets into the game when a tick passes', () => {
-    const entities = createTickEntities();
+    const entities = createTickEntitiesFromState();
 
     const state = patchTickState(entities);
 
@@ -235,7 +240,7 @@ describe('patchTickState', () => {
   });
 
   it('should put the computed gems, deaths and status into the game when a tick passes', () => {
-    const entities = createTickEntities();
+    const entities = createTickEntitiesFromState();
 
     const state = patchTickState(entities);
 
@@ -245,7 +250,7 @@ describe('patchTickState', () => {
   });
 
   it('should keep the rest of the game when a tick passes', () => {
-    const entities = createTickEntities();
+    const entities = createTickEntitiesFromState();
 
     const state = patchTickState(entities);
 
@@ -255,10 +260,10 @@ describe('patchTickState', () => {
   });
 
   it('should leave the given entities unchanged when a tick passes', () => {
-    const entities = createTickEntities();
+    const entities = createTickEntitiesFromState();
 
     patchTickState(entities);
 
-    expect(entities).toEqual(createTickEntities());
+    expect(entities).toEqual(createTickEntitiesFromState());
   });
 });

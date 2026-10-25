@@ -1,13 +1,9 @@
 import { type Tile, TILE_BRICK } from '@mander/model';
-import { filter, maxBy, size, uniq } from 'lodash-es';
+import { filter, maxBy, uniq } from 'lodash-es';
 import { pipe } from 'remeda';
+import { countNeighbourTiles } from '../../structures/count-neighbour-tiles';
 import { getNeighbourTiles } from '../../structures/get-neighbour-tiles';
 import { isAverageableTile } from './is-averageable-tile';
-
-const countOf = (
-  neighbours: (Tile | undefined)[],
-  tile: Tile | undefined,
-): number => size(filter(neighbours, (other) => other === tile));
 
 export const computeAverageNeighbourTile = (
   tiles: Tile[][],
@@ -16,6 +12,6 @@ export const computeAverageNeighbourTile = (
 ): Tile =>
   pipe(
     filter(getNeighbourTiles(tiles, row, column), isAverageableTile),
-    (solid) => maxBy(uniq(solid), (tile) => countOf(solid, tile)),
+    (solid) => maxBy(uniq(solid), (tile) => countNeighbourTiles(solid, tile)),
     (average) => average ?? TILE_BRICK,
   );

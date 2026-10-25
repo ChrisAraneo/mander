@@ -4,7 +4,7 @@ export * from './lib/aliases/parse-alias';
 export * from './lib/get-front';
 export * from './lib/get-back';
 export * from './lib/library';
-export * from './lib/structure-name';
+export * from './lib/get-structure-name';
 export * from './lib/vertical-shape/consts';
 export * from './lib/vertical-shape/find-vertical-issues';
 export type { Layer } from './lib/types/layer';

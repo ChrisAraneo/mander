@@ -1,7 +1,5 @@
-import { join, padStart } from 'lodash-es';
-
-const formatTwoDigits = (value: number): string =>
-  padStart(String(value), 2, '0');
+import { join } from 'lodash-es';
+import { formatTwoDigits } from './internal/format-two-digits';
 
 export const serializeDay = (date: Date): string =>
   join(

@@ -4,13 +4,8 @@ import {
   type GameState,
   nextGameState,
 } from '@mander/engine';
-import { match } from 'ts-pattern';
 import type { BackdropFrame } from '../types/backdrop-frame';
-
-const filterPlaying = (idle: GameState, next: GameState): GameState =>
-  match(next.status)
-    .with('PLAYING', () => next)
-    .otherwise(() => idle);
+import { filterPlaying } from './filter-playing';
 
 export const nextBackdropFrame = (
   frame: BackdropFrame,

@@ -3,24 +3,12 @@ import { createWorld } from '@mander/generator';
 import { tap } from 'lodash-es';
 import { pipe } from 'remeda';
 import { animationFrames } from 'rxjs';
-import { match, P } from 'ts-pattern';
 import { onMounted, onUnmounted, type Ref } from 'vue';
-import { createCanvasCell, initializeCanvas } from '../canvas';
+import { createCanvasCell } from '../canvas';
 import { findGhostRuns, readSave, tryGetLocalStorage } from '../storage';
-import {
-  startReplay,
-  type ReplaySession,
-  finishReplay,
-  useReplay,
-} from '../use-replay';
+import { finishReplay, type ReplaySession, useReplay } from '../use-replay';
+import { startArchiveReplay } from './internal/start-archive-replay';
 import type { ArchiveSource } from './types/archive-source';
-
-const { nonNullable } = P;
-
-const startArchiveReplay = (session: ReplaySession): ReplaySession =>
-  match(initializeCanvas(session.stage.cell))
-    .with(nonNullable, () => startReplay(session))
-    .otherwise(() => session);
 
 export const useArchive = (
   source: ArchiveSource,

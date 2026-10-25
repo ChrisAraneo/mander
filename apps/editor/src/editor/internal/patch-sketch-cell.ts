@@ -1,27 +1,9 @@
 import type { Layers } from '@mander/model';
-import { map } from 'lodash-es';
 import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import type { BrushLayer } from '../types/brush-layer';
+import { patchGridCell } from './patch-grid-cell';
 import { removeSketchMarker } from './remove-sketch-marker';
-
-const patchGridCell = (
-  grid: number[][],
-  row: number,
-  column: number,
-  value: number,
-): number[][] =>
-  map(grid, (cells, rowIndex) =>
-    match(rowIndex)
-      .with(row, () =>
-        map(cells, (cell, columnIndex) =>
-          match(columnIndex)
-            .with(column, () => value)
-            .otherwise(() => cell),
-        ),
-      )
-      .otherwise(() => cells),
-  );
 
 export const patchSketchCell = (
   sketch: Layers,

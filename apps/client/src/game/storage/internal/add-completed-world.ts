@@ -1,23 +1,7 @@
-import { concat, find, isUndefined, reject } from 'lodash-es';
-import { match, P } from 'ts-pattern';
+import { concat, find, reject } from 'lodash-es';
 import type { CompletedWorld } from '../types/completed-world';
 import type { SaveData } from '../types/save-data';
-
-const { when } = P;
-
-const findBestCompletedWorld = (
-  run: CompletedWorld,
-  previous: CompletedWorld | undefined,
-): CompletedWorld =>
-  match(previous)
-    .with(
-      when(
-        (earlier): earlier is CompletedWorld =>
-          !isUndefined(earlier) && earlier.score >= run.score,
-      ),
-      (earlier) => earlier,
-    )
-    .otherwise(() => run);
+import { findBestCompletedWorld } from './find-best-completed-world';
 
 export const addCompletedWorld = (
   save: SaveData,

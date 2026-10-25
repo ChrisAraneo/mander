@@ -1,95 +1,17 @@
-import {
-  getReplayDuration,
-  getReplayProgress,
-  isReplayFinished,
-} from '@mander/engine';
-import { FIXED_STEP_SECONDS } from '@mander/model';
-import { computeInterpolatedState } from '@mander/render';
-import { noop, tap } from 'lodash-es';
+import { getReplayDuration } from '@mander/engine';
+import { tap } from 'lodash-es';
 import { pipe } from 'remeda';
-import { match, P } from 'ts-pattern';
 import { patchRef } from '../canvas';
-import { createFixedPulses, type Pulse } from '../tick';
+import { createFixedPulses } from '../tick';
 import { REPLAY_SPEEDS } from './consts';
-import { drawStageState } from './draw-stage-state';
 import { createFirstReplayStep } from './internal/create-first-replay-step';
-import { getGhostStates } from './internal/get-ghost-states';
-import { nextReplayStep } from './internal/next-replay-step';
+import { drawReplayStep } from './internal/draw-replay-step';
+import { handleReplayPulse } from './internal/handle-replay-pulse';
+import { patchReplayStep } from './internal/patch-replay-step';
 import { toOriginReplay } from './internal/to-origin-replay';
-import type { ReplayStep } from './internal/types/replay-step';
 import type { ReplaySession } from './types/replay-session';
 
-const { nonNullable } = P;
-
 const MS_PER_SECOND = 1000;
-
-const patchReplayStep = (
-  session: ReplaySession,
-  step: ReplayStep,
-): ReplayStep =>
-  pipe(
-    step,
-    (next) => tap(next, () => patchRef(session.frame, next.frame)),
-    (next) => tap(next, () => patchRef(session.ghosts, next.ghosts)),
-    (next) =>
-      tap(next, () =>
-        patchRef(
-          session.progress,
-          getReplayProgress(session.recording.value, next.frame.playback),
-        ),
-      ),
-    (next) =>
-      tap(next, () =>
-        patchRef(
-          session.elapsedSeconds,
-          next.frame.playback.step * FIXED_STEP_SECONDS,
-        ),
-      ),
-    (next) =>
-      tap(next, () =>
-        patchRef(
-          session.isFinished,
-          isReplayFinished(session.recording.value, next.frame.playback),
-        ),
-      ),
-  );
-
-const drawReplayStep = (session: ReplaySession, step: ReplayStep): void =>
-  drawStageState(
-    session.stage,
-    computeInterpolatedState(
-      step.frame.previous,
-      step.frame.playback.state,
-      step.alpha,
-    ),
-    getGhostStates(step.ghosts, step.alpha),
-  );
-
-const handleReplayPulse = (session: ReplaySession, pulse: Pulse): void =>
-  match({
-    frame: session.frame.value,
-    isPaused: session.isPaused.value,
-    isFinished: session.isFinished.value,
-  })
-    .with(
-      { frame: nonNullable, isPaused: false, isFinished: false },
-      ({ frame }) =>
-        drawReplayStep(
-          session,
-          patchReplayStep(
-            session,
-            nextReplayStep(
-              session.recording.value,
-              frame,
-              session.ghosts.value,
-              pulse.steps * session.speed.value,
-              pulse.alpha,
-              () => performance.now(),
-            ),
-          ),
-        ),
-    )
-    .otherwise(noop);
 
 export const startReplay = (session: ReplaySession): ReplaySession =>
   pipe(

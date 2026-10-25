@@ -1,27 +1,9 @@
-import { constant, replace } from 'lodash-es';
+import { constant } from 'lodash-es';
 import { match, P } from 'ts-pattern';
-import { getPool } from '../get-pool.ts';
-import { isStructureName } from '../is-structure-name.ts';
+import { createStructureRequest } from './create-structure-request.ts';
 import type { StructureRequest } from './types/structure-request.ts';
 
-const { nonNullable, string } = P;
-
-const WINDOWS_LINE_END = /\r\n/g;
-
-const createStructureRequest = (
-  name: string,
-  text: string,
-): StructureRequest | undefined =>
-  match({ pool: getPool(name), isNamed: isStructureName(name) })
-    .with(
-      { pool: nonNullable, isNamed: true },
-      ({ pool }): StructureRequest => ({
-        name,
-        pool,
-        text: replace(text, WINDOWS_LINE_END, '\n'),
-      }),
-    )
-    .otherwise(constant(undefined));
+const { string } = P;
 
 export const parseStructureRequest = (
   body: unknown,

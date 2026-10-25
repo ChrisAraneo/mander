@@ -13,13 +13,12 @@ import {
   drawTiles,
   type Palette,
 } from '@mander/render';
-import { STRUCTURE_END, STRUCTURE_START } from '@mander/structures';
-import { filter, flatMap, includes, map, tap } from 'lodash-es';
+import { map, tap } from 'lodash-es';
 import { pipe } from 'remeda';
 import { createStructureTileMap } from './create-structure-tile-map';
 import { drawMarker } from './draw-marker';
 import { drawOrbit } from './draw-orbit';
-import type { MarkerCell } from './types/marker-cell';
+import { filterMarkerCells } from './internal/filter-marker-cells';
 import type { StructureScene } from './types/structure-scene';
 
 const NO_PALETTE: Palette = {
@@ -29,18 +28,6 @@ const NO_PALETTE: Palette = {
   blockCap: '',
   blockCapHighlight: '',
 };
-
-const MARKERS = [STRUCTURE_START, STRUCTURE_END];
-
-const filterMarkerCells = (grid: number[][]): MarkerCell[] =>
-  pipe(
-    grid,
-    (rows) =>
-      flatMap(rows, (cells, row) =>
-        map(cells, (cell, column): MarkerCell => ({ cell, row, column })),
-      ),
-    (cells) => filter(cells, ({ cell }) => includes(MARKERS, cell)),
-  );
 
 export const drawStructure = (
   context: CanvasRenderingContext2D,

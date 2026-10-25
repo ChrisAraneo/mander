@@ -1,12 +1,12 @@
 import { size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
+import { getStructureName } from './get-structure-name';
 import {
   HARD_STRUCTURES,
   NORMAL_STRUCTURES,
   VERTICAL_STRUCTURES,
 } from './library';
-import { getStructureName } from './structure-name';
 import type { Sector } from './types/sector';
 
 const getFirstStructure = (structures: readonly Sector[]): Sector =>

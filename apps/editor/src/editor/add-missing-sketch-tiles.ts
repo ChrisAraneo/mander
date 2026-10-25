@@ -1,15 +1,7 @@
-import { type Layers, TILE_AIR } from '@mander/model';
-import { head, map, range, size, times } from 'lodash-es';
+import type { Layers } from '@mander/model';
+import { head, size } from 'lodash-es';
 import { pipe } from 'remeda';
-
-const addMissingGridTiles = (
-  grid: number[][],
-  height: number,
-  width: number,
-): number[][] =>
-  map(range(height), (row) =>
-    times(width, (column) => grid[row]?.[column] ?? TILE_AIR),
-  );
+import { addMissingGridTiles } from './internal/add-missing-grid-tiles';
 
 export const addMissingSketchTiles = (sketch: Layers): Layers =>
   pipe(

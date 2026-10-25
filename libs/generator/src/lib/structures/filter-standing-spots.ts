@@ -1,18 +1,7 @@
-import { isSolidTile, type Tile, TILE_AIR } from '@mander/model';
-import { every, filter, flatMap, map, range, size } from 'lodash-es';
+import { isSolidTile, type Tile } from '@mander/model';
+import { filter, flatMap, map, range, size } from 'lodash-es';
 import type { Spot } from '../types/spot';
-
-const isClear = (
-  tiles: Tile[][],
-  row: number,
-  column: number,
-  clearance: number,
-): boolean =>
-  row >= clearance &&
-  every(
-    range(1, clearance + 1),
-    (offset) => tiles[row - offset][column] === TILE_AIR,
-  );
+import { isClear } from './internal/is-clear';
 
 export const filterStandingSpots = (
   tiles: Tile[][],

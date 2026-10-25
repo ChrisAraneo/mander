@@ -1,10 +1,7 @@
 import type { Tile } from '@mander/model';
-import { STRUCTURE_WIDTH } from '@mander/structures';
-import { floor, size, sortBy } from 'lodash-es';
+import { sortBy } from 'lodash-es';
 import type { Spot } from '../../types/spot';
-
-const computeMiddleSeam = (tiles: Tile[][]): number =>
-  floor(size(tiles[0]) / 2 / STRUCTURE_WIDTH) * STRUCTURE_WIDTH;
+import { computeMiddleSeam } from './compute-middle-seam';
 
 export const sortHorizontalKeyCandidates = (
   tiles: Tile[][],

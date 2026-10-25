@@ -1,18 +1,7 @@
 import { type GameLevel, HORNED_ENEMY_CHANCE } from '@mander/engine';
-import { type Layers, type Tile, TILE_AIR } from '@mander/model';
-import { STRUCTURE_START, STRUCTURE_END } from '@mander/structures';
-import { head, includes, map, size } from 'lodash-es';
-import { match } from 'ts-pattern';
-
-const NOT_DRAWN = [STRUCTURE_START, STRUCTURE_END];
-
-const toTile = (cell: number): Tile =>
-  match(includes(NOT_DRAWN, cell))
-    .with(true, () => TILE_AIR)
-    .otherwise(() => cell);
-
-const toTiles = (grid: number[][]): Tile[][] =>
-  map(grid, (cells) => map(cells, toTile));
+import type { Layers } from '@mander/model';
+import { head, size } from 'lodash-es';
+import { toStructureTiles } from './internal/to-structure-tiles';
 
 export const createStructureTileMap = ({
   tiles,
@@ -21,8 +10,8 @@ export const createStructureTileMap = ({
   seed: '',
   width: size(head(tiles)),
   height: size(tiles),
-  tiles: toTiles(tiles),
-  backTiles: toTiles(backTiles),
+  tiles: toStructureTiles(tiles),
+  backTiles: toStructureTiles(backTiles),
   chestItems: [],
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
 });

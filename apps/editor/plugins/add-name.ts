@@ -1,13 +1,6 @@
-import { endsWith, includes, isEmpty, trimEnd } from 'lodash-es';
+import { includes } from 'lodash-es';
 import { match } from 'ts-pattern';
-
-const addTrailingComma = (list: string): string =>
-  match(trimEnd(list))
-    .when(
-      (body) => isEmpty(body) || endsWith(body, ','),
-      (body) => body,
-    )
-    .otherwise((body) => `${body},`);
+import { addTrailingComma } from './internal/add-trailing-comma.ts';
 
 export const addName = (list: string, name: string): string =>
   match(includes(list, '\n'))

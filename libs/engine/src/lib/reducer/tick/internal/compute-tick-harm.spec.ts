@@ -58,7 +58,7 @@ const createStateWithDeath = (death: number | null): GameState => ({
   },
 });
 
-const createTickStomps = (death: number | null): TickStomps =>
+const createTickStompsWithDeath = (death: number | null): TickStomps =>
   computeTickStomps(
     computeTickHazards(
       computeTickPlayer({
@@ -70,7 +70,7 @@ const createTickStomps = (death: number | null): TickStomps =>
 
 describe('computeTickHarm', () => {
   it('should give the gored enemies when the player is alive', () => {
-    const tick = createTickStomps(null);
+    const tick = createTickStompsWithDeath(null);
 
     const harm = computeTickHarm(tick);
 
@@ -81,7 +81,7 @@ describe('computeTickHarm', () => {
   });
 
   it('should give the striking cannonballs when the player is alive', () => {
-    const tick = createTickStomps(null);
+    const tick = createTickStompsWithDeath(null);
 
     const harm = computeTickHarm(tick);
 
@@ -91,7 +91,7 @@ describe('computeTickHarm', () => {
   });
 
   it('should give the outcome of the harm when the player is alive', () => {
-    const tick = createTickStomps(null);
+    const tick = createTickStompsWithDeath(null);
 
     const harm = computeTickHarm(tick);
 
@@ -112,7 +112,7 @@ describe('computeTickHarm', () => {
   });
 
   it('should give no gored enemies and no hits when the player is dying', () => {
-    const tick = createTickStomps(0.1);
+    const tick = createTickStompsWithDeath(0.1);
 
     const harm = computeTickHarm(tick);
 
@@ -122,7 +122,7 @@ describe('computeTickHarm', () => {
   });
 
   it('should keep the player, the deaths and the game going when the player is dying', () => {
-    const tick = createTickStomps(0.1);
+    const tick = createTickStompsWithDeath(0.1);
 
     const harm = computeTickHarm(tick);
 
@@ -132,7 +132,7 @@ describe('computeTickHarm', () => {
   });
 
   it('should pass the same game on when the player is harmed', () => {
-    const tick = createTickStomps(null);
+    const tick = createTickStompsWithDeath(null);
 
     const harm = computeTickHarm(tick);
 
@@ -140,7 +140,7 @@ describe('computeTickHarm', () => {
   });
 
   it('should pass the same elapsed time on when the player is harmed', () => {
-    const tick = createTickStomps(null);
+    const tick = createTickStompsWithDeath(null);
 
     const harm = computeTickHarm(tick);
 
@@ -148,7 +148,7 @@ describe('computeTickHarm', () => {
   });
 
   it('should pass the same cannons on when the player is harmed', () => {
-    const tick = createTickStomps(null);
+    const tick = createTickStompsWithDeath(null);
 
     const harm = computeTickHarm(tick);
 
@@ -156,7 +156,7 @@ describe('computeTickHarm', () => {
   });
 
   it('should pass the same flying cannonballs on when the player is harmed', () => {
-    const tick = createTickStomps(null);
+    const tick = createTickStompsWithDeath(null);
 
     const harm = computeTickHarm(tick);
 
@@ -164,7 +164,7 @@ describe('computeTickHarm', () => {
   });
 
   it('should pass the same falling spikes on when the player is harmed', () => {
-    const tick = createTickStomps(null);
+    const tick = createTickStompsWithDeath(null);
 
     const harm = computeTickHarm(tick);
 
@@ -172,7 +172,7 @@ describe('computeTickHarm', () => {
   });
 
   it('should pass the same fireballs on when the player is harmed', () => {
-    const tick = createTickStomps(null);
+    const tick = createTickStompsWithDeath(null);
 
     const harm = computeTickHarm(tick);
 
@@ -180,7 +180,7 @@ describe('computeTickHarm', () => {
   });
 
   it('should pass the same flying bullets on when the player is harmed', () => {
-    const tick = createTickStomps(null);
+    const tick = createTickStompsWithDeath(null);
 
     const harm = computeTickHarm(tick);
 
@@ -188,7 +188,7 @@ describe('computeTickHarm', () => {
   });
 
   it('should pass the same enemies after the stomps on when the player is harmed', () => {
-    const tick = createTickStomps(null);
+    const tick = createTickStompsWithDeath(null);
 
     const harm = computeTickHarm(tick);
 

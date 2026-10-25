@@ -68,7 +68,7 @@ const createStateWithDeath = (death: number | null): GameState => ({
   },
 });
 
-const createTickVolley = (death: number | null): TickVolley =>
+const createTickVolleyWithDeath = (death: number | null): TickVolley =>
   computeTickVolley(
     computeTickHarm(
       computeTickStomps(
@@ -84,7 +84,7 @@ const createTickVolley = (death: number | null): TickVolley =>
 
 describe('computeTickEntities', () => {
   it('should crush the shot enemies when the entities are updated', () => {
-    const tick = createTickVolley(null);
+    const tick = createTickVolleyWithDeath(null);
 
     const entities = computeTickEntities(tick);
 
@@ -92,7 +92,7 @@ describe('computeTickEntities', () => {
   });
 
   it('should drop the cannonballs that hit the player from the flying ones when the player is struck', () => {
-    const tick = createTickVolley(null);
+    const tick = createTickVolleyWithDeath(null);
     const volley: TickVolley = { ...tick, hits: take(tick.flying, 1) };
 
     const entities = computeTickEntities(volley);
@@ -102,7 +102,7 @@ describe('computeTickEntities', () => {
   });
 
   it('should keep every flying cannonball when no cannonball hits the player', () => {
-    const tick = createTickVolley(null);
+    const tick = createTickVolleyWithDeath(null);
     const volley: TickVolley = { ...tick, hits: [] };
 
     const entities = computeTickEntities(volley);
@@ -111,7 +111,7 @@ describe('computeTickEntities', () => {
   });
 
   it('should let the player reach things and pick up the gems it stands on when the player is alive', () => {
-    const tick = createTickVolley(null);
+    const tick = createTickVolleyWithDeath(null);
 
     const entities = computeTickEntities(tick);
 
@@ -123,7 +123,7 @@ describe('computeTickEntities', () => {
   });
 
   it('should not let the player reach things and keep the same gems when the player is dying', () => {
-    const tick = createTickVolley(0.1);
+    const tick = createTickVolleyWithDeath(0.1);
 
     const entities = computeTickEntities(tick);
 
@@ -132,7 +132,7 @@ describe('computeTickEntities', () => {
   });
 
   it('should pass the same game on when the entities are updated', () => {
-    const tick = createTickVolley(null);
+    const tick = createTickVolleyWithDeath(null);
 
     const entities = computeTickEntities(tick);
 
@@ -140,7 +140,7 @@ describe('computeTickEntities', () => {
   });
 
   it('should pass the same elapsed time on when the entities are updated', () => {
-    const tick = createTickVolley(null);
+    const tick = createTickVolleyWithDeath(null);
 
     const entities = computeTickEntities(tick);
 
@@ -148,7 +148,7 @@ describe('computeTickEntities', () => {
   });
 
   it('should pass the same cannons on when the entities are updated', () => {
-    const tick = createTickVolley(null);
+    const tick = createTickVolleyWithDeath(null);
 
     const entities = computeTickEntities(tick);
 
@@ -156,7 +156,7 @@ describe('computeTickEntities', () => {
   });
 
   it('should pass the same fireballs on when the entities are updated', () => {
-    const tick = createTickVolley(null);
+    const tick = createTickVolleyWithDeath(null);
 
     const entities = computeTickEntities(tick);
 
@@ -164,7 +164,7 @@ describe('computeTickEntities', () => {
   });
 
   it('should pass the same player on when the entities are updated', () => {
-    const tick = createTickVolley(null);
+    const tick = createTickVolleyWithDeath(null);
 
     const entities = computeTickEntities(tick);
 
@@ -172,7 +172,7 @@ describe('computeTickEntities', () => {
   });
 
   it('should pass the same deaths on when the entities are updated', () => {
-    const tick = createTickVolley(null);
+    const tick = createTickVolleyWithDeath(null);
 
     const entities = computeTickEntities(tick);
 
@@ -180,7 +180,7 @@ describe('computeTickEntities', () => {
   });
 
   it('should pass the same game status on when the entities are updated', () => {
-    const tick = createTickVolley(null);
+    const tick = createTickVolleyWithDeath(null);
 
     const entities = computeTickEntities(tick);
 
@@ -188,7 +188,7 @@ describe('computeTickEntities', () => {
   });
 
   it('should pass the same bullets on when the entities are updated', () => {
-    const tick = createTickVolley(null);
+    const tick = createTickVolleyWithDeath(null);
 
     const entities = computeTickEntities(tick);
 
@@ -196,7 +196,7 @@ describe('computeTickEntities', () => {
   });
 
   it('should pass the same unshot falling spikes on when the entities are updated', () => {
-    const tick = createTickVolley(null);
+    const tick = createTickVolleyWithDeath(null);
 
     const entities = computeTickEntities(tick);
 
@@ -204,7 +204,7 @@ describe('computeTickEntities', () => {
   });
 
   it('should pass the same level on when the entities are updated', () => {
-    const tick = createTickVolley(null);
+    const tick = createTickVolleyWithDeath(null);
 
     const entities = computeTickEntities(tick);
 

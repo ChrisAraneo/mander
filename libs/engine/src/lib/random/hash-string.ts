@@ -1,9 +1,7 @@
-import { padStart, toUpper } from 'lodash-es';
+import { toUpper } from 'lodash-es';
 import { pipe } from 'remeda';
 import { createXmur3 } from './internal/create-xmur3';
-
-const toHashChunk = (value: number): string =>
-  padStart(value.toString(36), 7, '0');
+import { toHashChunk } from './internal/to-hash-chunk';
 
 export const hashString = (input: string): string =>
   pipe(

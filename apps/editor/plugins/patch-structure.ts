@@ -1,17 +1,9 @@
-import { replace, trimEnd } from 'lodash-es';
+import { replace } from 'lodash-es';
 import { match } from 'ts-pattern';
+import { addDeclaration } from './internal/add-declaration.ts';
+import { createBlockPattern } from './internal/create-block-pattern.ts';
+import { formatStructureDeclaration } from './internal/format-structure-declaration.ts';
 import type { StructurePatch } from './types/structure-patch.ts';
-
-const createBlockPattern = (name: string): RegExp =>
-  new RegExp(
-    `export const ${name}: (?:Vertical)?Structure = \\[[\\s\\S]*?\\n\\];`,
-  );
-
-const formatDeclaration = (name: string, type: string, text: string): string =>
-  `export const ${name}: ${type} = ${text};`;
-
-const addDeclaration = (source: string, declaration: string): string =>
-  `${trimEnd(source)}\n\n${declaration}\n`;
 
 export const patchStructure = (
   source: string,
@@ -22,11 +14,14 @@ export const patchStructure = (
   match(createBlockPattern(name).test(source))
     .with(true, (): StructurePatch => ({
       source: replace(source, createBlockPattern(name), () =>
-        formatDeclaration(name, type, text),
+        formatStructureDeclaration(name, type, text),
       ),
       isCreated: false,
     }))
     .otherwise((): StructurePatch => ({
-      source: addDeclaration(source, formatDeclaration(name, type, text)),
+      source: addDeclaration(
+        source,
+        formatStructureDeclaration(name, type, text),
+      ),
       isCreated: true,
     }));

@@ -1,22 +1,9 @@
-import {
-  type Clock,
-  nextPlayback,
-  type Replay,
-  type ReplayPlayback,
-} from '@mander/engine';
+import { type Clock, nextPlayback, type Replay } from '@mander/engine';
 import { match, P } from 'ts-pattern';
 import type { PlaybackFrame } from '../types/playback-frame';
+import { createFrameAfterStep } from './create-frame-after-step';
 
 const { number } = P;
-
-const createFrameAfterStep = (
-  replay: Replay,
-  before: ReplayPlayback,
-  now: Clock,
-): PlaybackFrame => ({
-  previous: before.state,
-  playback: nextPlayback(replay, before, 1, now),
-});
 
 export const nextFrames = (
   replay: Replay,

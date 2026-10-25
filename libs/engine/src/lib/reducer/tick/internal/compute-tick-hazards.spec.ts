@@ -54,7 +54,7 @@ const createStateWithDeath = (death: number | null): GameState => ({
   },
 });
 
-const createTickPlayer = (death: number | null): TickPlayer =>
+const createTickPlayerWithDeath = (death: number | null): TickPlayer =>
   computeTickPlayer({
     state: createStateWithDeath(death),
     deltaSeconds: DELTA_SECONDS,
@@ -62,7 +62,7 @@ const createTickPlayer = (death: number | null): TickPlayer =>
 
 describe('computeTickHazards', () => {
   it('should give the hazards of a fresh level when the player has respawned', () => {
-    const tick = createTickPlayer(0.74);
+    const tick = createTickPlayerWithDeath(0.74);
 
     const hazards = computeTickHazards(tick);
 
@@ -77,7 +77,7 @@ describe('computeTickHazards', () => {
   });
 
   it('should give the hazards moved for the tick when the player has not respawned', () => {
-    const tick = createTickPlayer(null);
+    const tick = createTickPlayerWithDeath(null);
 
     const hazards = computeTickHazards(tick);
 
@@ -92,7 +92,7 @@ describe('computeTickHazards', () => {
   });
 
   it('should give no bullets when the player has respawned', () => {
-    const tick = createTickPlayer(0.74);
+    const tick = createTickPlayerWithDeath(0.74);
 
     const hazards = computeTickHazards(tick);
 
@@ -100,7 +100,7 @@ describe('computeTickHazards', () => {
   });
 
   it('should pass the same game on when the hazards move', () => {
-    const tick = createTickPlayer(null);
+    const tick = createTickPlayerWithDeath(null);
 
     const hazards = computeTickHazards(tick);
 
@@ -108,7 +108,7 @@ describe('computeTickHazards', () => {
   });
 
   it('should pass the same elapsed time on when the hazards move', () => {
-    const tick = createTickPlayer(null);
+    const tick = createTickPlayerWithDeath(null);
 
     const hazards = computeTickHazards(tick);
 
@@ -116,7 +116,7 @@ describe('computeTickHazards', () => {
   });
 
   it('should pass the same moved player on when the hazards move', () => {
-    const tick = createTickPlayer(null);
+    const tick = createTickPlayerWithDeath(null);
 
     const hazards = computeTickHazards(tick);
 
@@ -124,7 +124,7 @@ describe('computeTickHazards', () => {
   });
 
   it('should pass on whether the player is alive when the hazards move', () => {
-    const tick = createTickPlayer(0.1);
+    const tick = createTickPlayerWithDeath(0.1);
 
     const hazards = computeTickHazards(tick);
 

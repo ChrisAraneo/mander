@@ -1,14 +1,10 @@
-import { difference, isEmpty, map, reduce, replace, uniq } from 'lodash-es';
+import { difference, isEmpty, reduce, replace } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { addName } from './add-name.ts';
+import { parseAliases } from './internal/parse-aliases.ts';
 import { splitNames } from './split-names.ts';
 
 const IMPORT = /import \{([^}]*)\} from '\.\/consts';/;
-
-const TOKEN = /[A-Za-z_][A-Za-z0-9_]*/g;
-
-const parseAliases = (text: string): string[] =>
-  uniq(map([...text.matchAll(TOKEN)], ([alias]) => alias));
 
 export const addAliases = (source: string, text: string): string =>
   match(IMPORT.exec(source))
