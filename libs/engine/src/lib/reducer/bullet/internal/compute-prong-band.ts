@@ -1,4 +1,11 @@
-import { getSpikeOrientation, type Level, PRONG_HEIGHT, TILE_SIZE, type Point, type Rectangle } from '@mander/model';
+import {
+  getSpikeOrientation,
+  type Level,
+  PRONG_HEIGHT,
+  TILE_SIZE,
+  type Point,
+  type Rectangle,
+} from '@mander/model';
 import { match } from 'ts-pattern';
 
 export const computeProngBand = (level: Level, tile: Point): Rectangle => ({

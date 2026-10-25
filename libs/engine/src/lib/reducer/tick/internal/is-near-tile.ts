@@ -1,4 +1,9 @@
-import { type EntityBox, getEntityRectangle, type Player, type Point } from '@mander/model';
+import {
+  type EntityBox,
+  getEntityRectangle,
+  type Player,
+  type Point,
+} from '@mander/model';
 import { match, P } from 'ts-pattern';
 import { isIntersecting } from './is-intersecting';
 
