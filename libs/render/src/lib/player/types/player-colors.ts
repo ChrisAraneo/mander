@@ -5,4 +5,5 @@ export interface PlayerColors {
   skin: string;
   hair: string;
   eye: string;
+  outline: string;
 }

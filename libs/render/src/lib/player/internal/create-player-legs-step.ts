@@ -6,6 +6,7 @@ import { drawFill } from '../../canvas/draw-fill';
 import { createOutlineStep } from '../../stroke/create-outline-step';
 import type { CanvasStep } from '../../types/canvas-step';
 import type { PlayerColors } from '../types/player-colors';
+import { NO_EXTRA_OUTLINE_WIDTH } from './consts';
 import { createPlayerGroundedLegsStep } from './create-player-grounded-legs-step';
 import { drawPlayerAirborneLegs } from './draw-player-airborne-legs';
 
@@ -19,7 +20,7 @@ export const createPlayerLegsStep = (
     match(isGrounded)
       .with(true, () => createPlayerGroundedLegsStep(swing))
       .otherwise(() => drawPlayerAirborneLegs),
-    createOutlineStep(),
+    createOutlineStep(NO_EXTRA_OUTLINE_WIDTH, colors.outline),
     createStyleStep({ fillStyle: colors.legs }),
     drawFill,
   ]);

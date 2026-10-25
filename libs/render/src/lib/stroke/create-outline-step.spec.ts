@@ -25,4 +25,15 @@ describe('createOutlineStep', () => {
       'stroke()',
     ]);
   });
+
+  it('should outline the path in the given colour when a colour is given', () => {
+    const calls = drawRecorded(createOutlineStep(0, '#FFFFFF'));
+
+    expect(calls).toEqual([
+      'set strokeStyle(#FFFFFF)',
+      'set lineWidth(4)',
+      'set lineJoin(round)',
+      'stroke()',
+    ]);
+  });
 });

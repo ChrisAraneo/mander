@@ -4,10 +4,13 @@ import { drawStroke } from '../canvas/draw-stroke';
 import type { CanvasStep } from '../types/canvas-step';
 import { STROKE_COLOR, STROKE_WIDTH } from './consts';
 
-export const createOutlineStep = (lineWidth = 0): CanvasStep =>
+export const createOutlineStep = (
+  lineWidth = 0,
+  color: string = STROKE_COLOR,
+): CanvasStep =>
   createSequenceStep([
     createStyleStep({
-      strokeStyle: STROKE_COLOR,
+      strokeStyle: color,
       lineWidth: lineWidth + STROKE_WIDTH * 2,
       lineJoin: 'round',
     }),

@@ -1,18 +1,23 @@
 import type { Player } from '@mander/model';
+import { filter, last, startsWith, take, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { drawRecorded } from '../../test/draw-recorded';
+import { INVINCIBLE_PULSES_PER_SECOND } from './consts';
 import { createPlayerStep } from './create-player-step';
+
+const HALF_PULSE_SECONDS = 1 / INVINCIBLE_PULSES_PER_SECOND / 2;
 
 const createTestPlayer = (
   speed: number,
   isGrounded: boolean,
   death: number | null,
+  invincibility = 0,
 ): Player => ({
   position: { x: 64, y: 96 },
   velocity: { x: { current: speed, max: 220 }, y: { current: 0, max: 400 } },
   hearts: { value: 3 },
-  timers: { death, invincibility: 0, star: 0, hurt: 0 },
+  timers: { death, invincibility, star: 0, hurt: 0 },
   statuses: { isFacingRight: true, isGrounded, isJumpQueued: false },
 });
 
@@ -132,5 +137,47 @@ describe('createPlayerStep', () => {
       'stroke()',
       'restore()',
     ]);
+  });
+
+  it('should fade the player right after saving the canvas when the player is invincible', () => {
+    const calls = drawRecorded(
+      createPlayerStep(
+        createTestPlayer(0, true, null, 1.5),
+        HALF_PULSE_SECONDS,
+      ),
+    );
+
+    expect(take(calls, 2)).toEqual(['save()', 'set globalAlpha(0.3)']);
+  });
+
+  it('should outline the whole player in white when the player is invincible', () => {
+    const calls = drawRecorded(
+      createPlayerStep(createTestPlayer(0, true, null, 1.5), 0),
+    );
+
+    expect(
+      uniq(filter(calls, (call) => startsWith(call, 'set strokeStyle'))),
+    ).toEqual(['set strokeStyle(#FFFFFF)']);
+  });
+
+  it('should restore the canvas at the end when the player is invincible', () => {
+    const calls = drawRecorded(
+      createPlayerStep(createTestPlayer(0, true, null, 1.5), 0),
+    );
+
+    expect(last(calls)).toBe('restore()');
+  });
+
+  it('should leave the player solid with a dark outline when the player is not invincible', () => {
+    const calls = drawRecorded(
+      createPlayerStep(createTestPlayer(0, true, null), 0),
+    );
+
+    expect(
+      filter(calls, (call) => startsWith(call, 'set globalAlpha')),
+    ).toEqual([]);
+    expect(
+      uniq(filter(calls, (call) => startsWith(call, 'set strokeStyle'))),
+    ).toEqual(['set strokeStyle(#0f0d16)']);
   });
 });
