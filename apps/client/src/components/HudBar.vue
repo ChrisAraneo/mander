@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import type { GameState } from '@mander/engine';
-import { chain } from '@mander/model';
-import { range } from 'lodash-es';
+import { map, range } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { computed } from 'vue';
 import { isDebug } from '../game/debug';
-import { formatClock } from '../game/format';
+import { formatClock, formatScore } from '../game/format';
 
 const props = defineProps<{
   state: GameState;
@@ -15,14 +14,13 @@ const props = defineProps<{
 }>();
 defineEmits<{ exit: [] }>();
 
+const createHeartPips = (current: number): boolean[] =>
+  map(range(Math.max(current, 1)), (index) => index < current);
+
 const time = computed(() => formatClock(props.state.time));
 
 const hearts = computed(() =>
-  chain(Math.max(0, props.state.player.hearts.value))
-    .thru((current) =>
-      range(Math.max(current, 1)).map((index) => index < current),
-    )
-    .value(),
+  createHeartPips(Math.max(0, props.state.player.hearts.value)),
 );
 
 const stars = computed(() => props.state.stars);
@@ -37,9 +35,9 @@ const keyLabel = computed(() =>
     .otherwise(() => '🔒 No key'),
 );
 
-const score = computed(() => props.state.score.toLocaleString('en-US'));
+const score = computed(() => formatScore(props.state.score));
 
-const isDebugShown = isDebug();
+const isDebugShown = isDebug(window.location.search);
 </script>
 
 <template>

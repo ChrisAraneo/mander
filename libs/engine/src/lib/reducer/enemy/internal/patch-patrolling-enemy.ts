@@ -1,4 +1,5 @@
-import { type Enemy, type Level, type Player, chain } from '@mander/model';
+import { type Enemy, type Level, type Player } from '@mander/model';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { isOverlappingSpike } from '../../spike/is-overlapping-spike';
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from '../consts';
@@ -11,8 +12,10 @@ export const patchPatrollingEnemy = (
   player: Player,
   deltaSeconds: number,
 ): Enemy =>
-  chain(patchLivingEnemy(level, enemy, player, deltaSeconds))
-    .thru((stepped) =>
+  pipe(
+    enemy,
+    (patrolling) => patchLivingEnemy(level, patrolling, player, deltaSeconds),
+    (stepped) =>
       match(
         isOverlappingSpike(
           level,
@@ -24,5 +27,4 @@ export const patchPatrollingEnemy = (
       )
         .with(true, () => startEnemyDeath(stepped))
         .otherwise(() => stepped),
-    )
-    .value();
+  );

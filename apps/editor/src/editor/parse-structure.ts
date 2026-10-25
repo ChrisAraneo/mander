@@ -1,47 +1,43 @@
-import { type Layers, chain } from '@mander/model';
-import { compact, filter, map, size, split, trim } from 'lodash-es';
-
+import type { Layers } from '@mander/model';
 import { parseAlias } from '@mander/structures';
+import { compact, filter, map, size, split, trim } from 'lodash-es';
+import { pipe } from 'remeda';
+import type { StructureRow } from './types/structure-row';
 
 const ROW = /^ {4}\[([\w, ]+)\],$/gm;
 
 const LAYER_END = /^ {2}\],$/m;
 
-interface Row {
-  cells: number[];
-  at: number;
-}
-
 const parseCells = (row: string): number[] =>
   map(compact(map(split(row, ','), trim)), parseAlias);
 
-const parseRows = (text: string): Row[] =>
-  map([...text.matchAll(ROW)], (match): Row => ({
-    cells: parseCells(match[1]),
-    at: match.index ?? 0,
+const parseRows = (text: string): StructureRow[] =>
+  map([...text.matchAll(ROW)], (found): StructureRow => ({
+    cells: parseCells(found[1]),
+    at: found.index ?? 0,
   }));
 
 const findBoundary = (text: string): number =>
-  chain(text.search(LAYER_END))
-    .thru((at) => (at < 0 ? size(text) : at))
-    .value();
+  LAYER_END.exec(text)?.index ?? size(text);
 
-const takeBefore = (rows: Row[], boundary: number): number[][] =>
+const sliceRowsBefore = (rows: StructureRow[], boundary: number): number[][] =>
   map(
     filter(rows, (row) => row.at < boundary),
     (row) => row.cells,
   );
 
-const takeAfter = (rows: Row[], boundary: number): number[][] =>
+const sliceRowsAfter = (rows: StructureRow[], boundary: number): number[][] =>
   map(
     filter(rows, (row) => row.at > boundary),
     (row) => row.cells,
   );
 
 export const parseStructure = (text: string): Layers =>
-  chain({ rows: parseRows(text), boundary: findBoundary(text) })
-    .thru(({ rows, boundary }): Layers => ({
-      tiles: takeBefore(rows, boundary),
-      backTiles: takeAfter(rows, boundary),
-    }))
-    .value();
+  pipe(
+    text,
+    (source) => ({ rows: parseRows(source), boundary: findBoundary(source) }),
+    ({ rows, boundary }): Layers => ({
+      tiles: sliceRowsBefore(rows, boundary),
+      backTiles: sliceRowsAfter(rows, boundary),
+    }),
+  );

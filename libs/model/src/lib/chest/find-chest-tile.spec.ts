@@ -1,25 +1,26 @@
+import { size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import { TILE_DIRT } from '../blocks/dirt';
-import type { Level } from '../level/level';
-import type { Tile } from '../tile/tile';
-import { TILE_CHEST } from './chest';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_DIRT } from '../blocks/tile-dirt';
+import type { Level } from '../types/level';
+import type { Tile } from '../types/tile';
 import { findChestTile } from './find-chest-tile';
+import { TILE_CHEST } from './tile-chest';
 
-const level = (tiles: Tile[][]): Level => ({
+const createLevel = (tiles: Tile[][]): Level => ({
   seed: 'SEED',
-  width: tiles[0].length,
-  height: tiles.length,
+  width: size(tiles[0]),
+  height: size(tiles),
   tiles,
   chestItems: [],
 });
 
 describe('findChestTile', () => {
-  it('should point at the chest when the level holds one', () => {
+  it('should return the chest position when the level has a chest', () => {
     expect(
       findChestTile(
-        level([
+        createLevel([
           [TILE_AIR, TILE_CHEST],
           [TILE_DIRT, TILE_DIRT],
         ]),
@@ -27,10 +28,10 @@ describe('findChestTile', () => {
     ).toEqual({ x: 1, y: 0 });
   });
 
-  it('should come back empty-handed when the level holds no chest', () => {
+  it('should return null when the level has no chest', () => {
     expect(
       findChestTile(
-        level([
+        createLevel([
           [TILE_AIR, TILE_AIR],
           [TILE_DIRT, TILE_DIRT],
         ]),
@@ -38,10 +39,10 @@ describe('findChestTile', () => {
     ).toBeNull();
   });
 
-  it('should take the first it meets when the level hides more than one', () => {
+  it('should return the first chest in reading order when the level has several', () => {
     expect(
       findChestTile(
-        level([
+        createLevel([
           [TILE_AIR, TILE_AIR, TILE_CHEST],
           [TILE_CHEST, TILE_DIRT, TILE_DIRT],
         ]),

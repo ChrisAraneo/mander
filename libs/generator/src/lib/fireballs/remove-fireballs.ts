@@ -1,5 +1,5 @@
 import type { Tile } from '@mander/model';
-import { flow } from 'lodash-es';
+import { pipe } from 'remeda';
 import { createFireballPatches } from './internal/create-fireball-patches';
 import { filterFireballCells } from './internal/filter-fireball-cells';
 import { getFireballRemovalRate } from './internal/get-fireball-removal-rate';
@@ -10,10 +10,11 @@ export const removeFireballs = (
   tiles: Tile[][],
   levelNumber: number,
 ): Tile[][] =>
-  flow(
+  pipe(
+    { tiles, levelNumber },
     getFireballRemovalRate,
     filterFireballCells,
     sliceFireballCells,
     createFireballPatches,
     patchFireballTiles,
-  )({ tiles, levelNumber });
+  );

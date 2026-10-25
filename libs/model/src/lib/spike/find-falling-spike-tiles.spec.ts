@@ -1,16 +1,19 @@
+import { size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import { TILE_DIRT } from '../blocks/dirt';
-import type { Level } from '../level/level';
-import type { Tile } from '../tile/tile';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_DIRT } from '../blocks/tile-dirt';
+import type { Level } from '../types/level';
+import type { Tile } from '../types/tile';
 import { findFallingSpikeTiles } from './find-falling-spike-tiles';
-import { TILE_SPIKE, TILE_SPIKE_CEILING, TILE_SPIKE_FALLING } from './spike';
+import { TILE_SPIKE } from './tile-spike';
+import { TILE_SPIKE_CEILING } from './tile-spike-ceiling';
+import { TILE_SPIKE_FALLING } from './tile-spike-falling';
 
-const level = (tiles: Tile[][]): Level => ({
+const createLevel = (tiles: Tile[][]): Level => ({
   seed: 'SEED',
-  width: tiles[0].length,
-  height: tiles.length,
+  width: size(tiles[0]),
+  height: size(tiles),
   tiles,
   chestItems: [],
 });
@@ -19,7 +22,7 @@ describe('findFallingSpikeTiles', () => {
   it('should return the position of every falling spike when the level has some', () => {
     expect(
       findFallingSpikeTiles(
-        level([
+        createLevel([
           [TILE_AIR, TILE_SPIKE_FALLING, TILE_AIR],
           [TILE_AIR, TILE_AIR, TILE_AIR],
           [TILE_SPIKE_FALLING, TILE_AIR, TILE_DIRT],
@@ -34,7 +37,7 @@ describe('findFallingSpikeTiles', () => {
   it('should return the positions in reading order when the level is full of them', () => {
     expect(
       findFallingSpikeTiles(
-        level([
+        createLevel([
           [TILE_SPIKE_FALLING, TILE_SPIKE_FALLING],
           [TILE_SPIKE_FALLING, TILE_SPIKE_FALLING],
         ]),
@@ -50,7 +53,7 @@ describe('findFallingSpikeTiles', () => {
   it('should ignore floor and ceiling spikes when the level mixes the spike kinds', () => {
     expect(
       findFallingSpikeTiles(
-        level([
+        createLevel([
           [TILE_SPIKE_CEILING, TILE_SPIKE_FALLING, TILE_SPIKE_CEILING],
           [TILE_AIR, TILE_AIR, TILE_AIR],
           [TILE_SPIKE, TILE_SPIKE, TILE_SPIKE],
@@ -62,7 +65,7 @@ describe('findFallingSpikeTiles', () => {
   it('should return nothing when the level has no falling spikes', () => {
     expect(
       findFallingSpikeTiles(
-        level([
+        createLevel([
           [TILE_AIR, TILE_SPIKE],
           [TILE_DIRT, TILE_SPIKE_CEILING],
         ]),

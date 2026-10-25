@@ -7,7 +7,7 @@ import {
   TILE_SIZE,
   TILE_SPAWN,
 } from '@mander/model';
-import { times } from 'lodash-es';
+import { constant, times } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -16,8 +16,8 @@ import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
 import { FIREBALL_ORBIT_RADIUS } from './fireball/consts';
+import { nextGameState } from './next-game-state';
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from './player/consts';
-import { reduce } from './reduce';
 
 const { number } = P;
 
@@ -46,7 +46,7 @@ const createTestLevel = (): GameLevel => ({
 });
 
 const nextTick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK' });
+  nextGameState(state, { type: 'TICK' }, constant(0));
 
 const createFireballOnPlayer = (state: GameState): Fireball => ({
   spin: 'CLOCKWISE',

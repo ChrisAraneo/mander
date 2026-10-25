@@ -1,5 +1,17 @@
-import { type Item, MAX_JUMP_TILES, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, chain } from '@mander/model';
-import { head, map, size } from 'lodash-es';
+import {
+  type Item,
+  MAX_JUMP_TILES,
+  type Tile,
+  TILE_AIR,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SIZE,
+  TILE_SPAWN,
+} from '@mander/model';
+import { constant, head, map, size } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -7,8 +19,8 @@ import { createInitialState } from '../state/create-initial-state';
 import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
+import { nextGameState } from './next-game-state';
 import { PLAYER_HEIGHT } from './player/consts';
-import { reduce } from './reduce';
 
 interface HeldJump {
   hasLanded: boolean;
@@ -74,19 +86,20 @@ const createTestLevel = (): GameLevel => ({
 });
 
 const nextTick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK' });
+  nextGameState(state, { type: 'TICK' }, constant(0));
 
 const createSettledState = (left: number, inventory: Item[] = []): GameState =>
-  chain(createInitialState(createTestLevel(), 0, inventory))
-    .thru((state): GameState => ({
+  pipe(
+    createInitialState(createTestLevel(), 0, inventory),
+    (state): GameState => ({
       ...state,
       player: {
         ...state.player,
         position: { x: left, y: SURFACE - PLAYER_HEIGHT },
       },
-    }))
-    .thru((state) => nextTick(state))
-    .value();
+    }),
+    (state) => nextTick(state),
+  );
 
 const computeJumpApexFrom = (
   state: GameState,
@@ -94,17 +107,18 @@ const computeJumpApexFrom = (
   tickIndex: number,
   apex: number,
 ): number =>
-  chain(
+  pipe(
     match(tickIndex === holdTicks)
-      .with(true, () => reduce(state, { type: 'JUMP_STOP' }))
+      .with(true, () =>
+        nextGameState(state, { type: 'JUMP_STOP' }, constant(0)),
+      )
       .otherwise(() => state),
-  )
-    .thru((released) => nextTick(released))
-    .thru((ticked) => ({
+    (released) => nextTick(released),
+    (ticked) => ({
       ticked,
       lowest: Math.min(apex, ticked.player.position.y),
-    }))
-    .thru(({ ticked, lowest }) =>
+    }),
+    ({ ticked, lowest }) =>
       match(
         (ticked.player.statuses.isGrounded && tickIndex > 2) ||
           tickIndex === JUMP_APEX_TICKS - 1,
@@ -113,31 +127,33 @@ const computeJumpApexFrom = (
         .otherwise(() =>
           computeJumpApexFrom(ticked, holdTicks, tickIndex + 1, lowest),
         ),
-    )
-    .value();
+  );
 
 const computeJumpApex = (start: GameState, holdTicks: number): number =>
-  chain(reduce(start, { type: 'JUMP_START' }))
-    .thru((jumped) =>
+  pipe(
+    start,
+    (state) => nextGameState(state, { type: 'JUMP_START' }, constant(0)),
+    (jumped) =>
       computeJumpApexFrom(jumped, holdTicks, 0, jumped.player.position.y),
-    )
-    .value();
+  );
 
 const computeHeldJump = (
   state: GameState,
   tickIndex: number,
   hasLanded: boolean,
 ): HeldJump =>
-  chain(nextTick(state))
-    .thru((ticked) => ({
+  pipe(
+    state,
+    nextTick,
+    (ticked) => ({
       ticked,
       isGrounded: ticked.player.statuses.isGrounded,
       hasRejumped:
         !ticked.player.statuses.isGrounded &&
         hasLanded &&
         ticked.player.velocity.y.current < 0,
-    }))
-    .thru(({ ticked, isGrounded, hasRejumped }) =>
+    }),
+    ({ ticked, isGrounded, hasRejumped }) =>
       match({ hasRejumped, isLastTick: tickIndex === HELD_JUMP_TICKS - 1 })
         .with({ hasRejumped: true }, (): HeldJump => ({
           hasLanded,
@@ -150,21 +166,24 @@ const computeHeldJump = (
         .otherwise(() =>
           computeHeldJump(ticked, tickIndex + 1, hasLanded || isGrounded),
         ),
-    )
-    .value();
+  );
 
 describe('jumping', () => {
   it('should jump only when the player is grounded', () => {
     const start = createSettledState(3 * TILE_SIZE);
-    const pressed = reduce(start, { type: 'JUMP_START' });
+    const pressed = nextGameState(start, { type: 'JUMP_START' }, constant(0));
     const rising = nextTick(pressed);
 
     expect(rising.player.velocity.y.current).toBeLessThan(0);
     expect(rising.player.statuses.isGrounded).toBe(false);
 
-    const released = reduce(rising, { type: 'JUMP_STOP' });
+    const released = nextGameState(rising, { type: 'JUMP_STOP' }, constant(0));
     const risingVelocityY = released.player.velocity.y.current;
-    const pressedAgain = reduce(released, { type: 'JUMP_START' });
+    const pressedAgain = nextGameState(
+      released,
+      { type: 'JUMP_START' },
+      constant(0),
+    );
     const ticked = nextTick(pressedAgain);
 
     expect(ticked.player.velocity.y.current).toBeGreaterThan(risingVelocityY);
@@ -173,10 +192,10 @@ describe('jumping', () => {
 
   it('should ignore the jump when the key is only being held down', () => {
     const start = createSettledState(3 * TILE_SIZE);
-    const pressed = reduce(start, { type: 'JUMP_START' });
+    const pressed = nextGameState(start, { type: 'JUMP_START' }, constant(0));
     const jumped = nextTick(pressed);
     const rising = jumped.player.velocity.y.current;
-    const held = reduce(jumped, { type: 'JUMP_START' });
+    const held = nextGameState(jumped, { type: 'JUMP_START' }, constant(0));
     const ticked = nextTick(held);
 
     expect(ticked.player.velocity.y.current).toBeGreaterThan(rising);
@@ -185,7 +204,7 @@ describe('jumping', () => {
 
   it('should jump again on landing when the jump button stays held', () => {
     const start = createSettledState(3 * TILE_SIZE);
-    const pressed = reduce(start, { type: 'JUMP_START' });
+    const pressed = nextGameState(start, { type: 'JUMP_START' }, constant(0));
 
     const { hasLanded, hasRejumped } = computeHeldJump(pressed, 0, false);
 

@@ -1,25 +1,26 @@
+import { size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import { TILE_DIRT } from '../blocks/dirt';
-import type { Level } from '../level/level';
-import type { Tile } from '../tile/tile';
-import { TILE_ENEMY } from './enemy-spawn';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_DIRT } from '../blocks/tile-dirt';
+import type { Level } from '../types/level';
+import type { Tile } from '../types/tile';
 import { findEnemyTiles } from './find-enemy-tiles';
+import { TILE_ENEMY } from './tile-enemy';
 
-const level = (tiles: Tile[][]): Level => ({
+const createLevel = (tiles: Tile[][]): Level => ({
   seed: 'SEED',
-  width: tiles[0].length,
-  height: tiles.length,
+  width: size(tiles[0]),
+  height: size(tiles),
   tiles,
   chestItems: [],
 });
 
 describe('findEnemyTiles', () => {
-  it('should gather every spot when the level posts several enemies', () => {
+  it('should return every enemy position when the level has several enemies', () => {
     expect(
       findEnemyTiles(
-        level([
+        createLevel([
           [TILE_ENEMY, TILE_AIR, TILE_ENEMY],
           [TILE_AIR, TILE_ENEMY, TILE_AIR],
           [TILE_DIRT, TILE_DIRT, TILE_DIRT],
@@ -32,10 +33,10 @@ describe('findEnemyTiles', () => {
     ]);
   });
 
-  it('should gather the one spot when the level posts a single enemy', () => {
+  it('should return one position when the level has a single enemy', () => {
     expect(
       findEnemyTiles(
-        level([
+        createLevel([
           [TILE_AIR, TILE_ENEMY],
           [TILE_DIRT, TILE_DIRT],
         ]),
@@ -43,10 +44,10 @@ describe('findEnemyTiles', () => {
     ).toEqual([{ x: 1, y: 0 }]);
   });
 
-  it('should gather nothing when the level is left unguarded', () => {
+  it('should return nothing when the level has no enemy', () => {
     expect(
       findEnemyTiles(
-        level([
+        createLevel([
           [TILE_AIR, TILE_AIR],
           [TILE_DIRT, TILE_DIRT],
         ]),

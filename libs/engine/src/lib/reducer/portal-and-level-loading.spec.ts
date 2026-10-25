@@ -1,14 +1,25 @@
-import { type Item, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, chain } from '@mander/model';
-import { head, map, omit, size } from 'lodash-es';
+import {
+  type Item,
+  type Tile,
+  TILE_AIR,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SIZE,
+  TILE_SPAWN,
+} from '@mander/model';
+import { constant, head, map, omit, size } from 'lodash-es';
+import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
 import { createInitialState } from '../state/create-initial-state';
 import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
+import { nextGameState } from './next-game-state';
 import { PLAYER_HEIGHT } from './player/consts';
 import { getSpawnPosition } from './player/get-spawn-position';
-import { reduce } from './reduce';
 
 const LEGEND: Record<string, Tile> = {
   '.': TILE_AIR,
@@ -70,19 +81,20 @@ const createTestLevel = (): GameLevel => ({
 const SPAWN_X = getSpawnPosition(createTestLevel()).x;
 
 const nextTick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK' });
+  nextGameState(state, { type: 'TICK' }, constant(0));
 
 const createSettledState = (left: number, inventory: Item[] = []): GameState =>
-  chain(createInitialState(createTestLevel(), 0, inventory))
-    .thru((state): GameState => ({
+  pipe(
+    createInitialState(createTestLevel(), 0, inventory),
+    (state): GameState => ({
       ...state,
       player: {
         ...state.player,
         position: { x: left, y: SURFACE - PLAYER_HEIGHT },
       },
-    }))
-    .thru((state) => nextTick(state))
-    .value();
+    }),
+    (state) => nextTick(state),
+  );
 
 describe('portal and level loading', () => {
   it('should complete the level when the player enters the portal without the key', () => {
@@ -90,7 +102,7 @@ describe('portal and level loading', () => {
 
     expect(start.isNearPortal).toBe(true);
 
-    const completed = reduce(start, { type: 'INTERACT' });
+    const completed = nextGameState(start, { type: 'INTERACT' }, constant(0));
 
     expect(completed.status).toBe('COMPLETE');
     expect(computeSimulation(nextTick(completed))).toEqual(
@@ -101,14 +113,22 @@ describe('portal and level loading', () => {
   it('should wind the clock back but keep the inventory when the next level loads', () => {
     const start = createSettledState(20 * TILE_SIZE - 20);
     const keyed = { ...start, hasKey: true };
-    const opened = reduce(keyed, { type: 'INTERACT' });
-    const chosen = reduce(opened, { type: 'CHOOSE_ITEM', index: 3 });
+    const opened = nextGameState(keyed, { type: 'INTERACT' }, constant(0));
+    const chosen = nextGameState(
+      opened,
+      { type: 'CHOOSE_ITEM', index: 3 },
+      constant(0),
+    );
     const carried = chosen.time;
-    const loaded = reduce(chosen, {
-      type: 'LOAD_LEVEL',
-      level: createTestLevel(),
-      levelIndex: 1,
-    });
+    const loaded = nextGameState(
+      chosen,
+      {
+        type: 'LOAD_LEVEL',
+        level: createTestLevel(),
+        levelIndex: 1,
+      },
+      constant(0),
+    );
 
     expect(loaded.levelIndex).toBe(1);
     expect(loaded.status).toBe('PLAYING');

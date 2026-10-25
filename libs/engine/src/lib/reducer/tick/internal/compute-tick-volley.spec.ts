@@ -14,8 +14,8 @@ import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../../../state/create-initial-state';
 import type { GameLevel } from '../../../types/game-level';
 import type { GameState } from '../../../types/game-state';
-import { fireBullet } from '../../bullet/fire-bullet';
-import { resolveVolley } from '../../bullet/resolve-volley';
+import { computeVolley } from '../../bullet/compute-volley';
+import { createFiredBullet } from '../../bullet/create-fired-bullet';
 import { computeTickHarm } from './compute-tick-harm';
 import { computeTickHazards } from './compute-tick-hazards';
 import { computeTickPlayer } from './compute-tick-player';
@@ -57,7 +57,7 @@ const BASE_STATE = createInitialState(LEVEL, 0, []);
 const createState = (): GameState => ({
   ...BASE_STATE,
   input: { isLeft: false, isRight: true, isJump: false },
-  bullets: [fireBullet(BASE_STATE.player)],
+  bullets: [createFiredBullet(BASE_STATE.player)],
 });
 
 const createTickHarm = (): TickHarm =>
@@ -84,7 +84,7 @@ describe('computeTickVolley', () => {
       fallingSpikes: volley.unshot,
       level: volley.level,
     }).toEqual(
-      resolveVolley(
+      computeVolley(
         tick.flyingBullets,
         patchStruckEnemies(tick.afterStomps, tick.gored),
         tick.fallingSpikes,

@@ -1,19 +1,7 @@
 import { filter, map } from 'lodash-es';
-
-import type { Brush } from './brush';
-import {
-  BACKGROUND,
-  BLOCKS,
-  BRUSHES,
-  EMPTY,
-  HAZARDS,
-  MARKERS,
-} from './brushes';
-
-export interface BrushGroup {
-  name: string;
-  brushes: Brush[];
-}
+import { BRUSHES } from './brushes';
+import { BACKGROUND, BLOCKS, EMPTY, HAZARDS, MARKERS } from './consts';
+import type { BrushGroup } from './types/brush-group';
 
 const ROWS: readonly (readonly string[])[] = Object.freeze([
   Object.freeze([EMPTY]),
@@ -26,6 +14,6 @@ const createGroup = (name: string): BrushGroup => ({
   brushes: filter(BRUSHES, (brush) => brush.group === name),
 });
 
-export const BRUSH_ROWS: BrushGroup[][] = map(ROWS, (names) =>
-  map(names, createGroup),
+export const BRUSH_ROWS: readonly (readonly BrushGroup[])[] = Object.freeze(
+  map(ROWS, (names) => Object.freeze(map(names, createGroup))),
 );

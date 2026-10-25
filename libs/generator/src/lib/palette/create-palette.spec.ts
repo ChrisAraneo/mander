@@ -1,7 +1,7 @@
 import { createRandom } from '@mander/engine';
-import { chain } from '@mander/model';
 import { parseHsl } from '@mander/render';
 import { every, map, size, times, uniq } from 'lodash-es';
+import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
 import { createPalette } from './create-palette';
@@ -52,13 +52,14 @@ describe('createPalette', () => {
   it('should light the highlight of the cap above the cap when it paints a world', () => {
     expect(
       every(SEEDS, (seed) =>
-        chain(createPalette(createRandom(seed)))
-          .thru(
-            (palette) =>
-              (parseHsl(palette.blockCapHighlight)?.lightness ?? 0) >
-              (parseHsl(palette.blockCap)?.lightness ?? 0),
-          )
-          .value(),
+        pipe(
+          seed,
+          createRandom,
+          createPalette,
+          (palette) =>
+            (parseHsl(palette.blockCapHighlight)?.lightness ?? 0) >
+            (parseHsl(palette.blockCap)?.lightness ?? 0),
+        ),
       ),
     ).toBe(true);
   });

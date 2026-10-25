@@ -1,8 +1,7 @@
 import vue from '@vitejs/plugin-vue';
 import { map } from 'lodash-es';
 import { defineConfig } from 'vite';
-
-import { POOLS } from './plugins/pool.ts';
+import { POOLS } from './plugins/consts.ts';
 import { createStructureLibrary } from './plugins/create-structure-library.ts';
 
 const LIBRARY_DIR = '**/libs/structures/src/lib';

@@ -1,10 +1,11 @@
-import { getFireballHeading } from '@mander/engine';
+import { FIREBALL_SIZE, getFireballHeading } from '@mander/engine';
 import type { Fireball, Point } from '@mander/model';
 import type { CanvasStep } from '../../types/canvas-step';
+import { computeFlicker } from '../compute-flicker';
 import { createFlameStep } from '../create-flame-step';
-import { getFlicker } from '../get-flicker';
 import type { FireballColors } from '../types/fireball-colors';
-import { FIREBALL_RADIUS } from './consts';
+
+const FIREBALL_RADIUS = FIREBALL_SIZE / 2;
 
 export const createFireballFlameStep = (
   fireball: Fireball,
@@ -15,6 +16,6 @@ export const createFireballFlameStep = (
   createFlameStep(
     position,
     getFireballHeading(fireball),
-    FIREBALL_RADIUS * getFlicker(fireball.angle, time),
+    FIREBALL_RADIUS * computeFlicker(fireball.angle, time),
     colors,
   );

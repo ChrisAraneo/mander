@@ -1,5 +1,5 @@
 import type { Tile } from '@mander/model';
-import { flow } from 'lodash-es';
+import { pipe } from 'remeda';
 import { addPaddingRows } from './internal/add-padding-rows';
 import { computePaddingMissingDepth } from './internal/compute-padding-missing-depth';
 import { createPadding } from './internal/create-padding';
@@ -12,7 +12,8 @@ export const addPadding = (
   tiles: Tile[][],
   front: Tile[][] = tiles,
 ): Tile[][] =>
-  flow(
+  pipe(
+    { tiles, front },
     findPaddingLowestFilledRow,
     computePaddingMissingDepth,
     createPadding,
@@ -20,4 +21,4 @@ export const addPadding = (
     createPaddingSkyRows,
     createPaddingBedrockRows,
     addPaddingRows,
-  )({ tiles, front });
+  );

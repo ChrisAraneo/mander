@@ -1,8 +1,8 @@
 import type { Player } from '@mander/model';
 import { match, P } from 'ts-pattern';
 import type { GameState } from '../../../types/game-state';
+import { nextPlayer } from '../../player/next-player';
 import { patchDyingPlayer } from '../../player/patch-dying-player';
-import { stepPlayer } from '../../player/step-player';
 import { patchPlayerTimers } from './patch-player-timers';
 
 const { number } = P;
@@ -17,7 +17,7 @@ export const patchMovedPlayer = (
     )
     .otherwise(() =>
       patchPlayerTimers(
-        stepPlayer(state.level, state.player, state.input, deltaSeconds),
+        nextPlayer(state.level, state.player, state.input, deltaSeconds),
         deltaSeconds,
       ),
     );

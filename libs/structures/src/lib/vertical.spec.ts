@@ -1,41 +1,50 @@
-import { every, filter, flatten, map, size, uniq } from 'lodash-es';
+import {
+  every,
+  filter,
+  flatten,
+  isEqual,
+  map,
+  padStart,
+  size,
+  uniqWith,
+} from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { STRUCTURE_WIDTH } from './consts';
+import { STRUCTURE_END, STRUCTURE_START, STRUCTURE_WIDTH } from './consts';
+import { getFront } from './get-front';
 import { VERTICAL_STRUCTURES } from './library';
-import { STRUCTURE_END, STRUCTURE_START } from './special-tiles';
-import { getFront } from './layers';
-import type { VerticalStructure } from './structure';
-import { findVerticalIssues, VERTICAL_HEIGHT } from './vertical-shape';
+import type { VerticalStructure } from './types/vertical-structure';
+import { VERTICAL_HEIGHT } from './vertical-shape/consts';
+import { findVerticalIssues } from './vertical-shape/find-vertical-issues';
 
-const named = (index: number): string =>
-  `VERTICAL_${String(index + 1).padStart(3, '0')}`;
+const formatVerticalName = (index: number): string =>
+  `VERTICAL_${padStart(String(index + 1), 3, '0')}`;
 
-const countOf = (structure: VerticalStructure, tile: number): number =>
+const countTiles = (structure: VerticalStructure, tile: number): number =>
   size(filter(flatten(getFront(structure)), (cell) => cell === tile));
 
 describe('VERTICAL_STRUCTURES', () => {
-  it('should give the generator sectors to stack when the library is read', () => {
+  it('should hold at least one structure when the library is read', () => {
     expect(size(VERTICAL_STRUCTURES)).toBeGreaterThan(0);
   });
 
-  it('should hold the sector to the shape the stack is joined by when it holds every one', () => {
-    const broken = flatten(
+  it('should give no shape issues when every structure is checked', () => {
+    const issues = flatten(
       map(VERTICAL_STRUCTURES, (structure, index) =>
         map(
           findVerticalIssues(getFront(structure)),
-          (issue) => `${named(index)}: ${issue}`,
+          (issue) => `${formatVerticalName(index)}: ${issue}`,
         ),
       ),
     );
 
-    expect(broken).toEqual([]);
+    expect(issues).toEqual([]);
   });
 
-  it('should cut the sector to the size of a vertical structure when it holds every one', () => {
-    const ragged = filter(
+  it('should give every structure the size of a vertical structure when every structure is checked', () => {
+    const wrongSize = filter(
       map(VERTICAL_STRUCTURES, (structure, index) => ({
-        name: named(index),
+        name: formatVerticalName(index),
         structure,
       })),
       ({ structure }) =>
@@ -43,28 +52,26 @@ describe('VERTICAL_STRUCTURES', () => {
         !every(getFront(structure), (row) => size(row) === STRUCTURE_WIDTH),
     );
 
-    expect(map(ragged, ({ name }) => name)).toEqual([]);
+    expect(map(wrongSize, ({ name }) => name)).toEqual([]);
   });
 
-  it('should mark where the player comes in and where they leave when it holds a sector', () => {
+  it('should mark one start and one end when every structure is checked', () => {
     const unmarked = filter(
       map(VERTICAL_STRUCTURES, (structure, index) => ({
-        name: named(index),
+        name: formatVerticalName(index),
         structure,
       })),
       ({ structure }) =>
-        countOf(structure, STRUCTURE_START) !== 1 ||
-        countOf(structure, STRUCTURE_END) !== 1,
+        countTiles(structure, STRUCTURE_START) !== 1 ||
+        countTiles(structure, STRUCTURE_END) !== 1,
     );
 
     expect(map(unmarked, ({ name }) => name)).toEqual([]);
   });
 
-  it('should build no two sectors the same when it holds every one', () => {
-    const prints = map(VERTICAL_STRUCTURES, (structure) =>
-      JSON.stringify(structure),
+  it('should hold no two equal structures when every structure is checked', () => {
+    expect(size(uniqWith(VERTICAL_STRUCTURES, isEqual))).toBe(
+      size(VERTICAL_STRUCTURES),
     );
-
-    expect(size(uniq(prints))).toBe(size(VERTICAL_STRUCTURES));
   });
 });

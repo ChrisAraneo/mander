@@ -1,6 +1,5 @@
 import type { Level } from '@mander/model';
 import { computeAxisMove } from './internal/compute-axis-move';
-import { isOverlappingSolid } from './internal/is-overlapping-solid';
 import type { AxisMove } from './types/axis-move';
 
 export const computeVerticalMove = (
@@ -12,9 +11,11 @@ export const computeVerticalMove = (
   delta: number,
 ): AxisMove =>
   computeAxisMove({
-    origin: originY,
+    axis: 'VERTICAL',
+    level,
+    originX,
+    originY,
+    width,
+    height,
     delta,
-    size: height,
-    isColliding: (position) =>
-      isOverlappingSolid(level, originX, position, width, height),
   });

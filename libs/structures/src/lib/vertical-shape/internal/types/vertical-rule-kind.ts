@@ -1,0 +1,8 @@
+export type VerticalRuleKind =
+  | 'EMPTY_END_ROW'
+  | 'MARKED_END'
+  | 'EMPTY_ARRIVAL_ROWS'
+  | 'MARKED_START'
+  | 'LAUNCH_PLATFORM'
+  | 'OPEN_LANDING_SHAFT'
+  | 'LANDING_LEDGE';

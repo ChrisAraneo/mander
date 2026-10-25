@@ -24,4 +24,22 @@ describe('createOptionalStep', () => {
 
     expect(calls).toEqual([]);
   });
+
+  it('should draw nothing when the value is null', () => {
+    const calls = drawRecorded(
+      createOptionalStep(null, (point: { x: number; y: number }) =>
+        createMoveToStep(point.x, point.y),
+      ),
+    );
+
+    expect(calls).toEqual([]);
+  });
+
+  it('should draw the step when the value is zero', () => {
+    const calls = drawRecorded(
+      createOptionalStep(0, (offset) => createMoveToStep(offset, offset)),
+    );
+
+    expect(calls).toEqual(['moveTo(0, 0)']);
+  });
 });

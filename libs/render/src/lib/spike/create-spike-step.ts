@@ -1,5 +1,12 @@
-import { computeSpikeTriangles, getSpikeOrientation, getSpikeShape, type Level, TILE_SIZE, chain } from '@mander/model';
+import {
+  computeSpikeTriangles,
+  getSpikeOrientation,
+  getSpikeShape,
+  type Level,
+  TILE_SIZE,
+} from '@mander/model';
 import { map } from 'lodash-es';
+import { pipe } from 'remeda';
 import { createSequenceStep } from '../canvas/create-sequence-step';
 import type { CanvasStep } from '../types/canvas-step';
 import { createProngStep } from './create-prong-step';
@@ -9,16 +16,13 @@ export const createSpikeStep = (
   column: number,
   row: number,
 ): CanvasStep =>
-  chain(
+  pipe(
     computeSpikeTriangles(
       column * TILE_SIZE,
       row * TILE_SIZE,
       getSpikeOrientation(level, column, row),
       getSpikeShape(level, column, row),
     ),
-  )
-    .thru((triangles) =>
-      map(triangles, (triangle) => createProngStep(triangle)),
-    )
-    .thru(createSequenceStep)
-    .value();
+    (triangles) => map(triangles, (triangle) => createProngStep(triangle)),
+    createSequenceStep,
+  );

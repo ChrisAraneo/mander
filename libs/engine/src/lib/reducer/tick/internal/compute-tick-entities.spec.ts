@@ -15,8 +15,8 @@ import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../../../state/create-initial-state';
 import type { GameLevel } from '../../../types/game-level';
 import type { GameState } from '../../../types/game-state';
-import { fireCannonball } from '../../cannon/fire-cannonball';
-import { crushEnemies } from '../../enemy/crush-enemies';
+import { createFiredCannonball } from '../../cannon/create-fired-cannonball';
+import { patchCrushedEnemies } from '../../enemy/patch-crushed-enemies';
 import { computeTickEntities } from './compute-tick-entities';
 import { computeTickHarm } from './compute-tick-harm';
 import { computeTickHazards } from './compute-tick-hazards';
@@ -60,7 +60,7 @@ const BASE_STATE = createInitialState(LEVEL, 0, []);
 const createStateWithDeath = (death: number | null): GameState => ({
   ...BASE_STATE,
   input: { isLeft: false, isRight: true, isJump: false },
-  cannonballs: map(BASE_STATE.cannons, fireCannonball),
+  cannonballs: map(BASE_STATE.cannons, createFiredCannonball),
   player: {
     ...BASE_STATE.player,
     position: { x: 34, y: 48 },
@@ -88,7 +88,7 @@ describe('computeTickEntities', () => {
 
     const entities = computeTickEntities(tick);
 
-    expect(entities.enemies).toEqual(crushEnemies(tick.shot));
+    expect(entities.enemies).toEqual(patchCrushedEnemies(tick.shot));
   });
 
   it('should drop the cannonballs that hit the player from the flying ones when the player is struck', () => {

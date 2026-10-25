@@ -5,7 +5,7 @@ import { createSequenceStep } from '../../canvas/create-sequence-step';
 import { createStyleStep } from '../../canvas/create-style-step';
 import { drawBeginPath } from '../../canvas/draw-begin-path';
 import { drawFill } from '../../canvas/draw-fill';
-import { outline } from '../../stroke/outline';
+import { createOutlineStep } from '../../stroke/create-outline-step';
 import type { CanvasStep } from '../../types/canvas-step';
 import type { FireballColors } from '../types/fireball-colors';
 
@@ -16,7 +16,7 @@ export const createFlameBallStep = (
   createSequenceStep([
     drawBeginPath,
     createArcStep(0, 0, radius, 0, Math.PI * 2),
-    outline(),
+    createOutlineStep(),
     createContextStyleStep((context) => ({
       fillStyle: createRadialGradient(context, 0, 0, 1, 0, 0, radius, [
         [0, colors.core],

@@ -1,13 +1,13 @@
 export * from './lib/consts';
-export * from './lib/aliases';
-export * from './lib/layers';
+export * from './lib/aliases/get-alias';
+export * from './lib/aliases/parse-alias';
+export * from './lib/get-front';
+export * from './lib/get-back';
 export * from './lib/library';
 export * from './lib/structure-name';
-export * from './lib/special-tiles';
-export * from './lib/vertical-shape';
-export type {
-  Layer,
-  Sector,
-  Structure,
-  VerticalStructure,
-} from './lib/structure';
+export * from './lib/vertical-shape/consts';
+export * from './lib/vertical-shape/find-vertical-issues';
+export type { Layer } from './lib/types/layer';
+export type { Sector } from './lib/types/sector';
+export type { Structure } from './lib/types/structure';
+export type { VerticalStructure } from './lib/types/vertical-structure';

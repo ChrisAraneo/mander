@@ -1,9 +1,8 @@
 import { inRange } from 'lodash-es';
 import { match } from 'ts-pattern';
-
-import { TILE_AIR } from '../air/air';
-import type { Level } from '../level/level';
-import type { Tile } from '../tile/tile';
+import { TILE_AIR } from '../air/tile-air';
+import type { Level } from '../types/level';
+import type { Tile } from '../types/tile';
 
 export const getBackTileAt = (
   level: Level,

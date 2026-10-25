@@ -1,7 +1,7 @@
 import type { Enemy, Level, Player } from '@mander/model';
 import { match } from 'ts-pattern';
-import { stepBeartrap } from '../step-beartrap';
-import { stepEnemy } from '../step-enemy';
+import { nextBeartrap } from '../next-beartrap';
+import { nextEnemy } from '../next-enemy';
 import { patchFlyingEnemy } from './patch-flying-enemy';
 
 export const patchLivingEnemy = (
@@ -11,8 +11,8 @@ export const patchLivingEnemy = (
   deltaSeconds: number,
 ): Enemy =>
   match(enemy.kind)
-    .with('HOPPING', () => stepEnemy(level, enemy, player, deltaSeconds))
-    .with('HORNED', () => stepEnemy(level, enemy, player, deltaSeconds))
+    .with('HOPPING', () => nextEnemy(level, enemy, player, deltaSeconds))
+    .with('HORNED', () => nextEnemy(level, enemy, player, deltaSeconds))
     .with('FLYING', () => patchFlyingEnemy(level, enemy, deltaSeconds))
-    .with('BEARTRAP', () => stepBeartrap(level, enemy, player, deltaSeconds))
-    .exhaustive(() => stepEnemy(level, enemy, player, deltaSeconds));
+    .with('BEARTRAP', () => nextBeartrap(level, enemy, player, deltaSeconds))
+    .exhaustive(() => nextEnemy(level, enemy, player, deltaSeconds));

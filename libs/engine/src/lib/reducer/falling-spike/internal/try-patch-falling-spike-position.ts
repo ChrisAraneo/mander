@@ -1,4 +1,5 @@
-import { type FallingSpike, GRAVITY, type Level, chain } from '@mander/model';
+import { type FallingSpike, GRAVITY, type Level } from '@mander/model';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { computeVerticalMove } from '../../collision/compute-vertical-move';
 import {
@@ -13,13 +14,12 @@ export const tryPatchFallingSpikePosition = (
   spike: FallingSpike,
   deltaSeconds: number,
 ): FallingSpike | null =>
-  chain(
+  pipe(
     Math.min(
       spike.velocity.y.current + GRAVITY * deltaSeconds,
       spike.velocity.y.max,
     ),
-  )
-    .thru((velocityY) => ({
+    (velocityY) => ({
       velocityY,
       vertical: computeVerticalMove(
         level,
@@ -29,8 +29,8 @@ export const tryPatchFallingSpikePosition = (
         FALLING_SPIKE_HEIGHT,
         velocityY * deltaSeconds,
       ),
-    }))
-    .thru(({ velocityY, vertical }): FallingSpike | null =>
+    }),
+    ({ velocityY, vertical }): FallingSpike | null =>
       match(vertical.isBlocked)
         .with(true, (): FallingSpike | null => null)
         .otherwise((): FallingSpike | null =>
@@ -40,5 +40,4 @@ export const tryPatchFallingSpikePosition = (
             statuses: { isFalling: true },
           }),
         ),
-    )
-    .value();
+  );

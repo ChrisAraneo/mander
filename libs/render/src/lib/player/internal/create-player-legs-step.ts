@@ -3,7 +3,7 @@ import { createSequenceStep } from '../../canvas/create-sequence-step';
 import { createStyleStep } from '../../canvas/create-style-step';
 import { drawBeginPath } from '../../canvas/draw-begin-path';
 import { drawFill } from '../../canvas/draw-fill';
-import { outline } from '../../stroke/outline';
+import { createOutlineStep } from '../../stroke/create-outline-step';
 import type { CanvasStep } from '../../types/canvas-step';
 import type { PlayerColors } from '../types/player-colors';
 import { createPlayerGroundedLegsStep } from './create-player-grounded-legs-step';
@@ -19,7 +19,7 @@ export const createPlayerLegsStep = (
     match(isGrounded)
       .with(true, () => createPlayerGroundedLegsStep(swing))
       .otherwise(() => drawPlayerAirborneLegs),
-    outline(),
+    createOutlineStep(),
     createStyleStep({ fillStyle: colors.legs }),
     drawFill,
   ]);

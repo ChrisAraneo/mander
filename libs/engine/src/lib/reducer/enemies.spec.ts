@@ -1,16 +1,33 @@
-import { type Enemy, type EnemyKind, type Item, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_ENEMY, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, TILE_SPIKE, chain, type Point } from '@mander/model';
+import {
+  type Enemy,
+  type EnemyKind,
+  type Item,
+  type Tile,
+  TILE_AIR,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_ENEMY,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SIZE,
+  TILE_SPAWN,
+  TILE_SPIKE,
+  type Point,
+} from '@mander/model';
 import {
   ceil,
+  constant,
   head,
   includes,
   isNull,
   map,
   omit,
-  reduce as fold,
+  reduce,
   size,
   some,
   times,
 } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -26,6 +43,7 @@ import {
   HORNED_ENEMY_CHANCE,
   HORNED_ENEMY_JUMP_VELOCITY,
 } from './enemy/consts';
+import { nextGameState } from './next-game-state';
 import {
   BASE_HEARTS,
   HURT_INVINCIBLE_SECONDS,
@@ -34,7 +52,6 @@ import {
 } from './player/consts';
 import { createBasePlayerVelocity } from './player/create-base-player-velocity';
 import { getSpawnPosition } from './player/get-spawn-position';
-import { reduce } from './reduce';
 
 const LEGEND: Record<string, Tile> = {
   '.': TILE_AIR,
@@ -115,24 +132,22 @@ const createTestLevel = (enemies: Point[] = []): GameLevel => ({
 const SPAWN_X = getSpawnPosition(createTestLevel()).x;
 
 const createSpikeLevel = (column: number, enemies: Point[] = []): GameLevel =>
-  chain(createTestLevel(enemies))
-    .thru((level): GameLevel => ({
-      ...level,
-      tiles: map(level.tiles, (row, rowIndex) =>
-        map(row, (tile, columnIndex) =>
-          match(rowIndex === 11 && columnIndex === column)
-            .with(true, () => TILE_SPIKE)
-            .otherwise(() => tile),
-        ),
+  pipe(enemies, createTestLevel, (level): GameLevel => ({
+    ...level,
+    tiles: map(level.tiles, (row, rowIndex) =>
+      map(row, (tile, columnIndex) =>
+        match(rowIndex === 11 && columnIndex === column)
+          .with(true, () => TILE_SPIKE)
+          .otherwise(() => tile),
       ),
-    }))
-    .value();
+    ),
+  }));
 
 const nextTick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK' });
+  nextGameState(state, { type: 'TICK' }, constant(0));
 
 const nextTicks = (state: GameState, tickCount: number): GameState =>
-  fold(times(tickCount), (current) => nextTick(current), state);
+  reduce(times(tickCount), (current) => nextTick(current), state);
 
 const nextTicksWhile = (
   state: GameState,
@@ -146,9 +161,10 @@ const nextTicksWhile = (
 const nextTickStates = (state: GameState, tickCount: number): GameState[] =>
   match(tickCount > 0)
     .with(true, () =>
-      chain(nextTick(state))
-        .thru((ticked) => [ticked, ...nextTickStates(ticked, tickCount - 1)])
-        .value(),
+      pipe(state, nextTick, (ticked) => [
+        ticked,
+        ...nextTickStates(ticked, tickCount - 1),
+      ]),
     )
     .otherwise((): GameState[] => []);
 
@@ -156,27 +172,30 @@ const computeTickCount = (seconds: number): number =>
   ceil(seconds / DELTA_SECONDS) + 1;
 
 const createSettledState = (left: number, inventory: Item[] = []): GameState =>
-  chain(createInitialState(createTestLevel(), 0, inventory))
-    .thru((state): GameState => ({
+  pipe(
+    createInitialState(createTestLevel(), 0, inventory),
+    (state): GameState => ({
       ...state,
       player: {
         ...state.player,
         position: { x: left, y: SURFACE - PLAYER_HEIGHT },
       },
-    }))
-    .thru((state) => nextTick(state))
-    .value();
+    }),
+    (state) => nextTick(state),
+  );
+
+const patchHoppingEnemies = (state: GameState): GameState => ({
+  ...state,
+  enemies: map(state.enemies, (enemy): Enemy => ({
+    ...enemy,
+    kind: 'HOPPING',
+  })),
+});
 
 const createHoppingEnemyState = (): GameState =>
-  chain(createInitialState(createTestLevel([ENEMY_SPAWN]), 0, []))
-    .thru((state): GameState => ({
-      ...state,
-      enemies: map(state.enemies, (enemy): Enemy => ({
-        ...enemy,
-        kind: 'HOPPING',
-      })),
-    }))
-    .value();
+  patchHoppingEnemies(
+    createInitialState(createTestLevel([ENEMY_SPAWN]), 0, []),
+  );
 
 const createFlyingEnemyState = (): GameState =>
   createInitialState(createTestLevel([FLYING_ENEMY_SPAWN]), 0, []);
@@ -203,12 +222,12 @@ describe('enemies', () => {
     );
 
     const facings = map(enemies, (enemy) => enemy.statuses.isFacingRight);
-    const minX = fold(
+    const minX = reduce(
       enemies,
       (leftmost, enemy) => Math.min(leftmost, enemy.position.x),
       Infinity,
     );
-    const maxX = fold(
+    const maxX = reduce(
       enemies,
       (rightmost, enemy) => Math.max(rightmost, enemy.position.x),
       -Infinity,
@@ -308,7 +327,7 @@ describe('enemies', () => {
       'paced away from its spawn by now',
     ).not.toBe(enemySpawnPosition.x);
 
-    const respawned = reduce(paced, { type: 'RESPAWN' });
+    const respawned = nextGameState(paced, { type: 'RESPAWN' }, constant(0));
 
     expect(respawned.player.position.x, 'the player went back to spawn').toBe(
       SPAWN_X,
@@ -363,11 +382,15 @@ describe('enemies', () => {
 
     expect(start.enemies).toHaveLength(1);
 
-    const loaded = reduce(start, {
-      type: 'LOAD_LEVEL',
-      level: createTestLevel([ENEMY_SPAWN, { x: 7, y: 11 }]),
-      levelIndex: 1,
-    });
+    const loaded = nextGameState(
+      start,
+      {
+        type: 'LOAD_LEVEL',
+        level: createTestLevel([ENEMY_SPAWN, { x: 7, y: 11 }]),
+        levelIndex: 1,
+      },
+      constant(0),
+    );
 
     expect(loaded.enemies).toHaveLength(2);
   });
@@ -452,14 +475,18 @@ describe('enemies', () => {
     ).not.toBeNull();
 
     const deaths = dying.deaths;
-    const pressed = reduce(dying, { type: 'MOVE_RIGHT_START' });
+    const pressed = nextGameState(
+      dying,
+      { type: 'MOVE_RIGHT_START' },
+      constant(0),
+    );
     const deadX = pressed.player.position.x;
     const ticked = nextTicks(pressed, 4);
 
     expect(ticked.player.position.x, 'the corpse does not walk').toBe(deadX);
     expect(ticked.deaths, 'no second death mid-fall').toBe(deaths);
 
-    const jumped = reduce(ticked, { type: 'JUMP_START' });
+    const jumped = nextGameState(ticked, { type: 'JUMP_START' }, constant(0));
 
     expect(jumped.player.statuses.isJumpQueued).toBe(false);
   });
@@ -486,7 +513,7 @@ describe('enemies', () => {
       ).toHaveLength(1),
     );
 
-    const maxRight = fold(
+    const maxRight = reduce(
       states,
       (rightmost, state) =>
         Math.max(rightmost, state.enemies[0].position.x + ENEMY_WIDTH),
@@ -769,7 +796,7 @@ describe('enemies', () => {
     const start = createHoppingEnemyState();
     const settled = nextTicks(start, 10);
     const enemy = settled.enemies[0];
-    const jumped = reduce(settled, { type: 'JUMP_START' });
+    const jumped = nextGameState(settled, { type: 'JUMP_START' }, constant(0));
     const falling = {
       ...jumped,
       player: {
@@ -1007,9 +1034,10 @@ describe('enemies', () => {
 
   it('should hop 30% lower than a hopping enemy when the enemy is horned', () => {
     const computeHopVelocity = (kind: EnemyKind, jumpMax: number): number =>
-      chain(nextTicks(createHoppingEnemyState(), 10))
-        .thru((settled) => ({ settled, enemy: settled.enemies[0] }))
-        .thru(({ settled, enemy }): GameState => ({
+      pipe(
+        nextTicks(createHoppingEnemyState(), 10),
+        (settled) => ({ settled, enemy: settled.enemies[0] }),
+        ({ settled, enemy }): GameState => ({
           ...settled,
           enemies: [
             {
@@ -1029,10 +1057,10 @@ describe('enemies', () => {
               y: { ...settled.player.velocity.y, current: 0 },
             },
           },
-        }))
-        .thru((overhead) => nextTick(overhead))
-        .thru((ticked) => ticked.enemies[0].velocity.y.current)
-        .value();
+        }),
+        (overhead) => nextTick(overhead),
+        (ticked) => ticked.enemies[0].velocity.y.current,
+      );
 
     const hoppingVelocityY = computeHopVelocity('HOPPING', ENEMY_JUMP_VELOCITY);
     const hornedVelocityY = computeHopVelocity(
@@ -1079,12 +1107,12 @@ describe('enemies', () => {
       ).toBe(spawn.x),
     );
 
-    const minY = fold(
+    const minY = reduce(
       enemies,
       (topmost, enemy) => Math.min(topmost, enemy.position.y),
       Infinity,
     );
-    const maxY = fold(
+    const maxY = reduce(
       enemies,
       (bottommost, enemy) => Math.max(bottommost, enemy.position.y),
       -Infinity,

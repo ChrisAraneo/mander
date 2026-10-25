@@ -1,4 +1,4 @@
-import type { createRandom } from '@mander/engine';
+import type { Random } from '@mander/engine';
 import type { Tile } from '@mander/model';
 import type { BeartrapRemovalRate } from './types/beartrap-removal-rate';
 
@@ -15,7 +15,7 @@ export const getBeartrapRemovalRate = ({
 }: {
   tiles: Tile[][];
   levelNumber: number;
-  random: ReturnType<typeof createRandom>;
+  random: Random;
 }): BeartrapRemovalRate => ({
   tiles,
   rate: BEARTRAP_REMOVAL_RATES[levelNumber - 1] ?? NOTHING_REMOVED,

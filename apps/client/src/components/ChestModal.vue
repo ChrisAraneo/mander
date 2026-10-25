@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { Item } from '@mander/model';
+import { size, toLower } from 'lodash-es';
+import { computed } from 'vue';
 import ItemArt from './ItemArt.vue';
 
 const props = defineProps<{ items: Item[] }>();
@@ -8,7 +9,7 @@ defineEmits<{ choose: [index: number]; close: [] }>();
 
 const prompt = computed(
   () =>
-    `Take one of the ${props.items.length} — click it or press its number. Esc leaves them.`,
+    `Take one of the ${size(props.items)} — click it or press its number. Esc leaves them.`,
 );
 </script>
 
@@ -23,7 +24,7 @@ const prompt = computed(
           v-for="(item, index) in items"
           :key="index"
           class="card"
-          :class="item.rarity.toLowerCase()"
+          :class="toLower(item.rarity)"
           @click="$emit('choose', index)">
           <span class="slot">{{ index + 1 }}</span>
           <ItemArt :item="item" />

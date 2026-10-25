@@ -1,4 +1,3 @@
-import { chain } from '@mander/model';
 import type { ColorStop } from '../types/color-stop';
 import { addStops } from './add-stops';
 
@@ -12,7 +11,7 @@ export const createRadialGradient = (
   endRadius: number,
   stops: readonly ColorStop[],
 ): CanvasGradient =>
-  chain(
+  addStops(
     context.createRadialGradient(
       startX,
       startY,
@@ -21,6 +20,5 @@ export const createRadialGradient = (
       endY,
       endRadius,
     ),
-  )
-    .thru(addStops(stops))
-    .value();
+    stops,
+  );

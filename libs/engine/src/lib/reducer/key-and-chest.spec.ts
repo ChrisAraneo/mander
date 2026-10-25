@@ -1,13 +1,24 @@
-import { type Item, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, chain } from '@mander/model';
-import { head, map, omit, reduce as fold, size, times } from 'lodash-es';
+import {
+  type Item,
+  type Tile,
+  TILE_AIR,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SIZE,
+  TILE_SPAWN,
+} from '@mander/model';
+import { constant, head, map, omit, reduce, size, times } from 'lodash-es';
+import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
 import { createInitialState } from '../state/create-initial-state';
 import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
+import { nextGameState } from './next-game-state';
 import { PLAYER_HEIGHT } from './player/consts';
-import { reduce } from './reduce';
 
 const LEGEND: Record<string, Tile> = {
   '.': TILE_AIR,
@@ -67,22 +78,23 @@ const createTestLevel = (): GameLevel => ({
 });
 
 const nextTick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK' });
+  nextGameState(state, { type: 'TICK' }, constant(0));
 
 const nextTicks = (state: GameState, tickCount: number): GameState =>
-  fold(times(tickCount), (current) => nextTick(current), state);
+  reduce(times(tickCount), (current) => nextTick(current), state);
 
 const createSettledState = (left: number, inventory: Item[] = []): GameState =>
-  chain(createInitialState(createTestLevel(), 0, inventory))
-    .thru((state): GameState => ({
+  pipe(
+    createInitialState(createTestLevel(), 0, inventory),
+    (state): GameState => ({
       ...state,
       player: {
         ...state.player,
         position: { x: left, y: SURFACE - PLAYER_HEIGHT },
       },
-    }))
-    .thru((state) => nextTick(state))
-    .value();
+    }),
+    (state) => nextTick(state),
+  );
 
 describe('key and chest', () => {
   it('should collect the key when the player walks over it', () => {
@@ -90,7 +102,11 @@ describe('key and chest', () => {
 
     expect(start.hasKey).toBe(false);
 
-    const pressed = reduce(start, { type: 'MOVE_RIGHT_START' });
+    const pressed = nextGameState(
+      start,
+      { type: 'MOVE_RIGHT_START' },
+      constant(0),
+    );
     const walked = nextTicks(pressed, 120);
 
     expect(walked.hasKey).toBe(true);
@@ -102,7 +118,7 @@ describe('key and chest', () => {
     expect(start.isNearChest).toBe(true);
     expect(start.hasKey).toBe(false);
 
-    const interacted = reduce(start, { type: 'INTERACT' });
+    const interacted = nextGameState(start, { type: 'INTERACT' }, constant(0));
 
     expect(interacted.status).toBe('PLAYING');
     expect(interacted.inventory).toHaveLength(0);
@@ -111,18 +127,30 @@ describe('key and chest', () => {
   it('should open the chest and take one card when the player has the key', () => {
     const start = createSettledState(20 * TILE_SIZE - 20);
     const keyed = { ...start, hasKey: true };
-    const opened = reduce(keyed, { type: 'INTERACT' });
+    const opened = nextGameState(keyed, { type: 'INTERACT' }, constant(0));
 
     expect(opened.status).toBe('CHEST');
 
-    const pressed = reduce(opened, { type: 'MOVE_RIGHT_START' });
+    const pressed = nextGameState(
+      opened,
+      { type: 'MOVE_RIGHT_START' },
+      constant(0),
+    );
     const frozen = nextTick(pressed);
 
     expect(frozen.player).toEqual(pressed.player);
     expect(frozen.input.isRight).toBe(true);
 
-    const released = reduce(pressed, { type: 'MOVE_RIGHT_STOP' });
-    const chosen = reduce(released, { type: 'CHOOSE_ITEM', index: 1 });
+    const released = nextGameState(
+      pressed,
+      { type: 'MOVE_RIGHT_STOP' },
+      constant(0),
+    );
+    const chosen = nextGameState(
+      released,
+      { type: 'CHOOSE_ITEM', index: 1 },
+      constant(0),
+    );
 
     expect(chosen.status).toBe('PLAYING');
     expect(chosen.isChestOpened).toBe(true);
@@ -132,7 +160,7 @@ describe('key and chest', () => {
 
     expect(ticked.isNearChest).toBe(false);
 
-    const again = reduce(ticked, { type: 'INTERACT' });
+    const again = nextGameState(ticked, { type: 'INTERACT' }, constant(0));
 
     expect(again.status).toBe('PLAYING');
     expect(again.inventory).toHaveLength(1);
@@ -141,11 +169,11 @@ describe('key and chest', () => {
   it('should leave the chest alone when the player interacts with it already open', () => {
     const start = createSettledState(20 * TILE_SIZE - 20);
     const keyed = { ...start, hasKey: true };
-    const opened = reduce(keyed, { type: 'INTERACT' });
+    const opened = nextGameState(keyed, { type: 'INTERACT' }, constant(0));
 
     expect(opened.status).toBe('CHEST');
 
-    const again = reduce(opened, { type: 'INTERACT' });
+    const again = nextGameState(opened, { type: 'INTERACT' }, constant(0));
 
     expect(again.status).toBe('CHEST');
     expect(again.isChestOpened).toBe(false);
@@ -155,9 +183,13 @@ describe('key and chest', () => {
   it('should take only the card the player named when several are offered', () => {
     const start = createSettledState(20 * TILE_SIZE - 20);
     const keyed = { ...start, hasKey: true };
-    const opened = reduce(keyed, { type: 'INTERACT' });
+    const opened = nextGameState(keyed, { type: 'INTERACT' }, constant(0));
 
-    const chosen = reduce(opened, { type: 'CHOOSE_ITEM', index: 2 });
+    const chosen = nextGameState(
+      opened,
+      { type: 'CHOOSE_ITEM', index: 2 },
+      constant(0),
+    );
 
     expect(chosen.status).toBe('PLAYING');
     expect(map(chosen.inventory, (item) => item.id)).toEqual(['CARD-2']);
@@ -166,8 +198,8 @@ describe('key and chest', () => {
   it('should leave the chest unopened when the player closes it', () => {
     const start = createSettledState(20 * TILE_SIZE - 20);
     const keyed = { ...start, hasKey: true };
-    const opened = reduce(keyed, { type: 'INTERACT' });
-    const closed = reduce(opened, { type: 'CLOSE' });
+    const opened = nextGameState(keyed, { type: 'INTERACT' }, constant(0));
+    const closed = nextGameState(opened, { type: 'CLOSE' }, constant(0));
 
     expect(closed.status).toBe('PLAYING');
     expect(closed.isChestOpened).toBe(false);
@@ -181,9 +213,13 @@ describe('key and chest', () => {
   it('should ignore the choice when the index is not one of the cards', () => {
     const start = createSettledState(20 * TILE_SIZE - 20);
     const keyed = { ...start, hasKey: true };
-    const opened = reduce(keyed, { type: 'INTERACT' });
+    const opened = nextGameState(keyed, { type: 'INTERACT' }, constant(0));
 
-    const unchanged = reduce(opened, { type: 'CHOOSE_ITEM', index: 99 });
+    const unchanged = nextGameState(
+      opened,
+      { type: 'CHOOSE_ITEM', index: 99 },
+      constant(0),
+    );
 
     expect(computeSimulation(unchanged)).toEqual(computeSimulation(opened));
   });

@@ -1,8 +1,6 @@
 import { hashString } from '@mander/engine';
-import { flow } from 'lodash-es';
+import { pipe } from 'remeda';
 import { formatDateSeed } from './internal/format-date-seed';
 
-export const computeWorldName: (date: Date) => string = flow(
-  formatDateSeed,
-  hashString,
-);
+export const computeWorldName = (date: Date): string =>
+  pipe(date, formatDateSeed, hashString);

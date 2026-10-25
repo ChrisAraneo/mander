@@ -2,7 +2,7 @@ import type { Cannon } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
 import { CANNON_RELOAD_SECONDS } from '../consts';
-import { fireCannonball } from '../fire-cannonball';
+import { createFiredCannonball } from '../create-fired-cannonball';
 import { createCannonShot } from './create-cannon-shot';
 
 const createCannon = (reload: number): Cannon => ({
@@ -17,7 +17,7 @@ describe('createCannonShot', () => {
 
     const shot = createCannonShot(cannon);
 
-    expect(shot.cannonball).toEqual(fireCannonball(cannon));
+    expect(shot.cannonball).toEqual(createFiredCannonball(cannon));
     expect(shot.cannon).toEqual({
       ...cannon,
       timers: { reload: CANNON_RELOAD_SECONDS },
@@ -29,7 +29,7 @@ describe('createCannonShot', () => {
 
     const shot = createCannonShot(cannon);
 
-    expect(shot.cannonball).toEqual(fireCannonball(cannon));
+    expect(shot.cannonball).toEqual(createFiredCannonball(cannon));
     expect(shot.cannon.timers.reload).toBe(-0.5 + CANNON_RELOAD_SECONDS);
     expect(shot.cannon.timers.reload).toBe(3);
   });

@@ -1,5 +1,6 @@
-import { type Level, chain } from '@mander/model';
+import { type Level } from '@mander/model';
 import { flatMap, map } from 'lodash-es';
+import { pipe } from 'remeda';
 import { draw } from '../canvas/draw';
 import { createMaterialPalette } from '../material/create-material-palette';
 import type { Palette } from '../types/palette';
@@ -16,12 +17,17 @@ export const drawTiles = (
   cameraY: number,
   viewport: Viewport,
 ): void =>
-  chain({
-    materials: createMaterialPalette(palette),
-    columns: computeVisibleTileRange(cameraX, viewport.width, level.width - 1),
-    rows: computeVisibleTileRange(cameraY, viewport.height, level.height - 1),
-  })
-    .thru(({ materials, columns, rows }) => [
+  pipe(
+    {
+      materials: createMaterialPalette(palette),
+      columns: computeVisibleTileRange(
+        cameraX,
+        viewport.width,
+        level.width - 1,
+      ),
+      rows: computeVisibleTileRange(cameraY, viewport.height, level.height - 1),
+    },
+    ({ materials, columns, rows }) => [
       ...flatMap(columns, (column) =>
         map(rows, (row) =>
           createBackLayerTileStep(level, column, row, materials),
@@ -32,6 +38,6 @@ export const drawTiles = (
           createFrontLayerTileStep(level, column, row, materials),
         ),
       ),
-    ])
-    .thru((steps) => draw(context, ...steps))
-    .value();
+    ],
+    (steps) => draw(context, ...steps),
+  );

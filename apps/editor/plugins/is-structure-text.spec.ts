@@ -12,23 +12,25 @@ const BACK = `  [
     [__, __],
   ]`;
 
-const sector = (front: string, back: string): string =>
+const formatSector = (front: string, back: string): string =>
   `[\n${front},\n${back},\n]`;
 
 const EMPTY = '  []';
 
 describe('isStructureText', () => {
   it('should accept the text when it holds the two layers the editor writes', () => {
-    expect(isStructureText(sector(FRONT, BACK))).toBe(true);
+    expect(isStructureText(formatSector(FRONT, BACK))).toBe(true);
   });
 
   it('should accept the sector when nothing is painted behind it', () => {
-    expect(isStructureText(sector(FRONT, EMPTY))).toBe(true);
+    expect(isStructureText(formatSector(FRONT, EMPTY))).toBe(true);
   });
 
   it('should turn the text away when its rows are of uneven length', () => {
     expect(
-      isStructureText(sector('  [\n    [__, DR],\n    [DR],\n  ]', EMPTY)),
+      isStructureText(
+        formatSector('  [\n    [__, DR],\n    [DR],\n  ]', EMPTY),
+      ),
     ).toBe(false);
   });
 
@@ -38,9 +40,9 @@ describe('isStructureText', () => {
   });
 
   it('should turn the text away when it is not a grid of tokens', () => {
-    expect(isStructureText(sector('  [\n    [__, DR];\n  ]', EMPTY))).toBe(
-      false,
-    );
+    expect(
+      isStructureText(formatSector('  [\n    [__, DR];\n  ]', EMPTY)),
+    ).toBe(false);
     expect(isStructureText('[]')).toBe(false);
     expect(isStructureText('')).toBe(false);
   });
@@ -48,11 +50,11 @@ describe('isStructureText', () => {
   it('should turn the text away when code is smuggled in', () => {
     expect(
       isStructureText(
-        `${sector(FRONT, EMPTY)};\nprocess.exit(1);\nconst x = [\n  [DR],\n]`,
+        `${formatSector(FRONT, EMPTY)};\nprocess.exit(1);\nconst x = [\n  [DR],\n]`,
       ),
     ).toBe(false);
-    expect(isStructureText(sector('  [\n    [__, DR()],\n  ]', EMPTY))).toBe(
-      false,
-    );
+    expect(
+      isStructureText(formatSector('  [\n    [__, DR()],\n  ]', EMPTY)),
+    ).toBe(false);
   });
 });

@@ -1,10 +1,10 @@
-import { chain } from '@mander/model';
 import { filter, find, take } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match, P } from 'ts-pattern';
-
 import { GHOSTS_SHOWN } from './consts';
 import { getPlayableWorlds } from './get-playable-worlds';
-import type { RunRecord, SaveData } from './save-data';
+import type { RunRecord } from './types/run-record';
+import type { SaveData } from './types/save-data';
 
 const { nonNullable } = P;
 
@@ -13,12 +13,13 @@ export const findGhostRuns = (
   name: string,
   excludeId: string,
 ): RunRecord[] =>
-  chain(getPlayableWorlds(save))
-    .thru((worlds) =>
+  pipe(
+    save,
+    getPlayableWorlds,
+    (worlds) =>
       match(find(worlds, { name }))
         .with(nonNullable, (world) => world.replays)
         .otherwise((): RunRecord[] => []),
-    )
-    .thru((replays) => filter(replays, (run) => run.id !== excludeId))
-    .thru((replays) => take(replays, GHOSTS_SHOWN))
-    .value();
+    (replays) => filter(replays, (run) => run.id !== excludeId),
+    (replays) => take(replays, GHOSTS_SHOWN),
+  );

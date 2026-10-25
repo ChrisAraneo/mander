@@ -1,4 +1,10 @@
-import { type Level, isSpikeTile, isSolidTile, TILE_CANNON, chain } from '@mander/model';
+import {
+  type Level,
+  isSpikeTile,
+  isSolidTile,
+  TILE_CANNON,
+} from '@mander/model';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { drawNothing } from '../../canvas/draw-nothing';
 import { createSpikeStep } from '../../spike/create-spike-step';
@@ -12,14 +18,15 @@ export const createFrontLayerTileStep = (
   row: number,
   materials: MaterialPalette,
 ): CanvasStep =>
-  chain(level.tiles[row][column])
-    .thru((tile) => ({
+  pipe(
+    level.tiles[row][column],
+    (tile) => ({
       tile,
       isSpike: isSpikeTile(tile),
       isSolid: isSolidTile(tile),
       isCannon: tile === TILE_CANNON,
-    }))
-    .thru(({ tile, isSpike, isSolid, isCannon }) =>
+    }),
+    ({ tile, isSpike, isSolid, isCannon }) =>
       match({ isSpike, isSolid, isCannon })
         .with({ isCannon: true }, () => drawNothing)
         .with({ isSpike: true }, () => createSpikeStep(level, column, row))
@@ -27,5 +34,4 @@ export const createFrontLayerTileStep = (
           createSolidTileStep(level, column, row, materials(tile)),
         )
         .otherwise(() => drawNothing),
-    )
-    .value();
+  );

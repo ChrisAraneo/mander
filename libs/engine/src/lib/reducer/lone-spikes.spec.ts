@@ -1,4 +1,17 @@
-import { type Item, type Level, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, TILE_SPIKE, TILE_SPIKE_CEILING, chain } from '@mander/model';
+import {
+  type Item,
+  type Level,
+  type Tile,
+  TILE_AIR,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SIZE,
+  TILE_SPAWN,
+  TILE_SPIKE,
+  TILE_SPIKE_CEILING,
+} from '@mander/model';
 import { head, map, size } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
@@ -63,19 +76,19 @@ const createTestLevel = (): GameLevel => ({
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
 });
 
+const patchSpikeTile = (level: GameLevel, column: number): GameLevel => ({
+  ...level,
+  tiles: map(level.tiles, (row, rowIndex) =>
+    map(row, (tile, columnIndex) =>
+      match(rowIndex === 11 && columnIndex === column)
+        .with(true, () => TILE_SPIKE)
+        .otherwise(() => tile),
+    ),
+  ),
+});
+
 const createSpikeLevel = (column: number): GameLevel =>
-  chain(createTestLevel())
-    .thru((level): GameLevel => ({
-      ...level,
-      tiles: map(level.tiles, (row, rowIndex) =>
-        map(row, (tile, columnIndex) =>
-          match(rowIndex === 11 && columnIndex === column)
-            .with(true, () => TILE_SPIKE)
-            .otherwise(() => tile),
-        ),
-      ),
-    }))
-    .value();
+  patchSpikeTile(createTestLevel(), column);
 
 const isEdgeTouchingSpike = (level: Level, tileLeft: number): boolean =>
   isOverlappingSpike(level, tileLeft + 1, 11 * TILE_SIZE + 8, 8, TILE_SIZE - 8);

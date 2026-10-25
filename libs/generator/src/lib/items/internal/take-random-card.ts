@@ -1,4 +1,4 @@
-import type { createRandom } from '@mander/engine';
+import { type Random, takeRandom } from '@mander/engine';
 import type { ItemRarity } from '@mander/model';
 import { takeRandomItemOfType } from './take-random-item-of-type';
 import type { ChestPicking } from './types/chest-picking';
@@ -6,6 +6,11 @@ import type { ChestPicking } from './types/chest-picking';
 export const takeRandomCard = (
   picking: ChestPicking,
   rarity: ItemRarity,
-  random: ReturnType<typeof createRandom>,
+  random: Random,
 ): ChestPicking =>
-  takeRandomItemOfType(picking, random.pick(picking.typesLeft), rarity, random);
+  takeRandomItemOfType(
+    picking,
+    takeRandom(picking.typesLeft, random),
+    rarity,
+    random,
+  );

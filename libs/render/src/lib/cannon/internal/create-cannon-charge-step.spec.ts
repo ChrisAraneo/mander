@@ -29,4 +29,10 @@ describe('createCannonChargeStep', () => {
       'restore()',
     ]);
   });
+
+  it('should draw nothing when the cannon has no charge', () => {
+    const calls = drawRecorded(createCannonChargeStep(0));
+
+    expect(calls).toEqual([]);
+  });
 });

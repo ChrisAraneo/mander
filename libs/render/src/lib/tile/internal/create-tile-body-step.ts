@@ -6,7 +6,10 @@ import { createStyleStep } from '../../canvas/create-style-step';
 import { createMaterialStep } from '../../material/create-material-step';
 import type { CanvasStep } from '../../types/canvas-step';
 import type { MaterialStyle } from '../../types/material-style';
-import { CAP_HEIGHT, CAP_HIGHLIGHT_HEIGHT } from './consts';
+
+const CAP_HEIGHT = 7;
+
+const CAP_HIGHLIGHT_HEIGHT = 3;
 
 export const createTileBodyStep = (
   tile: Tile,

@@ -1,5 +1,5 @@
-import { chain } from '@mander/model';
 import { map } from 'lodash-es';
+import { pipe } from 'remeda';
 import { createLineToStep } from '../canvas/create-line-to-step';
 import { createMoveToStep } from '../canvas/create-move-to-step';
 import { createSequenceStep } from '../canvas/create-sequence-step';
@@ -19,13 +19,13 @@ export const createHillLayerStep = (
   color: string,
   viewport: Viewport,
 ): CanvasStep =>
-  chain(viewport.height * layer.baselineRatio)
-    .thru((baseline) =>
+  pipe(
+    viewport.height * layer.baselineRatio,
+    (baseline) =>
       map(computeHillStepsAcross(viewport.width), (screenX) =>
         computeHillPoint(screenX, cameraX, layer, baseline),
       ),
-    )
-    .thru((points) =>
+    (points) =>
       createSequenceStep([
         createStyleStep({ fillStyle: color }),
         drawBeginPath,
@@ -37,5 +37,4 @@ export const createHillLayerStep = (
         drawClosePath,
         drawFill,
       ]),
-    )
-    .value();
+  );

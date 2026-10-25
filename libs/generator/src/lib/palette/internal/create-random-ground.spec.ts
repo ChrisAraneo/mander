@@ -1,7 +1,7 @@
 import { createRandom } from '@mander/engine';
-import { chain } from '@mander/model';
-import { wrapHue } from '@mander/render';
+import { toWrappedHue } from '@mander/render';
 import { every, map, size, times, uniq } from 'lodash-es';
+import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
 import { ENTITY_HUE } from '../../consts';
@@ -51,9 +51,11 @@ describe('createRandomGround', () => {
   it('should keep the cap hue away from the hue of the player and the enemies when it picks many grounds', () => {
     expect(
       every(GROUNDS, ({ capHue }) =>
-        chain(wrapHue(capHue - ENTITY_HUE))
-          .thru((gap) => gap >= 30 && gap <= 330)
-          .value(),
+        pipe(
+          capHue - ENTITY_HUE,
+          toWrappedHue,
+          (gap) => gap >= 30 && gap <= 330,
+        ),
       ),
     ).toBe(true);
   });

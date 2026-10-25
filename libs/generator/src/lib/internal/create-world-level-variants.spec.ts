@@ -1,4 +1,4 @@
-import { createRandom } from '@mander/engine';
+import { createRandom, type Random } from '@mander/engine';
 import { describe, expect, it } from 'vitest';
 
 import { createPalette } from '../palette/create-palette';
@@ -7,7 +7,7 @@ import { createWorldLevelVariants } from './create-world-level-variants';
 
 const PALETTE = createPalette(createRandom('DAY-1'));
 
-const createWith = (random: ReturnType<typeof createRandom>) =>
+const createWith = (random: Random) =>
   createWorldLevelVariants({ name: 'WORLD', palette: PALETTE, random });
 
 describe('createWorldLevelVariants', () => {

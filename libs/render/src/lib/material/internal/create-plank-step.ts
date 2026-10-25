@@ -1,5 +1,6 @@
-import { TILE_SIZE, chain } from '@mander/model';
+import { TILE_SIZE } from '@mander/model';
 import { size } from 'lodash-es';
+import { pipe } from 'remeda';
 import { createFillRectStep } from '../../canvas/create-fill-rect-step';
 import { createSequenceStep } from '../../canvas/create-sequence-step';
 import { createStyleStep } from '../../canvas/create-style-step';
@@ -26,12 +27,14 @@ export const createPlankStep = (
   seed: number,
   style: MaterialStyle,
 ): CanvasStep =>
-  chain(getWoodPlankTones(style.base))
-    .thru((tones) => ({
+  pipe(
+    style.base,
+    getWoodPlankTones,
+    (tones) => ({
       tone: tones[seed % size(tones)],
       buttX: BUTT_INSET + (seed % BUTT_SPREAD),
-    }))
-    .thru(({ tone, buttX }) =>
+    }),
+    ({ tone, buttX }) =>
       createSequenceStep([
         createStyleStep({ fillStyle: tone }),
         createFillRectStep(pixelX, top, TILE_SIZE, PLANK_HEIGHT),
@@ -60,5 +63,4 @@ export const createPlankStep = (
         createStyleStep({ fillStyle: GRAIN_LIGHT }),
         createFillRectStep(pixelX + buttX + 1, top, 1, PLANK_HEIGHT - 1),
       ]),
-    )
-    .value();
+  );

@@ -1,8 +1,8 @@
-import type { createRandom } from '@mander/engine';
+import type { Random } from '@mander/engine';
 import type { Tile } from '@mander/model';
 import type { Sector } from '@mander/structures';
-import type { LevelVariant } from '../../../types/level-variant';
 import type { LevelType } from '../../../types/level-type';
+import type { LevelVariant } from '../../../types/level-variant';
 
 export interface LevelDraft {
   levelNumber: number;
@@ -11,5 +11,5 @@ export interface LevelDraft {
   structures: Sector[];
   tiles: Tile[][];
   backTiles: Tile[][];
-  random: ReturnType<typeof createRandom>;
+  random: Random;
 }

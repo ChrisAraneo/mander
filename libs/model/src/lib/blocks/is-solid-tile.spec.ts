@@ -1,22 +1,23 @@
 import { some } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import { TILE_CHEST } from '../chest/chest';
-import { TILE_GEM } from '../gem/gem';
-import { TILE_ENEMY } from '../enemies/enemy-spawn';
-import { TILE_KEY } from '../key/key';
-import { TILE_SPAWN } from '../player/spawn';
-import { TILE_PORTAL } from '../portal/portal';
-import { TILE_SPIKE, TILE_SPIKE_CEILING } from '../spike/spike';
-import { TILE_BRICK } from './brick';
-import { TILE_CANNON } from './cannon';
-import { TILE_CERAMIC } from './ceramic';
-import { TILE_DIRT } from './dirt';
-import { TILE_FIREBALL } from './fireball';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_CHEST } from '../chest/tile-chest';
+import { TILE_ENEMY } from '../enemies/tile-enemy';
+import { TILE_GEM } from '../gem/tile-gem';
+import { TILE_KEY } from '../key/tile-key';
+import { TILE_SPAWN } from '../player/tile-spawn';
+import { TILE_PORTAL } from '../portal/tile-portal';
+import { TILE_SPIKE } from '../spike/tile-spike';
+import { TILE_SPIKE_CEILING } from '../spike/tile-spike-ceiling';
 import { isSolidTile } from './is-solid-tile';
-import { TILE_STONE } from './stone';
-import { TILE_WOOD } from './wood';
+import { TILE_BRICK } from './tile-brick';
+import { TILE_CANNON } from './tile-cannon';
+import { TILE_CERAMIC } from './tile-ceramic';
+import { TILE_DIRT } from './tile-dirt';
+import { TILE_FIREBALL } from './tile-fireball';
+import { TILE_STONE } from './tile-stone';
+import { TILE_WOOD } from './tile-wood';
 
 describe('isSolidTile', () => {
   it('should return true when the tile is solid terrain', () => {
@@ -35,7 +36,7 @@ describe('isSolidTile', () => {
     expect(isSolidTile(TILE_FIREBALL)).toBe(true);
   });
 
-  it('should return false when the tile is non-blocking or interactive', () => {
+  it('should return false when the tile does not block or is a pickup', () => {
     expect(
       some(
         [
@@ -54,7 +55,7 @@ describe('isSolidTile', () => {
     ).toBe(false);
   });
 
-  it('should return false when the tile is unmapped', () => {
+  it('should return false when the tile is unknown', () => {
     expect(isSolidTile(99999)).toBe(false);
   });
 });

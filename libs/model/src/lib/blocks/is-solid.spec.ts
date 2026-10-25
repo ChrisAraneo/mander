@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import type { Level } from '../level/level';
-import { TILE_SPIKE } from '../spike/spike';
-import { TILE_DIRT } from './dirt';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_SPIKE } from '../spike/tile-spike';
+import type { Level } from '../types/level';
 import { isSolid } from './is-solid';
+import { TILE_DIRT } from './tile-dirt';
 
 const LEVEL: Level = {
   seed: 'SEED',
@@ -53,23 +53,23 @@ describe('isSolid', () => {
     expect(isSolid(LEVEL, 2, 2)).toBe(true);
   });
 
-  it('should return true when x is past a side wall, whatever row it asks about', () => {
+  it('should return true when x lies past a side wall in any row', () => {
     expect(isSolid(LEVEL, -1, 5)).toBe(true);
     expect(isSolid(LEVEL, 2, -5)).toBe(true);
   });
 
-  it('should return false when the coordinates lie far below the level, so a fall never ends', () => {
+  it('should return false when the coordinates lie far below the level', () => {
     expect(isSolid(LEVEL, 0, 100)).toBe(false);
     expect(isSolid(LEVEL, 1, 100)).toBe(false);
   });
 
-  it('should return false when the coordinates lie past either edge of an open sided level, leaving air to walk off into', () => {
+  it('should return false when the coordinates lie past either edge of an open sided level', () => {
     expect(isSolid(OPEN_LEVEL, -1, 0)).toBe(false);
     expect(isSolid(OPEN_LEVEL, 2, 0)).toBe(false);
     expect(isSolid(OPEN_LEVEL, -1, 100)).toBe(false);
   });
 
-  it('should still read the tile when an open sided level holds one', () => {
+  it('should read the tile when the coordinates lie inside an open sided level', () => {
     expect(isSolid(OPEN_LEVEL, 1, 0)).toBe(true);
     expect(isSolid(OPEN_LEVEL, 0, 0)).toBe(false);
   });

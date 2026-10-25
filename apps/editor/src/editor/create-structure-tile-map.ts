@@ -11,7 +11,7 @@ const toTile = (cell: number): Tile =>
     .with(true, () => TILE_AIR)
     .otherwise(() => cell);
 
-const paintTiles = (grid: number[][]): Tile[][] =>
+const toTiles = (grid: number[][]): Tile[][] =>
   map(grid, (cells) => map(cells, toTile));
 
 export const createStructureTileMap = ({
@@ -21,8 +21,8 @@ export const createStructureTileMap = ({
   seed: '',
   width: size(head(tiles)),
   height: size(tiles),
-  tiles: paintTiles(tiles),
-  backTiles: paintTiles(backTiles),
+  tiles: toTiles(tiles),
+  backTiles: toTiles(backTiles),
   chestItems: [],
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
 });

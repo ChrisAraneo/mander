@@ -1,11 +1,19 @@
-import { type Fireball, type FireballSpin, type Level, type Tile, TILE_DIRT, TILE_FIREBALL, chain } from '@mander/model';
+import {
+  type Fireball,
+  type FireballSpin,
+  type Level,
+  type Point,
+  type Tile,
+  TILE_DIRT,
+  TILE_FIREBALL,
+} from '@mander/model';
 import { head, map, reduce, round, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { createFireballs } from './create-fireballs';
 import { getFireballHeading } from './get-fireball-heading';
 import { getFireballPosition } from './get-fireball-position';
-import { stepFireball } from './step-fireball';
+import { nextFireball } from './next-fireball';
 
 const createLevel = (tiles: Tile[][]): Level => ({
   seed: 'SEED',
@@ -20,7 +28,7 @@ const DELTA_SECONDS = 1 / 60;
 const nextFlight = (fireball: Fireball, seconds: number): Fireball =>
   reduce(
     times(round(seconds / DELTA_SECONDS)),
-    (turning: Fireball) => stepFireball(turning, DELTA_SECONDS),
+    (turning: Fireball) => nextFireball(turning, DELTA_SECONDS),
     fireball,
   );
 
@@ -33,13 +41,14 @@ const createTurningFireball = (spin: FireballSpin): Fireball => ({
   spin,
 });
 
+const computeAngleBetween = (from: Point, to: Point): number =>
+  Math.atan2(to.y - from.y, to.x - from.x);
+
 const computeTravelAngle = (fireball: Fireball): number =>
-  chain({
-    from: getFireballPosition(fireball),
-    to: getFireballPosition(stepFireball(fireball, 0.001)),
-  })
-    .thru(({ from, to }) => Math.atan2(to.y - from.y, to.x - from.x))
-    .value();
+  computeAngleBetween(
+    getFireballPosition(fireball),
+    getFireballPosition(nextFireball(fireball, 0.001)),
+  );
 
 const QUARTER_TURN = Math.PI / 2;
 

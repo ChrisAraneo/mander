@@ -1,4 +1,4 @@
-import { chain } from '@mander/model';
+import { pipe } from 'remeda';
 import { computeLanding } from '../../collision/compute-landing';
 import { computeVerticalMove } from '../../collision/compute-vertical-move';
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from '../consts';
@@ -12,7 +12,7 @@ export const computeBeartrapStepVerticalMove = ({
   velocityY,
   isGrounded,
 }: BeartrapStepIntent): BeartrapStepVerticalMove =>
-  chain(
+  pipe(
     computeVerticalMove(
       level,
       trap.position.x,
@@ -21,8 +21,7 @@ export const computeBeartrapStepVerticalMove = ({
       ENEMY_HEIGHT,
       velocityY * deltaSeconds,
     ),
-  )
-    .thru((vertical) => ({
+    (vertical) => ({
       nextY: vertical.position,
       landing: computeLanding(
         vertical.isBlocked,
@@ -30,12 +29,12 @@ export const computeBeartrapStepVerticalMove = ({
         isGrounded,
         velocityY,
       ),
-    }))
-    .thru(({ nextY, landing }): BeartrapStepVerticalMove => ({
+    }),
+    ({ nextY, landing }): BeartrapStepVerticalMove => ({
       level,
       trap,
       velocityY: landing.velocityY,
       isGrounded: landing.isGrounded,
       nextY,
-    }))
-    .value();
+    }),
+  );

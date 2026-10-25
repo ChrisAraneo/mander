@@ -1,4 +1,4 @@
-import { chain } from '@mander/model';
+import { pipe } from 'remeda';
 import { createLevelCategories } from '../world/create-level-categories';
 import { takeRandomCategoryStructures } from '../world/take-random-category-structures';
 import type { WorldDrawnStructures } from './types/world-drawn-structures';
@@ -10,13 +10,11 @@ export const takeRandomWorldStructures = ({
   levelVariants,
   random,
 }: WorldLevelVariants): WorldDrawnStructures =>
-  chain(createLevelCategories(levelVariants))
-    .thru((levelCategories) => ({
-      name,
-      palette,
-      levelVariants,
-      levelCategories,
-      worldStructures: takeRandomCategoryStructures(levelCategories, random),
-      random,
-    }))
-    .value();
+  pipe(levelVariants, createLevelCategories, (levelCategories) => ({
+    name,
+    palette,
+    levelVariants,
+    levelCategories,
+    worldStructures: takeRandomCategoryStructures(levelCategories, random),
+    random,
+  }));

@@ -1,11 +1,10 @@
 import { map, toPairs } from 'lodash-es';
-
 import { HARD_LIBRARY, NORMAL_LIBRARY, VERTICAL_LIBRARY } from './library';
-import type { Sector } from './structure';
+import type { Sector } from './types/sector';
 
 const UNKNOWN_STRUCTURE = 'UNKNOWN';
 
-const getNamePairs = (
+const toNamePairs = (
   library: Readonly<Record<string, Sector>>,
 ): [Sector, string][] =>
   map(toPairs(library), ([name, structure]): [Sector, string] => [
@@ -13,10 +12,10 @@ const getNamePairs = (
     name,
   ]);
 
-const STRUCTURE_NAMES = new Map<Sector, string>([
-  ...getNamePairs(NORMAL_LIBRARY),
-  ...getNamePairs(HARD_LIBRARY),
-  ...getNamePairs(VERTICAL_LIBRARY),
+const STRUCTURE_NAMES: ReadonlyMap<Sector, string> = new Map<Sector, string>([
+  ...toNamePairs(NORMAL_LIBRARY),
+  ...toNamePairs(HARD_LIBRARY),
+  ...toNamePairs(VERTICAL_LIBRARY),
 ]);
 
 export const getStructureName = (structure: Sector): string =>

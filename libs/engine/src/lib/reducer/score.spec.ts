@@ -1,13 +1,25 @@
-import { type Item, RED_GEM, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, chain } from '@mander/model';
-import { head, map, size } from 'lodash-es';
+import {
+  type Item,
+  RED_GEM,
+  type Tile,
+  TILE_AIR,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SIZE,
+  TILE_SPAWN,
+} from '@mander/model';
+import { constant, head, map, size } from 'lodash-es';
+import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
 import { createInitialState } from '../state/create-initial-state';
 import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
+import { nextGameState } from './next-game-state';
 import { PLAYER_HEIGHT } from './player/consts';
-import { reduce } from './reduce';
 import { computeTotalTime } from './score/compute-total-time';
 import {
   LEVEL_SCORE_BASE,
@@ -70,19 +82,20 @@ const createTestLevel = (): GameLevel => ({
 });
 
 const nextTick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK' });
+  nextGameState(state, { type: 'TICK' }, constant(0));
 
 const createSettledState = (left: number, inventory: Item[] = []): GameState =>
-  chain(createInitialState(createTestLevel(), 0, inventory))
-    .thru((state): GameState => ({
+  pipe(
+    createInitialState(createTestLevel(), 0, inventory),
+    (state): GameState => ({
       ...state,
       player: {
         ...state.player,
         position: { x: left, y: SURFACE - PLAYER_HEIGHT },
       },
-    }))
-    .thru((state) => nextTick(state))
-    .value();
+    }),
+    (state) => nextTick(state),
+  );
 
 const createPortalState = (seconds: number): GameState => ({
   ...createSettledState(25 * TILE_SIZE - 10),
@@ -90,7 +103,7 @@ const createPortalState = (seconds: number): GameState => ({
 });
 
 const nextPortalEntry = (state: GameState): GameState =>
-  reduce(state, { type: 'INTERACT' });
+  nextGameState(state, { type: 'INTERACT' }, constant(0));
 
 const computeLevelScore = (seconds: number): number =>
   LEVEL_SCORE_BASE - LEVEL_SCORE_PER_SECOND * seconds;
@@ -137,11 +150,15 @@ describe('score', () => {
       computeLevelScore(10),
     );
 
-    const loaded = reduce(finished, {
-      type: 'LOAD_LEVEL',
-      level: createTestLevel(),
-      levelIndex: 1,
-    });
+    const loaded = nextGameState(
+      finished,
+      {
+        type: 'LOAD_LEVEL',
+        level: createTestLevel(),
+        levelIndex: 1,
+      },
+      constant(0),
+    );
     const finishedAgain = nextPortalEntry({
       ...loaded,
       time: 30,
@@ -156,11 +173,15 @@ describe('score', () => {
 
   it('should keep the seconds each level took when the run moves on', () => {
     const finished = nextPortalEntry(createPortalState(10));
-    const loaded = reduce(finished, {
-      type: 'LOAD_LEVEL',
-      level: createTestLevel(),
-      levelIndex: 1,
-    });
+    const loaded = nextGameState(
+      finished,
+      {
+        type: 'LOAD_LEVEL',
+        level: createTestLevel(),
+        levelIndex: 1,
+      },
+      constant(0),
+    );
     const finishedAgain = nextPortalEntry({
       ...loaded,
       time: 30,
@@ -180,7 +201,11 @@ describe('score', () => {
       ...start,
       level: { ...start.level, chestItems: [RED_GEM] },
     };
-    const chosen = reduce(stocked, { type: 'CHOOSE_ITEM', index: 0 });
+    const chosen = nextGameState(
+      stocked,
+      { type: 'CHOOSE_ITEM', index: 0 },
+      constant(0),
+    );
 
     expect(chosen.score).toBe(1500);
   });

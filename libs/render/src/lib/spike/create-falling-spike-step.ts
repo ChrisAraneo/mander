@@ -1,5 +1,6 @@
-import { computeFallingSpikeTriangles, type FallingSpike, chain } from '@mander/model';
+import { computeFallingSpikeTriangles, type FallingSpike } from '@mander/model';
 import { map } from 'lodash-es';
+import { pipe } from 'remeda';
 import { createSequenceStep } from '../canvas/create-sequence-step';
 import type { CanvasStep } from '../types/canvas-step';
 import type { ColorStop } from '../types/color-stop';
@@ -11,11 +12,12 @@ const FALLING_SPIKE_STOPS: readonly ColorStop[] = [
 ];
 
 export const createFallingSpikeStep = (spike: FallingSpike): CanvasStep =>
-  chain(computeFallingSpikeTriangles(spike))
-    .thru((triangles) =>
+  pipe(
+    spike,
+    computeFallingSpikeTriangles,
+    (triangles) =>
       map(triangles, (triangle) =>
         createProngStep(triangle, FALLING_SPIKE_STOPS),
       ),
-    )
-    .thru(createSequenceStep)
-    .value();
+    createSequenceStep,
+  );

@@ -1,95 +1,40 @@
+import { noop } from 'lodash-es';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-
-import { match, P } from 'ts-pattern';
+import { pipe } from 'remeda';
 import type { Plugin } from 'vite';
+import { createStructurePaths } from './create-structure-paths.ts';
+import { handleStructureRequest } from './internal/handle-structure-request.ts';
+import { writeResponse } from './internal/write-response.ts';
+import type { StructurePaths } from './types/structure-paths.ts';
 
-import { type Pool, getPool, isStructureName } from './pool.ts';
-import { isStructureText } from './is-structure-text.ts';
-import { readLibrary } from './read-library.ts';
-import { saveStructure } from './save-structure.ts';
-import {
-  resolveStructurePaths,
-  type StructurePaths,
-} from './resolve-structure-paths.ts';
+const STRUCTURE_ENDPOINT = '/api/structures';
 
-const { string } = P;
+const SERVER_ERROR_STATUS = 500;
 
-export const STRUCTURE_ENDPOINT = '/api/structures';
-
-interface SaveRequest {
-  name: string;
-  pool: Pool;
-  text: string;
-}
-
-const send = (res: ServerResponse, status: number, body: unknown): void => {
-  res.statusCode = status;
-  res.setHeader('content-type', 'application/json');
-  res.end(JSON.stringify(body));
-};
-
-const readBody = (req: IncomingMessage): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-
-    req.on('data', (chunk: Buffer) => chunks.push(chunk));
-    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
-    req.on('error', reject);
-  });
-
-const parseRequest = (body: string): SaveRequest | null =>
-  match(JSON.parse(body) as unknown)
-    .with({ name: string, text: string }, ({ name, text }) =>
-      match(getPool(name))
-        .with(null, (): SaveRequest | null => null)
-        .otherwise((pool): SaveRequest | null =>
-          isStructureName(name)
-            ? { name, pool, text: text.replace(/\r\n/g, '\n') }
-            : null,
-        ),
-    )
-    .otherwise((): SaveRequest | null => null);
-
-const save = (
+const writeStructureResponse = (
   paths: StructurePaths,
-  res: ServerResponse,
-  body: string,
-): Promise<void> | void =>
-  match(parseRequest(body))
-    .with(null, () =>
-      send(res, 400, {
-        message: 'a structure needs a NORMAL_nnn or HARD_nnn name and a grid',
+  request: IncomingMessage,
+  response: ServerResponse,
+): Promise<ServerResponse> =>
+  handleStructureRequest(paths, request).then(
+    (answer) => writeResponse(response, answer),
+    (error: unknown) =>
+      writeResponse(response, {
+        status: SERVER_ERROR_STATUS,
+        body: { message: String(error) },
       }),
-    )
-    .otherwise(({ name, pool, text }) =>
-      match(isStructureText(text))
-        .with(false, () =>
-          send(res, 400, { message: 'the grid is not a structure literal' }),
-        )
-        .otherwise(async () =>
-          send(res, 200, await saveStructure(paths, name, pool, text)),
-        ),
-    );
-
-const handle = async (
-  paths: StructurePaths,
-  req: IncomingMessage,
-  res: ServerResponse,
-): Promise<void> =>
-  match(req.method)
-    .with('GET', async () => send(res, 200, await readLibrary(paths)))
-    .with('POST', async () => save(paths, res, await readBody(req)))
-    .otherwise(() => send(res, 405, { message: 'GET or POST only' }));
+  );
 
 export const createStructureLibrary = (): Plugin => ({
   name: 'mander:structure-library',
-  configureServer(server) {
-    const paths = resolveStructurePaths(server.config.root);
-
-    server.middlewares.use(STRUCTURE_ENDPOINT, (req, res) => {
-      handle(paths, req, res).catch((error: unknown) =>
-        send(res, 500, { message: String(error) }),
-      );
-    });
-  },
+  configureServer: (server) =>
+    pipe(
+      server.config.root,
+      createStructurePaths,
+      (paths) =>
+        server.middlewares.use(STRUCTURE_ENDPOINT, (request, response) =>
+          writeStructureResponse(paths, request, response),
+        ),
+      noop,
+    ),
 });

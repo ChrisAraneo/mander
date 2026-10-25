@@ -7,7 +7,7 @@ import { drawBeginPath } from '../../canvas/draw-begin-path';
 import { drawFill } from '../../canvas/draw-fill';
 import { drawRestore } from '../../canvas/draw-restore';
 import { drawSave } from '../../canvas/draw-save';
-import { outline } from '../../stroke/outline';
+import { createOutlineStep } from '../../stroke/create-outline-step';
 import type { CanvasStep } from '../../types/canvas-step';
 import { HALF_WIDTH } from './consts';
 
@@ -20,7 +20,7 @@ export const createEnemyWingStep = (side: number, flap: number): CanvasStep =>
     createRotateStep(side * flap),
     drawBeginPath,
     createEllipseStep(side * 7, 0, 8, 3.5, 0, 0, Math.PI * 2),
-    outline(),
+    createOutlineStep(),
     createStyleStep({ fillStyle: WING_COLOR }),
     drawFill,
     drawRestore,

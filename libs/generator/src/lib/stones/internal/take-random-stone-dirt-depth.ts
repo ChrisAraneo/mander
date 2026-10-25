@@ -1,4 +1,4 @@
-import type { createRandom } from '@mander/engine';
+import { type Random, isRollUnder } from '@mander/engine';
 import type { Tile } from '@mander/model';
 import { match } from 'ts-pattern';
 import { DEEP_DIRT_DEPTH, DIRT_DEPTH } from '../../consts';
@@ -11,10 +11,10 @@ export const takeRandomStoneDirtDepth = ({
   random,
 }: {
   tiles: Tile[][];
-  random: ReturnType<typeof createRandom>;
+  random: Random;
 }): StoneDirtDepth => ({
   tiles,
-  depth: match(random.isRollUnder(DEEP_DIRT_CHANCE))
+  depth: match(isRollUnder(DEEP_DIRT_CHANCE, random))
     .with(true, () => DEEP_DIRT_DEPTH)
     .otherwise(() => DIRT_DEPTH),
 });

@@ -1,5 +1,20 @@
-import { type Level, TILE_AIR, TILE_BRICK, TILE_DIRT, TILE_SIZE, chain } from '@mander/model';
-import { dropRight, flatMap, last, reduce, reverse, some, tap } from 'lodash-es';
+import {
+  type Level,
+  TILE_AIR,
+  TILE_BRICK,
+  TILE_DIRT,
+  TILE_SIZE,
+} from '@mander/model';
+import {
+  dropRight,
+  flatMap,
+  last,
+  reduce,
+  reverse,
+  some,
+  tap,
+} from 'lodash-es';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -67,14 +82,14 @@ const drawFills = (
   row: number,
   style: MaterialStyle,
 ): Fill[] =>
-  chain(createRecordingContext())
-    .thru((recording) =>
+  pipe(
+    createRecordingContext(),
+    (recording) =>
       tap(recording, ({ context }) =>
         draw(context, createBackTileStep(level, column, row, style)),
       ),
-    )
-    .thru(({ calls }) => reduce(calls, patchFillState, EMPTY_STATE).fills)
-    .value();
+    ({ calls }) => reduce(calls, patchFillState, EMPTY_STATE).fills,
+  );
 
 const createBackLevel = (backTile: number): Level => ({
   seed: '',

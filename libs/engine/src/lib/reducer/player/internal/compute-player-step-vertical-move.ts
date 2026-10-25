@@ -1,4 +1,4 @@
-import { chain } from '@mander/model';
+import { pipe } from 'remeda';
 import { computeLanding } from '../../collision/compute-landing';
 import { computeVerticalMove } from '../../collision/compute-vertical-move';
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from '../consts';
@@ -15,7 +15,7 @@ export const computePlayerStepVerticalMove = ({
   nextX,
   blockedVelocityX,
 }: PlayerStepHorizontalMove): PlayerStepVerticalMove =>
-  chain(
+  pipe(
     computeVerticalMove(
       level,
       nextX,
@@ -24,8 +24,7 @@ export const computePlayerStepVerticalMove = ({
       PLAYER_HEIGHT,
       velocityY * deltaSeconds,
     ),
-  )
-    .thru((vertical) => ({
+    (vertical) => ({
       nextY: vertical.position,
       landing: computeLanding(
         vertical.isBlocked,
@@ -33,8 +32,8 @@ export const computePlayerStepVerticalMove = ({
         isGrounded,
         velocityY,
       ),
-    }))
-    .thru(({ nextY, landing }): PlayerStepVerticalMove => ({
+    }),
+    ({ nextY, landing }): PlayerStepVerticalMove => ({
       player,
       isFacingRight,
       nextX,
@@ -42,5 +41,5 @@ export const computePlayerStepVerticalMove = ({
       nextY,
       velocityY: landing.velocityY,
       isGrounded: landing.isGrounded,
-    }))
-    .value();
+    }),
+  );

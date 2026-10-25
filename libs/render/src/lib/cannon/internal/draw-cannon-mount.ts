@@ -7,7 +7,7 @@ import { createSequenceStep } from '../../canvas/create-sequence-step';
 import { createStyleStep } from '../../canvas/create-style-step';
 import { drawBeginPath } from '../../canvas/draw-begin-path';
 import { drawFill } from '../../canvas/draw-fill';
-import { outline } from '../../stroke/outline';
+import { createOutlineStep } from '../../stroke/create-outline-step';
 import type { CanvasStep } from '../../types/canvas-step';
 import { HALF_TILE, IRON, IRON_DARK, IRON_LIGHT } from './consts';
 
@@ -24,7 +24,7 @@ export const drawCannonMount: CanvasStep = createSequenceStep([
     TILE_SIZE - MOUNT_INSET * 2,
     MOUNT_RADIUS,
   ),
-  outline(),
+  createOutlineStep(),
   createContextStyleStep((context) => ({
     fillStyle: createLinearGradient(context, 0, -HALF_TILE, 0, HALF_TILE, [
       [0, IRON],

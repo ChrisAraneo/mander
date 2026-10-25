@@ -9,7 +9,7 @@ import { drawRestore } from '../canvas/draw-restore';
 import { drawSave } from '../canvas/draw-save';
 import { drawStroke } from '../canvas/draw-stroke';
 import { createShadeFill } from '../shade/create-shade-fill';
-import { outline } from '../stroke/outline';
+import { createOutlineStep } from '../stroke/create-outline-step';
 import type { CanvasStep } from '../types/canvas-step';
 import type { ShadeColors } from '../types/shade-colors';
 import { CROWN } from './internal/consts';
@@ -25,7 +25,7 @@ export const createGemShapeStep = (
   createSequenceStep([
     drawSave,
     createGemShapePathStep(centerX, centerY, halfWidth, halfHeight),
-    outline(),
+    createOutlineStep(),
     createContextStyleStep((context) => ({
       fillStyle: createShadeFill(context, centerX, centerY, halfHeight, colors),
     })),

@@ -1,5 +1,17 @@
-import { type Item, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, TILE_SPIKE, chain } from '@mander/model';
-import { ceil, head, map, reduce as fold, size, times } from 'lodash-es';
+import {
+  type Item,
+  type Tile,
+  TILE_AIR,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SIZE,
+  TILE_SPAWN,
+  TILE_SPIKE,
+} from '@mander/model';
+import { ceil, constant, head, map, reduce, size, times } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -7,6 +19,7 @@ import { createInitialState } from '../state/create-initial-state';
 import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
+import { nextGameState } from './next-game-state';
 import {
   BASE_HEARTS,
   HURT_FLASH_SECONDS,
@@ -14,7 +27,6 @@ import {
   PLAYER_HEIGHT,
 } from './player/consts';
 import { getSpawnPosition } from './player/get-spawn-position';
-import { reduce } from './reduce';
 
 interface SpikeHit {
   heartsLeft: number;
@@ -84,25 +96,25 @@ const createTestLevel = (): GameLevel => ({
 
 const SPAWN_X = getSpawnPosition(createTestLevel()).x;
 
+const patchSpikeTile = (level: GameLevel, column: number): GameLevel => ({
+  ...level,
+  tiles: map(level.tiles, (row, rowIndex) =>
+    map(row, (tile, columnIndex) =>
+      match(rowIndex === 11 && columnIndex === column)
+        .with(true, () => TILE_SPIKE)
+        .otherwise(() => tile),
+    ),
+  ),
+});
+
 const createSpikeLevel = (column: number): GameLevel =>
-  chain(createTestLevel())
-    .thru((level): GameLevel => ({
-      ...level,
-      tiles: map(level.tiles, (row, rowIndex) =>
-        map(row, (tile, columnIndex) =>
-          match(rowIndex === 11 && columnIndex === column)
-            .with(true, () => TILE_SPIKE)
-            .otherwise(() => tile),
-        ),
-      ),
-    }))
-    .value();
+  patchSpikeTile(createTestLevel(), column);
 
 const nextTick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK' });
+  nextGameState(state, { type: 'TICK' }, constant(0));
 
 const nextTicks = (state: GameState, tickCount: number): GameState =>
-  fold(times(tickCount), (current) => nextTick(current), state);
+  reduce(times(tickCount), (current) => nextTick(current), state);
 
 const computeTickCount = (seconds: number): number =>
   ceil(seconds / DELTA_SECONDS) + 1;
@@ -121,20 +133,22 @@ const patchPlayerPosition = (state: GameState, left: number): GameState => ({
 const nextSpikeHits = (state: GameState, heartsLeft: number): SpikeHit[] =>
   match(heartsLeft >= 1)
     .with(true, () =>
-      chain(nextTick(patchPlayerPosition(state, SPIKE_X)))
-        .thru((hit): SpikeHit => ({
+      pipe(
+        patchPlayerPosition(state, SPIKE_X),
+        nextTick,
+        (hit): SpikeHit => ({
           heartsLeft,
           hit,
           recovered: nextTicks(
             patchPlayerPosition(hit, SAFE_X),
             computeTickCount(HURT_INVINCIBLE_SECONDS),
           ),
-        }))
-        .thru((spikeHit) => [
+        }),
+        (spikeHit) => [
           spikeHit,
           ...nextSpikeHits(spikeHit.recovered, heartsLeft - 1),
-        ])
-        .value(),
+        ],
+      ),
     )
     .otherwise((): SpikeHit[] => []);
 
@@ -155,7 +169,11 @@ describe('hearts', () => {
       status: 'CHEST',
       level: { ...start.level, chestItems: [createEmberHeart()] },
     };
-    const chosen = reduce(stocked, { type: 'CHOOSE_ITEM', index: 0 });
+    const chosen = nextGameState(
+      stocked,
+      { type: 'CHOOSE_ITEM', index: 0 },
+      constant(0),
+    );
 
     expect(
       chosen.player.hearts.value,
@@ -177,11 +195,15 @@ describe('hearts', () => {
       ...start,
       player: { ...start.player, hearts: { value: 1 } },
     };
-    const loaded = reduce(weakened, {
-      type: 'LOAD_LEVEL',
-      level: createTestLevel(),
-      levelIndex: 1,
-    });
+    const loaded = nextGameState(
+      weakened,
+      {
+        type: 'LOAD_LEVEL',
+        level: createTestLevel(),
+        levelIndex: 1,
+      },
+      constant(0),
+    );
 
     expect(loaded.player.hearts.value, 'the next level does not refill').toBe(
       1,

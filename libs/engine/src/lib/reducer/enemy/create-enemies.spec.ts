@@ -1,5 +1,14 @@
-import { type Level, type Tile, TILE_AIR, TILE_BEARTRAP, TILE_DIRT, TILE_ENEMY, TILE_SIZE, chain } from '@mander/model';
+import {
+  type Level,
+  type Tile,
+  TILE_AIR,
+  TILE_BEARTRAP,
+  TILE_DIRT,
+  TILE_ENEMY,
+  TILE_SIZE,
+} from '@mander/model';
 import { every, filter, find, map, size, some, times } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -21,8 +30,9 @@ const createLevelWithEnemies = (
   count: number,
   hornedEnemyChance = HORNED_ENEMY_CHANCE,
 ): GameLevel =>
-  chain(count + 2)
-    .thru((width) => ({
+  pipe(
+    count + 2,
+    (width) => ({
       width,
       tiles: [
         times(width, (): Tile => TILE_AIR),
@@ -33,24 +43,25 @@ const createLevelWithEnemies = (
         ),
         times(width, (): Tile => TILE_DIRT),
       ],
-    }))
-    .thru(({ width, tiles }): GameLevel => ({
+    }),
+    ({ width, tiles }): GameLevel => ({
       seed,
       width,
       height: size(tiles),
       tiles,
       chestItems: [],
       hornedEnemyChance,
-    }))
-    .value();
+    }),
+  );
 
 const createLevelWithAirborneEnemies = (
   seed: string,
   count: number,
   hornedEnemyChance = HORNED_ENEMY_CHANCE,
 ): GameLevel =>
-  chain(count + 2)
-    .thru((width) => ({
+  pipe(
+    count + 2,
+    (width) => ({
       width,
       tiles: [
         times(width, (): Tile => TILE_AIR),
@@ -61,16 +72,16 @@ const createLevelWithAirborneEnemies = (
         ),
         times(width, (): Tile => TILE_AIR),
       ],
-    }))
-    .thru(({ width, tiles }): GameLevel => ({
+    }),
+    ({ width, tiles }): GameLevel => ({
       seed,
       width,
       height: size(tiles),
       tiles,
       chestItems: [],
       hornedEnemyChance,
-    }))
-    .value();
+    }),
+  );
 
 const WIDTH = 20;
 

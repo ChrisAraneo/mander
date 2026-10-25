@@ -1,5 +1,5 @@
 import type { Tile } from '@mander/model';
-import { flow } from 'lodash-es';
+import { pipe } from 'remeda';
 import type { LevelType } from '../types/level-type';
 import { createPlayerSpawnPatches } from './internal/create-player-spawn-patches';
 import { filterPlayerSpawnCandidates } from './internal/filter-player-spawn-candidates';
@@ -11,10 +11,11 @@ export const addPlayerSpawn = (
   tiles: Tile[][],
   levelType: LevelType,
 ): Tile[][] =>
-  flow(
+  pipe(
+    { tiles, levelType },
     filterPlayerSpawnCandidates,
     sortPlayerSpawnCandidates,
     getTopPlayerSpawnCandidate,
     createPlayerSpawnPatches,
     patchPlayerSpawnTiles,
-  )({ tiles, levelType });
+  );

@@ -15,7 +15,7 @@ const BLUR_WEIGHT = sum(BLUR_TAPS);
 export const computeTapAverage = (
   sampleAt: (offset: number) => number,
 ): number => {
-  // eslint-disable-next-line no-restricted-syntax -- measured 2026-10-10: 1e6 calls take 30 ms as this loop and 390 ms as a lodash reduce; generate() takes 400 ms against 585 ms
+  // eslint-disable-next-line no-restricted-syntax -- measured 2026-10-10: 1e6 calls take 30 ms as this loop and 390 ms as a lodash reduce; createWorld() takes 400 ms against 585 ms
   let total = 0;
 
   // eslint-disable-next-line no-restricted-syntax -- measured 2026-10-10: see the note above

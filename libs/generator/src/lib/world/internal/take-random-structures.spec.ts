@@ -1,5 +1,4 @@
 import { createRandom } from '@mander/engine';
-import { chain } from '@mander/model';
 import {
   getStructureName,
   HARD_STRUCTURES,
@@ -16,6 +15,7 @@ import {
   times,
   uniq,
 } from 'lodash-es';
+import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
 import { takeRandomStructures } from './take-random-structures';
@@ -114,16 +114,16 @@ describe('takeRandomStructures', () => {
 
   it('should rarely open both hands on the same structure when the hard and normal categories are picked one after the other from one generator', () => {
     const sameOpening = filter(SEEDS, (seed) =>
-      chain(createRandom(seed))
-        .thru((random) => ({
+      pipe(
+        seed,
+        createRandom,
+        (random) => ({
           normal: takeRandomStructures(42, 'NORMAL', random),
           random,
-        }))
-        .thru(
-          ({ normal, random }) =>
-            normal[0] === takeRandomStructures(14, 'HARD', random)[0],
-        )
-        .value(),
+        }),
+        ({ normal, random }) =>
+          normal[0] === takeRandomStructures(14, 'HARD', random)[0],
+      ),
     );
 
     expect(size(sameOpening)).toBeLessThan(size(SEEDS) / 2);

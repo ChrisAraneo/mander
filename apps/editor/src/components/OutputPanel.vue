@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { chain } from '@mander/model';
 import { noop } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { computed, ref } from 'vue';
-
-import { setRef } from '../editor';
+import { patchRef } from '../editor';
 
 const COPIED_MS = 1400;
 
@@ -26,29 +25,32 @@ const toggleLabel = computed(() =>
     .otherwise(() => 'Show'),
 );
 
-const toggle = (): void => void setRef(isShown, !isShown.value);
+const patchShown = (): boolean => patchRef(isShown, !isShown.value);
 
-// a blocked clipboard leaves the source as the only way out, so it is opened
-const showBlocked = (): void =>
-  void chain(setRef(hasFailed, true))
-    .thru(() => setRef(isShown, true))
-    .value();
+const patchBlocked = (): boolean =>
+  pipe(
+    true,
+    (failed) => patchRef(hasFailed, failed),
+    (shown) => patchRef(isShown, shown),
+  );
 
-const copy = (): Promise<void> =>
-  chain(setRef(hasFailed, false))
-    .thru(() =>
-      navigator.clipboard.writeText(props.text).then(
-        () =>
-          chain(setRef(isCopied, true))
-            .thru(() =>
-              window.setTimeout(() => setRef(isCopied, false), COPIED_MS),
-            )
-            .value(),
-        () => showBlocked(),
-      ),
-    )
-    .thru((settled) => settled.then(noop))
-    .value();
+const clearCopied = (): boolean => patchRef(isCopied, false);
+
+const patchCopied = (): number =>
+  pipe(
+    true,
+    (copied) => patchRef(isCopied, copied),
+    () => window.setTimeout(clearCopied, COPIED_MS),
+  );
+
+const writeClipboard = (): Promise<void> =>
+  pipe(
+    false,
+    (failed) => patchRef(hasFailed, failed),
+    () => navigator.clipboard.writeText(props.text),
+    (writing) => writing.then(patchCopied, patchBlocked),
+    (settled) => settled.then(noop),
+  );
 </script>
 
 <template>
@@ -56,10 +58,10 @@ const copy = (): Promise<void> =>
     <header>
       <h2>Structure source</h2>
       <div class="buttons">
-        <button class="ghost" type="button" @click="copy">
+        <button class="ghost" type="button" @click="writeClipboard">
           {{ label }}
         </button>
-        <button class="ghost" type="button" @click="toggle()">
+        <button class="ghost" type="button" @click="patchShown">
           {{ toggleLabel }}
         </button>
       </div>

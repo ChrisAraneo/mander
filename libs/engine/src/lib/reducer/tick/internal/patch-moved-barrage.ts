@@ -1,20 +1,28 @@
-import { type Player, chain } from '@mander/model';
+import { type Player } from '@mander/model';
 import type { GameState } from '../../../types/game-state';
-import { advanceCannonballs } from '../../cannon/advance-cannonballs';
-import { advanceCannons } from '../../cannon/advance-cannons';
+import { nextCannonballs } from '../../cannon/next-cannonballs';
+import { nextCannons } from '../../cannon/next-cannons';
 import type { Barrage } from '../../cannon/types/barrage';
+
+const addMovedCannonballs = (
+  state: GameState,
+  deltaSeconds: number,
+  { cannons, cannonballs }: Barrage,
+): Barrage => ({
+  cannons,
+  cannonballs: [
+    ...nextCannonballs(state.level, state.cannonballs, deltaSeconds),
+    ...cannonballs,
+  ],
+});
 
 export const patchMovedBarrage = (
   state: GameState,
   player: Player,
   deltaSeconds: number,
 ): Barrage =>
-  chain(advanceCannons(state.cannons, player, deltaSeconds))
-    .thru((fired): Barrage => ({
-      cannons: fired.cannons,
-      cannonballs: [
-        ...advanceCannonballs(state.level, state.cannonballs, deltaSeconds),
-        ...fired.cannonballs,
-      ],
-    }))
-    .value();
+  addMovedCannonballs(
+    state,
+    deltaSeconds,
+    nextCannons(state.cannons, player, deltaSeconds),
+  );

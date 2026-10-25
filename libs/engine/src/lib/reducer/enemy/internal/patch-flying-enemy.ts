@@ -1,5 +1,6 @@
-import { type Enemy, type Level, MAX_TICK_SECONDS, chain } from '@mander/model';
+import { type Enemy, type Level, MAX_TICK_SECONDS } from '@mander/model';
 import { clamp } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { computeVerticalMove } from '../../collision/compute-vertical-move';
 import { FACING_LEFT, FACING_RIGHT } from '../../consts';
@@ -12,19 +13,20 @@ export const patchFlyingEnemy = (
   enemy: Enemy,
   elapsedSeconds: number,
 ): Enemy =>
-  chain({
-    deltaSeconds: Math.min(elapsedSeconds, MAX_TICK_SECONDS),
-    speed: enemy.velocity.y.max,
-    facing: match(enemy.velocity.y.current < 0)
-      .with(true, (): Facing => FACING_LEFT)
-      .otherwise((): Facing => FACING_RIGHT),
-  })
-    .thru(({ deltaSeconds, speed, facing }) => ({
+  pipe(
+    {
+      deltaSeconds: Math.min(elapsedSeconds, MAX_TICK_SECONDS),
+      speed: enemy.velocity.y.max,
+      facing: match(enemy.velocity.y.current < 0)
+        .with(true, (): Facing => FACING_LEFT)
+        .otherwise((): Facing => FACING_RIGHT),
+    },
+    ({ deltaSeconds, speed, facing }) => ({
       speed,
       facing,
       rawNextY: enemy.position.y + facing * speed * deltaSeconds,
-    }))
-    .thru(({ speed, facing, rawNextY }) => ({
+    }),
+    ({ speed, facing, rawNextY }) => ({
       speed,
       facing,
       rawNextY,
@@ -33,8 +35,8 @@ export const patchFlyingEnemy = (
         enemy.spawn.y - FLYING_ENEMY_RANGE,
         enemy.spawn.y + FLYING_ENEMY_RANGE,
       ),
-    }))
-    .thru(({ speed, facing, rawNextY, clampedNextY }) => ({
+    }),
+    ({ speed, facing, rawNextY, clampedNextY }) => ({
       speed,
       facing,
       isClamped: clampedNextY !== rawNextY,
@@ -46,8 +48,8 @@ export const patchFlyingEnemy = (
         ENEMY_HEIGHT,
         clampedNextY - enemy.position.y,
       ),
-    }))
-    .thru(({ speed, facing, isClamped, vertical }): Enemy => ({
+    }),
+    ({ speed, facing, isClamped, vertical }): Enemy => ({
       ...enemy,
       position: { ...enemy.position, y: vertical.position },
       velocity: {
@@ -60,5 +62,5 @@ export const patchFlyingEnemy = (
         },
       },
       statuses: { ...enemy.statuses, isGrounded: false },
-    }))
-    .value();
+    }),
+  );

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { type Layers, TILE_AIR, TILE_SIZE, chain } from '@mander/model';
+import { type Layers, TILE_AIR, TILE_SIZE } from '@mander/model';
 import { noop } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match, P } from 'ts-pattern';
 import { onMounted, ref, watch } from 'vue';
-
 import type { BrushLayer } from '../editor';
-import { drawStructure, fitCanvas, setRef } from '../editor';
+import { drawStructure, patchCanvas, patchRef } from '../editor';
 
 const { nullish } = P;
 
@@ -14,7 +14,6 @@ const props = defineProps<{ value: number; layer: BrushLayer }>();
 const canvas = ref<HTMLCanvasElement | null>(null);
 const context = ref<CanvasRenderingContext2D | null>(null);
 
-// a background brush is shown the way the game draws it: behind the level
 const createSwatch = (): Layers =>
   match(props.layer)
     .with('back', (): Layers => ({
@@ -26,26 +25,29 @@ const createSwatch = (): Layers =>
       backTiles: [[TILE_AIR]],
     }));
 
-const repaint = (): void =>
+const drawSwatch = (): CanvasRenderingContext2D | void =>
   match(context.value)
     .with(nullish, noop)
     .otherwise((target) => drawStructure(target, createSwatch()));
 
-onMounted(() =>
-  chain(canvas.value)
-    .thru((element) =>
-      match(element)
-        .with(nullish, noop)
-        .otherwise(
-          (target) =>
-            void setRef(context, fitCanvas(target, TILE_SIZE, TILE_SIZE)),
-        ),
-    )
-    .thru(() => repaint())
-    .value(),
-);
+const patchContext = (
+  element: HTMLCanvasElement | null,
+): CanvasRenderingContext2D | null | void =>
+  match(element)
+    .with(nullish, noop)
+    .otherwise((target) =>
+      patchRef(
+        context,
+        patchCanvas(target, TILE_SIZE, TILE_SIZE, window.devicePixelRatio || 1),
+      ),
+    );
 
-watch(() => [props.value, props.layer], repaint);
+const handleMount = (): CanvasRenderingContext2D | void =>
+  pipe(canvas.value, patchContext, () => drawSwatch());
+
+onMounted(handleMount);
+
+watch(() => [props.value, props.layer], drawSwatch);
 </script>
 
 <template>

@@ -18,7 +18,7 @@ describe('takeRandomChestRarities', () => {
     const random = createRandom('DAY-1');
 
     expect(takeRandomFrom('DAY-1')).toEqual(
-      times(CHEST_ITEM_COUNT, () => toRarity(random.rollFloat())),
+      times(CHEST_ITEM_COUNT, () => toRarity(random())),
     );
   });
 

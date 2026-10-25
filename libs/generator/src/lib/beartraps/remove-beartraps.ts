@@ -1,6 +1,6 @@
-import type { createRandom } from '@mander/engine';
+import type { Random } from '@mander/engine';
 import type { Tile } from '@mander/model';
-import { flow } from 'lodash-es';
+import { pipe } from 'remeda';
 import { createBeartrapPatches } from './internal/create-beartrap-patches';
 import { filterBeartrapCells } from './internal/filter-beartrap-cells';
 import { getBeartrapRemovalRate } from './internal/get-beartrap-removal-rate';
@@ -11,13 +11,14 @@ import { sortBeartrapCellsRandomly } from './internal/sort-beartrap-cells-random
 export const removeBeartraps = (
   tiles: Tile[][],
   levelNumber: number,
-  random: ReturnType<typeof createRandom>,
+  random: Random,
 ): Tile[][] =>
-  flow(
+  pipe(
+    { tiles, levelNumber, random },
     getBeartrapRemovalRate,
     filterBeartrapCells,
     sortBeartrapCellsRandomly,
     sliceBeartrapCells,
     createBeartrapPatches,
     patchBeartrapTiles,
-  )({ tiles, levelNumber, random });
+  );

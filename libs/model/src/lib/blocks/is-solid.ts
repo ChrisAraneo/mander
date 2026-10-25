@@ -1,6 +1,5 @@
 import { match } from 'ts-pattern';
-
-import type { Level } from '../level/level';
+import type { Level } from '../types/level';
 import { isSolidTile } from './is-solid-tile';
 
 const isBesideLevel = (level: Level, tileX: number): boolean =>

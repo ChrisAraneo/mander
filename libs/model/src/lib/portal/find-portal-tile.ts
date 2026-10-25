@@ -1,10 +1,9 @@
 import { match, P } from 'ts-pattern';
-
 import { findTile } from '../tile/find-tile';
-import type { Level } from '../level/level';
-import { TILE_PORTAL } from './portal';
+import type { Level } from '../types/level';
+import type { Point } from '../types/point';
 import { findPortalBottomTile } from './find-portal-bottom-tile';
-import type { Point } from '../geometry/point';
+import { TILE_PORTAL } from './tile-portal';
 
 const { nullish } = P;
 

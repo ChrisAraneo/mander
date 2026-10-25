@@ -7,7 +7,7 @@ import { drawBeginPath } from '../canvas/draw-begin-path';
 import { drawFill } from '../canvas/draw-fill';
 import { drawRestore } from '../canvas/draw-restore';
 import { drawSave } from '../canvas/draw-save';
-import { outline } from '../stroke/outline';
+import { createOutlineStep } from '../stroke/create-outline-step';
 import type { CanvasStep } from '../types/canvas-step';
 import type { SphereColors } from './types/sphere-colors';
 
@@ -21,7 +21,7 @@ export const createShadedSphereStep = (
     drawSave,
     drawBeginPath,
     createArcStep(centerX, centerY, radius, 0, Math.PI * 2),
-    outline(),
+    createOutlineStep(),
     createContextStyleStep((context) => ({
       fillStyle: createRadialGradient(
         context,

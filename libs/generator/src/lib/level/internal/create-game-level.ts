@@ -1,6 +1,7 @@
 import type { GameLevel } from '@mander/engine';
-import { type Layers, chain } from '@mander/model';
+import { type Layers } from '@mander/model';
 import { size } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { takeRandomChestItems } from '../../items/take-random-chest-items';
 import { isMirrored } from '../../structures/is-mirrored';
@@ -19,12 +20,14 @@ export const createGameLevel = ({
   backTiles,
   random,
 }: FurnishedLevel): GameLevel =>
-  chain(
-    match(isMirrored(levelVariant))
-      .with(true, () => toMirroredLayers(tiles, backTiles))
-      .otherwise((): Layers => ({ tiles, backTiles })),
-  )
-    .thru((layers) => ({
+  pipe(
+    levelVariant,
+    isMirrored,
+    (isMirroredLevel) =>
+      match(isMirroredLevel)
+        .with(true, () => toMirroredLayers(tiles, backTiles))
+        .otherwise((): Layers => ({ tiles, backTiles })),
+    (layers): GameLevel => ({
       seed: hashLevelSeed(random),
       width: size(layers.tiles[0]),
       height: size(layers.tiles),
@@ -34,5 +37,5 @@ export const createGameLevel = ({
       hornedEnemyChance: getHornedEnemyChance(levelNumber),
       isOpenSided: isVertical(levelVariant),
       meta: createLevelMeta(structures),
-    }))
-    .value();
+    }),
+  );

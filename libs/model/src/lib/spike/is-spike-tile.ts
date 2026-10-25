@@ -1,6 +1,5 @@
 import { includes } from 'lodash-es';
-
-import type { Tile } from '../tile/tile';
-import { SPIKE_TILES } from './spike';
+import type { Tile } from '../types/tile';
+import { SPIKE_TILES } from './consts';
 
 export const isSpikeTile = (tile: Tile): boolean => includes(SPIKE_TILES, tile);

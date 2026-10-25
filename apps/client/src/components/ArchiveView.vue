@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { noop } from 'lodash-es';
-import { onMounted, onUnmounted, ref } from 'vue';
 import { match } from 'ts-pattern';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { formatRunLabel } from '../game/format';
 import type { RunRecord } from '../game/storage';
 import { useArchive } from '../game/use-archive';
+import {
+  handleReplayToggle,
+  patchReplaySpeed,
+  startReplay,
+  type ReplaySession,
+} from '../game/use-replay';
 import ReplayBar from './ReplayBar.vue';
 
 const props = defineProps<{ run: RunRecord }>();
@@ -25,14 +31,25 @@ const {
   durationSeconds,
 } = replay;
 
-const handleKeyDown = (event: KeyboardEvent): void =>
+const handleToggle = (): ReplaySession => handleReplayToggle(replay);
+
+const handleSpeed = (): ReplaySession => patchReplaySpeed(replay);
+
+const handleRestart = (): ReplaySession => startReplay(replay);
+
+const handleKeyDown = (event: KeyboardEvent): ReplaySession | void =>
   match({ repeat: event.repeat, code: event.code })
-    .with({ repeat: false, code: 'Space' }, () => replay.togglePause())
+    .with({ repeat: false, code: 'Space' }, () => handleReplayToggle(replay))
     .with({ repeat: false, code: 'Escape' }, () => emit('exit'))
     .otherwise(noop);
 
-onMounted(() => window.addEventListener('keydown', handleKeyDown));
-onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
+const watchKeys = (): void => window.addEventListener('keydown', handleKeyDown);
+
+const unwatchKeys = (): void =>
+  window.removeEventListener('keydown', handleKeyDown);
+
+onMounted(watchKeys);
+onUnmounted(unwatchKeys);
 </script>
 
 <template>
@@ -48,9 +65,9 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
       :progress="progress"
       :elapsed-seconds="elapsedSeconds"
       :duration-seconds="durationSeconds"
-      @toggle="replay.togglePause()"
-      @speed="replay.cycleSpeed()"
-      @restart="replay.play()"
+      @toggle="handleToggle"
+      @speed="handleSpeed"
+      @restart="handleRestart"
       @close="emit('exit')" />
   </div>
 </template>

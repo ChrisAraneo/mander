@@ -8,7 +8,6 @@ import {
   TILE_GEM,
   TILE_SPAWN,
   TILE_SPIKE_FALLING,
-  chain,
 } from '@mander/model';
 import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
@@ -62,13 +61,13 @@ const createBusyState = (): GameState => ({
   input: { isLeft: false, isRight: true, isJump: false },
 });
 
+const patchFloatingPlayer = (state: GameState): GameState => ({
+  ...state,
+  player: { ...state.player, position: { x: 100, y: 20 } },
+});
+
 const createFloatingState = (): GameState =>
-  chain(createInitialState(OPEN_LEVEL, 0, []))
-    .thru((state): GameState => ({
-      ...state,
-      player: { ...state.player, position: { x: 100, y: 20 } },
-    }))
-    .value();
+  patchFloatingPlayer(createInitialState(OPEN_LEVEL, 0, []));
 
 describe('patchPlayingTick', () => {
   it('should give the same game as a tick of a game being played when the same time passes', () => {

@@ -1,12 +1,22 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { RunRecord } from './game/storage';
-import StartScreen from './components/StartScreen.vue';
-import GameView from './components/GameView.vue';
 import ArchiveView from './components/ArchiveView.vue';
+import GameView from './components/GameView.vue';
+import StartScreen from './components/StartScreen.vue';
+import { patchRef } from './game/canvas';
+import type { RunRecord } from './game/storage';
 
 const activeDay = ref<string | null>(null);
 const watched = ref<RunRecord | null>(null);
+
+const handleStart = (day: string): string | null => patchRef(activeDay, day);
+
+const handleWatch = (run: RunRecord): RunRecord | null =>
+  patchRef(watched, run);
+
+const handleGameExit = (): string | null => patchRef(activeDay, null);
+
+const handleArchiveExit = (): RunRecord | null => patchRef(watched, null);
 </script>
 
 <template>
@@ -15,13 +25,13 @@ const watched = ref<RunRecord | null>(null);
       v-if="watched"
       :key="watched.id"
       :run="watched"
-      @exit="watched = null" />
+      @exit="handleArchiveExit" />
     <GameView
       v-else-if="activeDay !== null"
       :key="activeDay"
       :day="activeDay"
-      @exit="activeDay = null" />
-    <StartScreen v-else @start="activeDay = $event" @watch="watched = $event" />
+      @exit="handleGameExit" />
+    <StartScreen v-else @start="handleStart" @watch="handleWatch" />
   </main>
 </template>
 

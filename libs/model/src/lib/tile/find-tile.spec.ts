@@ -1,24 +1,25 @@
+import { size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import { TILE_DIRT } from '../blocks/dirt';
-import type { Level } from '../level/level';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_DIRT } from '../blocks/tile-dirt';
+import type { Level } from '../types/level';
+import type { Tile } from '../types/tile';
 import { findTile } from './find-tile';
-import type { Tile } from './tile';
 
-const level = (tiles: Tile[][]): Level => ({
+const createLevel = (tiles: Tile[][]): Level => ({
   seed: 'SEED',
-  width: tiles[0].length,
-  height: tiles.length,
+  width: size(tiles[0]),
+  height: size(tiles),
   tiles,
   chestItems: [],
 });
 
 describe('findTile', () => {
-  it('should point at the tile when the level holds the kind it was sent for', () => {
+  it('should return the tile position when the level has the tile', () => {
     expect(
       findTile(
-        level([
+        createLevel([
           [TILE_AIR, TILE_AIR],
           [TILE_AIR, TILE_DIRT],
         ]),
@@ -27,10 +28,10 @@ describe('findTile', () => {
     ).toEqual({ x: 1, y: 1 });
   });
 
-  it('should point at the very first corner when the tile lies there', () => {
+  it('should return the top left corner when the tile is there', () => {
     expect(
       findTile(
-        level([
+        createLevel([
           [TILE_DIRT, TILE_AIR],
           [TILE_AIR, TILE_AIR],
         ]),
@@ -39,10 +40,10 @@ describe('findTile', () => {
     ).toEqual({ x: 0, y: 0 });
   });
 
-  it('should take the leftmost of the highest row when the level holds several', () => {
+  it('should return the leftmost tile of the top row when the level has several', () => {
     expect(
       findTile(
-        level([
+        createLevel([
           [TILE_AIR, TILE_AIR, TILE_AIR],
           [TILE_DIRT, TILE_AIR, TILE_DIRT],
           [TILE_DIRT, TILE_AIR, TILE_AIR],
@@ -52,10 +53,10 @@ describe('findTile', () => {
     ).toEqual({ x: 0, y: 1 });
   });
 
-  it('should come back empty-handed when the level holds no such tile', () => {
+  it('should return null when the level does not have the tile', () => {
     expect(
       findTile(
-        level([
+        createLevel([
           [TILE_AIR, TILE_AIR],
           [TILE_AIR, TILE_AIR],
         ]),
@@ -64,7 +65,7 @@ describe('findTile', () => {
     ).toBeNull();
   });
 
-  it('should come back empty-handed when the only tiles lie past the width and height the level claims', () => {
+  it('should return null when the only tiles lie outside the level width and height', () => {
     expect(
       findTile(
         {

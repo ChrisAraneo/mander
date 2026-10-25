@@ -4,7 +4,7 @@ import { drawFill } from '../canvas/draw-fill';
 import { drawRestore } from '../canvas/draw-restore';
 import { drawSave } from '../canvas/draw-save';
 import { createShadeFill } from '../shade/create-shade-fill';
-import { outline } from '../stroke/outline';
+import { createOutlineStep } from '../stroke/create-outline-step';
 import type { CanvasStep } from '../types/canvas-step';
 import type { ShadeColors } from '../types/shade-colors';
 import { createStarPathStep } from './internal/create-star-path-step';
@@ -18,7 +18,7 @@ export const createStarStep = (
   createSequenceStep([
     drawSave,
     createStarPathStep(centerX, centerY, radius),
-    outline(),
+    createOutlineStep(),
     createContextStyleStep((context) => ({
       fillStyle: createShadeFill(context, centerX, centerY, radius, colors),
     })),

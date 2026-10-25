@@ -1,11 +1,12 @@
 import type { AxisMove } from '../types/axis-move';
 import { computeSweptMove } from './compute-swept-move';
+import { getSweepOrigin } from './get-sweep-origin';
 import type { Sweep } from './types/sweep';
 
-export const computeAxisMove = (config: Sweep): AxisMove =>
+export const computeAxisMove = (sweep: Sweep): AxisMove =>
   computeSweptMove(
-    config,
-    Math.sign(config.delta),
-    config.origin,
-    config.delta,
+    sweep,
+    Math.sign(sweep.delta),
+    getSweepOrigin(sweep),
+    sweep.delta,
   );

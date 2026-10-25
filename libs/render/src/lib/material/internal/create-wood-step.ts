@@ -1,5 +1,6 @@
-import { TILE_SIZE, chain } from '@mander/model';
+import { TILE_SIZE } from '@mander/model';
 import { map, range } from 'lodash-es';
+import { pipe } from 'remeda';
 import { createSequenceStep } from '../../canvas/create-sequence-step';
 import type { CanvasStep } from '../../types/canvas-step';
 import type { MaterialStyle } from '../../types/material-style';
@@ -14,8 +15,9 @@ export const createWoodStep = (
   pixelY: number,
   style: MaterialStyle,
 ): CanvasStep =>
-  chain({ column: pixelX / TILE_SIZE, row: pixelY / TILE_SIZE })
-    .thru(({ column, row }) =>
+  pipe(
+    { column: pixelX / TILE_SIZE, row: pixelY / TILE_SIZE },
+    ({ column, row }) =>
       map(range(PLANKS_PER_TILE), (course) =>
         createPlankStep(
           pixelX,
@@ -24,6 +26,5 @@ export const createWoodStep = (
           style,
         ),
       ),
-    )
-    .thru(createSequenceStep)
-    .value();
+    createSequenceStep,
+  );

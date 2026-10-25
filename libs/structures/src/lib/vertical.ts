@@ -1,5 +1,5 @@
 import { EN, DR, EE, SS, __, SP, BT, WD, SF, BR, FB, SC, ST, CN, CR } from './consts';
-import type { VerticalStructure } from './structure';
+import type { VerticalStructure } from './types/vertical-structure';
 
 export const VERTICAL_001: VerticalStructure = [
   [

@@ -1,32 +1,15 @@
-import {
-  filter,
-  find,
-  map,
-  max,
-  nth,
-  padStart,
-  split,
-  startsWith,
-} from 'lodash-es';
+import { filter, map, max, nth, padStart, split } from 'lodash-es';
+import { pipe } from 'remeda';
+import { STRUCTURE_PREFIXES } from './consts';
+import type { Pool } from './types/pool';
+import type { StructureEntry } from './types/structure-entry';
 
-import type { Pool, StructureEntry } from './structure-entry';
-
-const PREFIXES: Record<Pool, string> = {
-  normal: 'NORMAL',
-  hard: 'HARD',
-  vertical: 'VERTICAL',
-};
-
-export const POOLS: readonly Pool[] = Object.freeze([
-  'normal',
-  'hard',
-  'vertical',
-]);
+const NAME_DIGITS = 3;
 
 const parseNumber = (name: string): number =>
   Number(nth(split(name, '_'), 1) ?? 0);
 
-const findHighest = (entries: StructureEntry[], pool: Pool): number =>
+const computeHighestNumber = (entries: StructureEntry[], pool: Pool): number =>
   max(
     map(
       filter(entries, (entry) => entry.pool === pool),
@@ -34,13 +17,12 @@ const findHighest = (entries: StructureEntry[], pool: Pool): number =>
     ),
   ) ?? 0;
 
-const NAME_DIGITS = 3;
-
 export const createNextStructureName = (
   entries: StructureEntry[],
   pool: Pool,
 ): string =>
-  `${PREFIXES[pool]}_${padStart(String(findHighest(entries, pool) + 1), NAME_DIGITS, '0')}`;
-
-export const getPool = (name: string): Pool =>
-  find(POOLS, (pool) => startsWith(name, PREFIXES[pool])) ?? 'normal';
+  pipe(
+    computeHighestNumber(entries, pool),
+    (highest) => padStart(String(highest + 1), NAME_DIGITS, '0'),
+    (digits) => `${STRUCTURE_PREFIXES[pool]}_${digits}`,
+  );

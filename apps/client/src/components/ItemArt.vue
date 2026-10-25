@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { type Item, chain } from '@mander/model';
+import { type Item } from '@mander/model';
 import { drawItem } from '@mander/render';
-import { noop, tap } from 'lodash-es';
+import { assign, noop, tap } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match, P } from 'ts-pattern';
 import { onMounted, ref, watch } from 'vue';
 
@@ -13,44 +14,41 @@ const props = withDefaults(defineProps<{ item: Item; size?: number }>(), {
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 
-const paintInto = (
+const drawItemCanvas = (
   element: HTMLCanvasElement,
   item: Item,
   size: number,
 ): void =>
-  chain(window.devicePixelRatio || 1)
-    .thru((ratio) =>
+  pipe(
+    window.devicePixelRatio || 1,
+    (ratio) =>
       tap(ratio, () =>
-        Object.assign(element, { width: size * ratio, height: size * ratio }),
+        assign(element, { width: size * ratio, height: size * ratio }),
       ),
-    )
-    .thru((ratio) => ({ ratio, context: element.getContext('2d') }))
-    .thru(({ ratio, context }) =>
+    (ratio) => ({ ratio, context: element.getContext('2d') }),
+    ({ ratio, context }) =>
       match(context)
         .with(nullish, noop)
         .otherwise((target) =>
-          chain(target)
-            .thru((ready) =>
-              tap(ready, () =>
-                ready.setTransform(ratio, 0, 0, ratio, 0, 0),
-              ),
-            )
-            .thru((ready) =>
-              tap(ready, () => ready.clearRect(0, 0, size, size)),
-            )
-            .thru((ready) => drawItem(ready, item, size))
-            .value(),
+          pipe(
+            target,
+            (ready) =>
+              tap(ready, () => ready.setTransform(ratio, 0, 0, ratio, 0, 0)),
+            (ready) => tap(ready, () => ready.clearRect(0, 0, size, size)),
+            (ready) => drawItem(ready, item, size),
+          ),
         ),
-    )
-    .value();
+  );
 
-const paint = (): void =>
+const drawArt = (): void =>
   match(canvas.value)
     .with(nullish, noop)
-    .otherwise((element) => paintInto(element, props.item, props.size));
+    .otherwise((element) => drawItemCanvas(element, props.item, props.size));
 
-onMounted(paint);
-watch(() => [props.item, props.size], paint);
+const getArtProps = (): [Item, number] => [props.item, props.size];
+
+onMounted(drawArt);
+watch(getArtProps, drawArt);
 </script>
 
 <template>

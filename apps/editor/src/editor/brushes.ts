@@ -14,20 +14,15 @@ import {
   TILE_WOOD,
 } from '@mander/model';
 import { STRUCTURE_START, STRUCTURE_END } from '@mander/structures';
-
-import type { Brush, BrushLayer } from './brush';
+import { BACKGROUND, BLOCKS, EMPTY, HAZARDS, MARKERS } from './consts';
+import type { Brush } from './types/brush';
+import type { BrushLayer } from './types/brush-layer';
 
 const FRONT: BrushLayer = 'front';
 
 const BACK: BrushLayer = 'back';
 
-export const EMPTY = 'Empty';
-export const BLOCKS = 'Blocks';
-export const HAZARDS = 'Hazards';
-export const BACKGROUND = 'Background';
-export const MARKERS = 'Markers';
-
-export const BRUSHES: Brush[] = [
+export const BRUSHES: readonly Brush[] = Object.freeze([
   {
     value: TILE_AIR,
     label: 'Air',
@@ -168,6 +163,4 @@ export const BRUSHES: Brush[] = [
     group: MARKERS,
     layer: FRONT,
   },
-];
-
-export const DEFAULT_BRUSH: Brush = BRUSHES[1];
+]);

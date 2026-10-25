@@ -1,14 +1,28 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
-import { last, noop } from 'lodash-es';
-import { match } from 'ts-pattern';
 import {
   computeLevelScore,
   computeTotalTime,
   type GameState,
 } from '@mander/engine';
-import { formatClock } from '../game/format';
-import { useGame } from '../game/use-game';
+import { last, noop, size, tap } from 'lodash-es';
+import { pipe } from 'remeda';
+import { match } from 'ts-pattern';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { patchRef } from '../game/canvas';
+import { formatClock, formatScore } from '../game/format';
+import {
+  addGameAction,
+  startFirstLevel,
+  startNextLevel,
+  useGame,
+} from '../game/use-game';
+import {
+  handleReplayToggle,
+  patchReplaySpeed,
+  startReplay,
+  type ReplaySession,
+  finishReplay,
+} from '../game/use-replay';
 import ChestModal from './ChestModal.vue';
 import HudBar from './HudBar.vue';
 import ReplayBar from './ReplayBar.vue';
@@ -17,15 +31,10 @@ const props = defineProps<{ day: string }>();
 const emit = defineEmits<{ exit: [] }>();
 
 const canvas = ref<HTMLCanvasElement | null>(null);
-const {
-  state,
-  dispatch,
-  startNextLevel,
-  restart,
-  levelCount,
-  worldName,
-  replay,
-} = useGame(props.day, canvas);
+const game = useGame(props.day, canvas);
+const { state, replay } = game;
+const worldName = game.world.name;
+const levelCount = size(game.world.levels);
 
 const {
   isActive: isReplayActive,
@@ -43,14 +52,14 @@ const isRunFinished = computed(
     state.value.levelIndex >= levelCount - 1,
 );
 
-const score = computed(() => state.value.score.toLocaleString('en-US'));
+const score = computed(() => formatScore(state.value.score));
 
 const levelSeconds = computed(() => last(state.value.levelTimes) ?? 0);
 
 const levelClock = computed(() => formatClock(levelSeconds.value));
 
 const levelGain = computed(() =>
-  computeLevelScore(levelSeconds.value).toLocaleString('en-US'),
+  formatScore(computeLevelScore(levelSeconds.value)),
 );
 
 const runClock = computed(() =>
@@ -75,34 +84,54 @@ const hint = computed(() =>
     .otherwise(() => null),
 );
 
-const confirmComplete = (): void =>
+const handleCompleteConfirm = (): void =>
   match(isRunFinished.value)
     .with(true, () => emit('exit'))
-    .otherwise(() => startNextLevel());
+    .otherwise(() => startNextLevel(game));
 
-const confirm = (): void =>
+const handleConfirm = (): void =>
   match(state.value.status)
-    .with('GAME_OVER', () => restart())
-    .otherwise(() => confirmComplete());
+    .with('GAME_OVER', () => startFirstLevel(game))
+    .otherwise(() => handleCompleteConfirm());
+
+const handleChoose = (index: number): void =>
+  addGameAction(game, { type: 'CHOOSE_ITEM', index });
+
+const handleChestClose = (): void => addGameAction(game, { type: 'CLOSE' });
+
+const handleNextLevel = (): void => startNextLevel(game);
+
+const handleRestart = (): void => startFirstLevel(game);
+
+const handleReplayPlay = (): ReplaySession => startReplay(replay);
+
+const handleReplayStop = (): ReplaySession => finishReplay(replay);
+
+const handleReplaySpeed = (): ReplaySession => patchReplaySpeed(replay);
+
+const handleToggle = (): ReplaySession => handleReplayToggle(replay);
 
 const isModalStatus = (status: GameState['status']): boolean =>
   status === 'COMPLETE' || status === 'GAME_OVER';
 
 const isModalReady = ref(false);
 
-watch(
-  () => state.value.status,
-  (status) => {
-    isModalReady.value = false;
-    match(isModalStatus(status))
-      .with(true, () =>
-        requestAnimationFrame(() => {
-          isModalReady.value = isModalStatus(state.value.status);
-        }),
-      )
-      .otherwise(noop);
-  },
-);
+const patchModalReady = (): boolean =>
+  patchRef(isModalReady, isModalStatus(state.value.status));
+
+const handleStatusChange = (status: GameState['status']): GameState['status'] =>
+  pipe(
+    status,
+    (current) => tap(current, () => patchRef(isModalReady, false)),
+    (current) =>
+      match(isModalStatus(current))
+        .with(true, () =>
+          tap(current, () => requestAnimationFrame(patchModalReady)),
+        )
+        .otherwise(() => current),
+  );
+
+watch(() => state.value.status, handleStatusChange);
 
 const handleModalKey = (event: KeyboardEvent): void =>
   match({
@@ -110,23 +139,28 @@ const handleModalKey = (event: KeyboardEvent): void =>
     repeat: event.repeat,
     code: event.code,
   })
-    .with({ active: true, repeat: false, code: 'Enter' }, () => confirm())
+    .with({ active: true, repeat: false, code: 'Enter' }, () => handleConfirm())
     .with({ active: true, repeat: false, code: 'Escape' }, () => emit('exit'))
     .otherwise(noop);
 
-const handleReplayKey = (event: KeyboardEvent): void =>
+const handleReplayKey = (event: KeyboardEvent): ReplaySession | void =>
   match({ repeat: event.repeat, code: event.code })
-    .with({ repeat: false, code: 'Space' }, () => replay.togglePause())
-    .with({ repeat: false, code: 'Escape' }, () => replay.stop())
+    .with({ repeat: false, code: 'Space' }, () => handleReplayToggle(replay))
+    .with({ repeat: false, code: 'Escape' }, () => finishReplay(replay))
     .otherwise(noop);
 
-const handleKeyDown = (event: KeyboardEvent): void =>
+const handleKeyDown = (event: KeyboardEvent): ReplaySession | void =>
   match(isReplayActive.value)
     .with(true, () => handleReplayKey(event))
     .otherwise(() => handleModalKey(event));
 
-onMounted(() => window.addEventListener('keydown', handleKeyDown));
-onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
+const watchKeys = (): void => window.addEventListener('keydown', handleKeyDown);
+
+const unwatchKeys = (): void =>
+  window.removeEventListener('keydown', handleKeyDown);
+
+onMounted(watchKeys);
+onUnmounted(unwatchKeys);
 </script>
 
 <template>
@@ -156,8 +190,8 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
     <ChestModal
       v-if="!isReplayActive && state.status === 'CHEST'"
       :items="state.level.chestItems"
-      @choose="(index) => dispatch({ type: 'CHOOSE_ITEM', index })"
-      @close="dispatch({ type: 'CLOSE' })" />
+      @choose="handleChoose"
+      @close="handleChestClose" />
 
     <div v-if="!isReplayActive && state.status === 'COMPLETE'" class="overlay">
       <div v-if="isRunFinished" class="panel">
@@ -170,7 +204,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
         <button class="primary" @click="$emit('exit')">
           Back to the start
         </button>
-        <button class="ghost" @click="replay.play()">▶ Watch replay</button>
+        <button class="ghost" @click="handleReplayPlay">▶ Watch replay</button>
       </div>
       <div v-else class="panel">
         <h2>Level {{ state.levelIndex + 1 }} complete!</h2>
@@ -180,7 +214,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
           Cleared in {{ levelClock }} · +{{ levelGain }} · run so far
           {{ runClock }}
         </p>
-        <button class="primary" @click="startNextLevel">
+        <button class="primary" @click="handleNextLevel">
           Enter level {{ state.levelIndex + 2 }}
         </button>
       </div>
@@ -194,10 +228,10 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
           {{ state.levelIndex + 1 }}. The run ends here.
         </p>
         <p class="score">★ {{ score }}</p>
-        <button class="primary" @click="restart">
+        <button class="primary" @click="handleRestart">
           Start again from level 1
         </button>
-        <button class="ghost" @click="replay.play()">▶ Watch replay</button>
+        <button class="ghost" @click="handleReplayPlay">▶ Watch replay</button>
         <button class="ghost" @click="$emit('exit')">Back to the start</button>
       </div>
     </div>
@@ -211,10 +245,10 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown));
       :progress="replayProgress"
       :elapsed-seconds="replayElapsed"
       :duration-seconds="replayDuration"
-      @toggle="replay.togglePause()"
-      @speed="replay.cycleSpeed()"
-      @restart="replay.play()"
-      @close="replay.stop()" />
+      @toggle="handleToggle"
+      @speed="handleReplaySpeed"
+      @restart="handleReplayPlay"
+      @close="handleReplayStop" />
   </div>
 </template>
 

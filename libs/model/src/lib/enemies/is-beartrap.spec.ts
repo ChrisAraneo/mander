@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import { TILE_DIRT } from '../blocks/dirt';
-import type { Level } from '../level/level';
-import { TILE_BEARTRAP } from './beartrap-spawn';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_DIRT } from '../blocks/tile-dirt';
+import type { Level } from '../types/level';
 import { isBeartrap } from './is-beartrap';
+import { TILE_BEARTRAP } from './tile-beartrap';
 
 const LEVEL: Level = {
   seed: 'SEED',
@@ -18,31 +18,31 @@ const LEVEL: Level = {
 };
 
 describe('isBeartrap', () => {
-  it('should find a beartrap when the tile holds one', () => {
+  it('should return true when the tile is a beartrap', () => {
     expect(isBeartrap(LEVEL, 0, 0)).toBe(true);
   });
 
-  it('should find no beartrap when the tile is open air', () => {
+  it('should return false when the tile is air', () => {
     expect(isBeartrap(LEVEL, 1, 0)).toBe(false);
   });
 
-  it('should find no beartrap when the tile is a block', () => {
+  it('should return false when the tile is a block', () => {
     expect(isBeartrap(LEVEL, 0, 1)).toBe(false);
   });
 
-  it('should find no beartrap when the coordinates lie past the left edge', () => {
+  it('should return false when the coordinates lie past the left edge', () => {
     expect(isBeartrap(LEVEL, -1, 0)).toBe(false);
   });
 
-  it('should find no beartrap when the coordinates lie past the right edge', () => {
+  it('should return false when the coordinates lie past the right edge', () => {
     expect(isBeartrap(LEVEL, 2, 0)).toBe(false);
   });
 
-  it('should find no beartrap when the coordinates lie above the ceiling', () => {
+  it('should return false when the coordinates lie above the level', () => {
     expect(isBeartrap(LEVEL, 0, -1)).toBe(false);
   });
 
-  it('should find no beartrap when the coordinates lie below the floor', () => {
+  it('should return false when the coordinates lie below the level', () => {
     expect(isBeartrap(LEVEL, 0, 2)).toBe(false);
   });
 });

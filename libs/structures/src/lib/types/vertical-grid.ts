@@ -1,0 +1,26 @@
+import type { Row } from './row';
+
+export type VerticalGrid = [
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+  Row,
+];

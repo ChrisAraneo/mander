@@ -1,83 +1,75 @@
+import { type Level, type Tile, TILE_AIR, TILE_DIRT } from '@mander/model';
+import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { computeSweptMove } from './compute-swept-move';
 import type { Sweep } from './types/sweep';
 
-const BOX_SIZE = 16;
+const LEGEND: Record<string, Tile> = { '.': TILE_AIR, '#': TILE_DIRT };
 
-const WALL_LEFT = 64;
+const ROWS = ['......', '...#..', '......'];
 
-const createRecordingSweep = (
-  checkedPositions: number[],
-  wallLeft: number,
+const LEVEL: Level = {
+  seed: 'SEED',
+  width: size(head(ROWS)),
+  height: size(ROWS),
+  tiles: map(ROWS, (row) => map(row, (symbol) => LEGEND[symbol])),
+  chestItems: [],
+};
+
+const createSweep = (
+  axis: Sweep['axis'],
+  originX: number,
+  originY: number,
 ): Sweep => ({
-  origin: 0,
+  axis,
+  level: LEVEL,
+  originX,
+  originY,
+  width: 16,
+  height: 16,
   delta: 0,
-  size: BOX_SIZE,
-  isColliding: (position) =>
-    checkedPositions.push(position) > 0 && position + BOX_SIZE > wallLeft,
 });
 
 describe('computeSweptMove', () => {
   it('should keep the box where it is when no distance is left', () => {
-    const move = computeSweptMove(
-      createRecordingSweep([], WALL_LEFT),
-      1,
-      30,
-      0,
-    );
+    const move = computeSweptMove(createSweep('HORIZONTAL', 30, 40), 1, 30, 0);
 
     expect(move).toEqual({ position: 30, isBlocked: false });
   });
 
-  it('should check the path in small steps when the box moves right', () => {
-    const checkedPositions: number[] = [];
+  it('should reach the end of the move when nothing is in the path', () => {
+    const move = computeSweptMove(createSweep('HORIZONTAL', 10, 8), 1, 10, 25);
 
-    computeSweptMove(
-      createRecordingSweep(checkedPositions, Infinity),
-      1,
-      0,
-      20,
-    );
-
-    expect(checkedPositions).toEqual([8, 16, 20]);
+    expect(move).toEqual({ position: 35, isBlocked: false });
   });
 
-  it('should check the path in small steps when the box moves left', () => {
-    const checkedPositions: number[] = [];
+  it('should stop the box flush against the wall when it moves right into it', () => {
+    const move = computeSweptMove(createSweep('HORIZONTAL', 50, 40), 1, 50, 40);
 
-    computeSweptMove(
-      createRecordingSweep(checkedPositions, Infinity),
+    expect(move).toEqual({ position: 80, isBlocked: true });
+  });
+
+  it('should stop the box flush against the wall when it moves left into it', () => {
+    const move = computeSweptMove(
+      createSweep('HORIZONTAL', 140, 40),
       -1,
-      30,
+      140,
       -20,
     );
 
-    expect(checkedPositions).toEqual([22, 14, 10]);
+    expect(move).toEqual({ position: 128, isBlocked: true });
   });
 
-  it('should stop at the first step that hits the wall when the box moves into it', () => {
-    const checkedPositions: number[] = [];
+  it('should stop at the wall rather than pass through it when the move is longer than the wall is wide', () => {
+    const move = computeSweptMove(createSweep('HORIZONTAL', 50, 40), 1, 50, 80);
 
-    const move = computeSweptMove(
-      createRecordingSweep(checkedPositions, WALL_LEFT),
-      1,
-      30,
-      40,
-    );
-
-    expect(move).toEqual({ position: 48, isBlocked: true });
-    expect(checkedPositions).toEqual([38, 46, 54]);
+    expect(move).toEqual({ position: 80, isBlocked: true });
   });
 
-  it('should reach the end of the move when nothing is in the path', () => {
-    const move = computeSweptMove(
-      createRecordingSweep([], Infinity),
-      1,
-      10,
-      25,
-    );
+  it('should stop the box flush on top of the wall when it falls onto it', () => {
+    const move = computeSweptMove(createSweep('VERTICAL', 100, 0), 1, 0, 20);
 
-    expect(move).toEqual({ position: 35, isBlocked: false });
+    expect(move).toEqual({ position: 16, isBlocked: true });
   });
 });

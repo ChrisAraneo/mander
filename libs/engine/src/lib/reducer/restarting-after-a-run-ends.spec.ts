@@ -8,16 +8,16 @@ import {
   TILE_PORTAL,
   TILE_SPAWN,
 } from '@mander/model';
-import { head, map, size } from 'lodash-es';
+import { constant, head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { createInitialState } from '../state/create-initial-state';
 import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
+import { nextGameState } from './next-game-state';
 import { BASE_HEARTS } from './player/consts';
 import { getSpawnPosition } from './player/get-spawn-position';
-import { reduce } from './reduce';
 
 const LEGEND: Record<string, Tile> = {
   '.': TILE_AIR,
@@ -75,12 +75,13 @@ const SPAWN_X = getSpawnPosition(createTestLevel()).x;
 
 describe('restarting after a run ends', () => {
   it('should deal level one again with hearts refilled and nothing scored when the run restarts', () => {
-    const chosen = reduce(
+    const chosen = nextGameState(
       {
         ...createInitialState(createTestLevel(), 0, []),
         status: 'CHEST',
       },
       { type: 'CHOOSE_ITEM', index: 0 },
+      constant(0),
     );
     const over: GameState = {
       ...chosen,
@@ -91,10 +92,14 @@ describe('restarting after a run ends', () => {
       status: 'GAME_OVER',
     };
 
-    const restarted = reduce(over, {
-      type: 'RESTART',
-      level: createTestLevel(),
-    });
+    const restarted = nextGameState(
+      over,
+      {
+        type: 'RESTART',
+        level: createTestLevel(),
+      },
+      constant(0),
+    );
 
     expect(restarted.levelIndex, 'back to level one').toBe(0);
     expect(restarted.status).toBe('PLAYING');

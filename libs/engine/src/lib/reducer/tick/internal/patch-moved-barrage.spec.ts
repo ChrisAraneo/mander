@@ -13,9 +13,9 @@ import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../../../state/create-initial-state';
 import type { GameLevel } from '../../../types/game-level';
 import type { GameState } from '../../../types/game-state';
-import { advanceCannonballs } from '../../cannon/advance-cannonballs';
-import { advanceCannons } from '../../cannon/advance-cannons';
 import { CANNON_RELOAD_SECONDS, CANNONBALL_SPEED } from '../../cannon/consts';
+import { nextCannonballs } from '../../cannon/next-cannonballs';
+import { nextCannons } from '../../cannon/next-cannons';
 import { patchMovedBarrage } from './patch-moved-barrage';
 
 const LEGEND: Record<string, Tile> = {
@@ -73,7 +73,7 @@ describe('patchMovedBarrage', () => {
     const barrage = patchMovedBarrage(state, player, 0.02);
 
     expect(barrage.cannons).toEqual(
-      advanceCannons(state.cannons, player, 0.02).cannons,
+      nextCannons(state.cannons, player, 0.02).cannons,
     );
   });
 
@@ -87,8 +87,8 @@ describe('patchMovedBarrage', () => {
     const barrage = patchMovedBarrage(state, player, 0.02);
 
     expect(barrage.cannonballs).toEqual([
-      ...advanceCannonballs(LEVEL, state.cannonballs, 0.02),
-      ...advanceCannons(state.cannons, player, 0.02).cannonballs,
+      ...nextCannonballs(LEVEL, state.cannonballs, 0.02),
+      ...nextCannons(state.cannons, player, 0.02).cannonballs,
     ]);
   });
 

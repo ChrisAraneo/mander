@@ -1,5 +1,5 @@
-import type { createRandom } from '@mander/engine';
-import { wrapHue } from '@mander/render';
+import { type Random, takeRandom, createRandomInt } from '@mander/engine';
+import { toWrappedHue } from '@mander/render';
 import { computeHueAwayFromEntity } from './compute-hue-away-from-entity';
 import type { PaletteGround } from './types/palette-ground';
 
@@ -28,13 +28,23 @@ const CAP_LIGHTNESS_MIN = 44;
 
 const CAP_LIGHTNESS_MAX = 54;
 
-export const createRandomGround = (
-  random: ReturnType<typeof createRandom>,
-): PaletteGround => ({
-  hue: random.pick(GROUND_HUES),
-  saturation: random.rollInt(GROUND_SATURATION_MIN, GROUND_SATURATION_MAX),
-  lightness: random.rollInt(GROUND_LIGHTNESS_MIN, GROUND_LIGHTNESS_MAX),
-  capHue: computeHueAwayFromEntity(wrapHue(random.pick(CAP_HUES))),
-  capSaturation: random.rollInt(CAP_SATURATION_MIN, CAP_SATURATION_MAX),
-  capLightness: random.rollInt(CAP_LIGHTNESS_MIN, CAP_LIGHTNESS_MAX),
+export const createRandomGround = (random: Random): PaletteGround => ({
+  hue: takeRandom(GROUND_HUES, random),
+  saturation: createRandomInt(
+    GROUND_SATURATION_MIN,
+    GROUND_SATURATION_MAX,
+    random,
+  ),
+  lightness: createRandomInt(
+    GROUND_LIGHTNESS_MIN,
+    GROUND_LIGHTNESS_MAX,
+    random,
+  ),
+  capHue: computeHueAwayFromEntity(toWrappedHue(takeRandom(CAP_HUES, random))),
+  capSaturation: createRandomInt(
+    CAP_SATURATION_MIN,
+    CAP_SATURATION_MAX,
+    random,
+  ),
+  capLightness: createRandomInt(CAP_LIGHTNESS_MIN, CAP_LIGHTNESS_MAX, random),
 });

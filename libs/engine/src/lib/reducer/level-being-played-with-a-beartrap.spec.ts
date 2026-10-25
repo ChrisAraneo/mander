@@ -1,5 +1,15 @@
-import { type Level, type Tile, TILE_AIR, TILE_BEARTRAP, TILE_DIRT, TILE_ENEMY, TILE_SIZE, TILE_SPAWN, chain } from '@mander/model';
-import { find, map, reduce as fold, size, times } from 'lodash-es';
+import {
+  type Level,
+  type Tile,
+  TILE_AIR,
+  TILE_BEARTRAP,
+  TILE_DIRT,
+  TILE_ENEMY,
+  TILE_SIZE,
+  TILE_SPAWN,
+} from '@mander/model';
+import { constant, find, map, reduce, size, times } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -8,8 +18,8 @@ import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { ENEMY_WIDTH, HORNED_ENEMY_CHANCE } from './enemy/consts';
 import { createEnemies } from './enemy/create-enemies';
+import { nextGameState } from './next-game-state';
 import { BASE_HEARTS, PLAYER_WIDTH } from './player/consts';
-import { reduce } from './reduce';
 
 interface TrapJump {
   state: GameState;
@@ -55,25 +65,29 @@ const createArena = (): GameLevel => ({
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
 });
 
+const patchSpawnTile = (
+  level: GameLevel,
+  column: number,
+  row: number,
+): GameLevel => ({
+  ...level,
+  tiles: map(level.tiles, (tiles, rowIndex) =>
+    map(tiles, (tile, columnIndex) =>
+      match(rowIndex === row && columnIndex === column)
+        .with(true, () => TILE_SPAWN)
+        .otherwise(() => tile),
+    ),
+  ),
+});
+
 const createSpawnLevel = (column: number, row: number): GameLevel =>
-  chain(createArena())
-    .thru((level): GameLevel => ({
-      ...level,
-      tiles: map(level.tiles, (tiles, rowIndex) =>
-        map(tiles, (tile, columnIndex) =>
-          match(rowIndex === row && columnIndex === column)
-            .with(true, () => TILE_SPAWN)
-            .otherwise(() => tile),
-        ),
-      ),
-    }))
-    .value();
+  patchSpawnTile(createArena(), column, row);
 
 const nextTick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK' });
+  nextGameState(state, { type: 'TICK' }, constant(0));
 
 const nextTicks = (state: GameState, tickCount: number): GameState =>
-  fold(times(tickCount), (current) => nextTick(current), state);
+  reduce(times(tickCount), (current) => nextTick(current), state);
 
 const createPlayedState = (level: GameLevel, tickCount: number): GameState =>
   nextTicks(createInitialState(level, 0, []), tickCount);
@@ -85,23 +99,26 @@ const nextJumpNearTrap = (state: GameState): GameState =>
   match(
     computeTrapGap(state) <= TILE_SIZE * 3 && state.player.statuses.isGrounded,
   )
-    .with(true, () => reduce(state, { type: 'JUMP_START' }))
+    .with(true, () => nextGameState(state, { type: 'JUMP_START' }, constant(0)))
     .otherwise(() => state);
 
 const nextTrapJump = (trapJump: TrapJump): TrapJump =>
-  chain(nextTick(nextJumpNearTrap(trapJump.state)))
-    .thru((state) => ({
+  pipe(
+    trapJump.state,
+    nextJumpNearTrap,
+    nextTick,
+    (state) => ({
       state,
       isTrapGrounded: state.enemies[0].statuses.isGrounded,
-    }))
-    .thru(({ state, isTrapGrounded }): TrapJump => ({
+    }),
+    ({ state, isTrapGrounded }): TrapJump => ({
       state,
       hasSettled: trapJump.hasSettled || isTrapGrounded,
       hasSprung: trapJump.hasSprung || (!isTrapGrounded && trapJump.hasSettled),
       hasLeftTheGround:
         trapJump.hasLeftTheGround || !state.player.statuses.isGrounded,
-    }))
-    .value();
+    }),
+  );
 
 describe('a level being played', () => {
   it('should cost the player a heart when it snaps shut on them', () => {
@@ -163,14 +180,18 @@ describe('a level being played', () => {
   it('should spring at the player when they try to jump clean over it', () => {
     const level = createSpawnLevel(1, FLOOR_ROW - 1);
     const start: TrapJump = {
-      state: reduce(createInitialState(level, 0, []), {
-        type: 'MOVE_RIGHT_START',
-      }),
+      state: nextGameState(
+        createInitialState(level, 0, []),
+        {
+          type: 'MOVE_RIGHT_START',
+        },
+        constant(0),
+      ),
       hasSettled: false,
       hasSprung: false,
       hasLeftTheGround: false,
     };
-    const trapJump = fold(
+    const trapJump = reduce(
       times(240),
       (current) => nextTrapJump(current),
       start,
@@ -185,9 +206,13 @@ describe('a level being played', () => {
 
   it('should be laid again when the player respawns', () => {
     const level = createSpawnLevel(TRAP_COLUMN + 1, FLOOR_ROW - 1);
-    const respawned = reduce(createPlayedState(level, 90), {
-      type: 'RESPAWN',
-    });
+    const respawned = nextGameState(
+      createPlayedState(level, 90),
+      {
+        type: 'RESPAWN',
+      },
+      constant(0),
+    );
 
     expect(respawned.enemies).toEqual(createEnemies(level));
   });

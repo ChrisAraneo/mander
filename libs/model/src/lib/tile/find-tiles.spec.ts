@@ -1,24 +1,25 @@
+import { size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import { TILE_DIRT } from '../blocks/dirt';
-import type { Level } from '../level/level';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_DIRT } from '../blocks/tile-dirt';
+import type { Level } from '../types/level';
+import type { Tile } from '../types/tile';
 import { findTiles } from './find-tiles';
-import type { Tile } from './tile';
 
-const level = (tiles: Tile[][]): Level => ({
+const createLevel = (tiles: Tile[][]): Level => ({
   seed: 'SEED',
-  width: tiles[0].length,
-  height: tiles.length,
+  width: size(tiles[0]),
+  height: size(tiles),
   tiles,
   chestItems: [],
 });
 
 describe('findTiles', () => {
-  it('should gather every tile when the level scatters the kind it was sent for', () => {
+  it('should return every tile position when the level has several of the tile', () => {
     expect(
       findTiles(
-        level([
+        createLevel([
           [TILE_DIRT, TILE_AIR, TILE_DIRT],
           [TILE_AIR, TILE_AIR, TILE_AIR],
           [TILE_AIR, TILE_DIRT, TILE_AIR],
@@ -32,10 +33,10 @@ describe('findTiles', () => {
     ]);
   });
 
-  it('should hand them back in reading order when the level is full of them', () => {
+  it('should return the positions in reading order when every tile matches', () => {
     expect(
       findTiles(
-        level([
+        createLevel([
           [TILE_DIRT, TILE_DIRT],
           [TILE_DIRT, TILE_DIRT],
         ]),
@@ -49,10 +50,10 @@ describe('findTiles', () => {
     ]);
   });
 
-  it('should gather nothing when the level holds none', () => {
+  it('should return nothing when the level does not have the tile', () => {
     expect(
       findTiles(
-        level([
+        createLevel([
           [TILE_AIR, TILE_AIR],
           [TILE_AIR, TILE_AIR],
         ]),
@@ -61,7 +62,7 @@ describe('findTiles', () => {
     ).toEqual([]);
   });
 
-  it('should gather only what is in bounds when tiles lie past the width and height the level claims', () => {
+  it('should return only the tiles inside the level when tiles lie outside its width and height', () => {
     expect(
       findTiles(
         {

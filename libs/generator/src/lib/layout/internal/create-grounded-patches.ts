@@ -1,4 +1,5 @@
-import { type Tile, chain } from '@mander/model';
+import { type Tile } from '@mander/model';
+import { pipe } from 'remeda';
 import { patchTiles } from '../../structures/patch-tiles';
 import type { TilePatch } from '../../types/tile-patch';
 import { createGroundPatches } from './create-ground-patches';
@@ -9,9 +10,7 @@ export const createGroundedPatches = (
   tiles: Tile[][],
   layers: LayerPlacement[],
 ): TilePatch[] =>
-  chain(createPaintPatches(layers))
-    .thru((paint) => [
-      ...paint,
-      ...createGroundPatches(patchTiles(tiles, paint)),
-    ])
-    .value();
+  pipe(layers, createPaintPatches, (paint) => [
+    ...paint,
+    ...createGroundPatches(patchTiles(tiles, paint)),
+  ]);

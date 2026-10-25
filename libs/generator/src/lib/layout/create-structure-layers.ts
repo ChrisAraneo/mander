@@ -1,6 +1,6 @@
 import type { Layers } from '@mander/model';
 import type { Sector } from '@mander/structures';
-import { flow } from 'lodash-es';
+import { pipe } from 'remeda';
 import type { LevelType } from '../types/level-type';
 import { computeStructurePlacements } from './internal/compute-structure-placements';
 import { createStructureGrid } from './internal/create-structure-grid';
@@ -12,10 +12,11 @@ export const createStructureLayers = (
   structures: Sector[],
   levelType: LevelType,
 ): Layers =>
-  flow(
+  pipe(
+    { structures, levelType },
     computeStructurePlacements,
     createStructureGrid,
     splitStructureLayers,
     createStructurePatches,
     patchStructureTiles,
-  )({ structures, levelType });
+  );

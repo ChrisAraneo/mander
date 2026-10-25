@@ -1,5 +1,16 @@
-import { type FallingSpike, type Level, PRONG_HEIGHT, type Player, type Tile, TILE_AIR, TILE_DIRT, TILE_SIZE, TILE_SPIKE_FALLING, chain } from '@mander/model';
+import {
+  type FallingSpike,
+  type Level,
+  PRONG_HEIGHT,
+  type Player,
+  type Tile,
+  TILE_AIR,
+  TILE_DIRT,
+  TILE_SIZE,
+  TILE_SPIKE_FALLING,
+} from '@mander/model';
 import { times } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -53,26 +64,22 @@ const createFallingSpike = (level: Level): FallingSpike =>
 const SPIKE_CENTRE = SPIKE_COLUMN * TILE_SIZE + TILE_SIZE / 2;
 
 const createPlayerAt = (gap: number): Player =>
-  chain(createPlayer(0))
-    .thru((walking): Player => ({
-      ...walking,
-      position: {
-        ...walking.position,
-        x: SPIKE_CENTRE + gap - PLAYER_WIDTH / 2,
-      },
-    }))
-    .value();
+  pipe(0, createPlayer, (walking): Player => ({
+    ...walking,
+    position: {
+      ...walking.position,
+      x: SPIKE_CENTRE + gap - PLAYER_WIDTH / 2,
+    },
+  }));
 
 const createPlayerUnder = (spikeY: number): Player =>
-  chain(createPlayerAt(0))
-    .thru((standing): Player => ({
-      ...standing,
-      position: {
-        ...standing.position,
-        y: spikeY + PRONG_HEIGHT - PLAYER_HEIGHT / 2,
-      },
-    }))
-    .value();
+  pipe(0, createPlayerAt, (standing): Player => ({
+    ...standing,
+    position: {
+      ...standing.position,
+      y: spikeY + PRONG_HEIGHT - PLAYER_HEIGHT / 2,
+    },
+  }));
 
 describe('isTouchingFallingSpike', () => {
   it('should bite the player when the prong has reached them', () => {

@@ -1,25 +1,26 @@
+import { size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import { TILE_DIRT } from '../blocks/dirt';
-import type { Level } from '../level/level';
-import type { Tile } from '../tile/tile';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_DIRT } from '../blocks/tile-dirt';
+import type { Level } from '../types/level';
+import type { Tile } from '../types/tile';
 import { findPortalBottomTile } from './find-portal-bottom-tile';
-import { TILE_PORTAL } from './portal';
+import { TILE_PORTAL } from './tile-portal';
 
-const level = (tiles: Tile[][]): Level => ({
+const createLevel = (tiles: Tile[][]): Level => ({
   seed: 'SEED',
-  width: tiles[0].length,
-  height: tiles.length,
+  width: size(tiles[0]),
+  height: size(tiles),
   tiles,
   chestItems: [],
 });
 
 describe('findPortalBottomTile', () => {
-  it('should climb down to the tile the portal rests on when more portal lies below', () => {
+  it('should return the lowest portal tile when more portal lies below', () => {
     expect(
       findPortalBottomTile(
-        level([
+        createLevel([
           [TILE_AIR, TILE_PORTAL],
           [TILE_AIR, TILE_PORTAL],
           [TILE_DIRT, TILE_DIRT],
@@ -29,10 +30,10 @@ describe('findPortalBottomTile', () => {
     ).toEqual({ x: 1, y: 1 });
   });
 
-  it('should stay where it stands when nothing below is portal', () => {
+  it('should return the same tile when the tile below is not portal', () => {
     expect(
       findPortalBottomTile(
-        level([
+        createLevel([
           [TILE_AIR, TILE_PORTAL],
           [TILE_DIRT, TILE_DIRT],
         ]),
@@ -41,10 +42,10 @@ describe('findPortalBottomTile', () => {
     ).toEqual({ x: 1, y: 0 });
   });
 
-  it('should walk all the way to the foot when the portal runs several tiles tall', () => {
+  it('should return the bottom tile when the portal is several tiles tall', () => {
     expect(
       findPortalBottomTile(
-        level([
+        createLevel([
           [TILE_PORTAL],
           [TILE_PORTAL],
           [TILE_PORTAL],
@@ -56,19 +57,19 @@ describe('findPortalBottomTile', () => {
     ).toEqual({ x: 0, y: 3 });
   });
 
-  it('should stop at the bottom row when the portal reaches the edge of the level', () => {
+  it('should stop at the bottom row when the portal reaches the bottom of the level', () => {
     expect(
-      findPortalBottomTile(level([[TILE_PORTAL], [TILE_PORTAL]]), {
+      findPortalBottomTile(createLevel([[TILE_PORTAL], [TILE_PORTAL]]), {
         x: 0,
         y: 0,
       }),
     ).toEqual({ x: 0, y: 1 });
   });
 
-  it('should hold its column when the portal below sits in the next one over', () => {
+  it('should stay in its column when the portal below is in the next column', () => {
     expect(
       findPortalBottomTile(
-        level([
+        createLevel([
           [TILE_PORTAL, TILE_AIR],
           [TILE_AIR, TILE_PORTAL],
           [TILE_DIRT, TILE_DIRT],
@@ -78,9 +79,12 @@ describe('findPortalBottomTile', () => {
     ).toEqual({ x: 0, y: 0 });
   });
 
-  it('should leave the tile where it found it when the tile is no portal at all', () => {
+  it('should return the same tile when the tile is not a portal', () => {
     expect(
-      findPortalBottomTile(level([[TILE_AIR], [TILE_DIRT]]), { x: 0, y: 0 }),
+      findPortalBottomTile(createLevel([[TILE_AIR], [TILE_DIRT]]), {
+        x: 0,
+        y: 0,
+      }),
     ).toEqual({ x: 0, y: 0 });
   });
 });

@@ -1,10 +1,4 @@
-import { VIEW_HEIGHT, VIEW_WIDTH } from './consts';
-import { getWholeTileScale } from './get-whole-tile-scale';
+import { computeViewportScale } from './internal/compute-viewport-scale';
 
 export const getViewportScale = (canvas: HTMLCanvasElement): number =>
-  getWholeTileScale(
-    Math.min(
-      Math.max(1, canvas.clientWidth) / VIEW_WIDTH,
-      Math.max(1, canvas.clientHeight) / VIEW_HEIGHT,
-    ) * (window.devicePixelRatio || 1),
-  );
+  computeViewportScale(canvas, window.devicePixelRatio || 1);

@@ -1,4 +1,4 @@
-import type { createRandom } from '@mander/engine';
+import type { Random } from '@mander/engine';
 import type { Palette } from '@mander/render';
 import type { LevelVariant } from '../../types/level-variant';
 import type { LevelCategory } from '../../world/types/level-category';
@@ -10,5 +10,5 @@ export interface WorldDrawnStructures {
   levelVariants: LevelVariant[];
   levelCategories: LevelCategory[];
   worldStructures: WorldStructures;
-  random: ReturnType<typeof createRandom>;
+  random: Random;
 }

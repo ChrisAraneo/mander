@@ -9,7 +9,6 @@ import {
   TILE_FIREBALL,
   TILE_SPAWN,
   TILE_SPIKE_FALLING,
-  chain,
 } from '@mander/model';
 import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
@@ -50,36 +49,36 @@ const LEVEL = createLevel([
   '##########',
 ]);
 
+const patchRespawnState = (initial: GameState): GameState => ({
+  ...initial,
+  player: {
+    ...initial.player,
+    position: { x: 200, y: 10 },
+    hearts: { value: 1 },
+  },
+  enemies: [],
+  cannons: [],
+  cannonballs: [
+    {
+      position: { x: 100, y: 64 },
+      velocity: { x: { current: 5, max: 5 } },
+    },
+  ],
+  fallingSpikes: [],
+  fireballs: [],
+  bullets: [
+    {
+      position: { x: 120, y: 64 },
+      velocity: { x: { current: 8, max: 8 } },
+    },
+  ],
+  score: 40,
+  time: 12,
+  deaths: 2,
+});
+
 const createState = (): GameState =>
-  chain(createInitialState(LEVEL, 0, [RED_GEM]))
-    .thru((initial): GameState => ({
-      ...initial,
-      player: {
-        ...initial.player,
-        position: { x: 200, y: 10 },
-        hearts: { value: 1 },
-      },
-      enemies: [],
-      cannons: [],
-      cannonballs: [
-        {
-          position: { x: 100, y: 64 },
-          velocity: { x: { current: 5, max: 5 } },
-        },
-      ],
-      fallingSpikes: [],
-      fireballs: [],
-      bullets: [
-        {
-          position: { x: 120, y: 64 },
-          velocity: { x: { current: 8, max: 8 } },
-        },
-      ],
-      score: 40,
-      time: 12,
-      deaths: 2,
-    }))
-    .value();
+  patchRespawnState(createInitialState(LEVEL, 0, [RED_GEM]));
 
 const createSpawnedPlayer = (): Player =>
   createPlayer(LEVEL, { hearts: { value: 1 } });

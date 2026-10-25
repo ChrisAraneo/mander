@@ -1,4 +1,4 @@
-import { DEBUG_PARAM } from './consts';
+const DEBUG_PARAM = 'debug';
 
-export const isDebug = (): boolean =>
-  new URLSearchParams(window.location.search).has(DEBUG_PARAM);
+export const isDebug = (search: string): boolean =>
+  new URLSearchParams(search).has(DEBUG_PARAM);

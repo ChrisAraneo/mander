@@ -1,11 +1,9 @@
-import { type Point, chain } from '@mander/model';
+import { type Point } from '@mander/model';
+import { pipe } from 'remeda';
 import type { HillLayer } from '../types/hill-layer';
+import { computeHillWave } from './compute-hill-wave';
 
 const HILL_WAVELENGTH = 210;
-
-const HILL_RIPPLE_FREQUENCY = 2.3;
-
-const HILL_RIPPLE_WEIGHT = 0.4;
 
 export const computeHillPoint = (
   screenX: number,
@@ -13,13 +11,8 @@ export const computeHillPoint = (
   layer: HillLayer,
   baseline: number,
 ): Point =>
-  chain((screenX + cameraX * layer.parallax) / HILL_WAVELENGTH)
-    .thru((worldPhase) => ({
-      x: screenX,
-      y:
-        baseline -
-        (Math.sin(worldPhase) +
-          Math.sin(worldPhase * HILL_RIPPLE_FREQUENCY) * HILL_RIPPLE_WEIGHT) *
-          layer.amplitude,
-    }))
-    .value();
+  pipe(
+    (screenX + cameraX * layer.parallax) / HILL_WAVELENGTH,
+    computeHillWave,
+    (wave): Point => ({ x: screenX, y: baseline - wave * layer.amplitude }),
+  );

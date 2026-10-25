@@ -3,7 +3,7 @@ import { createSequenceStep } from '../canvas/create-sequence-step';
 import { drawFill } from '../canvas/draw-fill';
 import { drawRestore } from '../canvas/draw-restore';
 import { drawSave } from '../canvas/draw-save';
-import { outline } from '../stroke/outline';
+import { createOutlineStep } from '../stroke/create-outline-step';
 import type { CanvasStep } from '../types/canvas-step';
 import { createHeartFill } from './internal/create-heart-fill';
 import { createHeartPathStep } from './internal/create-heart-path-step';
@@ -16,7 +16,7 @@ export const createHeartStep = (
   createSequenceStep([
     drawSave,
     createHeartPathStep(centerX, centerY, lobe),
-    outline(),
+    createOutlineStep(),
     createContextStyleStep((context) => ({
       fillStyle: createHeartFill(context, centerX, centerY, lobe),
     })),

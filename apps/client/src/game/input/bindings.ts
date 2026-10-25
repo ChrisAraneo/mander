@@ -1,6 +1,6 @@
-import type { KeyBinding } from './key-binding';
+import type { KeyBinding } from './types/key-binding';
 
-export const BINDINGS: KeyBinding[] = [
+export const BINDINGS: readonly KeyBinding[] = Object.freeze([
   {
     code: 'ArrowLeft',
     start: { type: 'MOVE_LEFT_START' },
@@ -39,4 +39,4 @@ export const BINDINGS: KeyBinding[] = [
   { code: 'Digit1', start: { type: 'CHOOSE_ITEM', index: 0 } },
   { code: 'Digit2', start: { type: 'CHOOSE_ITEM', index: 1 } },
   { code: 'Digit3', start: { type: 'CHOOSE_ITEM', index: 2 } },
-];
+]);

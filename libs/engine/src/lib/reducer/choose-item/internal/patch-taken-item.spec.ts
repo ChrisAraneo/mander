@@ -1,4 +1,11 @@
-import { DOUBLE_HEART, type Item, RED_GEM, STAR, TILE_DIRT, TWO_BULLETS, chain } from '@mander/model';
+import {
+  DOUBLE_HEART,
+  type Item,
+  RED_GEM,
+  STAR,
+  TILE_DIRT,
+  TWO_BULLETS,
+} from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
 import { createInitialState } from '../../../state/create-initial-state';
@@ -24,25 +31,25 @@ const LEVEL: GameLevel = {
   hornedEnemyChance: 0,
 };
 
+const patchChestState = (initial: GameState): GameState => ({
+  ...initial,
+  status: 'CHEST',
+  isNearChest: true,
+  score: 100,
+  ammo: 3,
+  stars: 2,
+  player: {
+    ...initial.player,
+    hearts: { value: 3 },
+    velocity: {
+      x: { current: 42, max: 9 },
+      y: { current: -7, max: 9 },
+    },
+  },
+});
+
 const createState = (): GameState =>
-  chain(createInitialState(LEVEL, 0, [HELD_ITEM]))
-    .thru((initial): GameState => ({
-      ...initial,
-      status: 'CHEST',
-      isNearChest: true,
-      score: 100,
-      ammo: 3,
-      stars: 2,
-      player: {
-        ...initial.player,
-        hearts: { value: 3 },
-        velocity: {
-          x: { current: 42, max: 9 },
-          y: { current: -7, max: 9 },
-        },
-      },
-    }))
-    .value();
+  patchChestState(createInitialState(LEVEL, 0, [HELD_ITEM]));
 
 describe('patchTakenItem', () => {
   it('should shut the chest and add the item to the inventory when the player takes it', () => {

@@ -1,25 +1,26 @@
+import { size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import { TILE_DIRT } from '../blocks/dirt';
-import { TILE_FIREBALL } from '../blocks/fireball';
-import type { Level } from '../level/level';
-import type { Tile } from '../tile/tile';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_DIRT } from '../blocks/tile-dirt';
+import { TILE_FIREBALL } from '../blocks/tile-fireball';
+import type { Level } from '../types/level';
+import type { Tile } from '../types/tile';
 import { findFireballTiles } from './find-fireball-tiles';
 
-const level = (tiles: Tile[][]): Level => ({
+const createLevel = (tiles: Tile[][]): Level => ({
   seed: 'SEED',
-  width: tiles[0].length,
-  height: tiles.length,
+  width: size(tiles[0]),
+  height: size(tiles),
   tiles,
   chestItems: [],
 });
 
 describe('findFireballTiles', () => {
-  it('should gather every spot when the level plants several fireball blocks', () => {
+  it('should return every fireball block position when the level has several', () => {
     expect(
       findFireballTiles(
-        level([
+        createLevel([
           [TILE_FIREBALL, TILE_AIR, TILE_FIREBALL],
           [TILE_AIR, TILE_FIREBALL, TILE_AIR],
           [TILE_DIRT, TILE_DIRT, TILE_DIRT],
@@ -32,10 +33,10 @@ describe('findFireballTiles', () => {
     ]);
   });
 
-  it('should gather nothing when the level plants none', () => {
+  it('should return nothing when the level has no fireball block', () => {
     expect(
       findFireballTiles(
-        level([
+        createLevel([
           [TILE_AIR, TILE_AIR],
           [TILE_DIRT, TILE_DIRT],
         ]),

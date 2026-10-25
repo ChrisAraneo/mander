@@ -1,5 +1,15 @@
-import { type Enemy, type Level, type Player, type Tile, TILE_AIR, TILE_BEARTRAP, TILE_DIRT, TILE_SIZE, chain } from '@mander/model';
+import {
+  type Enemy,
+  type Level,
+  type Player,
+  type Tile,
+  TILE_AIR,
+  TILE_BEARTRAP,
+  TILE_DIRT,
+  TILE_SIZE,
+} from '@mander/model';
 import { map, size, times } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -65,15 +75,13 @@ const createStandingPlayer = (gap: number): Player => ({
 });
 
 const createPlayerEyeToEye = (gap: number): Player =>
-  chain(createStandingPlayer(gap))
-    .thru((watcher): Player => ({
-      ...watcher,
-      position: {
-        ...watcher.position,
-        y: TRAP_CENTRE_Y - PLAYER_HEIGHT / 2,
-      },
-    }))
-    .value();
+  pipe(gap, createStandingPlayer, (watcher): Player => ({
+    ...watcher,
+    position: {
+      ...watcher.position,
+      y: TRAP_CENTRE_Y - PLAYER_HEIGHT / 2,
+    },
+  }));
 
 describe('isPlayerNearTrap', () => {
   it('should notice the player when they stand two blocks off or closer on either side', () => {

@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import { TILE_DIRT } from '../blocks/dirt';
-import type { Level } from '../level/level';
-import { TILE_SPIKE, TILE_SPIKE_CEILING } from './spike';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_DIRT } from '../blocks/tile-dirt';
+import type { Level } from '../types/level';
 import { getSpikeOrientation } from './get-spike-orientation';
+import { TILE_SPIKE } from './tile-spike';
+import { TILE_SPIKE_CEILING } from './tile-spike-ceiling';
 
 const LEVEL: Level = {
   seed: 'SEED',
@@ -18,20 +19,20 @@ const LEVEL: Level = {
 };
 
 describe('getSpikeOrientation', () => {
-  it('should hang the teeth from above when the tile is a ceiling spike', () => {
+  it('should return ceiling when the tile is a ceiling spike', () => {
     expect(getSpikeOrientation(LEVEL, 0, 0)).toBe('CEILING');
   });
 
-  it('should stand the teeth on the ground when the tile is an ordinary spike', () => {
+  it('should return floor when the tile is a floor spike', () => {
     expect(getSpikeOrientation(LEVEL, 0, 1)).toBe('FLOOR');
   });
 
-  it('should read the tile as standing on the ground when it is no spike at all', () => {
+  it('should return floor when the tile is not a spike', () => {
     expect(getSpikeOrientation(LEVEL, 1, 0)).toBe('FLOOR');
     expect(getSpikeOrientation(LEVEL, 1, 1)).toBe('FLOOR');
   });
 
-  it('should read the tile as standing on the ground when it lies in the void past an edge', () => {
+  it('should return floor when the coordinates lie outside the level', () => {
     expect(getSpikeOrientation(LEVEL, -1, 0)).toBe('FLOOR');
     expect(getSpikeOrientation(LEVEL, 2, 0)).toBe('FLOOR');
     expect(getSpikeOrientation(LEVEL, 0, -1)).toBe('FLOOR');

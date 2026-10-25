@@ -17,17 +17,17 @@ import {
   TILE_SPAWN,
   TRIPLE_STAR,
   TWO_BULLETS,
-  chain,
 } from '@mander/model';
-import { head, map, size } from 'lodash-es';
+import { constant, head, map, size } from 'lodash-es';
+import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
 import { createInitialState } from '../state/create-initial-state';
 import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
+import { nextGameState } from './next-game-state';
 import { BASE_HEARTS } from './player/consts';
-import { reduce } from './reduce';
 
 const LEGEND: Record<string, Tile> = {
   '.': TILE_AIR,
@@ -82,18 +82,16 @@ const createTestLevel = (): GameLevel => ({
 });
 
 const createChosenItemState = (item: Item): GameState =>
-  chain(createInitialState(createTestLevel(), 0, []))
-    .thru((state) =>
-      reduce(
-        {
-          ...state,
-          status: 'CHEST',
-          level: { ...state.level, chestItems: [item] },
-        },
-        { type: 'CHOOSE_ITEM', index: 0 },
-      ),
-    )
-    .value();
+  pipe(
+    createInitialState(createTestLevel(), 0, []),
+    (state): GameState => ({
+      ...state,
+      status: 'CHEST',
+      level: { ...state.level, chestItems: [item] },
+    }),
+    (state) =>
+      nextGameState(state, { type: 'CHOOSE_ITEM', index: 0 }, constant(0)),
+  );
 
 describe('items', () => {
   it('should be worth two hearts when the card is a double heart', () => {
@@ -126,13 +124,14 @@ describe('items', () => {
     const state = createChosenItemState(STAR);
 
     expect(
-      reduce(
+      nextGameState(
         {
           ...state,
           status: 'CHEST',
           level: { ...state.level, chestItems: [DOUBLE_STAR] },
         },
         { type: 'CHOOSE_ITEM', index: 0 },
+        constant(0),
       ).stars,
     ).toBe(3);
   });
@@ -148,13 +147,14 @@ describe('items', () => {
     const state = createChosenItemState(TWO_BULLETS);
 
     expect(
-      reduce(
+      nextGameState(
         {
           ...state,
           status: 'CHEST',
           level: { ...state.level, chestItems: [THREE_BULLETS] },
         },
         { type: 'CHOOSE_ITEM', index: 0 },
+        constant(0),
       ).ammo,
     ).toBe(10);
   });

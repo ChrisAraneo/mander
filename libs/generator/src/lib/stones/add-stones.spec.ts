@@ -27,7 +27,7 @@ import {
 import { describe, expect, it } from 'vitest';
 
 import { DEEP_DIRT_DEPTH, DIRT_DEPTH } from '../consts';
-import { generate } from '../generate';
+import { createWorld } from '../create-world';
 import { addStones } from './add-stones';
 
 interface Cell {
@@ -282,7 +282,7 @@ describe('addStones', () => {
         map(
           times(10, (day) => new Date(Date.UTC(2026, 7, 1 + day))),
           (date) =>
-            map(generate(date).levels, (level, index) => ({
+            map(createWorld(date).levels, (level, index) => ({
               index,
               stones: size(filterCells(level.tiles, TILE_STONE)),
             })),

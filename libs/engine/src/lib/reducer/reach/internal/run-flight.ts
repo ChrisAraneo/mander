@@ -1,6 +1,6 @@
-import { type Player, chain } from '@mander/model';
+import { type Player } from '@mander/model';
 import { match } from 'ts-pattern';
-import { stepPlayer } from '../../player/step-player';
+import { nextPlayer } from '../../player/next-player';
 import { FRAME_SECONDS } from '../consts';
 import { isFlightSettled } from './is-flight-settled';
 import { isPlayerBelowLevel } from './is-player-below-level';
@@ -13,21 +13,20 @@ export const runFlight = (
   frame: number,
   states: Player[],
 ): Player[] =>
-  chain(
-    stepPlayer(
+  match(
+    nextPlayer(
       flight.level,
       player,
       toPlanInput(flight.plan, frame),
       FRAME_SECONDS,
     ),
   )
-    .thru((next) =>
-      match({
-        hasFallenOut: isPlayerBelowLevel(flight.level, next),
-        hasSettled: isFlightSettled(player, next, frame),
-      })
-        .with({ hasFallenOut: true }, () => states)
-        .with({ hasSettled: true }, () => [...states, next])
-        .otherwise(() => runFlight(flight, next, frame + 1, [...states, next])),
+    .when(
+      (next) => isPlayerBelowLevel(flight.level, next),
+      () => states,
     )
-    .value();
+    .when(
+      (next) => isFlightSettled(player, next, frame),
+      (next) => [...states, next],
+    )
+    .otherwise((next) => runFlight(flight, next, frame + 1, [...states, next]));

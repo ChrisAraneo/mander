@@ -20,7 +20,7 @@ import {
 import { describe, expect, it } from 'vitest';
 
 import { LEVELS_PER_DAY } from '../consts';
-import { generate } from '../generate';
+import { createWorld } from '../create-world';
 import { removeSpikes } from './remove-spikes';
 
 interface Cell {
@@ -140,7 +140,7 @@ describe('removeSpikes', () => {
   });
 
   it('should send the level out bare when it is the first of a dealt day', () => {
-    const world = generate(new Date(Date.UTC(2026, 7, 2)));
+    const world = createWorld(new Date(Date.UTC(2026, 7, 2)));
 
     expect(filterSpikes(world.levels[0].tiles)).toEqual([]);
   }, 120000);

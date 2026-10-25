@@ -7,7 +7,7 @@ import { drawBeginPath } from '../../canvas/draw-begin-path';
 import { drawFill } from '../../canvas/draw-fill';
 import { drawRestore } from '../../canvas/draw-restore';
 import { drawSave } from '../../canvas/draw-save';
-import { outline } from '../../stroke/outline';
+import { createOutlineStep } from '../../stroke/create-outline-step';
 import type { CanvasStep } from '../../types/canvas-step';
 import {
   JAW_HINGE_X,
@@ -32,7 +32,7 @@ export const createBeartrapJawStep = (tilt: number): CanvasStep =>
       JAW_LENGTH,
       1.6,
     ),
-    outline(),
+    createOutlineStep(),
     createStyleStep({ fillStyle: BEARTRAP_STEEL }),
     drawFill,
     drawBeartrapTeeth,

@@ -7,10 +7,10 @@ import { addStops } from './add-stops';
 describe('addStops', () => {
   it('should add every colour stop in order when it is given stops', () => {
     const calls = drawRecorded((context) =>
-      addStops([
+      addStops(context.createLinearGradient(0, 0, 1, 1), [
         [0, '#000'],
         [1, '#FFF'],
-      ])(context.createLinearGradient(0, 0, 1, 1)),
+      ]),
     );
 
     expect(calls).toEqual([
@@ -22,7 +22,7 @@ describe('addStops', () => {
 
   it('should add nothing when it is given no stops', () => {
     const calls = drawRecorded((context) =>
-      addStops([])(context.createLinearGradient(0, 0, 1, 1)),
+      addStops(context.createLinearGradient(0, 0, 1, 1), []),
     );
 
     expect(calls).toEqual(['createLinearGradient(0, 0, 1, 1)']);
@@ -36,7 +36,7 @@ describe('addStops', () => {
       1,
     );
 
-    const result = addStops([[0, '#000']])(gradient);
+    const result = addStops(gradient, [[0, '#000']]);
 
     expect(result).toBe(gradient);
   });

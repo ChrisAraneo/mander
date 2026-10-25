@@ -1,5 +1,25 @@
-import { type Item, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, TILE_SPIKE, chain } from '@mander/model';
-import { ceil, head, map, omit, reduce as fold, size, times } from 'lodash-es';
+import {
+  type Item,
+  type Tile,
+  TILE_AIR,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SIZE,
+  TILE_SPAWN,
+  TILE_SPIKE,
+} from '@mander/model';
+import {
+  ceil,
+  constant,
+  head,
+  map,
+  omit,
+  reduce,
+  size,
+  times,
+} from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -7,8 +27,8 @@ import { createInitialState } from '../state/create-initial-state';
 import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
+import { nextGameState } from './next-game-state';
 import { PLAYER_HEIGHT, STAR_INVINCIBLE_SECONDS } from './player/consts';
-import { reduce } from './reduce';
 
 const LEGEND: Record<string, Tile> = {
   '.': TILE_AIR,
@@ -71,25 +91,25 @@ const createTestLevel = (): GameLevel => ({
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
 });
 
+const patchSpikeTile = (level: GameLevel, column: number): GameLevel => ({
+  ...level,
+  tiles: map(level.tiles, (row, rowIndex) =>
+    map(row, (tile, columnIndex) =>
+      match(rowIndex === 11 && columnIndex === column)
+        .with(true, () => TILE_SPIKE)
+        .otherwise(() => tile),
+    ),
+  ),
+});
+
 const createSpikeLevel = (column: number): GameLevel =>
-  chain(createTestLevel())
-    .thru((level): GameLevel => ({
-      ...level,
-      tiles: map(level.tiles, (row, rowIndex) =>
-        map(row, (tile, columnIndex) =>
-          match(rowIndex === 11 && columnIndex === column)
-            .with(true, () => TILE_SPIKE)
-            .otherwise(() => tile),
-        ),
-      ),
-    }))
-    .value();
+  patchSpikeTile(createTestLevel(), column);
 
 const nextTick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK' });
+  nextGameState(state, { type: 'TICK' }, constant(0));
 
 const nextTicks = (state: GameState, tickCount: number): GameState =>
-  fold(times(tickCount), (current) => nextTick(current), state);
+  reduce(times(tickCount), (current) => nextTick(current), state);
 
 const computeTickCount = (seconds: number): number =>
   ceil(seconds / DELTA_SECONDS) + 1;
@@ -109,7 +129,7 @@ const createStateCarrying = (...items: Item[]): GameState =>
   createInitialState(createSpikeLevel(6), 0, items);
 
 const nextStarUse = (state: GameState): GameState =>
-  reduce(state, { type: 'USE_STAR' });
+  nextGameState(state, { type: 'USE_STAR' }, constant(0));
 
 describe('the star', () => {
   it('should buy three seconds of invincibility when the player spends a star', () => {
@@ -224,13 +244,14 @@ describe('the star', () => {
   });
 
   it('should carry the stars left over when the next level loads', () => {
-    const state = reduce(
+    const state = nextGameState(
       nextStarUse(createStateCarrying(createStar('TWIN-STAR', 2))),
       {
         type: 'LOAD_LEVEL',
         level: createTestLevel(),
         levelIndex: 1,
       },
+      constant(0),
     );
 
     expect(state.stars).toBe(1);

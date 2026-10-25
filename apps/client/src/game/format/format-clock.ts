@@ -1,11 +1,14 @@
-import { chain } from '@mander/model';
 import { floor, padStart } from 'lodash-es';
+import { pipe } from 'remeda';
+
+const SECONDS_PER_MINUTE = 60;
 
 export const formatClock = (seconds: number): string =>
-  chain(floor(Math.max(0, seconds)))
-    .thru((total) => ({
-      minutes: floor(total / 60),
-      seconds: padStart(String(total % 60), 2, '0'),
-    }))
-    .thru(({ minutes, seconds }) => `${minutes}:${seconds}`)
-    .value();
+  pipe(
+    floor(Math.max(0, seconds)),
+    (total) => ({
+      minutes: floor(total / SECONDS_PER_MINUTE),
+      seconds: padStart(String(total % SECONDS_PER_MINUTE), 2, '0'),
+    }),
+    ({ minutes, seconds }) => `${minutes}:${seconds}`,
+  );

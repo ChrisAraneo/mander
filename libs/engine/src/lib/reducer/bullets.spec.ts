@@ -1,14 +1,33 @@
-import { type Enemy, type EnemyKind, type Item, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_ENEMY, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, TILE_SPIKE, TILE_SPIKE_CEILING, TILE_SPIKE_FALLING, chain, type Point } from '@mander/model';
+import {
+  type Enemy,
+  type EnemyKind,
+  type Item,
+  type Tile,
+  TILE_AIR,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_ENEMY,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SIZE,
+  TILE_SPAWN,
+  TILE_SPIKE,
+  TILE_SPIKE_CEILING,
+  TILE_SPIKE_FALLING,
+  type Point,
+} from '@mander/model';
 import {
   ceil,
+  constant,
   head,
   map,
   omit,
-  reduce as fold,
+  reduce,
   size,
   some,
   times,
 } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -16,8 +35,8 @@ import { createInitialState } from '../state/create-initial-state';
 import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { ENEMY_HEIGHT, HORNED_ENEMY_CHANCE } from './enemy/consts';
+import { nextGameState } from './next-game-state';
 import { BASE_HEARTS, PLAYER_HEIGHT } from './player/consts';
-import { reduce } from './reduce';
 import { isOverlappingSpike } from './spike/is-overlapping-spike';
 import type { Action } from './types/action';
 
@@ -95,43 +114,44 @@ const createTestLevel = (enemies: Point[] = []): GameLevel => ({
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
 });
 
+const patchSpikeTile = (level: GameLevel, column: number): GameLevel => ({
+  ...level,
+  tiles: map(level.tiles, (row, rowIndex) =>
+    map(row, (tile, columnIndex) =>
+      match(rowIndex === 11 && columnIndex === column)
+        .with(true, () => TILE_SPIKE)
+        .otherwise(() => tile),
+    ),
+  ),
+});
+
 const createSpikeLevel = (column: number): GameLevel =>
-  chain(createTestLevel())
-    .thru((level): GameLevel => ({
-      ...level,
-      tiles: map(level.tiles, (row, rowIndex) =>
-        map(row, (tile, columnIndex) =>
-          match(rowIndex === 11 && columnIndex === column)
-            .with(true, () => TILE_SPIKE)
-            .otherwise(() => tile),
-        ),
-      ),
-    }))
-    .value();
+  patchSpikeTile(createTestLevel(), column);
+
+const patchCeilingSpikeTiles = (
+  level: GameLevel,
+  column: number,
+  row: number,
+): GameLevel => ({
+  ...level,
+  tiles: map(level.tiles, (tiles, rowIndex) =>
+    map(tiles, (tile, columnIndex) =>
+      match({ isSpikeColumn: columnIndex === column, rowIndex })
+        .with({ isSpikeColumn: true, rowIndex: row - 1 }, () => TILE_DIRT)
+        .with({ isSpikeColumn: true, rowIndex: row }, () => TILE_SPIKE_CEILING)
+        .otherwise(() => tile),
+    ),
+  ),
+});
 
 const createCeilingSpikeLevel = (column: number, row: number): GameLevel =>
-  chain(createTestLevel())
-    .thru((level): GameLevel => ({
-      ...level,
-      tiles: map(level.tiles, (tiles, rowIndex) =>
-        map(tiles, (tile, columnIndex) =>
-          match({ isSpikeColumn: columnIndex === column, rowIndex })
-            .with({ isSpikeColumn: true, rowIndex: row - 1 }, () => TILE_DIRT)
-            .with(
-              { isSpikeColumn: true, rowIndex: row },
-              () => TILE_SPIKE_CEILING,
-            )
-            .otherwise(() => tile),
-        ),
-      ),
-    }))
-    .value();
+  patchCeilingSpikeTiles(createTestLevel(), column, row);
 
 const nextTick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK' });
+  nextGameState(state, { type: 'TICK' }, constant(0));
 
 const nextTicks = (state: GameState, tickCount: number): GameState =>
-  fold(times(tickCount), (current) => nextTick(current), state);
+  reduce(times(tickCount), (current) => nextTick(current), state);
 
 const computeTickCount = (seconds: number): number =>
   ceil(seconds / DELTA_SECONDS) + 1;
@@ -145,8 +165,9 @@ const createArmedState = (
   amount: number,
   kind?: EnemyKind,
 ): GameState =>
-  chain(createInitialState(level, 0, [createAmmoBelt(amount)]))
-    .thru((state): GameState => ({
+  pipe(
+    createInitialState(level, 0, [createAmmoBelt(amount)]),
+    (state): GameState => ({
       ...state,
       player: {
         ...state.player,
@@ -157,23 +178,24 @@ const createArmedState = (
         kind: kind ?? enemy.kind,
         position: { ...enemy.position, y: SURFACE - ENEMY_HEIGHT },
       })),
-    }))
-    .thru((state) => nextTick(state))
-    .value();
+    }),
+    (state) => nextTick(state),
+  );
 
 const createShooterState = (amount: number): GameState =>
   createArmedState(createTestLevel(), SHOOTER_X, amount);
 
 const nextShot = (state: GameState): GameState =>
-  reduce(state, { type: 'SHOOT' });
+  nextGameState(state, { type: 'SHOOT' }, constant(0));
 
 const nextTurn = (state: GameState, isRight: boolean): GameState =>
   nextTicks(
-    reduce(
+    nextGameState(
       state,
       match(isRight)
         .with(true, (): Action => ({ type: 'MOVE_RIGHT_START' }))
         .otherwise((): Action => ({ type: 'MOVE_LEFT_START' })),
+      constant(0),
     ),
     3,
   );
@@ -248,9 +270,13 @@ describe('bullets', () => {
     const fired = nextShot(
       nextTurn(createArmedState(createSpikeLevel(3), SHOOTER_X, 1), false),
     );
-    const respawned = reduce(nextTicks(fired, computeTickCount(0.2)), {
-      type: 'RESPAWN',
-    });
+    const respawned = nextGameState(
+      nextTicks(fired, computeTickCount(0.2)),
+      {
+        type: 'RESPAWN',
+      },
+      constant(0),
+    );
 
     expect(respawned.level.tiles[11][3]).toBe(TILE_AIR);
   });
@@ -314,18 +340,28 @@ describe('bullets', () => {
   });
 
   it('should clear the bullets in the air but keep the rounds left when the player respawns', () => {
-    const state = reduce(nextShot(createShooterState(2)), { type: 'RESPAWN' });
+    const state = nextGameState(
+      nextShot(createShooterState(2)),
+      {
+        type: 'RESPAWN',
+      },
+      constant(0),
+    );
 
     expect(state.bullets).toEqual([]);
     expect(state.ammo, 'the spent round stays spent').toBe(1);
   });
 
   it('should carry the rounds left over when the next level loads', () => {
-    const state = reduce(nextShot(createShooterState(3)), {
-      type: 'LOAD_LEVEL',
-      level: createTestLevel(),
-      levelIndex: 1,
-    });
+    const state = nextGameState(
+      nextShot(createShooterState(3)),
+      {
+        type: 'LOAD_LEVEL',
+        level: createTestLevel(),
+        levelIndex: 1,
+      },
+      constant(0),
+    );
 
     expect(state.ammo).toBe(2);
     expect(state.bullets, 'though the shot in flight is left behind').toEqual(

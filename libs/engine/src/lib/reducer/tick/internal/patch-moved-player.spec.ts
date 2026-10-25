@@ -11,8 +11,8 @@ import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../../../state/create-initial-state';
 import type { GameLevel } from '../../../types/game-level';
 import type { GameState } from '../../../types/game-state';
+import { nextPlayer } from '../../player/next-player';
 import { patchDyingPlayer } from '../../player/patch-dying-player';
-import { stepPlayer } from '../../player/step-player';
 import { patchMovedPlayer } from './patch-moved-player';
 import { patchPlayerTimers } from './patch-player-timers';
 
@@ -94,7 +94,7 @@ describe('patchMovedPlayer', () => {
 
     expect(player).toEqual(
       patchPlayerTimers(
-        stepPlayer(LEVEL, state.player, state.input, DELTA_SECONDS),
+        nextPlayer(LEVEL, state.player, state.input, DELTA_SECONDS),
         DELTA_SECONDS,
       ),
     );

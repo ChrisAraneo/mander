@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import { TILE_DIRT } from '../blocks/dirt';
-import type { Level } from '../level/level';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_DIRT } from '../blocks/tile-dirt';
+import type { Level } from '../types/level';
 import { isSpike } from './is-spike';
-import { TILE_SPIKE, TILE_SPIKE_CEILING } from './spike';
+import { TILE_SPIKE } from './tile-spike';
+import { TILE_SPIKE_CEILING } from './tile-spike-ceiling';
 
 const LEVEL: Level = {
   seed: 'SEED',
@@ -18,35 +19,35 @@ const LEVEL: Level = {
 };
 
 describe('isSpike', () => {
-  it('should find a spike when the tile holds teeth standing on the floor', () => {
+  it('should return true when the tile is a floor spike', () => {
     expect(isSpike(LEVEL, 0, 1)).toBe(true);
   });
 
-  it('should find a spike when the tile holds teeth hanging from the ceiling', () => {
+  it('should return true when the tile is a ceiling spike', () => {
     expect(isSpike(LEVEL, 0, 0)).toBe(true);
   });
 
-  it('should find no spike when the tile is open air', () => {
+  it('should return false when the tile is air', () => {
     expect(isSpike(LEVEL, 1, 0)).toBe(false);
   });
 
-  it('should find no spike when the tile is a block', () => {
+  it('should return false when the tile is a block', () => {
     expect(isSpike(LEVEL, 1, 1)).toBe(false);
   });
 
-  it('should find no spike when the coordinates lie past the left edge', () => {
+  it('should return false when the coordinates lie past the left edge', () => {
     expect(isSpike(LEVEL, -1, 0)).toBe(false);
   });
 
-  it('should find no spike when the coordinates lie past the right edge', () => {
+  it('should return false when the coordinates lie past the right edge', () => {
     expect(isSpike(LEVEL, 2, 0)).toBe(false);
   });
 
-  it('should find no spike when the coordinates lie above the ceiling', () => {
+  it('should return false when the coordinates lie above the level', () => {
     expect(isSpike(LEVEL, 0, -1)).toBe(false);
   });
 
-  it('should find no spike when the coordinates lie below the floor', () => {
+  it('should return false when the coordinates lie below the level', () => {
     expect(isSpike(LEVEL, 0, 2)).toBe(false);
   });
 });

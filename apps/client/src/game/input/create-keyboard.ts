@@ -1,49 +1,42 @@
 import type { Action } from '@mander/engine';
-import { map, noop } from 'lodash-es';
-import { fromEvent, merge, type Subscription } from 'rxjs';
-import { Subject } from 'rxjs';
+import { noop, tap } from 'lodash-es';
+import { pipe } from 'remeda';
+import { fromEvent, merge, Subject } from 'rxjs';
 import { match, P } from 'ts-pattern';
-
-import { BINDINGS } from './bindings';
-import type { KeyBinding } from './key-binding';
-import type { Keyboard } from './keyboard';
+import { findKeyBinding } from './internal/find-key-binding';
+import { toKeyAction } from './internal/to-key-action';
+import type { Keyboard } from './types/keyboard';
 
 const { nullish } = P;
 
-export const createKeyboard = (): Keyboard => {
-  const actions = new Subject<Action>();
-  const bindingByCode = new Map(
-    map(BINDINGS, (binding): [string, KeyBinding] => [binding.code, binding]),
-  );
+const handleKeyboardEvent = (
+  event: KeyboardEvent,
+  actions: Subject<Action>,
+): void =>
+  match(findKeyBinding(event.code))
+    .with(nullish, noop)
+    .otherwise((binding) =>
+      pipe(
+        binding,
+        (found) => tap(found, () => event.preventDefault()),
+        (found) => toKeyAction(found, event.type, event.repeat),
+        (action) =>
+          match(action)
+            .with(nullish, noop)
+            .otherwise((next) => actions.next(next)),
+      ),
+    );
 
-  const keydown$ = fromEvent<KeyboardEvent>(window, 'keydown');
-  const keyup$ = fromEvent<KeyboardEvent>(window, 'keyup');
+const watchKeyboard = (
+  target: EventTarget,
+  actions: Subject<Action>,
+): Keyboard => ({
+  actions,
+  subscription: merge(
+    fromEvent<KeyboardEvent>(target, 'keydown'),
+    fromEvent<KeyboardEvent>(target, 'keyup'),
+  ).subscribe((event) => handleKeyboardEvent(event, actions)),
+});
 
-  const subscription: Subscription = merge(keydown$, keyup$).subscribe(
-    (event) =>
-      match(bindingByCode.get(event.code))
-        .with(nullish, noop)
-        .otherwise((binding) => {
-          event.preventDefault();
-          return match(event.type)
-            .with('keydown', () =>
-              match(event.repeat)
-                .with(true, noop)
-                .otherwise(() => actions.next(binding.start)),
-            )
-            .otherwise(() =>
-              match(binding.stop)
-                .with(nullish, noop)
-                .otherwise((stop) => actions.next(stop)),
-            );
-        }),
-  );
-
-  return {
-    actions$: actions.asObservable(),
-    dispose() {
-      subscription.unsubscribe();
-      actions.complete();
-    },
-  };
-};
+export const createKeyboard = (target: EventTarget): Keyboard =>
+  watchKeyboard(target, new Subject<Action>());

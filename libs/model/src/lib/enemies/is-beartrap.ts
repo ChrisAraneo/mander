@@ -1,7 +1,6 @@
 import { match, P } from 'ts-pattern';
-
-import type { Level } from '../level/level';
-import { TILE_BEARTRAP } from './beartrap-spawn';
+import type { Level } from '../types/level';
+import { TILE_BEARTRAP } from './tile-beartrap';
 
 const { when } = P;
 

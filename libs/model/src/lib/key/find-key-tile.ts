@@ -1,7 +1,7 @@
-import type { Point } from '../geometry/point';
-import type { Level } from '../level/level';
 import { findTile } from '../tile/find-tile';
-import { TILE_KEY } from './key';
+import type { Level } from '../types/level';
+import type { Point } from '../types/point';
+import { TILE_KEY } from './tile-key';
 
 export const findKeyTile = (level: Level): Point | null =>
   findTile(level, TILE_KEY);

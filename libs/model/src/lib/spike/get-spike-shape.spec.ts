@@ -1,71 +1,77 @@
+import { size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import type { Level } from '../level/level';
-import type { Tile } from '../tile/tile';
-import { TILE_SPIKE, TILE_SPIKE_CEILING } from './spike';
+import { TILE_AIR } from '../air/tile-air';
+import type { Level } from '../types/level';
+import type { Tile } from '../types/tile';
 import { getSpikeShape } from './get-spike-shape';
+import { TILE_SPIKE } from './tile-spike';
+import { TILE_SPIKE_CEILING } from './tile-spike-ceiling';
 
-const row = (...tiles: Tile[]): Level => ({
+const createRowLevel = (...tiles: Tile[]): Level => ({
   seed: 'SEED',
-  width: tiles.length,
+  width: size(tiles),
   height: 1,
   tiles: [tiles],
   chestItems: [],
 });
 
 describe('getSpikeShape', () => {
-  it('should leave a tooth standing on its own when there is a gap either side', () => {
-    expect(getSpikeShape(row(TILE_AIR, TILE_SPIKE, TILE_AIR), 1, 0)).toBe(
-      'SINGLE',
-    );
+  it('should return single when there is no spike on either side', () => {
+    expect(
+      getSpikeShape(createRowLevel(TILE_AIR, TILE_SPIKE, TILE_AIR), 1, 0),
+    ).toBe('SINGLE');
   });
 
-  it('should join a tooth into a strip when another sits on its left', () => {
-    expect(getSpikeShape(row(TILE_SPIKE, TILE_SPIKE, TILE_AIR), 1, 0)).toBe(
-      'STRIP',
-    );
+  it('should return strip when a spike is on its left', () => {
+    expect(
+      getSpikeShape(createRowLevel(TILE_SPIKE, TILE_SPIKE, TILE_AIR), 1, 0),
+    ).toBe('STRIP');
   });
 
-  it('should join a tooth into a strip when another sits on its right', () => {
-    expect(getSpikeShape(row(TILE_AIR, TILE_SPIKE, TILE_SPIKE), 1, 0)).toBe(
-      'STRIP',
-    );
+  it('should return strip when a spike is on its right', () => {
+    expect(
+      getSpikeShape(createRowLevel(TILE_AIR, TILE_SPIKE, TILE_SPIKE), 1, 0),
+    ).toBe('STRIP');
   });
 
-  it('should call every tooth a strip when a whole row of them runs together', () => {
-    const level = row(TILE_SPIKE, TILE_SPIKE, TILE_SPIKE);
+  it('should return strip for every spike when the whole row is spikes', () => {
+    const level = createRowLevel(TILE_SPIKE, TILE_SPIKE, TILE_SPIKE);
 
     expect(getSpikeShape(level, 0, 0)).toBe('STRIP');
     expect(getSpikeShape(level, 1, 0)).toBe('STRIP');
     expect(getSpikeShape(level, 2, 0)).toBe('STRIP');
   });
 
-  it('should join ceiling teeth into a strip when they sit beside their own kind', () => {
+  it('should return strip when a ceiling spike is next to another ceiling spike', () => {
     expect(
       getSpikeShape(
-        row(TILE_SPIKE_CEILING, TILE_SPIKE_CEILING, TILE_AIR),
+        createRowLevel(TILE_SPIKE_CEILING, TILE_SPIKE_CEILING, TILE_AIR),
         1,
         0,
       ),
     ).toBe('STRIP');
   });
 
-  it('should leave a tooth on its own when its neighbours hang the other way up', () => {
+  it('should return single when the spikes next to it face the other way', () => {
     expect(
       getSpikeShape(
-        row(TILE_SPIKE_CEILING, TILE_SPIKE, TILE_SPIKE_CEILING),
+        createRowLevel(TILE_SPIKE_CEILING, TILE_SPIKE, TILE_SPIKE_CEILING),
         1,
         0,
       ),
     ).toBe('SINGLE');
   });
 
-  it('should find no company when the tooth sits against the left edge of the level', () => {
-    expect(getSpikeShape(row(TILE_SPIKE, TILE_AIR), 0, 0)).toBe('SINGLE');
+  it('should return single when the spike is at the left edge of the level', () => {
+    expect(getSpikeShape(createRowLevel(TILE_SPIKE, TILE_AIR), 0, 0)).toBe(
+      'SINGLE',
+    );
   });
 
-  it('should find no company when the tooth sits against the right edge of the level', () => {
-    expect(getSpikeShape(row(TILE_AIR, TILE_SPIKE), 1, 0)).toBe('SINGLE');
+  it('should return single when the spike is at the right edge of the level', () => {
+    expect(getSpikeShape(createRowLevel(TILE_AIR, TILE_SPIKE), 1, 0)).toBe(
+      'SINGLE',
+    );
   });
 });

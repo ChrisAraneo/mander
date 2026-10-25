@@ -1,4 +1,4 @@
-import { chain } from '@mander/model';
+import { pipe } from 'remeda';
 import { computePlayerJump } from './compute-player-jump';
 import { isFacingRightFor } from './is-facing-right-for';
 import { toHorizontalDirection } from './to-horizontal-direction';
@@ -11,8 +11,10 @@ export const computePlayerStepIntent = ({
   input,
   deltaSeconds,
 }: PlayerStepDelta): PlayerStepIntent =>
-  chain(toHorizontalDirection(input))
-    .thru((direction) => ({
+  pipe(
+    input,
+    toHorizontalDirection,
+    (direction) => ({
       velocityX: direction * player.velocity.x.max,
       isFacingRight: isFacingRightFor(direction, player.statuses.isFacingRight),
       jump: computePlayerJump(
@@ -23,8 +25,8 @@ export const computePlayerStepIntent = ({
         input,
         player,
       ),
-    }))
-    .thru(({ velocityX, isFacingRight, jump }): PlayerStepIntent => ({
+    }),
+    ({ velocityX, isFacingRight, jump }): PlayerStepIntent => ({
       level,
       player,
       input,
@@ -33,5 +35,5 @@ export const computePlayerStepIntent = ({
       isFacingRight,
       velocityY: jump.velocityY,
       isGrounded: jump.isGrounded,
-    }))
-    .value();
+    }),
+  );

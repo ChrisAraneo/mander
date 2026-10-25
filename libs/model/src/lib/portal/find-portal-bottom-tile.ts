@@ -1,7 +1,7 @@
 import { match } from 'ts-pattern';
-import type { Point } from '../geometry/point';
-import type { Level } from '../level/level';
-import { TILE_PORTAL } from './portal';
+import type { Level } from '../types/level';
+import type { Point } from '../types/point';
+import { TILE_PORTAL } from './tile-portal';
 
 export const findPortalBottomTile = (level: Level, point: Point): Point =>
   match(

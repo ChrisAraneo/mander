@@ -1,5 +1,5 @@
 import { checkPlayerReach, isReachableCell } from '@mander/engine';
-import { findTile, type Level, TILE_PORTAL, chain } from '@mander/model';
+import { findTile, type Level, TILE_PORTAL } from '@mander/model';
 import {
   type VerticalStructure,
   VERTICAL_STRUCTURES,
@@ -14,9 +14,10 @@ import {
   times,
   toString,
 } from 'lodash-es';
+import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
-import { generate } from '../generate';
+import { createWorld } from '../create-world';
 import { createStructureLayers } from '../layout/create-structure-layers';
 import { addPadding } from '../padding/add-padding';
 import { addPlayerSpawn } from '../player-spawn/add-player-spawn';
@@ -30,42 +31,40 @@ const formatStructureName = (index: number): string =>
   `VERTICAL_${padStart(toString(index + 1), 3, '0')}`;
 
 const createClimb = (structure: VerticalStructure): Level =>
-  chain(
-    addPadding(
-      addPortal(
-        addPlayerSpawn(
-          createStructureLayers(
-            times(SECTORS, () => structure),
-            'VERTICAL',
-          ).tiles,
+  pipe(
+    addPortal(
+      addPlayerSpawn(
+        createStructureLayers(
+          times(SECTORS, () => structure),
           'VERTICAL',
-        ),
+        ).tiles,
         'VERTICAL',
       ),
+      'VERTICAL',
     ),
-  )
-    .thru((tiles) => ({
+    addPadding,
+    (tiles) => ({
       seed: 'CLIMB',
       width: size(tiles[0]),
       height: size(tiles),
       tiles,
       chestItems: [],
-    }))
-    .value();
+    }),
+  );
 
 const isPortalReached = (level: Level): boolean =>
-  chain({
-    portal: findTile(level, TILE_PORTAL),
-    reach: checkPlayerReach(level),
-  })
-    .thru(
-      ({ portal, reach }) =>
-        !isNull(portal) && isReachableCell(reach, portal.y + 1, portal.x),
-    )
-    .value();
+  pipe(
+    level,
+    (climb) => ({
+      portal: findTile(climb, TILE_PORTAL),
+      reach: checkPlayerReach(climb),
+    }),
+    ({ portal, reach }) =>
+      !isNull(portal) && isReachableCell(reach, portal.y + 1, portal.x),
+  );
 
 const filterVerticalLevels = (date: Date): Level[] =>
-  filter(generate(date).levels, (level) => level.isOpenSided === true);
+  filter(createWorld(date).levels, (level) => level.isOpenSided === true);
 
 describe('the climb up a vertical level', () => {
   it('should carry the player out of the top of the next sector when they start on the ground of one', () => {

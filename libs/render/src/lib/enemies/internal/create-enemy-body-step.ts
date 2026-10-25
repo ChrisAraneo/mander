@@ -5,7 +5,7 @@ import { createSequenceStep } from '../../canvas/create-sequence-step';
 import { createStyleStep } from '../../canvas/create-style-step';
 import { drawBeginPath } from '../../canvas/draw-begin-path';
 import { drawFill } from '../../canvas/draw-fill';
-import { outline } from '../../stroke/outline';
+import { createOutlineStep } from '../../stroke/create-outline-step';
 import type { CanvasStep } from '../../types/canvas-step';
 import { HALF_WIDTH, HALF_HEIGHT } from './consts';
 import type { EnemyPalette } from './types/enemy-palette';
@@ -15,7 +15,7 @@ export const createEnemyBodyStep = (palette: EnemyPalette): CanvasStep =>
     drawBeginPath,
     createRectStep(-HALF_WIDTH + 3, HALF_HEIGHT - 4, 5, 3),
     createRectStep(HALF_WIDTH - 8, HALF_HEIGHT - 4, 5, 3),
-    outline(),
+    createOutlineStep(),
     createStyleStep({ fillStyle: palette.feet }),
     drawFill,
     drawBeginPath,
@@ -26,7 +26,7 @@ export const createEnemyBodyStep = (palette: EnemyPalette): CanvasStep =>
       ENEMY_HEIGHT - 4,
       6,
     ),
-    outline(),
+    createOutlineStep(),
     createStyleStep({ fillStyle: palette.body }),
     drawFill,
     createStyleStep({ fillStyle: palette.belly }),

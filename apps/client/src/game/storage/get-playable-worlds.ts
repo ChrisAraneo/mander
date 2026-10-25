@@ -1,24 +1,13 @@
-import { chain } from '@mander/model';
 import { concat, filter, find, map, orderBy, unionBy } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match, P } from 'ts-pattern';
-
-import type {
-  CompletedWorld,
-  PlayedWorld,
-  RunRecord,
-  SaveData,
-} from './save-data';
+import type { CompletedWorld } from './types/completed-world';
+import type { PlayableWorld } from './types/playable-world';
+import type { PlayedWorld } from './types/played-world';
+import type { RunRecord } from './types/run-record';
+import type { SaveData } from './types/save-data';
 
 const { nonNullable } = P;
-
-export interface PlayableWorld {
-  name: string;
-  day: string;
-  playedAt: string;
-  runs: number;
-  completed: CompletedWorld | null;
-  replays: RunRecord[];
-}
 
 const toPlayed = (world: CompletedWorld): PlayedWorld => ({
   name: world.name,
@@ -34,7 +23,7 @@ const toPlayedFromRun = (run: RunRecord): PlayedWorld => ({
   runs: 1,
 });
 
-const filterMissingBest = (
+const createMissingBestRuns = (
   completed: CompletedWorld | null,
   runs: RunRecord[],
 ): RunRecord[] =>
@@ -60,41 +49,47 @@ const filterMissingBest = (
 
 const isPlayable = (run: RunRecord): boolean => run.day !== '';
 
-const findReplays = (
+const computeWorldReplays = (
   save: SaveData,
   name: string,
   completed: CompletedWorld | null,
 ): RunRecord[] =>
-  chain(filter(save.runs, { name }))
-    .thru((runs) =>
+  pipe(
+    filter(save.runs, { name }),
+    (runs) =>
       concat(
         orderBy(runs, ['playedAt'], ['desc']),
-        filterMissingBest(completed, runs),
+        createMissingBestRuns(completed, runs),
       ),
-    )
-    .thru((runs) => filter(runs, isPlayable))
-    .value();
+    (runs) => filter(runs, isPlayable),
+  );
 
-const createPlayable = (save: SaveData, world: PlayedWorld): PlayableWorld =>
-  chain(find(save.completedWorlds, { name: world.name }) ?? null)
-    .thru((completed): PlayableWorld => ({
-      ...world,
-      completed,
-      replays: findReplays(save, world.name, completed),
-    }))
-    .value();
+const findCompletedWorld = (
+  save: SaveData,
+  name: string,
+): CompletedWorld | null => find(save.completedWorlds, { name }) ?? null;
+
+const createPlayable = (
+  save: SaveData,
+  world: PlayedWorld,
+  completed: CompletedWorld | null,
+): PlayableWorld => ({
+  ...world,
+  completed,
+  replays: computeWorldReplays(save, world.name, completed),
+});
 
 export const getPlayableWorlds = (save: SaveData): PlayableWorld[] =>
-  orderBy(
-    map(
-      unionBy(
-        save.playedWorlds,
-        map(save.completedWorlds, toPlayed),
-        map(save.runs, toPlayedFromRun),
-        'name',
-      ),
-      (world) => createPlayable(save, world),
+  pipe(
+    unionBy(
+      save.playedWorlds,
+      map(save.completedWorlds, toPlayed),
+      map(save.runs, toPlayedFromRun),
+      'name',
     ),
-    ['playedAt', 'day'],
-    ['desc', 'desc'],
+    (worlds) =>
+      map(worlds, (world) =>
+        createPlayable(save, world, findCompletedWorld(save, world.name)),
+      ),
+    (worlds) => orderBy(worlds, ['playedAt', 'day'], ['desc', 'desc']),
   );

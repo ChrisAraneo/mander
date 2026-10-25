@@ -1,5 +1,16 @@
-import { type Item, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, TILE_SPIKE_CEILING, chain } from '@mander/model';
-import { head, map, reduce as fold, size, times } from 'lodash-es';
+import {
+  type Item,
+  type Tile,
+  TILE_AIR,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SIZE,
+  TILE_SPAWN,
+  TILE_SPIKE_CEILING,
+} from '@mander/model';
+import { constant, head, map, reduce, size, times } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -7,8 +18,8 @@ import { createInitialState } from '../state/create-initial-state';
 import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
+import { nextGameState } from './next-game-state';
 import { BASE_HEARTS, PLAYER_HEIGHT } from './player/consts';
-import { reduce } from './reduce';
 
 const LEGEND: Record<string, Tile> = {
   '.': TILE_AIR,
@@ -68,29 +79,30 @@ const createTestLevel = (): GameLevel => ({
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
 });
 
+const patchCeilingSpikeTiles = (
+  level: GameLevel,
+  column: number,
+  row: number,
+): GameLevel => ({
+  ...level,
+  tiles: map(level.tiles, (tiles, rowIndex) =>
+    map(tiles, (tile, columnIndex) =>
+      match({ isSpikeColumn: columnIndex === column, rowIndex })
+        .with({ isSpikeColumn: true, rowIndex: row - 1 }, () => TILE_DIRT)
+        .with({ isSpikeColumn: true, rowIndex: row }, () => TILE_SPIKE_CEILING)
+        .otherwise(() => tile),
+    ),
+  ),
+});
+
 const createCeilingSpikeLevel = (column: number, row: number): GameLevel =>
-  chain(createTestLevel())
-    .thru((level): GameLevel => ({
-      ...level,
-      tiles: map(level.tiles, (tiles, rowIndex) =>
-        map(tiles, (tile, columnIndex) =>
-          match({ isSpikeColumn: columnIndex === column, rowIndex })
-            .with({ isSpikeColumn: true, rowIndex: row - 1 }, () => TILE_DIRT)
-            .with(
-              { isSpikeColumn: true, rowIndex: row },
-              () => TILE_SPIKE_CEILING,
-            )
-            .otherwise(() => tile),
-        ),
-      ),
-    }))
-    .value();
+  patchCeilingSpikeTiles(createTestLevel(), column, row);
 
 const nextTick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK' });
+  nextGameState(state, { type: 'TICK' }, constant(0));
 
 const nextTicks = (state: GameState, tickCount: number): GameState =>
-  fold(times(tickCount), (current) => nextTick(current), state);
+  reduce(times(tickCount), (current) => nextTick(current), state);
 
 describe('ceiling spikes', () => {
   it('should cost a heart when the player jumps up into the prongs', () => {
@@ -112,7 +124,7 @@ describe('ceiling spikes', () => {
       BASE_HEARTS,
     );
 
-    const jumped = reduce(settled, { type: 'JUMP_START' });
+    const jumped = nextGameState(settled, { type: 'JUMP_START' }, constant(0));
     const ticked = nextTicks(jumped, 20);
 
     expect(ticked.player.hearts.value, 'the jump ran into the prongs').toBe(
@@ -138,7 +150,11 @@ describe('ceiling spikes', () => {
         position: { x: SPIKE_COLUMN * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT },
       },
     };
-    const pressed = reduce(placed, { type: 'MOVE_RIGHT_START' });
+    const pressed = nextGameState(
+      placed,
+      { type: 'MOVE_RIGHT_START' },
+      constant(0),
+    );
     const moved = nextTicks(pressed, 60);
 
     expect(moved.deaths, 'running underneath is safe').toBe(0);

@@ -12,7 +12,7 @@ import type { GameLevel } from '../../../types/game-level';
 import { BASE_HEARTS } from '../../player/consts';
 import { createPlayer } from '../../player/create-player';
 import { CANNON_RELOAD_SECONDS } from '../consts';
-import { fireCannonball } from '../fire-cannonball';
+import { createFiredCannonball } from '../create-fired-cannonball';
 import { createCannonTickShot } from './create-cannon-tick-shot';
 
 const LEGEND: Record<string, Tile> = { '.': TILE_AIR, '#': TILE_DIRT };
@@ -66,7 +66,7 @@ describe('createCannonTickShot', () => {
 
     const shot = createCannonTickShot(cannon, createPlayerAt(400), 0.02);
 
-    expect(shot.cannonball).toEqual(fireCannonball(cannon));
+    expect(shot.cannonball).toEqual(createFiredCannonball(cannon));
     expect(shot.cannon.timers.reload).toBeCloseTo(
       0.01 - 0.02 + CANNON_RELOAD_SECONDS,
       6,

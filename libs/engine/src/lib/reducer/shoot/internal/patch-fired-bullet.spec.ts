@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../../../state/create-initial-state';
 import type { GameLevel } from '../../../types/game-level';
 import type { GameState } from '../../../types/game-state';
-import { fireBullet } from '../../bullet/fire-bullet';
+import { createFiredBullet } from '../../bullet/create-fired-bullet';
 import { patchFiredBullet } from './patch-fired-bullet';
 
 const LEGEND: Record<string, Tile> = {
@@ -31,7 +31,7 @@ const createState = (): GameState => ({
   ...createInitialState(LEVEL, 0, []),
   ammo: 2,
   bullets: [
-    fireBullet({
+    createFiredBullet({
       ...INITIAL_STATE.player,
       position: { ...INITIAL_STATE.player.position, x: 3 },
     }),
@@ -52,7 +52,7 @@ describe('patchFiredBullet', () => {
 
     expect(patched.bullets).toEqual([
       ...state.bullets,
-      fireBullet(state.player),
+      createFiredBullet(state.player),
     ]);
   });
 

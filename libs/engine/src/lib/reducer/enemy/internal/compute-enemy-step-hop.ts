@@ -1,4 +1,3 @@
-import { chain } from '@mander/model';
 import { toFacing } from '../../internal/to-facing';
 import { computeEnemyHop } from './compute-enemy-hop';
 import type { EnemyStepDelta } from './types/enemy-step-delta';
@@ -9,22 +8,15 @@ export const computeEnemyStepHop = ({
   enemy,
   player,
   deltaSeconds,
-}: EnemyStepDelta): EnemyStepIntent =>
-  chain({
-    facing: toFacing(enemy.statuses.isFacingRight),
-    hop: computeEnemyHop(
-      enemy.statuses.isGrounded,
-      enemy.velocity.y.current,
-      enemy,
-      player,
-    ),
-  })
-    .thru(({ facing, hop }): EnemyStepIntent => ({
-      level,
-      enemy,
-      deltaSeconds,
-      facing,
-      velocityY: hop.velocityY,
-      isGrounded: hop.isGrounded,
-    }))
-    .value();
+}: EnemyStepDelta): EnemyStepIntent => ({
+  level,
+  enemy,
+  deltaSeconds,
+  facing: toFacing(enemy.statuses.isFacingRight),
+  ...computeEnemyHop(
+    enemy.statuses.isGrounded,
+    enemy.velocity.y.current,
+    enemy,
+    player,
+  ),
+});

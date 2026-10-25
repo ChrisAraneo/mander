@@ -9,7 +9,7 @@ import { drawBeginPath } from '../canvas/draw-begin-path';
 import { drawFill } from '../canvas/draw-fill';
 import { drawRestore } from '../canvas/draw-restore';
 import { drawSave } from '../canvas/draw-save';
-import { outline } from '../stroke/outline';
+import { createOutlineStep } from '../stroke/create-outline-step';
 import type { CanvasStep } from '../types/canvas-step';
 import { createChestLidStep } from './internal/create-chest-lid-step';
 
@@ -27,7 +27,7 @@ export const createChestStep = (
     drawSave,
     drawBeginPath,
     createRectStep(chest.x, chest.y + 6, chest.width, chest.height - 6),
-    outline(),
+    createOutlineStep(),
     createStyleStep({
       fillStyle: match(state.isChestOpened)
         .with(true, () => BODY_OPEN)

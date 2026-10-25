@@ -17,9 +17,9 @@ import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../../../state/create-initial-state';
 import type { GameLevel } from '../../../types/game-level';
 import type { GameState } from '../../../types/game-state';
-import { advanceBullets } from '../../bullet/advance-bullets';
-import { advanceFallingSpikes } from '../../falling-spike/advance-falling-spikes';
-import { advanceFireballs } from '../../fireball/advance-fireballs';
+import { nextBullets } from '../../bullet/next-bullets';
+import { nextFallingSpikes } from '../../falling-spike/next-falling-spikes';
+import { nextFireballs } from '../../fireball/next-fireballs';
 import { patchMovedBarrage } from './patch-moved-barrage';
 import { patchMovedEnemies } from './patch-moved-enemies';
 import { patchMovedTickHazards } from './patch-moved-tick-hazards';
@@ -79,14 +79,14 @@ describe('patchMovedTickHazards', () => {
       steppedEnemies: patchMovedEnemies(state, player, DELTA_SECONDS),
       cannons: patchMovedBarrage(state, player, DELTA_SECONDS).cannons,
       flying: patchMovedBarrage(state, player, DELTA_SECONDS).cannonballs,
-      fallingSpikes: advanceFallingSpikes(
+      fallingSpikes: nextFallingSpikes(
         LEVEL,
         state.fallingSpikes,
         player,
         DELTA_SECONDS,
       ),
-      fireballs: advanceFireballs(state.fireballs, DELTA_SECONDS),
-      flyingBullets: advanceBullets(LEVEL, state.bullets, DELTA_SECONDS),
+      fireballs: nextFireballs(state.fireballs, DELTA_SECONDS),
+      flyingBullets: nextBullets(LEVEL, state.bullets, DELTA_SECONDS),
     });
   });
 

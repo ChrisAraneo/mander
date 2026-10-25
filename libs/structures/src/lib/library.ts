@@ -1,5 +1,4 @@
 import { values } from 'lodash-es';
-
 import {
   HARD_001,
   HARD_002,
@@ -255,7 +254,8 @@ import {
   NORMAL_204,
   NORMAL_205,
 } from './normal';
-import type { Structure, VerticalStructure } from './structure';
+import type { Structure } from './types/structure';
+import type { VerticalStructure } from './types/vertical-structure';
 import {
   VERTICAL_001,
   VERTICAL_002,

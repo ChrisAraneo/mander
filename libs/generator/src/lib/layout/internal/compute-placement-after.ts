@@ -1,4 +1,3 @@
-import { chain } from '@mander/model';
 import {
   getFront,
   type Sector,
@@ -31,17 +30,24 @@ const findMarker = (structure: Sector, marker: number): Cell | undefined =>
     (cell) => cell.column !== NOT_FOUND,
   );
 
+const createPlacement = (
+  previous: StructurePlacement,
+  structure: Sector,
+  exit: Cell,
+  entry: Cell,
+): StructurePlacement => ({
+  structure,
+  row: previous.row + exit.row - entry.row,
+  column: previous.column + exit.column + COLUMNS_PAST_EXIT - entry.column,
+});
+
 export const computePlacementAfter = (
   previous: StructurePlacement,
   structure: Sector,
 ): StructurePlacement =>
-  chain({
-    exit: findMarker(previous.structure, STRUCTURE_END) ?? DEFAULT_END,
-    entry: findMarker(structure, STRUCTURE_START) ?? DEFAULT_START,
-  })
-    .thru(({ exit, entry }): StructurePlacement => ({
-      structure,
-      row: previous.row + exit.row - entry.row,
-      column: previous.column + exit.column + COLUMNS_PAST_EXIT - entry.column,
-    }))
-    .value();
+  createPlacement(
+    previous,
+    structure,
+    findMarker(previous.structure, STRUCTURE_END) ?? DEFAULT_END,
+    findMarker(structure, STRUCTURE_START) ?? DEFAULT_START,
+  );

@@ -1,4 +1,4 @@
-import { type Level, getBackTileAt, isSolidTile, chain } from '@mander/model';
+import { type Level, getBackTileAt, isSolidTile } from '@mander/model';
 import { match } from 'ts-pattern';
 import { drawNothing } from '../../canvas/draw-nothing';
 import type { CanvasStep } from '../../types/canvas-step';
@@ -11,12 +11,8 @@ export const createBackLayerTileStep = (
   row: number,
   materials: MaterialPalette,
 ): CanvasStep =>
-  chain(getBackTileAt(level, column, row))
-    .thru((tile) =>
-      match(isSolidTile(tile))
-        .with(true, () =>
-          createBackTileStep(level, column, row, materials(tile)),
-        )
-        .otherwise(() => drawNothing),
+  match(getBackTileAt(level, column, row))
+    .when(isSolidTile, (tile) =>
+      createBackTileStep(level, column, row, materials(tile)),
     )
-    .value();
+    .otherwise(() => drawNothing);

@@ -1,5 +1,5 @@
 import { createArcStep } from '../../canvas/create-arc-step';
-import { createSequenceStep } from '../../canvas/create-sequence-step';
+import { createConditionalStep } from '../../canvas/create-conditional-step';
 import { createStyleStep } from '../../canvas/create-style-step';
 import { drawBeginPath } from '../../canvas/draw-begin-path';
 import { drawFill } from '../../canvas/draw-fill';
@@ -13,11 +13,12 @@ const CHARGE_RADIUS = 6;
 const CHARGE_COLOR = '#FF9E3D';
 
 export const createCannonChargeStep = (charge: number): CanvasStep =>
-  createSequenceStep([
+  createConditionalStep(
+    charge > 0,
     drawSave,
     createStyleStep({ fillStyle: CHARGE_COLOR }),
     drawBeginPath,
     createArcStep(BARREL_LENGTH - 1, 0, CHARGE_RADIUS * charge, 0, Math.PI * 2),
     drawFill,
     drawRestore,
-  ]);
+  );

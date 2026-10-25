@@ -1,83 +1,54 @@
-import {
-  createInitialState,
-  type GameState,
-  type Replay,
-  decodeReplay,
-} from '@mander/engine';
-import { generate } from '@mander/generator';
-import { chain } from '@mander/model';
-import { getPlayerFocus, renderGame, syncViewport } from '@mander/render';
-import { map, noop, tap } from 'lodash-es';
+import { parseReplay } from '@mander/engine';
+import { createWorld } from '@mander/generator';
+import { tap } from 'lodash-es';
+import { pipe } from 'remeda';
+import { animationFrames } from 'rxjs';
 import { match, P } from 'ts-pattern';
 import { onMounted, onUnmounted, type Ref } from 'vue';
-
+import { createCanvasCell, initializeCanvas } from '../canvas';
+import { findGhostRuns, readSave, tryGetLocalStorage } from '../storage';
 import {
-  type CanvasCell,
-  createCanvasCell,
-  drawWithCanvas,
-  openCanvas,
-} from '../canvas';
-import { findGhostRuns, loadSave } from '../storage';
-import { getLevelGhosts, useReplay } from '../use-replay';
-import type { ReplayController } from '../use-replay';
-import type { ArchiveSource } from './archive-source';
+  startReplay,
+  type ReplaySession,
+  finishReplay,
+  useReplay,
+} from '../use-replay';
+import type { ArchiveSource } from './types/archive-source';
 
 const { nonNullable } = P;
+
+const startArchiveReplay = (session: ReplaySession): ReplaySession =>
+  match(initializeCanvas(session.stage.cell))
+    .with(nonNullable, () => startReplay(session))
+    .otherwise(() => session);
 
 export const useArchive = (
   source: ArchiveSource,
   canvas: Ref<HTMLCanvasElement | null>,
-): ReplayController =>
-  chain(generate(new Date(source.day)))
-    .thru((world) => ({
-      world,
-      cell: createCanvasCell(),
-      recording: decodeReplay(source.replay, world.levels),
-      rivals: findGhostRuns(loadSave(), world.name, source.id),
-    }))
-    .thru((setup) => ({
-      ...setup,
-      renderState: (next: GameState, ghosts: GameState[] = []): void =>
-        drawWithCanvas(setup.cell, canvas, (context, element) =>
-          renderGame(
-            context,
-            next,
-            setup.world.palette,
-            syncViewport(element),
-            getPlayerFocus(next),
-            getLevelGhosts(next, ghosts),
+): ReplaySession =>
+  pipe(
+    new Date(source.day),
+    createWorld,
+    (world) =>
+      useReplay(
+        {
+          kind: 'ARCHIVE',
+          recording: parseReplay(source.replay, world.levels),
+        },
+        {
+          cell: createCanvasCell(canvas),
+          palette: world.palette,
+          levels: world.levels,
+          score: 0,
+          rivals: findGhostRuns(
+            readSave(tryGetLocalStorage()),
+            world.name,
+            source.id,
           ),
-        ),
-    }))
-    .thru((setup) => ({
-      ...setup,
-      replay: useReplay({
-        getReplay: () => setup.recording,
-        getGhosts: (): Replay[] =>
-          map(setup.rivals, (run) =>
-            decodeReplay(run.replay, setup.world.levels),
-          ),
-        getInitialState: () => createInitialState(setup.world.levels[0], 0, []),
-        render: setup.renderState,
-        handleStop: noop,
-      }),
-    }))
-    .thru((setup) =>
-      tap(setup, () =>
-        onMounted(() => playOnMount(setup.cell, canvas, setup.replay)),
+          frames: animationFrames(),
+        },
       ),
-    )
-    .thru((setup) =>
-      tap(setup, () => onUnmounted(() => setup.replay.stop())),
-    )
-    .thru(({ replay }) => replay)
-    .value();
-
-const playOnMount = (
-  cell: CanvasCell,
-  canvas: Ref<HTMLCanvasElement | null>,
-  replay: ReplayController,
-): void =>
-  match(openCanvas(cell, canvas))
-    .with(nonNullable, () => replay.play())
-    .otherwise(noop);
+    (session) =>
+      tap(session, () => onMounted(() => startArchiveReplay(session))),
+    (session) => tap(session, () => onUnmounted(() => finishReplay(session))),
+  );

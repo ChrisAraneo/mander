@@ -28,7 +28,7 @@ import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
 import { GEM_REST_HEIGHT, GEMS_PER_STRUCTURE } from '../consts';
-import { generate } from '../generate';
+import { createWorld } from '../create-world';
 import { addGems } from './add-gems';
 
 interface Cell {
@@ -251,7 +251,7 @@ describe('addGems', () => {
       flatMap(
         times(10, (day) => new Date(Date.UTC(2026, 7, 1 + day))),
         (date) =>
-          map(generate(date).levels, (level, index) => ({
+          map(createWorld(date).levels, (level, index) => ({
             index,
             gems: size(filterGems(level.tiles)),
           })),

@@ -3,7 +3,7 @@ import { createSequenceStep } from '../../canvas/create-sequence-step';
 import { createStyleStep } from '../../canvas/create-style-step';
 import { drawBeginPath } from '../../canvas/draw-begin-path';
 import { drawFill } from '../../canvas/draw-fill';
-import { outline } from '../../stroke/outline';
+import { createOutlineStep } from '../../stroke/create-outline-step';
 import type { CanvasStep } from '../../types/canvas-step';
 import type { PlayerColors } from '../types/player-colors';
 import { HEAD_CENTER_Y, HEAD_RADIUS, LEG_TOP } from './consts';
@@ -17,7 +17,7 @@ export const createPlayerBodyStep = (
   createSequenceStep([
     drawBeginPath,
     createRoundRectStep(-8, TORSO_TOP, 16, LEG_TOP - TORSO_TOP + 4, 5),
-    outline(),
+    createOutlineStep(),
     createStyleStep({ fillStyle: colors.body }),
     drawFill,
     createStyleStep({ fillStyle: colors.strap }),

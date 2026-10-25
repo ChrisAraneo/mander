@@ -6,9 +6,8 @@ import {
   TILE_DIRT,
   TILE_SPAWN,
   TILE_SPIKE_FALLING,
-  chain,
 } from '@mander/model';
-import { map, reduce as fold, times } from 'lodash-es';
+import { constant, map, reduce, times } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -17,8 +16,8 @@ import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
 import { createFallingSpikes } from './falling-spike/create-falling-spikes';
+import { nextGameState } from './next-game-state';
 import { BASE_HEARTS } from './player/consts';
-import { reduce } from './reduce';
 
 const CEILING_ROW = 1;
 
@@ -48,26 +47,25 @@ const createRoom = (): Level => ({
   chestItems: [],
 });
 
-const createArena = (): GameLevel =>
-  chain(createRoom())
-    .thru((level): GameLevel => ({
-      ...level,
-      tiles: map(level.tiles, (tiles, rowIndex) =>
-        map(tiles, (tile, columnIndex) =>
-          match(rowIndex === FLOOR_ROW - 1 && columnIndex === SPIKE_COLUMN)
-            .with(true, () => TILE_SPAWN)
-            .otherwise(() => tile),
-        ),
-      ),
-      hornedEnemyChance: HORNED_ENEMY_CHANCE,
-    }))
-    .value();
+const patchArenaSpawn = (level: Level): GameLevel => ({
+  ...level,
+  tiles: map(level.tiles, (tiles, rowIndex) =>
+    map(tiles, (tile, columnIndex) =>
+      match(rowIndex === FLOOR_ROW - 1 && columnIndex === SPIKE_COLUMN)
+        .with(true, () => TILE_SPAWN)
+        .otherwise(() => tile),
+    ),
+  ),
+  hornedEnemyChance: HORNED_ENEMY_CHANCE,
+});
+
+const createArena = (): GameLevel => patchArenaSpawn(createRoom());
 
 const nextTick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK' });
+  nextGameState(state, { type: 'TICK' }, constant(0));
 
 const nextTicks = (state: GameState, tickCount: number): GameState =>
-  fold(times(tickCount), (current) => nextTick(current), state);
+  reduce(times(tickCount), (current) => nextTick(current), state);
 
 const createPlayedState = (inventory: Item[], tickCount: number): GameState =>
   nextTicks(createInitialState(createArena(), 0, inventory), tickCount);
@@ -82,7 +80,7 @@ describe('a level being played', () => {
 
   it('should hang again when the player respawns', () => {
     const struck = createPlayedState([], 60);
-    const respawned = reduce(struck, { type: 'RESPAWN' });
+    const respawned = nextGameState(struck, { type: 'RESPAWN' }, constant(0));
 
     expect(respawned.fallingSpikes).toEqual(createFallingSpikes(createArena()));
     expect(respawned.enemies).toEqual([]);

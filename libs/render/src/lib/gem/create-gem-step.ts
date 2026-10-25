@@ -1,4 +1,5 @@
-import { getEntityRectangle, GEM_ENTITY_BOX, type Point, chain } from '@mander/model';
+import { getEntityRectangle, GEM_ENTITY_BOX, type Point } from '@mander/model';
+import { pipe } from 'remeda';
 import { CYAN_GEM_COLORS } from '../gem-shape/consts';
 import { createGemShapeStep } from '../gem-shape/create-gem-shape-step';
 import type { CanvasStep } from '../types/canvas-step';
@@ -12,16 +13,17 @@ const SPIN_SPEED = 2;
 const SPIN_FLAT = 0.4;
 
 export const createGemStep = (tile: Point, time: number): CanvasStep =>
-  chain({
-    box: getEntityRectangle(tile, GEM_ENTITY_BOX),
-    phase: tile.x + tile.y,
-  })
-    .thru(({ box, phase }) => ({
+  pipe(
+    {
+      box: getEntityRectangle(tile, GEM_ENTITY_BOX),
+      phase: tile.x + tile.y,
+    },
+    ({ box, phase }) => ({
       box,
       phase,
       bob: Math.sin(time * BOB_SPEED + phase) * BOB_HEIGHT,
-    }))
-    .thru(({ box, phase, bob }) => ({
+    }),
+    ({ box, phase, bob }) => ({
       centerX: box.x + box.width / 2,
       centerY: box.y + box.height / 2 + bob,
       halfWidth:
@@ -29,8 +31,8 @@ export const createGemStep = (tile: Point, time: number): CanvasStep =>
         (SPIN_FLAT +
           (1 - SPIN_FLAT) * Math.abs(Math.cos(time * SPIN_SPEED + phase))),
       halfHeight: box.height / 2,
-    }))
-    .thru(({ centerX, centerY, halfWidth, halfHeight }) =>
+    }),
+    ({ centerX, centerY, halfWidth, halfHeight }) =>
       createGemShapeStep(
         centerX,
         centerY,
@@ -38,5 +40,4 @@ export const createGemStep = (tile: Point, time: number): CanvasStep =>
         halfHeight,
         CYAN_GEM_COLORS,
       ),
-    )
-    .value();
+  );

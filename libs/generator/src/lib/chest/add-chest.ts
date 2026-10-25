@@ -1,5 +1,5 @@
 import type { Tile } from '@mander/model';
-import { flow } from 'lodash-es';
+import { pipe } from 'remeda';
 import type { LevelType } from '../types/level-type';
 import { createChestPatches } from './internal/create-chest-patches';
 import { filterChestCandidates } from './internal/filter-chest-candidates';
@@ -9,11 +9,12 @@ import { patchChestTiles } from './internal/patch-chest-tiles';
 import { sortChestCandidates } from './internal/sort-chest-candidates';
 
 export const addChest = (tiles: Tile[][], levelType: LevelType): Tile[][] =>
-  flow(
+  pipe(
+    { tiles, levelType },
     filterChestCandidates,
     filterChestCandidatesByPortal,
     sortChestCandidates,
     getTopChestCandidate,
     createChestPatches,
     patchChestTiles,
-  )({ tiles, levelType });
+  );

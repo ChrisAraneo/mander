@@ -1,4 +1,4 @@
-import type { createRandom } from '@mander/engine';
+import type { Random } from '@mander/engine';
 import type { Tile } from '@mander/model';
 import { match } from 'ts-pattern';
 import { GEM_REST_HEIGHT } from '../../consts';
@@ -18,7 +18,7 @@ export const filterGemCandidates = ({
 }: {
   tiles: Tile[][];
   levelType: LevelType;
-  random: ReturnType<typeof createRandom>;
+  random: Random;
 }): GemCandidates => ({
   tiles,
   levelType,

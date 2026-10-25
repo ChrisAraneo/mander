@@ -7,9 +7,9 @@ import {
   TILE_KEY,
   TILE_PORTAL,
   TILE_SPAWN,
-  chain,
 } from '@mander/model';
 import { head, map, size } from 'lodash-es';
+import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
 import { createInitialState } from '../../../state/create-initial-state';
@@ -93,13 +93,11 @@ const createTickEntitiesAt = (
   canReach: boolean,
   overrides: Partial<GameState> = {},
 ): TickEntities =>
-  chain(createTickEntities(overrides))
-    .thru((entities): TickEntities => ({
-      ...entities,
-      canReach,
-      player: { ...entities.player, position: { x: left, y: 48 } },
-    }))
-    .value();
+  pipe(overrides, createTickEntities, (entities): TickEntities => ({
+    ...entities,
+    canReach,
+    player: { ...entities.player, position: { x: left, y: 48 } },
+  }));
 
 describe('patchTickState', () => {
   it('should add the elapsed time to the time of the level when a tick passes', () => {

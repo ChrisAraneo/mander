@@ -1,4 +1,4 @@
-import type { createRandom } from '@mander/engine';
+import type { Random } from '@mander/engine';
 import { createPalette } from '../palette/create-palette';
 import type { WorldPalette } from './types/world-palette';
 
@@ -7,7 +7,7 @@ export const createWorldPalette = ({
   random,
 }: {
   name: string;
-  random: ReturnType<typeof createRandom>;
+  random: Random;
 }): WorldPalette => ({
   name,
   palette: createPalette(random),

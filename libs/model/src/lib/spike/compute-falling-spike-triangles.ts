@@ -1,7 +1,6 @@
-
-import type { Triangle } from '../geometry/triangle';
 import { computeSpikeTriangles } from './compute-spike-triangles';
-import type { FallingSpike } from './falling-spike';
+import type { FallingSpike } from './types/falling-spike';
+import type { Triangle } from './types/triangle';
 
 export const computeFallingSpikeTriangles = (spike: FallingSpike): Triangle[] =>
   computeSpikeTriangles(

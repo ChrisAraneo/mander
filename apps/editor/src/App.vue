@@ -1,23 +1,33 @@
 <script setup lang="ts">
-import { chain } from '@mander/model';
+import type { Layers } from '@mander/model';
 import { STRUCTURE_WIDTH } from '@mander/structures';
 import { filter, find, noop, size, tap } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match, P } from 'ts-pattern';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-
 import BrushPicker from './components/BrushPicker.vue';
 import IssuePanel from './components/IssuePanel.vue';
 import OutputPanel from './components/OutputPanel.vue';
 import StructureGrid from './components/StructureGrid.vue';
-import type { Pool } from './editor';
 import {
+  addEditorHistory,
+  type Brush,
+  type BrushLayer,
   BRUSHES,
+  clearEditor,
+  createNextStructureName,
+  fetchLibraryEntries,
   getHeight,
   getPool,
-  createNextStructureName,
-  setRef,
+  patchEditorCell,
+  patchEditorSketch,
+  patchPreviousSketch,
+  patchRef,
+  type Pool,
+  useEditor,
+  useLibrary,
+  writeLibraryStructure,
 } from './editor';
-import { useEditor, useLibrary } from './editor';
 
 const { nullish } = P;
 
@@ -34,13 +44,13 @@ const savedTo = computed(() => getPool(name.value));
 const editor = useEditor(savedTo);
 
 const normalEntries = computed(() =>
-  filter(library.entries.value, { pool: 'normal' }),
+  filter(library.entries.value, (entry) => entry.pool === 'normal'),
 );
 const hardEntries = computed(() =>
-  filter(library.entries.value, { pool: 'hard' }),
+  filter(library.entries.value, (entry) => entry.pool === 'hard'),
 );
 const verticalEntries = computed(() =>
-  filter(library.entries.value, { pool: 'vertical' }),
+  filter(library.entries.value, (entry) => entry.pool === 'vertical'),
 );
 
 const target = computed(() => `${savedTo.value}.ts`);
@@ -51,49 +61,81 @@ const canSave = computed(
   () => library.isReady.value && editor.isValid.value && size(name.value) > 0,
 );
 
-const suggestName = (): void =>
-  void setRef(name, createNextStructureName(library.entries.value, pool.value));
+const fetchResponse = (input: string, init?: RequestInit): Promise<Response> =>
+  fetch(input, init);
 
-const loadStructure = (structure: string): void =>
-  void match(find(library.entries.value, { name: structure }))
+const patchNextName = (): string =>
+  patchRef(name, createNextStructureName(library.entries.value, pool.value));
+
+const patchStartingStructure = (): string | void =>
+  match(find(library.entries.value, (entry) => entry.name === loaded.value))
     .with(nullish, noop)
     .otherwise((entry) =>
-      chain(entry)
-        .thru((found) => tap(found, () => editor.replace(found.sketch)))
-        .thru((found) => tap(found, () => setRef(pool, found.pool)))
-        .thru((found) => setRef(name, found.name))
-        .value(),
+      pipe(
+        entry,
+        (found) => tap(found, () => patchEditorSketch(editor, found.sketch)),
+        (found) => tap(found, () => patchRef(pool, found.pool)),
+        (found) => patchRef(name, found.name),
+      ),
     );
 
-const save = (): void => void library.save(name.value, editor.sketch.value);
+const writeNamedStructure = (): Promise<void> =>
+  writeLibraryStructure(
+    library,
+    name.value,
+    editor.sketch.value,
+    fetchResponse,
+  );
 
-const handleUndoShortcut = (event: KeyboardEvent): void =>
+const patchBrush = (brush: Brush): Brush => patchRef(editor.brush, brush);
+
+const addHistory = (): Layers[] => addEditorHistory(editor);
+
+const patchCell = (
+  row: number,
+  column: number,
+  value: number,
+  layer: BrushLayer,
+): Layers | void => patchEditorCell(editor, row, column, value, layer);
+
+const patchPrevious = (): Layers[] | void => patchPreviousSketch(editor);
+
+const clearSketch = (): Layers => clearEditor(editor);
+
+const handleUndoShortcut = (event: KeyboardEvent): Layers[] | void =>
   match(event.key === UNDO_KEY && (event.ctrlKey || event.metaKey))
     .with(true, () =>
-      chain(event)
-        .thru((pressed) => tap(pressed, () => pressed.preventDefault()))
-        .thru(() => editor.undo())
-        .value(),
+      pipe(
+        event,
+        (pressed) => tap(pressed, () => pressed.preventDefault()),
+        () => patchPreviousSketch(editor),
+      ),
     )
     .otherwise(noop);
 
-const handleKeydown = (event: KeyboardEvent): void =>
+const handleKeydown = (event: KeyboardEvent): Brush | Layers[] | void =>
   match(document.activeElement?.tagName)
     .with('INPUT', noop)
     .otherwise(() =>
-      match(find(BRUSHES, { shortcut: event.key }))
+      match(find(BRUSHES, (brush) => brush.shortcut === event.key))
         .with(nullish, () => handleUndoShortcut(event))
-        .otherwise((brush) => void setRef(editor.brush, brush)),
+        .otherwise((brush) => patchRef(editor.brush, brush)),
     );
 
-onMounted(() =>
-  chain(window.addEventListener('keydown', handleKeydown))
-    .thru(() => library.load())
-    .thru((loading) => loading.then(suggestName))
-    .value(),
-);
+const handleMount = (): Promise<string> =>
+  pipe(
+    window,
+    (page) => tap(page, () => page.addEventListener('keydown', handleKeydown)),
+    () => fetchLibraryEntries(library, fetchResponse),
+    (loading) => loading.then(patchNextName),
+  );
 
-onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
+const handleUnmount = (): void =>
+  window.removeEventListener('keydown', handleKeydown);
+
+onMounted(handleMount);
+
+onBeforeUnmount(handleUnmount);
 </script>
 
 <template>
@@ -112,9 +154,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
       <aside class="tools">
         <div class="group">
           <h2>Brush</h2>
-          <BrushPicker
-            :brush="editor.brush.value"
-            @pick="editor.brush.value = $event" />
+          <BrushPicker :brush="editor.brush.value" @pick="patchBrush" />
         </div>
       </aside>
 
@@ -122,8 +162,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
         <StructureGrid
           :sketch="editor.sketch.value"
           :brush="editor.brush.value"
-          @stroke-start="editor.remember()"
-          @paint="editor.paint" />
+          @stroke-start="addHistory"
+          @paint="patchCell" />
       </section>
 
       <aside class="side">
@@ -135,7 +175,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
         <section class="library">
           <div class="group">
             <h2>Start from</h2>
-            <select v-model="loaded" @change="loadStructure(loaded)">
+            <select v-model="loaded" @change="patchStartingStructure">
               <option value="">Blank grid</option>
               <optgroup label="Normal">
                 <option
@@ -166,7 +206,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
 
           <div class="group">
             <h2>Save to library</h2>
-            <select v-model="pool" @change="suggestName()">
+            <select v-model="pool" @change="patchNextName">
               <option value="normal">Normal</option>
               <option value="hard">Hard</option>
               <option value="vertical">Vertical</option>
@@ -180,7 +220,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
               class="primary"
               type="button"
               :disabled="!canSave"
-              @click="save()">
+              @click="writeNamedStructure">
               Write to {{ target }}
             </button>
             <p v-if="library.status.value" class="status">
@@ -196,10 +236,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleKeydown));
               class="ghost"
               type="button"
               :disabled="!editor.canUndo.value"
-              @click="editor.undo()">
+              @click="patchPrevious">
               Undo
             </button>
-            <button class="ghost" type="button" @click="editor.clear()">
+            <button class="ghost" type="button" @click="clearSketch">
               Clear
             </button>
           </div>

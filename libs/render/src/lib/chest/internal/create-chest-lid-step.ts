@@ -6,7 +6,7 @@ import { createSequenceStep } from '../../canvas/create-sequence-step';
 import { createStyleStep } from '../../canvas/create-style-step';
 import { drawBeginPath } from '../../canvas/draw-begin-path';
 import { drawFill } from '../../canvas/draw-fill';
-import { outline } from '../../stroke/outline';
+import { createOutlineStep } from '../../stroke/create-outline-step';
 import type { CanvasStep } from '../../types/canvas-step';
 
 const LID_OPEN = '#8A683A';
@@ -30,7 +30,7 @@ export const createChestLidStep = (
       .otherwise(() =>
         createRectStep(chest.x - 1, chest.y, chest.width + 2, 9),
       ),
-    outline(),
+    createOutlineStep(),
     createStyleStep({
       fillStyle: match(isOpen)
         .with(true, () => LID_OPEN)

@@ -1,6 +1,27 @@
 import type { GameLevel } from '@mander/engine';
-import { type Tile, TILE_AIR, TILE_BEARTRAP, TILE_BRICK, TILE_CANNON, TILE_CERAMIC, TILE_CHEST, TILE_DIRT, TILE_ENEMY, TILE_FIREBALL, TILE_GEM, TILE_KEY, TILE_PORTAL, TILE_SPAWN, TILE_SPIKE, TILE_SPIKE_CEILING, TILE_SPIKE_FALLING, TILE_STONE, TILE_WOOD, chain } from '@mander/model';
+import {
+  type Tile,
+  TILE_AIR,
+  TILE_BEARTRAP,
+  TILE_BRICK,
+  TILE_CANNON,
+  TILE_CERAMIC,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_ENEMY,
+  TILE_FIREBALL,
+  TILE_GEM,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SPAWN,
+  TILE_SPIKE,
+  TILE_SPIKE_CEILING,
+  TILE_SPIKE_FALLING,
+  TILE_STONE,
+  TILE_WOOD,
+} from '@mander/model';
 import { head, map, size } from 'lodash-es';
+import { pipe } from 'remeda';
 
 const LEGEND: Readonly<Record<string, Tile>> = Object.freeze({
   '.': TILE_AIR,
@@ -27,15 +48,15 @@ export const createRenderTestLevel = (
   rows: string[],
   backRows: string[] = [],
 ): GameLevel =>
-  chain([rows, backRows])
-    .thru((layers) =>
+  pipe(
+    [rows, backRows],
+    (layers) =>
       map(layers, (layer) =>
         map(layer, (row) =>
           map([...row], (symbol) => LEGEND[symbol] ?? TILE_AIR),
         ),
       ),
-    )
-    .thru(([tiles, backTiles]): GameLevel => ({
+    ([tiles, backTiles]): GameLevel => ({
       seed: 'RENDER',
       width: size(head(tiles)),
       height: size(tiles),
@@ -43,5 +64,5 @@ export const createRenderTestLevel = (
       backTiles,
       chestItems: [],
       hornedEnemyChance: 0,
-    }))
-    .value();
+    }),
+  );

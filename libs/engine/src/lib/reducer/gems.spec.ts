@@ -1,5 +1,16 @@
-import { type Item, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_GEM, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, chain } from '@mander/model';
-import { head, includes, map, reduce as fold, size, times } from 'lodash-es';
+import {
+  type Item,
+  type Tile,
+  TILE_AIR,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_GEM,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SIZE,
+  TILE_SPAWN,
+} from '@mander/model';
+import { constant, head, includes, map, reduce, size, times } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -7,8 +18,8 @@ import { createInitialState } from '../state/create-initial-state';
 import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
+import { nextGameState } from './next-game-state';
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from './player/consts';
-import { reduce } from './reduce';
 import { GEM_SCORE } from './score/consts';
 
 const LEGEND: Record<string, Tile> = {
@@ -72,38 +83,38 @@ const createTestLevel = (): GameLevel => ({
 });
 
 const nextTick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK' });
+  nextGameState(state, { type: 'TICK' }, constant(0));
 
 const nextTicks = (state: GameState, tickCount: number): GameState =>
-  fold(times(tickCount), (current) => nextTick(current), state);
+  reduce(times(tickCount), (current) => nextTick(current), state);
+
+const patchGemTiles = (level: GameLevel, columns: number[]): GameLevel => ({
+  ...level,
+  tiles: map(level.tiles, (row, rowIndex) =>
+    map(row, (tile, columnIndex) =>
+      match(rowIndex === GEM_ROW && includes(columns, columnIndex))
+        .with(true, () => TILE_GEM)
+        .otherwise(() => tile),
+    ),
+  ),
+});
 
 const createGemLevel = (columns: number[]): GameLevel =>
-  chain(createTestLevel())
-    .thru((level): GameLevel => ({
-      ...level,
-      tiles: map(level.tiles, (row, rowIndex) =>
-        map(row, (tile, columnIndex) =>
-          match(rowIndex === GEM_ROW && includes(columns, columnIndex))
-            .with(true, () => TILE_GEM)
-            .otherwise(() => tile),
-        ),
-      ),
-    }))
-    .value();
+  patchGemTiles(createTestLevel(), columns);
+
+const patchPlayerColumn = (state: GameState, column: number): GameState => ({
+  ...state,
+  player: {
+    ...state.player,
+    position: {
+      x: column * TILE_SIZE + (TILE_SIZE - PLAYER_WIDTH) / 2,
+      y: SURFACE - PLAYER_HEIGHT,
+    },
+  },
+});
 
 const createStateAtColumn = (level: GameLevel, column: number): GameState =>
-  chain(createInitialState(level, 0, []))
-    .thru((state): GameState => ({
-      ...state,
-      player: {
-        ...state.player,
-        position: {
-          x: column * TILE_SIZE + (TILE_SIZE - PLAYER_WIDTH) / 2,
-          y: SURFACE - PLAYER_HEIGHT,
-        },
-      },
-    }))
-    .value();
+  patchPlayerColumn(createInitialState(level, 0, []), column);
 
 describe('gems', () => {
   it('should set out every gem when the level was strewn with them', () => {
@@ -146,9 +157,10 @@ describe('gems', () => {
   });
 
   it('should collect the gems one after another when the player runs the level', () => {
-    const pressed = reduce(
+    const pressed = nextGameState(
       createStateAtColumn(createGemLevel([LEFT_COLUMN, RIGHT_COLUMN]), 3),
       { type: 'MOVE_RIGHT_START' },
+      constant(0),
     );
     const ran = nextTicks(pressed, 240);
 
@@ -173,7 +185,7 @@ describe('gems', () => {
         LEFT_COLUMN,
       ),
     );
-    const respawned = reduce(pocketed, { type: 'RESPAWN' });
+    const respawned = nextGameState(pocketed, { type: 'RESPAWN' }, constant(0));
 
     expect(respawned.gems).toHaveLength(1);
     expect(respawned.score).toBe(GEM_SCORE);
@@ -186,11 +198,15 @@ describe('gems', () => {
         LEFT_COLUMN,
       ),
     );
-    const loaded = reduce(pocketed, {
-      type: 'LOAD_LEVEL',
-      level: createGemLevel([LEFT_COLUMN]),
-      levelIndex: 1,
-    });
+    const loaded = nextGameState(
+      pocketed,
+      {
+        type: 'LOAD_LEVEL',
+        level: createGemLevel([LEFT_COLUMN]),
+        levelIndex: 1,
+      },
+      constant(0),
+    );
 
     expect(loaded.gems).toEqual([{ x: LEFT_COLUMN, y: GEM_ROW }]);
     expect(loaded.score).toBe(GEM_SCORE);

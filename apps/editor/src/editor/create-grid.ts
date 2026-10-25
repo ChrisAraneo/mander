@@ -1,10 +1,9 @@
-import { type Layers, TILE_AIR, TILE_DIRT } from '@mander/model';
+import { TILE_AIR, TILE_DIRT } from '@mander/model';
 import {
   STRUCTURE_END,
   STRUCTURE_HEIGHT,
   STRUCTURE_START,
   STRUCTURE_WIDTH,
-  VERTICAL_HEIGHT,
   VERTICAL_LAUNCH_ROW,
   VERTICAL_MARKER_COLUMN,
   VERTICAL_PLATFORM_COLUMNS,
@@ -13,20 +12,11 @@ import {
 } from '@mander/structures';
 import { includes, map, range, times } from 'lodash-es';
 import { match } from 'ts-pattern';
-
-import type { Pool } from './structure-entry';
-
-interface Cell {
-  row: number;
-  column: number;
-}
+import { getHeight } from './get-height';
+import type { Cell } from './types/cell';
+import type { Pool } from './types/pool';
 
 const GROUND_ROW = STRUCTURE_HEIGHT - 1;
-
-export const getHeight = (pool: Pool): number =>
-  match(pool)
-    .with('vertical', () => VERTICAL_HEIGHT)
-    .otherwise(() => STRUCTURE_HEIGHT);
 
 const getStartingTile = ({ row, column }: Cell): number =>
   match({ row, column })
@@ -44,7 +34,7 @@ const getStartingTile = ({ row, column }: Cell): number =>
     )
     .otherwise(() => TILE_AIR);
 
-const layAcross = (pool: Pool, row: number): number[] =>
+const createGridRow = (pool: Pool, row: number): number[] =>
   match(pool)
     .with('vertical', () =>
       map(range(STRUCTURE_WIDTH), (column) => getStartingTile({ row, column })),
@@ -57,13 +47,5 @@ const layAcross = (pool: Pool, row: number): number[] =>
       ),
     );
 
-export const createEmptyGrid = (pool: Pool = 'normal'): number[][] =>
-  map(range(getHeight(pool)), () => times(STRUCTURE_WIDTH, () => TILE_AIR));
-
 export const createGrid = (pool: Pool = 'normal'): number[][] =>
-  map(range(getHeight(pool)), (row) => layAcross(pool, row));
-
-export const createSketch = (pool: Pool = 'normal'): Layers => ({
-  tiles: createGrid(pool),
-  backTiles: createEmptyGrid(pool),
-});
+  map(range(getHeight(pool)), (row) => createGridRow(pool, row));

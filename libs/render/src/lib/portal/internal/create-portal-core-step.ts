@@ -5,7 +5,7 @@ import { createRadialGradient } from '../../canvas/create-radial-gradient';
 import { createSequenceStep } from '../../canvas/create-sequence-step';
 import { drawBeginPath } from '../../canvas/draw-begin-path';
 import { drawFill } from '../../canvas/draw-fill';
-import { outline } from '../../stroke/outline';
+import { createOutlineStep } from '../../stroke/create-outline-step';
 import type { CanvasStep } from '../../types/canvas-step';
 import type { ColorStop } from '../../types/color-stop';
 
@@ -32,7 +32,7 @@ export const createPortalCoreStep = (
       0,
       Math.PI * 2,
     ),
-    outline(),
+    createOutlineStep(),
     createContextStyleStep((context) => ({
       fillStyle: createRadialGradient(
         context,

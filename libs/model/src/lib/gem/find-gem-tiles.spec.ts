@@ -1,25 +1,26 @@
+import { size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import { TILE_DIRT } from '../blocks/dirt';
-import type { Level } from '../level/level';
-import type { Tile } from '../tile/tile';
-import { TILE_GEM } from './gem';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_DIRT } from '../blocks/tile-dirt';
+import type { Level } from '../types/level';
+import type { Tile } from '../types/tile';
 import { findGemTiles } from './find-gem-tiles';
+import { TILE_GEM } from './tile-gem';
 
-const level = (tiles: Tile[][]): Level => ({
+const createLevel = (tiles: Tile[][]): Level => ({
   seed: 'SEED',
-  width: tiles[0].length,
-  height: tiles.length,
+  width: size(tiles[0]),
+  height: size(tiles),
   tiles,
   chestItems: [],
 });
 
 describe('findGemTiles', () => {
-  it('should gather every gem when the level is strewn with them', () => {
+  it('should return every gem position when the level has several gems', () => {
     expect(
       findGemTiles(
-        level([
+        createLevel([
           [TILE_GEM, TILE_AIR, TILE_GEM],
           [TILE_AIR, TILE_GEM, TILE_AIR],
           [TILE_DIRT, TILE_DIRT, TILE_DIRT],
@@ -32,10 +33,10 @@ describe('findGemTiles', () => {
     ]);
   });
 
-  it('should gather the one gem when the level holds a single one', () => {
+  it('should return one position when the level has a single gem', () => {
     expect(
       findGemTiles(
-        level([
+        createLevel([
           [TILE_AIR, TILE_GEM],
           [TILE_DIRT, TILE_DIRT],
         ]),
@@ -43,10 +44,10 @@ describe('findGemTiles', () => {
     ).toEqual([{ x: 1, y: 0 }]);
   });
 
-  it('should gather nothing when the level holds no gem', () => {
+  it('should return nothing when the level has no gem', () => {
     expect(
       findGemTiles(
-        level([
+        createLevel([
           [TILE_AIR, TILE_AIR],
           [TILE_DIRT, TILE_DIRT],
         ]),

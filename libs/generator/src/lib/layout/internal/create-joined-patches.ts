@@ -1,4 +1,5 @@
-import { type Tile, chain } from '@mander/model';
+import { type Tile } from '@mander/model';
+import { pipe } from 'remeda';
 import { patchTiles } from '../../structures/patch-tiles';
 import type { TilePatch } from '../../types/tile-patch';
 import { createPaintPatches } from './create-paint-patches';
@@ -9,9 +10,7 @@ export const createJoinedPatches = (
   tiles: Tile[][],
   layers: LayerPlacement[],
 ): TilePatch[] =>
-  chain(createPaintPatches(layers))
-    .thru((paint) => [
-      ...paint,
-      ...createUnderpinPatches(patchTiles(tiles, paint), layers),
-    ])
-    .value();
+  pipe(layers, createPaintPatches, (paint) => [
+    ...paint,
+    ...createUnderpinPatches(patchTiles(tiles, paint), layers),
+  ]);

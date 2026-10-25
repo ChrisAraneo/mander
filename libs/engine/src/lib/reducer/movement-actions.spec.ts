@@ -1,14 +1,25 @@
-import { type Item, type Tile, TILE_AIR, TILE_CHEST, TILE_DIRT, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, chain } from '@mander/model';
-import { head, map, reduce as fold, size, times } from 'lodash-es';
+import {
+  type Item,
+  type Tile,
+  TILE_AIR,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SIZE,
+  TILE_SPAWN,
+} from '@mander/model';
+import { constant, head, map, reduce, size, times } from 'lodash-es';
+import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
 import { createInitialState } from '../state/create-initial-state';
 import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
+import { nextGameState } from './next-game-state';
 import { BASE_HEARTS, PLAYER_HEIGHT, PLAYER_WIDTH } from './player/consts';
 import { getSpawnPosition } from './player/get-spawn-position';
-import { reduce } from './reduce';
 
 const LEGEND: Record<string, Tile> = {
   '.': TILE_AIR,
@@ -67,22 +78,23 @@ const createTestLevel = (): GameLevel => ({
 const SPAWN_X = getSpawnPosition(createTestLevel()).x;
 
 const nextTick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK' });
+  nextGameState(state, { type: 'TICK' }, constant(0));
 
 const nextTicks = (state: GameState, tickCount: number): GameState =>
-  fold(times(tickCount), (current) => nextTick(current), state);
+  reduce(times(tickCount), (current) => nextTick(current), state);
 
 const createSettledState = (left: number, inventory: Item[] = []): GameState =>
-  chain(createInitialState(createTestLevel(), 0, inventory))
-    .thru((state): GameState => ({
+  pipe(
+    createInitialState(createTestLevel(), 0, inventory),
+    (state): GameState => ({
       ...state,
       player: {
         ...state.player,
         position: { x: left, y: SURFACE - PLAYER_HEIGHT },
       },
-    }))
-    .thru((state) => nextTick(state))
-    .value();
+    }),
+    (state) => nextTick(state),
+  );
 
 describe('movement actions', () => {
   it('should apply gravity when the player is off the ground', () => {
@@ -99,14 +111,22 @@ describe('movement actions', () => {
 
   it('should move the player and stop them again when right is pressed and released', () => {
     const start = createSettledState(3 * TILE_SIZE);
-    const pressed = reduce(start, { type: 'MOVE_RIGHT_START' });
+    const pressed = nextGameState(
+      start,
+      { type: 'MOVE_RIGHT_START' },
+      constant(0),
+    );
     const moved = nextTicks(pressed, 10);
 
     expect(moved.player.position.x).toBeGreaterThan(start.player.position.x);
     expect(moved.player.statuses.isFacingRight).toBe(true);
 
     const movedX = moved.player.position.x;
-    const released = reduce(moved, { type: 'MOVE_RIGHT_STOP' });
+    const released = nextGameState(
+      moved,
+      { type: 'MOVE_RIGHT_STOP' },
+      constant(0),
+    );
     const stopped = nextTicks(released, 5);
 
     expect(stopped.player.position.x).toBe(movedX);
@@ -114,7 +134,11 @@ describe('movement actions', () => {
 
   it('should stop the player when a wall stands to their left', () => {
     const start = createSettledState(3 * TILE_SIZE);
-    const pressed = reduce(start, { type: 'MOVE_LEFT_START' });
+    const pressed = nextGameState(
+      start,
+      { type: 'MOVE_LEFT_START' },
+      constant(0),
+    );
     const stopped = nextTicks(pressed, 600);
 
     expect(stopped.player.position.x).toBe(TILE_SIZE);
@@ -133,7 +157,11 @@ describe('movement actions', () => {
         position: { x: 3 * TILE_SIZE, y: SURFACE - PLAYER_HEIGHT },
       },
     };
-    const pressed = reduce(placed, { type: 'MOVE_RIGHT_START' });
+    const pressed = nextGameState(
+      placed,
+      { type: 'MOVE_RIGHT_START' },
+      constant(0),
+    );
     const walked = nextTicks(pressed, 120);
 
     expect(walked.player.position.x + PLAYER_WIDTH).toBeLessThanOrEqual(
@@ -162,7 +190,11 @@ describe('movement actions', () => {
 
     expect(collected.hasKey).toBe(true);
 
-    const respawned = reduce(collected, { type: 'RESPAWN' });
+    const respawned = nextGameState(
+      collected,
+      { type: 'RESPAWN' },
+      constant(0),
+    );
 
     expect(respawned.player.position.x).toBe(SPAWN_X);
     expect(respawned.hasKey).toBe(true);

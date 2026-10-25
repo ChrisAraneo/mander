@@ -1,6 +1,5 @@
 import { match, P } from 'ts-pattern';
-
-import type { Level } from '../level/level';
+import type { Level } from '../types/level';
 import { isSpikeTile } from './is-spike-tile';
 
 const { when } = P;

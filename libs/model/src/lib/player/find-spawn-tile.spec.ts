@@ -1,25 +1,26 @@
+import { size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import { TILE_DIRT } from '../blocks/dirt';
-import type { Level } from '../level/level';
-import { TILE_SPAWN } from './spawn';
-import type { Tile } from '../tile/tile';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_DIRT } from '../blocks/tile-dirt';
+import type { Level } from '../types/level';
+import type { Tile } from '../types/tile';
 import { findSpawnTile } from './find-spawn-tile';
+import { TILE_SPAWN } from './tile-spawn';
 
-const level = (tiles: Tile[][]): Level => ({
+const createLevel = (tiles: Tile[][]): Level => ({
   seed: 'SEED',
-  width: tiles[0].length,
-  height: tiles.length,
+  width: size(tiles[0]),
+  height: size(tiles),
   tiles,
   chestItems: [],
 });
 
 describe('findSpawnTile', () => {
-  it('should point at the tile the player starts from when the level marks one', () => {
+  it('should return the spawn position when the level has a spawn', () => {
     expect(
       findSpawnTile(
-        level([
+        createLevel([
           [TILE_AIR, TILE_SPAWN],
           [TILE_DIRT, TILE_DIRT],
         ]),
@@ -27,10 +28,10 @@ describe('findSpawnTile', () => {
     ).toEqual({ x: 1, y: 0 });
   });
 
-  it('should come back empty-handed when the level marks nowhere to start', () => {
+  it('should return null when the level has no spawn', () => {
     expect(
       findSpawnTile(
-        level([
+        createLevel([
           [TILE_AIR, TILE_AIR],
           [TILE_DIRT, TILE_DIRT],
         ]),
@@ -38,10 +39,10 @@ describe('findSpawnTile', () => {
     ).toBeNull();
   });
 
-  it('should take the first it meets when the level offers more than one', () => {
+  it('should return the first spawn in reading order when the level has several', () => {
     expect(
       findSpawnTile(
-        level([
+        createLevel([
           [TILE_AIR, TILE_SPAWN],
           [TILE_SPAWN, TILE_DIRT],
         ]),

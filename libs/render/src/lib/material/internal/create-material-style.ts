@@ -1,7 +1,8 @@
-import { type Tile, chain } from '@mander/model';
+import { type Tile } from '@mander/model';
 import { assign } from 'lodash-es';
+import { pipe } from 'remeda';
+import { cloneShiftedHsl } from '../../color/clone-shifted-hsl';
 import { formatHslCss } from '../../color/format-hsl-css';
-import { shiftHsl } from '../../color/shift-hsl';
 import type { Hsl } from '../../color/types/hsl';
 import type { MaterialStyle } from '../../types/material-style';
 import type { Palette } from '../../types/palette';
@@ -15,8 +16,11 @@ export const createMaterialStyle = (
   palette: Palette,
   ground: Hsl,
 ): MaterialStyle =>
-  chain(shiftHsl(ground, getMaterialTint(tile)))
-    .thru((base): MaterialStyle =>
+  pipe(
+    tile,
+    getMaterialTint,
+    (tint) => cloneShiftedHsl(ground, tint),
+    (base): MaterialStyle =>
       assign(
         { base: formatHslCss(base) },
         computeMaterialCap(tile, palette, base),
@@ -25,5 +29,4 @@ export const createMaterialStyle = (
           highlight: HIGHLIGHT,
         },
       ),
-    )
-    .value();
+  );

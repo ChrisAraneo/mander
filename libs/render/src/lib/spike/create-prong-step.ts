@@ -7,7 +7,7 @@ import { createSequenceStep } from '../canvas/create-sequence-step';
 import { drawBeginPath } from '../canvas/draw-begin-path';
 import { drawClosePath } from '../canvas/draw-close-path';
 import { drawFill } from '../canvas/draw-fill';
-import { outline } from '../stroke/outline';
+import { createOutlineStep } from '../stroke/create-outline-step';
 import type { CanvasStep } from '../types/canvas-step';
 import type { ColorStop } from '../types/color-stop';
 
@@ -26,7 +26,7 @@ export const createProngStep = (
     createLineToStep(apex.x, apex.y),
     createLineToStep(right.x, right.y),
     drawClosePath,
-    outline(),
+    createOutlineStep(),
     createContextStyleStep((context) => ({
       fillStyle: createLinearGradient(
         context,

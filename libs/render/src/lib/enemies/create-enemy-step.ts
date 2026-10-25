@@ -1,6 +1,7 @@
 import { ENEMY_DEATH_SECONDS, isAlive } from '@mander/engine';
-import { type Enemy, chain } from '@mander/model';
+import { type Enemy } from '@mander/model';
 import { assign } from 'lodash-es';
+import { pipe } from 'remeda';
 import { createScaleStep } from '../canvas/create-scale-step';
 import { createSequenceStep } from '../canvas/create-sequence-step';
 import { createTranslateStep } from '../canvas/create-translate-step';
@@ -18,19 +19,19 @@ import { getEnemyPalette } from './internal/get-enemy-palette';
 const DEATH_SWELL = 0.35;
 
 export const createEnemyStep = (enemy: Enemy, time: number): CanvasStep =>
-  chain({
-    isDying: !isAlive(enemy),
-    progress: computeDeathProgress(enemy.timers.death, ENEMY_DEATH_SECONDS),
-    palette: getEnemyPalette(enemy.kind),
-  })
-    .thru((stage) =>
+  pipe(
+    {
+      isDying: !isAlive(enemy),
+      progress: computeDeathProgress(enemy.timers.death, ENEMY_DEATH_SECONDS),
+      palette: getEnemyPalette(enemy.kind),
+    },
+    (stage) =>
       assign({}, stage, {
         squash: computeEnemySquash(stage.progress),
         facing: computeFacing(enemy.statuses.isFacingRight),
         wobble: computeEnemyWobble(enemy, stage.isDying, time),
       }),
-    )
-    .thru(({ isDying, progress, palette, squash, facing, wobble }) =>
+    ({ isDying, progress, palette, squash, facing, wobble }) =>
       createSequenceStep([
         drawSave,
         createTranslateStep(
@@ -41,5 +42,4 @@ export const createEnemyStep = (enemy: Enemy, time: number): CanvasStep =>
         createEnemyFigureStep(enemy, palette, isDying, time),
         drawRestore,
       ]),
-    )
-    .value();
+  );

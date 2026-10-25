@@ -1,8 +1,6 @@
-import type { createRandom } from '@mander/engine';
+import type { Random } from '@mander/engine';
 import { map, sortBy } from 'lodash-es';
 import type { Spot } from '../../types/spot';
 
-export const sortBySpotRandomly = (
-  slots: Spot[][],
-  random: ReturnType<typeof createRandom>,
-): Spot[][] => map(slots, (slot) => sortBy(slot, () => random.rollFloat()));
+export const sortBySpotRandomly = (slots: Spot[][], random: Random): Spot[][] =>
+  map(slots, (slot) => sortBy(slot, () => random()));

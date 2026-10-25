@@ -1,14 +1,28 @@
-import { type Item, type Tile, TILE_AIR, TILE_CANNON, TILE_CHEST, TILE_DIRT, TILE_KEY, TILE_PORTAL, TILE_SIZE, TILE_SPAWN, chain, type Point } from '@mander/model';
+import {
+  type Item,
+  type Tile,
+  TILE_AIR,
+  TILE_CANNON,
+  TILE_CHEST,
+  TILE_DIRT,
+  TILE_KEY,
+  TILE_PORTAL,
+  TILE_SIZE,
+  TILE_SPAWN,
+  type Point,
+} from '@mander/model';
 import {
   ceil,
+  constant,
   filter,
   head,
   isEmpty,
   map,
-  reduce as fold,
+  reduce,
   size,
   times,
 } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -22,8 +36,8 @@ import {
   CANNONBALL_SPEED,
 } from './cannon/consts';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
+import { nextGameState } from './next-game-state';
 import { BASE_HEARTS, PLAYER_HEIGHT, PLAYER_WIDTH } from './player/consts';
-import { reduce } from './reduce';
 
 const LEGEND: Record<string, Tile> = {
   '.': TILE_AIR,
@@ -90,10 +104,10 @@ const createTestLevel = (): GameLevel => ({
 });
 
 const nextTick = (state: GameState): GameState =>
-  reduce(state, { type: 'TICK' });
+  nextGameState(state, { type: 'TICK' }, constant(0));
 
 const nextTicks = (state: GameState, tickCount: number): GameState =>
-  fold(times(tickCount), (current) => nextTick(current), state);
+  reduce(times(tickCount), (current) => nextTick(current), state);
 
 const nextTicksWhile = (
   state: GameState,
@@ -107,59 +121,60 @@ const nextTicksWhile = (
 const nextTickStates = (state: GameState, tickCount: number): GameState[] =>
   match(tickCount > 0)
     .with(true, () =>
-      chain(nextTick(state))
-        .thru((ticked) => [ticked, ...nextTickStates(ticked, tickCount - 1)])
-        .value(),
+      pipe(state, nextTick, (ticked) => [
+        ticked,
+        ...nextTickStates(ticked, tickCount - 1),
+      ]),
     )
     .otherwise((): GameState[] => []);
 
 const computeTickCount = (seconds: number): number =>
   ceil(seconds / DELTA_SECONDS) + 1;
 
-const createCannonLevel = (): GameLevel =>
-  chain(createTestLevel())
-    .thru((level): GameLevel => ({
-      ...level,
-      tiles: map(level.tiles, (row, rowIndex) =>
-        map(row, (tile, columnIndex) =>
-          match(rowIndex === CANNON_TILE.y && columnIndex === CANNON_TILE.x)
-            .with(true, () => TILE_CANNON)
-            .otherwise(() => tile),
-        ),
-      ),
-    }))
-    .value();
+const patchCannonTile = (level: GameLevel): GameLevel => ({
+  ...level,
+  tiles: map(level.tiles, (row, rowIndex) =>
+    map(row, (tile, columnIndex) =>
+      match(rowIndex === CANNON_TILE.y && columnIndex === CANNON_TILE.x)
+        .with(true, () => TILE_CANNON)
+        .otherwise(() => tile),
+    ),
+  ),
+});
+
+const createCannonLevel = (): GameLevel => patchCannonTile(createTestLevel());
 
 const createStandingState = (level: GameLevel, left: number): GameState =>
-  chain(createInitialState(level, 0, []))
-    .thru((state): GameState => ({
+  pipe(
+    createInitialState(level, 0, []),
+    (state): GameState => ({
       ...state,
       player: {
         ...state.player,
         position: { x: left, y: SURFACE - PLAYER_HEIGHT },
       },
-    }))
-    .thru((state) => nextTick(state))
-    .value();
+    }),
+    (state) => nextTick(state),
+  );
 
 const createCannonState = (left = 6 * TILE_SIZE): GameState =>
   createStandingState(createCannonLevel(), left);
 
+const patchOutfieldColumns = (level: GameLevel): GameLevel => ({
+  ...level,
+  width: level.width + OUTFIELD,
+  tiles: map(level.tiles, (row, rowIndex) => [
+    ...row,
+    ...times(OUTFIELD, (): Tile =>
+      match(rowIndex >= 12)
+        .with(true, () => TILE_DIRT)
+        .otherwise(() => TILE_AIR),
+    ),
+  ]),
+});
+
 const createWideCannonLevel = (): GameLevel =>
-  chain(createCannonLevel())
-    .thru((level): GameLevel => ({
-      ...level,
-      width: level.width + OUTFIELD,
-      tiles: map(level.tiles, (row, rowIndex) => [
-        ...row,
-        ...times(OUTFIELD, (): Tile =>
-          match(rowIndex >= 12)
-            .with(true, () => TILE_DIRT)
-            .otherwise(() => TILE_AIR),
-        ),
-      ]),
-    }))
-    .value();
+  patchOutfieldColumns(createCannonLevel());
 
 const createStateAtRange = (tileCount: number): GameState =>
   createStandingState(
@@ -190,7 +205,11 @@ describe('cannons', () => {
 
   it('should stop the run dead when the player walks into it', () => {
     const start = createCannonState(4 * TILE_SIZE);
-    const pressed = reduce(start, { type: 'MOVE_RIGHT_START' });
+    const pressed = nextGameState(
+      start,
+      { type: 'MOVE_RIGHT_START' },
+      constant(0),
+    );
     const moved = nextTicks(pressed, computeTickCount(1));
 
     expect(moved.player.position.x + PLAYER_WIDTH).toBe(CANNON_X);
@@ -414,7 +433,7 @@ describe('cannons', () => {
 
     expect(fired.cannonballs).toHaveLength(1);
 
-    const respawned = reduce(fired, { type: 'RESPAWN' });
+    const respawned = nextGameState(fired, { type: 'RESPAWN' }, constant(0));
 
     expect(respawned.cannonballs).toEqual([]);
     expect(respawned.cannons[0].timers.reload).toBe(CANNON_RELOAD_SECONDS);
@@ -425,11 +444,15 @@ describe('cannons', () => {
 
     expect(start.cannons).toEqual([]);
 
-    const loaded = reduce(start, {
-      type: 'LOAD_LEVEL',
-      level: createCannonLevel(),
-      levelIndex: 1,
-    });
+    const loaded = nextGameState(
+      start,
+      {
+        type: 'LOAD_LEVEL',
+        level: createCannonLevel(),
+        levelIndex: 1,
+      },
+      constant(0),
+    );
 
     expect(loaded.cannons).toHaveLength(1);
   });

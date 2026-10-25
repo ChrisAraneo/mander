@@ -1,5 +1,5 @@
-import type { Structure } from './structure';
 import { BR, BT, CN, CR, DR, EE, EN, SC, SP, SS, ST, WD, __, FB, SF } from './consts';
+import type { Structure } from './types/structure';
 
 export const HARD_001: Structure = [
   [

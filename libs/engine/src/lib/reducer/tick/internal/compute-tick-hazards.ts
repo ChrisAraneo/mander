@@ -1,4 +1,3 @@
-import { chain } from '@mander/model';
 import { match } from 'ts-pattern';
 import { createRespawnedTickHazards } from './create-respawned-tick-hazards';
 import { patchMovedTickHazards } from './patch-moved-tick-hazards';
@@ -11,22 +10,12 @@ export const computeTickHazards = ({
   moved,
   hasRespawned,
   isPlayerAlive,
-}: TickPlayer): TickHazards =>
-  chain(
-    match(hasRespawned)
-      .with(true, () => createRespawnedTickHazards(state))
-      .otherwise(() => patchMovedTickHazards(state, moved, deltaSeconds)),
-  )
-    .thru((hazards): TickHazards => ({
-      state,
-      deltaSeconds,
-      moved,
-      isPlayerAlive,
-      steppedEnemies: hazards.steppedEnemies,
-      cannons: hazards.cannons,
-      flying: hazards.flying,
-      fallingSpikes: hazards.fallingSpikes,
-      fireballs: hazards.fireballs,
-      flyingBullets: hazards.flyingBullets,
-    }))
-    .value();
+}: TickPlayer): TickHazards => ({
+  state,
+  deltaSeconds,
+  moved,
+  isPlayerAlive,
+  ...match(hasRespawned)
+    .with(true, () => createRespawnedTickHazards(state))
+    .otherwise(() => patchMovedTickHazards(state, moved, deltaSeconds)),
+});

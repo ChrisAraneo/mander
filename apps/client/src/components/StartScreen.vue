@@ -1,17 +1,23 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { isFinite, size } from 'lodash-es';
-import { match, P } from 'ts-pattern';
 import { computeWorldName } from '@mander/generator';
-import { formatClock, formatRunLabel } from '../game/format';
+import { find, isFinite, size, toLower } from 'lodash-es';
+import { match, P } from 'ts-pattern';
+import { computed, ref } from 'vue';
+import { patchRef } from '../game/canvas';
+import {
+  formatClock,
+  formatRunLabel,
+  formatScore,
+  serializeDay,
+} from '../game/format';
 import {
   getPlayableWorlds,
-  loadSave,
   type PlayableWorld,
+  readSave,
   type RunRecord,
+  tryGetLocalStorage,
 } from '../game/storage';
 import { useBackdrop } from '../game/use-backdrop';
-import { getDailyDate } from '../game/use-game';
 
 const { nonNullable, when } = P;
 
@@ -20,29 +26,27 @@ const emit = defineEmits<{
   watch: [run: RunRecord];
 }>();
 
-const date = getDailyDate();
+const date = serializeDay(new Date());
 const worldName = computeWorldName(new Date(date));
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 
 useBackdrop(date, canvas);
 
-const save = ref(loadSave());
+const save = ref(readSave(tryGetLocalStorage()));
 
 const finishedToday = computed(() =>
-  save.value.completedWorlds.find((world) => world.name === worldName),
+  find(save.value.completedWorlds, (world) => world.name === worldName),
 );
 
 const playedWorlds = computed(() => getPlayableWorlds(save.value));
 
 const opened = ref<string | null>(null);
 
-const getPluralSuffix = (count: number): string =>
+const formatPluralSuffix = (count: number): string =>
   match(count)
     .with(1, () => '')
     .otherwise(() => 's');
-
-const formatScore = (score: number): string => score.toLocaleString('en-US');
 
 const formatDay = (day: string): string =>
   match(day)
@@ -61,11 +65,13 @@ const formatWorldClock = (world: PlayableWorld): string =>
 
 const isOpen = (world: PlayableWorld): boolean => opened.value === world.name;
 
-const toggleRuns = (world: PlayableWorld): void => {
-  opened.value = match(isOpen(world))
-    .with(true, (): string | null => null)
-    .otherwise(() => world.name);
-};
+const handleRunsToggle = (world: PlayableWorld): string | null =>
+  patchRef(
+    opened,
+    match(isOpen(world))
+      .with(true, (): string | null => null)
+      .otherwise(() => world.name),
+  );
 
 const formatPlayedWhen = (run: RunRecord): string =>
   match(new Date(run.playedAt).getTime())
@@ -99,11 +105,11 @@ const formatPlayedWhen = (run: RunRecord): string =>
         </button>
       </div>
 
-      <div v-if="playedWorlds.length" class="save-info">
+      <div v-if="size(playedWorlds)" class="save-info">
         <header class="save-head">
           <p>
-            {{ playedWorlds.length }} world{{
-              getPluralSuffix(playedWorlds.length)
+            {{ size(playedWorlds) }} world{{
+              formatPluralSuffix(size(playedWorlds))
             }}
             played
           </p>
@@ -135,17 +141,17 @@ const formatPlayedWhen = (run: RunRecord): string =>
                 ▶ Play
               </button>
               <button
-                v-if="world.replays.length"
+                v-if="size(world.replays)"
                 class="ghost"
                 :aria-expanded="isOpen(world)"
-                @click="toggleRuns(world)">
+                @click="handleRunsToggle(world)">
                 ⟲ Replays ({{ size(world.replays) }})
               </button>
             </div>
 
             <ul v-if="isOpen(world)" class="run-list">
               <li v-for="run in world.replays" :key="run.id" class="run">
-                <span class="run-outcome" :class="run.outcome.toLowerCase()">{{
+                <span class="run-outcome" :class="toLower(run.outcome)">{{
                   formatRunLabel(run)
                 }}</span>
 

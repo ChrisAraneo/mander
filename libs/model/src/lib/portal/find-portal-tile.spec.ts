@@ -1,25 +1,26 @@
+import { size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import { TILE_DIRT } from '../blocks/dirt';
-import type { Level } from '../level/level';
-import type { Tile } from '../tile/tile';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_DIRT } from '../blocks/tile-dirt';
+import type { Level } from '../types/level';
+import type { Tile } from '../types/tile';
 import { findPortalTile } from './find-portal-tile';
-import { TILE_PORTAL } from './portal';
+import { TILE_PORTAL } from './tile-portal';
 
-const level = (tiles: Tile[][]): Level => ({
+const createLevel = (tiles: Tile[][]): Level => ({
   seed: 'SEED',
-  width: tiles[0].length,
-  height: tiles.length,
+  width: size(tiles[0]),
+  height: size(tiles),
   tiles,
   chestItems: [],
 });
 
 describe('findPortalTile', () => {
-  it('should report the foot of the portal when the portal stands two tiles tall', () => {
+  it('should return the bottom tile when the portal is two tiles tall', () => {
     expect(
       findPortalTile(
-        level([
+        createLevel([
           [TILE_AIR, TILE_PORTAL],
           [TILE_AIR, TILE_PORTAL],
           [TILE_DIRT, TILE_DIRT],
@@ -28,10 +29,10 @@ describe('findPortalTile', () => {
     ).toEqual({ x: 1, y: 1 });
   });
 
-  it('should report the tile itself when the portal is only one tile tall', () => {
+  it('should return the portal tile when the portal is one tile tall', () => {
     expect(
       findPortalTile(
-        level([
+        createLevel([
           [TILE_AIR, TILE_PORTAL],
           [TILE_DIRT, TILE_DIRT],
         ]),
@@ -39,10 +40,10 @@ describe('findPortalTile', () => {
     ).toEqual({ x: 1, y: 0 });
   });
 
-  it('should come back empty-handed when the level offers no way out', () => {
+  it('should return null when the level has no portal', () => {
     expect(
       findPortalTile(
-        level([
+        createLevel([
           [TILE_AIR, TILE_AIR],
           [TILE_DIRT, TILE_DIRT],
         ]),
@@ -50,10 +51,10 @@ describe('findPortalTile', () => {
     ).toBeNull();
   });
 
-  it('should follow the first portal down to its own foot when the level holds more than one', () => {
+  it('should return the bottom of the first portal when the level has several', () => {
     expect(
       findPortalTile(
-        level([
+        createLevel([
           [TILE_AIR, TILE_PORTAL],
           [TILE_PORTAL, TILE_PORTAL],
           [TILE_PORTAL, TILE_DIRT],

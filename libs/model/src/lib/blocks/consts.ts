@@ -1,11 +1,11 @@
-import { TILE_BRICK } from './brick';
-import { TILE_CANNON } from './cannon';
-import { TILE_CERAMIC } from './ceramic';
-import { TILE_DIRT } from './dirt';
-import { TILE_FIREBALL } from './fireball';
-import { TILE_STONE } from './stone';
-import type { Tile } from '../tile/tile';
-import { TILE_WOOD } from './wood';
+import type { Tile } from '../types/tile';
+import { TILE_BRICK } from './tile-brick';
+import { TILE_CANNON } from './tile-cannon';
+import { TILE_CERAMIC } from './tile-ceramic';
+import { TILE_DIRT } from './tile-dirt';
+import { TILE_FIREBALL } from './tile-fireball';
+import { TILE_STONE } from './tile-stone';
+import { TILE_WOOD } from './tile-wood';
 
 export const SOLID_TILES: readonly Tile[] = Object.freeze([
   TILE_DIRT,

@@ -1,1 +1,1 @@
-export const REPLAY_SPEEDS: number[] = [1, 2, 4];
+export const REPLAY_SPEEDS: readonly number[] = Object.freeze([1, 2, 4]);

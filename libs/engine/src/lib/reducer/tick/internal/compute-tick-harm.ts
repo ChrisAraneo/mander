@@ -1,4 +1,5 @@
-import { type Cannonball, type Enemy, chain } from '@mander/model';
+import { type Cannonball, type Enemy } from '@mander/model';
+import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { filterStrikingCannonballs } from '../../cannon/filter-striking-cannonballs';
 import { isBurning } from '../../fireball/is-burning';
@@ -20,16 +21,17 @@ export const computeTickHarm = ({
   bounced,
   afterStomps,
 }: TickStomps): TickHarm =>
-  chain({
-    gored: match(isPlayerAlive)
-      .with(true, () => filterHornedVictims(bounced, afterStomps))
-      .otherwise((): Enemy[] => []),
-    hits: match(isPlayerAlive)
-      .with(true, () => filterStrikingCannonballs(bounced, flying))
-      .otherwise((): Cannonball[] => []),
-    isBurned: isPlayerAlive && isBurning(bounced, fireballs),
-  })
-    .thru(({ gored, hits, isBurned }) => ({
+  pipe(
+    {
+      gored: match(isPlayerAlive)
+        .with(true, () => filterHornedVictims(bounced, afterStomps))
+        .otherwise((): Enemy[] => []),
+      hits: match(isPlayerAlive)
+        .with(true, () => filterStrikingCannonballs(bounced, flying))
+        .otherwise((): Cannonball[] => []),
+      isBurned: isPlayerAlive && isBurning(bounced, fireballs),
+    },
+    ({ gored, hits, isBurned }) => ({
       gored,
       hits,
       outcome: match(isPlayerAlive)
@@ -48,8 +50,8 @@ export const computeTickHarm = ({
           deaths: state.deaths,
           status: 'PLAYING',
         })),
-    }))
-    .thru(({ gored, hits, outcome }): TickHarm => ({
+    }),
+    ({ gored, hits, outcome }): TickHarm => ({
       state,
       deltaSeconds,
       cannons,
@@ -63,5 +65,5 @@ export const computeTickHarm = ({
       player: outcome.player,
       deaths: outcome.deaths,
       status: outcome.status,
-    }))
-    .value();
+    }),
+  );

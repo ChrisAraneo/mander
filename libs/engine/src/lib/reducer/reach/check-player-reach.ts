@@ -1,4 +1,5 @@
-import { type Level, chain } from '@mander/model';
+import { type Level } from '@mander/model';
+import { pipe } from 'remeda';
 import { match, P } from 'ts-pattern';
 import { computeReachedCells } from './internal/compute-reached-cells';
 import { createReachMap } from './internal/create-reach-map';
@@ -8,12 +9,10 @@ import type { ReachMap } from './types/reach-map';
 const { nullish } = P;
 
 export const checkPlayerReach = (level: Level): ReachMap =>
-  chain(findEntryPlayer(level))
-    .thru((start) =>
-      match(start)
-        .with(nullish, () => createReachMap(level, new Set<number>()))
-        .otherwise((entry) =>
-          createReachMap(level, computeReachedCells(level, entry)),
-        ),
-    )
-    .value();
+  pipe(level, findEntryPlayer, (start) =>
+    match(start)
+      .with(nullish, () => createReachMap(level, new Set<number>()))
+      .otherwise((entry) =>
+        createReachMap(level, computeReachedCells(level, entry)),
+      ),
+  );

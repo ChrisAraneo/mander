@@ -1,4 +1,4 @@
-import type { createRandom } from '@mander/engine';
+import type { Random } from '@mander/engine';
 import { drop, sortBy, take } from 'lodash-es';
 import { FIRST_HARD_LEVEL } from '../consts';
 import type { LevelVariant } from '../types/level-variant';
@@ -16,9 +16,7 @@ const LEVEL_VARIANTS: readonly LevelVariant[] = Object.freeze([
 
 const EARLY_LEVELS = FIRST_HARD_LEVEL - 1;
 
-export const createLevelVariants = (
-  random: ReturnType<typeof createRandom>,
-): LevelVariant[] => [
-  ...sortBy(take(LEVEL_VARIANTS, EARLY_LEVELS), () => random.rollFloat()),
+export const createLevelVariants = (random: Random): LevelVariant[] => [
+  ...sortBy(take(LEVEL_VARIANTS, EARLY_LEVELS), () => random()),
   ...drop(LEVEL_VARIANTS, EARLY_LEVELS),
 ];

@@ -11,8 +11,8 @@ import { describe, expect, it } from 'vitest';
 import type { GameLevel } from '../../../types/game-level';
 import { BASE_HEARTS } from '../../player/consts';
 import { createPlayer } from '../../player/create-player';
-import { stepBeartrap } from '../step-beartrap';
-import { stepEnemy } from '../step-enemy';
+import { nextBeartrap } from '../next-beartrap';
+import { nextEnemy } from '../next-enemy';
 import { createBeartraps } from './create-beartraps';
 import { createPatrols } from './create-patrols';
 import { patchFlyingEnemy } from './patch-flying-enemy';
@@ -60,7 +60,7 @@ describe('patchLivingEnemy', () => {
     const patched = patchLivingEnemy(TRAP_LEVEL, trap, PLAYER, 0.02);
 
     expect(trap.kind).toBe('BEARTRAP');
-    expect(patched).toEqual(stepBeartrap(TRAP_LEVEL, trap, PLAYER, 0.02));
+    expect(patched).toEqual(nextBeartrap(TRAP_LEVEL, trap, PLAYER, 0.02));
   });
 
   it('should walk the enemy when it is a hopping enemy', () => {
@@ -69,7 +69,7 @@ describe('patchLivingEnemy', () => {
     const patched = patchLivingEnemy(GROUND_LEVEL, enemy, PLAYER, 0.02);
 
     expect(enemy.kind).toBe('HOPPING');
-    expect(patched).toEqual(stepEnemy(GROUND_LEVEL, enemy, PLAYER, 0.02));
+    expect(patched).toEqual(nextEnemy(GROUND_LEVEL, enemy, PLAYER, 0.02));
   });
 
   it('should walk the enemy when it is a horned enemy', () => {
@@ -78,6 +78,6 @@ describe('patchLivingEnemy', () => {
     const patched = patchLivingEnemy(HORNED_LEVEL, enemy, PLAYER, 0.02);
 
     expect(enemy.kind).toBe('HORNED');
-    expect(patched).toEqual(stepEnemy(HORNED_LEVEL, enemy, PLAYER, 0.02));
+    expect(patched).toEqual(nextEnemy(HORNED_LEVEL, enemy, PLAYER, 0.02));
   });
 });

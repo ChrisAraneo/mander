@@ -5,7 +5,7 @@ import { createStyleStep } from '../../canvas/create-style-step';
 import { drawBeginPath } from '../../canvas/draw-begin-path';
 import { drawClosePath } from '../../canvas/draw-close-path';
 import { drawFill } from '../../canvas/draw-fill';
-import { outline } from '../../stroke/outline';
+import { createOutlineStep } from '../../stroke/create-outline-step';
 import type { CanvasStep } from '../../types/canvas-step';
 import type { EnemyPalette } from './types/enemy-palette';
 
@@ -25,7 +25,7 @@ export const createEnemyHornStep = (
     createLineToStep(hornX + HORN_HALF_WIDTH, HORN_BASE_Y),
     createLineToStep(hornX, HORN_TIP_Y),
     drawClosePath,
-    outline(),
+    createOutlineStep(),
     createStyleStep({ fillStyle: palette.feet }),
     drawFill,
   ]);

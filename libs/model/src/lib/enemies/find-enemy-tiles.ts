@@ -1,7 +1,7 @@
-import type { Point } from '../geometry/point';
-import type { Level } from '../level/level';
 import { findTiles } from '../tile/find-tiles';
-import { TILE_ENEMY } from './enemy-spawn';
+import type { Level } from '../types/level';
+import type { Point } from '../types/point';
+import { TILE_ENEMY } from './tile-enemy';
 
 export const findEnemyTiles = (level: Level): Point[] =>
   findTiles(level, TILE_ENEMY);

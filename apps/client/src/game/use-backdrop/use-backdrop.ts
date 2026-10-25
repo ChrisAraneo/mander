@@ -1,151 +1,117 @@
+import { createInitialState } from '@mander/engine';
+import { createWorld } from '@mander/generator';
 import {
-  type Action,
-  createInitialState,
-  type GameState,
-  reduce,
-} from '@mander/engine';
-import { generate } from '@mander/generator';
-import { type Level, chain } from '@mander/model';
-import {
-  getMidLevelFocus,
-  interpolateState,
-  renderGame,
-  syncViewport,
+  computeInterpolatedState,
+  computeMidLevelFocus,
+  type RenderedWorld,
 } from '@mander/render';
-import { assign, clamp, noop, tap } from 'lodash-es';
-import { scan, type Subscription } from 'rxjs';
-import { match, P } from 'ts-pattern';
-import { onMounted, onUnmounted, type Ref } from 'vue';
-
+import { tap } from 'lodash-es';
+import { pipe } from 'remeda';
 import {
-  type CanvasCell,
+  animationFrames,
+  type Observable,
+  scan,
+  type Subscription,
+} from 'rxjs';
+import { match, P } from 'ts-pattern';
+import { onMounted, onUnmounted, type Ref, shallowRef } from 'vue';
+import {
   closeCanvas,
   createCanvasCell,
-  drawWithCanvas,
-  openCanvas,
+  drawCanvasGame,
+  initializeCanvas,
+  patchRef,
 } from '../canvas';
-import { createFixedPulses, createPulseTicks } from '../tick';
-import { BACKDROP_LEVEL } from './consts';
+import { createFixedPulses, createPulseTicks, type Pulse } from '../tick';
+import { computeBackdropLevelIndex } from './internal/compute-backdrop-level-index';
+import { createBackdropStartFrame } from './internal/create-backdrop-start-frame';
+import { nextBackdropFrame } from './internal/next-backdrop-frame';
+import type { Backdrop } from './types/backdrop';
 
 const { nonNullable } = P;
 
-interface BackdropFrame {
-  previous: GameState;
-  current: GameState;
-}
+const drawBackdropPulse = (backdrop: Backdrop, pulse: Pulse): void =>
+  drawCanvasGame(
+    backdrop.cell,
+    computeInterpolatedState(
+      backdrop.frame.value.previous,
+      backdrop.frame.value.current,
+      pulse.alpha,
+    ),
+    backdrop.palette,
+    backdrop.focus,
+    [],
+  );
 
-interface BackdropCell extends CanvasCell {
-  subscription: Subscription | null;
-  frame: BackdropFrame;
-}
+const watchBackdrop = (
+  backdrop: Backdrop,
+  pulses: Observable<Pulse>,
+): Subscription =>
+  tap(
+    createPulseTicks(pulses)
+      .pipe(
+        scan(
+          (frame, action) =>
+            nextBackdropFrame(frame, action, backdrop.idle, () =>
+              performance.now(),
+            ),
+          createBackdropStartFrame(backdrop.idle),
+        ),
+      )
+      .subscribe((frame) => patchRef(backdrop.frame, frame)),
+    (subscription) =>
+      subscription.add(
+        pulses.subscribe((pulse) => drawBackdropPulse(backdrop, pulse)),
+      ),
+  );
 
-const getLevelIndex = (levels: Level[]): number =>
-  clamp(BACKDROP_LEVEL - 1, 0, levels.length - 1);
-
-const createStartFrame = (state: GameState): BackdropFrame => ({
-  previous: state,
-  current: state,
-});
-
-const filterPlaying = (idle: GameState, next: GameState): GameState =>
-  match(next.status)
-    .with('PLAYING', () => next)
-    .otherwise(() => idle);
-
-const advance =
-  (idle: GameState) =>
-  (frame: BackdropFrame, action: Action): BackdropFrame =>
-    chain(filterPlaying(idle, reduce(frame.current, action)))
-      .thru((current): BackdropFrame => ({ previous: frame.current, current }))
-      .value();
-
-const startOnMount = (
-  cell: BackdropCell,
-  canvas: Ref<HTMLCanvasElement | null>,
-  idle: GameState,
-  render: (next: GameState) => void,
-): void =>
-  match(openCanvas(cell, canvas))
-    .with(
-      nonNullable,
-      () =>
-        void chain(createFixedPulses())
-          .thru((pulses$) =>
-            assign(cell, {
-              subscription: createPulseTicks(pulses$)
-                .pipe(scan(advance(idle), createStartFrame(idle)))
-                .subscribe((frame) => void assign(cell, { frame }))
-                .add(
-                  pulses$.subscribe((pulse) =>
-                    render(
-                      interpolateState(
-                        cell.frame.previous,
-                        cell.frame.current,
-                        pulse.alpha,
-                      ),
-                    ),
-                  ),
-                ),
-            }),
-          )
-          .value(),
+const startBackdrop = (backdrop: Backdrop): Subscription | null =>
+  match(initializeCanvas(backdrop.cell))
+    .with(nonNullable, () =>
+      patchRef(
+        backdrop.subscription,
+        watchBackdrop(backdrop, createFixedPulses(animationFrames())),
+      ),
     )
-    .otherwise(noop);
+    .otherwise(() => null);
+
+const closeBackdrop = (backdrop: Backdrop): CanvasRenderingContext2D | null =>
+  pipe(
+    backdrop,
+    (current) => tap(current, () => current.subscription.value?.unsubscribe()),
+    (current) => closeCanvas(current.cell),
+  );
+
+const createBackdrop = (
+  world: RenderedWorld,
+  canvas: Ref<HTMLCanvasElement | null>,
+): Backdrop =>
+  pipe(
+    computeBackdropLevelIndex(world.levels),
+    (levelIndex) => ({ levelIndex, level: world.levels[levelIndex] }),
+    ({ levelIndex, level }) => ({
+      level,
+      idle: createInitialState(level, levelIndex, []),
+    }),
+    ({ level, idle }): Backdrop => ({
+      cell: createCanvasCell(canvas),
+      palette: world.palette,
+      focus: computeMidLevelFocus(level),
+      idle,
+      frame: shallowRef(createBackdropStartFrame(idle)),
+      subscription: shallowRef<Subscription | null>(null),
+    }),
+  );
 
 export const useBackdrop = (
   day: string,
   canvas: Ref<HTMLCanvasElement | null>,
-): void =>
-  chain(generate(new Date(day)))
-    .thru(({ levels, palette }) => ({
-      palette,
-      level: levels[getLevelIndex(levels)],
-      levelIndex: getLevelIndex(levels),
-    }))
-    .thru((world) => ({
-      ...world,
-      idle: createInitialState(world.level, world.levelIndex, []),
-      focus: getMidLevelFocus(world.level),
-    }))
-    .thru((world) => ({
-      ...world,
-      cell: {
-        ...createCanvasCell(),
-        subscription: null,
-        frame: createStartFrame(world.idle),
-      } as BackdropCell,
-    }))
-    .thru((setup) => ({
-      ...setup,
-      renderState: (next: GameState): void =>
-        drawWithCanvas(setup.cell, canvas, (context, element) =>
-          renderGame(
-            context,
-            next,
-            setup.palette,
-            syncViewport(element),
-            setup.focus,
-          ),
-        ),
-    }))
-    .thru((setup) =>
-      tap(setup, () =>
-        onMounted(() =>
-          startOnMount(setup.cell, canvas, setup.idle, setup.renderState),
-        ),
-      ),
-    )
-    .thru((setup) =>
-      tap(setup, () =>
-        onUnmounted(() =>
-          chain(setup.cell)
-            .thru((cell) =>
-              tap(cell, () => cell.subscription?.unsubscribe()),
-            )
-            .thru((cell) => closeCanvas(cell))
-            .value(),
-        ),
-      ),
-    )
-    .thru(noop)
-    .value();
+): Backdrop =>
+  pipe(
+    new Date(day),
+    createWorld,
+    (world) => createBackdrop(world, canvas),
+    (backdrop) => tap(backdrop, () => onMounted(() => startBackdrop(backdrop))),
+    (backdrop) =>
+      tap(backdrop, () => onUnmounted(() => closeBackdrop(backdrop))),
+  );

@@ -1,4 +1,4 @@
-import type { createRandom } from '@mander/engine';
+import type { Random } from '@mander/engine';
 import type { Item, ItemRarity } from '@mander/model';
 import { reduce } from 'lodash-es';
 import { CHEST_ITEM_TYPES } from '../../consts';
@@ -7,7 +7,7 @@ import type { ChestPicking } from './types/chest-picking';
 
 export const takeRandomEverydayItems = (
   rarities: ItemRarity[],
-  random: ReturnType<typeof createRandom>,
+  random: Random,
 ): Item[] =>
   reduce(
     rarities,

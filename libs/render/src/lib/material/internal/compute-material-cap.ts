@@ -1,7 +1,7 @@
 import { type Tile, TILE_DIRT } from '@mander/model';
 import { match } from 'ts-pattern';
+import { cloneShiftedHsl } from '../../color/clone-shifted-hsl';
 import { formatHslCss } from '../../color/format-hsl-css';
-import { shiftHsl } from '../../color/shift-hsl';
 import type { Hsl } from '../../color/types/hsl';
 import type { Palette } from '../../types/palette';
 import { CAP_LIGHTNESS_GAIN } from '../consts';
@@ -18,8 +18,10 @@ export const computeMaterialCap = (
       capHighlight: palette.blockCapHighlight,
     }))
     .otherwise((): MaterialCap => ({
-      cap: formatHslCss(shiftHsl(base, { lightness: CAP_LIGHTNESS_GAIN })),
+      cap: formatHslCss(
+        cloneShiftedHsl(base, { lightness: CAP_LIGHTNESS_GAIN }),
+      ),
       capHighlight: formatHslCss(
-        shiftHsl(base, { lightness: CAP_LIGHTNESS_GAIN * 2 }),
+        cloneShiftedHsl(base, { lightness: CAP_LIGHTNESS_GAIN * 2 }),
       ),
     }));

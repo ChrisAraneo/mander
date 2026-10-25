@@ -4,7 +4,7 @@ import { createRoundRectStep } from '../../canvas/create-round-rect-step';
 import { createSequenceStep } from '../../canvas/create-sequence-step';
 import { drawBeginPath } from '../../canvas/draw-begin-path';
 import { drawFill } from '../../canvas/draw-fill';
-import { outline } from '../../stroke/outline';
+import { createOutlineStep } from '../../stroke/create-outline-step';
 import type { CanvasStep } from '../../types/canvas-step';
 import { BARREL_BACK, BARREL_LENGTH, IRON, IRON_DARK } from './consts';
 
@@ -32,7 +32,7 @@ export const drawCannonBarrel: CanvasStep = createSequenceStep([
     BARREL_HEIGHT + MUZZLE_OVERHANG * 2,
     2,
   ),
-  outline(),
+  createOutlineStep(),
   createContextStyleStep((context) => ({
     fillStyle: createLinearGradient(
       context,

@@ -1,25 +1,26 @@
+import { size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { TILE_AIR } from '../air/air';
-import { TILE_CANNON } from '../blocks/cannon';
-import { TILE_DIRT } from '../blocks/dirt';
-import type { Level } from '../level/level';
-import type { Tile } from '../tile/tile';
+import { TILE_AIR } from '../air/tile-air';
+import { TILE_CANNON } from '../blocks/tile-cannon';
+import { TILE_DIRT } from '../blocks/tile-dirt';
+import type { Level } from '../types/level';
+import type { Tile } from '../types/tile';
 import { findCannonTiles } from './find-cannon-tiles';
 
-const level = (tiles: Tile[][]): Level => ({
+const createLevel = (tiles: Tile[][]): Level => ({
   seed: 'SEED',
-  width: tiles[0].length,
-  height: tiles.length,
+  width: size(tiles[0]),
+  height: size(tiles),
   tiles,
   chestItems: [],
 });
 
 describe('findCannonTiles', () => {
-  it('should gather every spot when the level mounts several cannons', () => {
+  it('should return every cannon position when the level has several cannons', () => {
     expect(
       findCannonTiles(
-        level([
+        createLevel([
           [TILE_CANNON, TILE_AIR, TILE_CANNON],
           [TILE_AIR, TILE_CANNON, TILE_AIR],
           [TILE_DIRT, TILE_DIRT, TILE_DIRT],
@@ -32,10 +33,10 @@ describe('findCannonTiles', () => {
     ]);
   });
 
-  it('should gather the one spot when the level mounts a single cannon', () => {
+  it('should return one position when the level has a single cannon', () => {
     expect(
       findCannonTiles(
-        level([
+        createLevel([
           [TILE_AIR, TILE_CANNON],
           [TILE_DIRT, TILE_DIRT],
         ]),
@@ -43,10 +44,10 @@ describe('findCannonTiles', () => {
     ).toEqual([{ x: 1, y: 0 }]);
   });
 
-  it('should gather nothing when the level mounts no cannon', () => {
+  it('should return nothing when the level has no cannon', () => {
     expect(
       findCannonTiles(
-        level([
+        createLevel([
           [TILE_AIR, TILE_AIR],
           [TILE_DIRT, TILE_DIRT],
         ]),

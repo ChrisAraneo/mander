@@ -1,4 +1,4 @@
-import { flow } from 'lodash-es';
+import { pipe } from 'remeda';
 import type { GameState } from '../../../types/game-state';
 import { computeTickEntities } from './compute-tick-entities';
 import { computeTickHarm } from './compute-tick-harm';
@@ -12,7 +12,8 @@ export const patchPlayingTick = (
   state: GameState,
   deltaSeconds: number,
 ): GameState =>
-  flow(
+  pipe(
+    { state, deltaSeconds },
     computeTickPlayer,
     computeTickHazards,
     computeTickStomps,
@@ -20,4 +21,4 @@ export const patchPlayingTick = (
     computeTickVolley,
     computeTickEntities,
     patchTickState,
-  )({ state, deltaSeconds });
+  );
