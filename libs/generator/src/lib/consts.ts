@@ -28,6 +28,8 @@ export const FIRST_HARD_LEVEL = 7;
 
 export const STRUCTURES_PER_LEVEL = 7;
 
+export const STRUCTURE_WORLD_REPEATS = 3;
+
 export const KEY_HEIGHT = 1;
 
 export const CHEST_HEIGHT = 1;

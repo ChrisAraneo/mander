@@ -27,11 +27,11 @@ import ChestModal from './ChestModal.vue';
 import HudBar from './HudBar.vue';
 import ReplayBar from './ReplayBar.vue';
 
-const props = defineProps<{ day: string }>();
+const props = defineProps<{ day: string; structureName: string | null }>();
 const emit = defineEmits<{ exit: [] }>();
 
 const canvas = ref<HTMLCanvasElement | null>(null);
-const game = useGame(props.day, canvas);
+const game = useGame(props.day, props.structureName, canvas);
 const { state, replay } = game;
 const worldName = game.world.name;
 const levelCount = size(game.world.levels);

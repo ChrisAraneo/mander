@@ -3,6 +3,7 @@ import { tap } from 'lodash-es';
 import { pipe } from 'remeda';
 import { animationFrames } from 'rxjs';
 import { onMounted, onUnmounted, type Ref } from 'vue';
+import { logWorldMeta } from '../debug';
 import { closeBackdrop } from './internal/close-backdrop';
 import { createBackdrop } from './internal/create-backdrop';
 import { startBackdrop } from './internal/start-backdrop';
@@ -15,6 +16,10 @@ export const useBackdrop = (
   pipe(
     new Date(day),
     createWorld,
+    (world) =>
+      tap(world, () =>
+        logWorldMeta(world, window.location.search, console.log),
+      ),
     (world) => createBackdrop(world, canvas),
     (backdrop) =>
       tap(backdrop, () =>

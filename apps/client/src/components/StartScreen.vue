@@ -1,9 +1,18 @@
 <script setup lang="ts">
-import { computeWorldName } from '@mander/generator';
-import { find, isFinite, size, toLower } from 'lodash-es';
+import { computeWorldName, STRUCTURE_CHOICES } from '@mander/generator';
+import { find, groupBy, isFinite, size, tap, toLower } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { computed, ref } from 'vue';
 import { patchRef } from '../game/canvas';
+import {
+  findStructureName,
+  isDebug,
+  NEXT_STRUCTURE_OFFSET,
+  nextStructureName,
+  PREVIOUS_STRUCTURE_OFFSET,
+  readLastStructure,
+  writeLastStructure,
+} from '../game/debug';
 import {
   formatClock,
   formatRunLabel,
@@ -22,18 +31,38 @@ import { useBackdrop } from '../game/use-backdrop';
 const { nonNullable, when } = P;
 
 const emit = defineEmits<{
-  start: [day: string];
+  start: [day: string, structureName: string | null];
   watch: [run: RunRecord];
 }>();
 
 const date = serializeDay(new Date());
 const worldName = computeWorldName(new Date(date));
 
+const storage = tryGetLocalStorage();
+
+const isDebugShown = isDebug(window.location.search);
+
+const structureGroups = groupBy(STRUCTURE_CHOICES, (choice) => choice.category);
+
+const chosenStructure = ref(findStructureName(readLastStructure(storage)));
+
+const handleStructureStep = (offset: number): string =>
+  patchRef(chosenStructure, nextStructureName(chosenStructure.value, offset));
+
+const handleStructureStart = (): void =>
+  emit(
+    'start',
+    date,
+    tap(chosenStructure.value, (structureName) =>
+      writeLastStructure(structureName, storage),
+    ),
+  );
+
 const canvas = ref<HTMLCanvasElement | null>(null);
 
 useBackdrop(date, canvas);
 
-const save = ref(readSave(tryGetLocalStorage()));
+const save = ref(readSave(storage));
 
 const finishedToday = computed(() =>
   find(save.value.completedWorlds, (world) => world.name === worldName),
@@ -100,8 +129,44 @@ const formatPlayedWhen = (run: RunRecord): string =>
         <span v-if="finishedToday" class="finished"
           >✓ Finished · ★ {{ formatScore(finishedToday.score) }}</span
         >
-        <button class="primary" @click="emit('start', date)">
+        <button class="primary" @click="emit('start', date, null)">
           Start today's run
+        </button>
+      </div>
+
+      <div v-if="isDebugShown" class="daily-card">
+        <span class="label">Debug · single structure</span>
+        <div class="structure-row">
+          <button
+            class="ghost structure-step"
+            aria-label="Previous structure"
+            title="Previous structure"
+            @click="handleStructureStep(PREVIOUS_STRUCTURE_OFFSET)">
+            ◀
+          </button>
+          <select v-model="chosenStructure" class="structure-select">
+            <optgroup
+              v-for="(choices, category) in structureGroups"
+              :key="category"
+              :label="category">
+              <option
+                v-for="choice in choices"
+                :key="choice.name"
+                :value="choice.name">
+                {{ choice.name }}
+              </option>
+            </optgroup>
+          </select>
+          <button
+            class="ghost structure-step"
+            aria-label="Next structure"
+            title="Next structure"
+            @click="handleStructureStep(NEXT_STRUCTURE_OFFSET)">
+            ▶
+          </button>
+        </div>
+        <button class="primary" @click="handleStructureStart">
+          Play this structure
         </button>
       </div>
 
@@ -137,7 +202,7 @@ const formatPlayedWhen = (run: RunRecord): string =>
               <button
                 v-if="world.day"
                 class="ghost"
-                @click="emit('start', world.day)">
+                @click="emit('start', world.day, null)">
                 ▶ Play
               </button>
               <button
@@ -254,6 +319,27 @@ h1 {
 
 .daily-card .primary {
   margin-top: 10px;
+}
+
+.structure-row {
+  display: flex;
+  gap: 8px;
+}
+
+.structure-step {
+  flex: none;
+  padding: 8px 12px;
+}
+
+.structure-select {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #33445a;
+  border-radius: 8px;
+  background: #0b0f16;
+  color: #e6edf5;
+  font: inherit;
 }
 
 .save-info {
