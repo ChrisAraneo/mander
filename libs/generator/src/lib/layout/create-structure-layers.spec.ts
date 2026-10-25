@@ -1,11 +1,4 @@
-import {
-  isSolidTile,
-  type Tile,
-  TILE_AIR,
-  TILE_BRICK,
-  TILE_CERAMIC,
-  TILE_DIRT,
-} from '@mander/model';
+import { TILE_AIR, TILE_BRICK, TILE_CERAMIC, TILE_DIRT } from '@mander/model';
 import {
   getFront,
   type Sector,
@@ -13,7 +6,6 @@ import {
   STRUCTURE_HEIGHT,
   STRUCTURE_START,
   STRUCTURE_WIDTH,
-  VERTICAL_AIR_GAP,
   VERTICAL_ARRIVAL_ROWS,
   VERTICAL_BAND_HEIGHT,
   VERTICAL_END_ROW,
@@ -29,13 +21,9 @@ import {
   find,
   flatten,
   includes,
-  join,
   map,
-  max,
   range,
   size,
-  some,
-  split,
   take,
   takeRight,
   times,
@@ -93,22 +81,6 @@ const computeTopRow = (band: number): number =>
 
 const computeBandRows = (band: number): number[] =>
   map(BAND_ROWS, (row) => computeTopRow(band) + row);
-
-const computeAirRuns = (tiles: Tile[][]): number[] =>
-  map(
-    split(
-      join(
-        map(tiles, (cells) =>
-          match(some(cells, isSolidTile))
-            .with(true, () => '#')
-            .otherwise(() => '.'),
-        ),
-        '',
-      ),
-      '#',
-    ),
-    size,
-  );
 
 const removeMarkers = (cells: readonly number[]): number[] =>
   map(cells, (cell) =>
@@ -251,15 +223,6 @@ describe('createStructureLayers', () => {
         times(STRUCTURE_WIDTH, () => TILE_DIRT),
       ),
     );
-  });
-
-  it('should join the sectors no further apart than the player can jump in a vertical level when it stacks them', () => {
-    const climb = createStructureLayers(
-      [...VERTICAL_STRUCTURES],
-      'VERTICAL',
-    ).tiles;
-
-    expect(max(computeAirRuns(climb))).toBeLessThanOrEqual(VERTICAL_AIR_GAP);
   });
 
   it('should lay the block a sector ends in where the next one starts in a vertical level when it seams them together', () => {

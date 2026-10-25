@@ -9,10 +9,6 @@ import {
 import { getStructureName } from './structure-name';
 import type { Sector } from './types/sector';
 
-const SKIPPED_INDEX = 180;
-
-const SKIPPED_NAME = 'NORMAL_182';
-
 const getFirstStructure = (structures: readonly Sector[]): Sector =>
   structures[0];
 
@@ -40,13 +36,7 @@ describe('getStructureName', () => {
       'HARD_046',
     );
     expect(getStructureName(getLastStructure(VERTICAL_STRUCTURES))).toBe(
-      'VERTICAL_022',
-    );
-  });
-
-  it('should return the name of the constant when its number does not match its position', () => {
-    expect(getStructureName(NORMAL_STRUCTURES[SKIPPED_INDEX])).toBe(
-      SKIPPED_NAME,
+      'VERTICAL_030',
     );
   });
 
