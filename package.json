@@ -30,7 +30,7 @@
     "vue": "^3.5.40"
   },
   "devDependencies": {
-    "@chris.araneo/eslint-config": "0.0.141",
+    "@chris.araneo/eslint-config": "0.0.142",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^24.13.3",
     "@types/ramda": "^0.32.0",
@@ -38,17 +38,18 @@
     "eslint": "^10.8.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.10.0",
-    "nx": "23.2.1",
+    "nx": "23.3.1",
     "prettier": "^3.9.6",
     "typescript": "^6.0.3",
     "vite": "^8.2.0",
-    "vitest": "^4.1.11",
+    "vitest": "^5.0.5",
     "vue-tsc": "^3.3.9"
   },
   "overrides": {
-    "brace-expansion@>=4.0.0 <5.0.9": "5.0.9",
+    "brace-expansion@>=4.0.0 <5.0.12": "5.0.12",
     "@modelcontextprotocol/sdk": "1.30.0",
     "@hono/node-server": "2.1.0",
-    "smol-toml": "^1.9.0"
+    "smol-toml": "^1.9.0",
+    "undici": "7.30.1"
   }
 }
