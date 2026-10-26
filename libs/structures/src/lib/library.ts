@@ -295,6 +295,10 @@ import {
   VERTICAL_032,
   VERTICAL_033,
   VERTICAL_034,
+  VERTICAL_035,
+  VERTICAL_036,
+  VERTICAL_037,
+  VERTICAL_038,
 } from './vertical';
 
 export const HARD_LIBRARY = Object.freeze({
@@ -601,6 +605,10 @@ export const VERTICAL_LIBRARY = Object.freeze({
   VERTICAL_032,
   VERTICAL_033,
   VERTICAL_034,
+  VERTICAL_035,
+  VERTICAL_036,
+  VERTICAL_037,
+  VERTICAL_038,
 });
 
 export const VERTICAL_STRUCTURES: readonly VerticalStructure[] = Object.freeze(
