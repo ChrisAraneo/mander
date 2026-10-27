@@ -257,6 +257,20 @@ import {
   NORMAL_203,
   NORMAL_204,
   NORMAL_205,
+  NORMAL_206,
+  NORMAL_207,
+  NORMAL_208,
+  NORMAL_209,
+  NORMAL_210,
+  NORMAL_211,
+  NORMAL_212,
+  NORMAL_213,
+  NORMAL_214,
+  NORMAL_215,
+  NORMAL_216,
+  NORMAL_217,
+  NORMAL_218,
+  NORMAL_219,
 } from './normal';
 import type { Structure } from './types/structure';
 import type { VerticalStructure } from './types/vertical-structure';
@@ -309,6 +323,8 @@ import {
   VERTICAL_046,
   VERTICAL_047,
   VERTICAL_048,
+  VERTICAL_049,
+  VERTICAL_050,
 } from './vertical';
 
 export const HARD_LIBRARY = Object.freeze({
@@ -574,6 +590,20 @@ export const NORMAL_LIBRARY = Object.freeze({
   NORMAL_203,
   NORMAL_204,
   NORMAL_205,
+  NORMAL_206,
+  NORMAL_207,
+  NORMAL_208,
+  NORMAL_209,
+  NORMAL_210,
+  NORMAL_211,
+  NORMAL_212,
+  NORMAL_213,
+  NORMAL_214,
+  NORMAL_215,
+  NORMAL_216,
+  NORMAL_217,
+  NORMAL_218,
+  NORMAL_219,
 });
 
 export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze(
@@ -629,6 +659,8 @@ export const VERTICAL_LIBRARY = Object.freeze({
   VERTICAL_046,
   VERTICAL_047,
   VERTICAL_048,
+  VERTICAL_049,
+  VERTICAL_050,
 });
 
 export const VERTICAL_STRUCTURES: readonly VerticalStructure[] = Object.freeze(
