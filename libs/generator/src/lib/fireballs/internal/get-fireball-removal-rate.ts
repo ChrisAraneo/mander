@@ -2,7 +2,7 @@ import type { Tile } from '@mander/model';
 import type { FireballRemovalRate } from './types/fireball-removal-rate';
 
 const FIREBALL_REMOVAL_RATES: readonly number[] = Object.freeze([
-  1, 1, 1, 0.5, 0.25, 0, 0, 0,
+  1, 1, 1, 0.6, 0.3, 0.1, 0, 0,
 ]);
 
 const NOTHING_REMOVED = 0;
