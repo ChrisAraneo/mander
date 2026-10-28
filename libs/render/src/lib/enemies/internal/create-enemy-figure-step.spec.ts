@@ -203,6 +203,23 @@ describe('createEnemyFigureStep', () => {
     ]);
   });
 
+  it('should draw the same creature as a hopping enemy when the enemy is fast', () => {
+    const calls = drawRecorded(
+      createEnemyFigureStep(createTestEnemy('FAST', true), PALETTE, false, 0.2),
+    );
+
+    expect(calls).toEqual(
+      drawRecorded(
+        createEnemyFigureStep(
+          createTestEnemy('HOPPING', true),
+          PALETTE,
+          false,
+          0.2,
+        ),
+      ),
+    );
+  });
+
   it('should draw the creature with wings when the enemy flies', () => {
     const calls = drawRecorded(
       createEnemyFigureStep(

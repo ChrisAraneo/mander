@@ -80,6 +80,19 @@ describe('filterStompedEnemies', () => {
     expect(stomped).toEqual([hopping, flying]);
   });
 
+  it('should give the fast enemy when the falling player lands on it', () => {
+    const fast = createEnemyOf('FAST', null);
+
+    const stomped = filterStompedEnemies(
+      PREVIOUS_PLAYER,
+      FALLING_PLAYER,
+      [fast],
+      DELTA_SECONDS,
+    );
+
+    expect(stomped).toEqual([fast]);
+  });
+
   it('should give no enemies when the falling player lands on a horned enemy and a beartrap', () => {
     const enemies = [
       createEnemyOf('HORNED', null),

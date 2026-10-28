@@ -14,6 +14,7 @@ import { createPlayer } from '../../player/create-player';
 import { nextBeartrap } from '../next-beartrap';
 import { nextEnemy } from '../next-enemy';
 import { createBeartraps } from './create-beartraps';
+import { createPatrol } from './create-patrol';
 import { createPatrols } from './create-patrols';
 import { patchFlyingEnemy } from './patch-flying-enemy';
 import { patchLivingEnemy } from './patch-living-enemy';
@@ -79,5 +80,13 @@ describe('patchLivingEnemy', () => {
 
     expect(enemy.kind).toBe('HORNED');
     expect(patched).toEqual(nextEnemy(HORNED_LEVEL, enemy, PLAYER, 0.02));
+  });
+
+  it('should walk the enemy when it is a fast enemy', () => {
+    const enemy = createPatrol(createPatrols(GROUND_LEVEL)[0].spawn, 'FAST');
+
+    const patched = patchLivingEnemy(GROUND_LEVEL, enemy, PLAYER, 0.02);
+
+    expect(patched).toEqual(nextEnemy(GROUND_LEVEL, enemy, PLAYER, 0.02));
   });
 });

@@ -6,13 +6,25 @@ import {
   TILE_DIRT,
   TILE_ENEMY,
 } from '@mander/model';
-import { head, map, repeat, size, times } from 'lodash-es';
+import {
+  filter,
+  find,
+  head,
+  map,
+  repeat,
+  size,
+  sortBy,
+  times,
+  uniq,
+} from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import type { GameLevel } from '../../../types/game-level';
 import {
   ENEMY_JUMP_VELOCITY,
   ENEMY_MOVE_SPEED,
+  FAST_ENEMY_CHANCE,
+  FAST_ENEMY_MOVE_SPEED,
   FLYING_ENEMY_MOVE_SPEED,
   HORNED_ENEMY_JUMP_VELOCITY,
 } from '../consts';
@@ -42,6 +54,19 @@ const CROWDED_LEVEL = createLevel([
   repeat('.', 22),
   `.${repeat('e', 20)}.`,
   repeat('#', 22),
+]);
+
+const SKY_LEVEL = createLevel([
+  repeat('.', 22),
+  `.${repeat('e', 20)}.`,
+  repeat('.', 22),
+  repeat('#', 22),
+]);
+
+const HUGE_LEVEL = createLevel([
+  repeat('.', 402),
+  `.${repeat('e', 400)}.`,
+  repeat('#', 402),
 ]);
 
 const computeKinds = (level: GameLevel): Enemy['kind'][] =>
@@ -80,18 +105,34 @@ describe('createPatrols', () => {
     expect(kinds).toEqual(['FLYING']);
   });
 
-  it('should make every ground enemy horned when the horned chance is certain', () => {
+  it('should make every ground enemy horned or fast when the horned chance is certain', () => {
     const level = { ...CROWDED_LEVEL, hornedEnemyChance: 1 };
 
     const kinds = computeKinds(level);
 
-    expect(kinds).toEqual(times(20, () => 'HORNED'));
+    expect(sortBy(uniq(kinds))).toEqual(['FAST', 'HORNED']);
   });
 
-  it('should make every ground enemy hopping when the horned chance is zero', () => {
+  it('should make every ground enemy hopping or fast when the horned chance is zero', () => {
     const kinds = computeKinds(CROWDED_LEVEL);
 
-    expect(kinds).toEqual(times(20, () => 'HOPPING'));
+    expect(sortBy(uniq(kinds))).toEqual(['FAST', 'HOPPING']);
+  });
+
+  it('should make about a quarter of the ground enemies fast when the level has many enemies', () => {
+    const level = { ...HUGE_LEVEL, hornedEnemyChance: 0.5 };
+
+    const fastShare =
+      size(filter(computeKinds(level), (kind) => kind === 'FAST')) / 400;
+
+    expect(fastShare).toBeGreaterThan(FAST_ENEMY_CHANCE - 0.05);
+    expect(fastShare).toBeLessThan(FAST_ENEMY_CHANCE + 0.05);
+  });
+
+  it('should make no flying enemy fast when the level has many flying enemies', () => {
+    const kinds = computeKinds(SKY_LEVEL);
+
+    expect(kinds).toEqual(times(20, () => 'FLYING'));
   });
 
   it('should give the same enemies when the same level is read twice', () => {
@@ -129,6 +170,15 @@ describe('createPatrols', () => {
 
     expect(enemy.velocity).toEqual({
       x: { current: 0, max: ENEMY_MOVE_SPEED },
+      y: { current: 0, max: HORNED_ENEMY_JUMP_VELOCITY },
+    });
+  });
+
+  it('should give a fast enemy the fast walking speed and the horned jump when it is set', () => {
+    const enemy = find(createPatrols(CROWDED_LEVEL), { kind: 'FAST' });
+
+    expect(enemy?.velocity).toEqual({
+      x: { current: 0, max: FAST_ENEMY_MOVE_SPEED },
       y: { current: 0, max: HORNED_ENEMY_JUMP_VELOCITY },
     });
   });

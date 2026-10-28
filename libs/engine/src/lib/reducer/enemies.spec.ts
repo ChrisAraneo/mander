@@ -40,6 +40,7 @@ import {
   ENEMY_JUMP_VELOCITY,
   ENEMY_MOVE_SPEED,
   ENEMY_WIDTH,
+  FAST_ENEMY_MOVE_SPEED,
   HORNED_ENEMY_CHANCE,
   HORNED_ENEMY_JUMP_VELOCITY,
 } from './enemy/consts';
@@ -184,13 +185,33 @@ const createSettledState = (left: number, inventory: Item[] = []): GameState =>
     (state) => nextTick(state),
   );
 
-const patchHoppingEnemies = (state: GameState): GameState => ({
+const patchEnemyKinds = (
+  state: GameState,
+  kind: EnemyKind,
+  moveSpeed: number,
+  jumpVelocity: number,
+): GameState => ({
   ...state,
   enemies: map(state.enemies, (enemy): Enemy => ({
     ...enemy,
-    kind: 'HOPPING',
+    kind,
+    velocity: {
+      x: { ...enemy.velocity.x, max: moveSpeed },
+      y: { ...enemy.velocity.y, max: jumpVelocity },
+    },
   })),
 });
+
+const patchHoppingEnemies = (state: GameState): GameState =>
+  patchEnemyKinds(state, 'HOPPING', ENEMY_MOVE_SPEED, ENEMY_JUMP_VELOCITY);
+
+const patchFastEnemies = (state: GameState): GameState =>
+  patchEnemyKinds(
+    state,
+    'FAST',
+    FAST_ENEMY_MOVE_SPEED,
+    HORNED_ENEMY_JUMP_VELOCITY,
+  );
 
 const createHoppingEnemyState = (): GameState =>
   patchHoppingEnemies(
@@ -492,18 +513,9 @@ describe('enemies', () => {
   });
 
   it('should turn the enemy back and keep it alive when it paces into a spike', () => {
-    const initial = createInitialState(
-      createSpikeLevel(9, [ENEMY_SPAWN]),
-      0,
-      [],
+    const start = patchHoppingEnemies(
+      createInitialState(createSpikeLevel(9, [ENEMY_SPAWN]), 0, []),
     );
-    const start: GameState = {
-      ...initial,
-      enemies: map(initial.enemies, (enemy): Enemy => ({
-        ...enemy,
-        kind: 'HOPPING',
-      })),
-    };
     const states = nextTickStates(start, 400);
 
     times(size(states), (tickIndex) =>
@@ -524,6 +536,29 @@ describe('enemies', () => {
     expect(maxRight, 'never reached the spike column').toBeLessThanOrEqual(
       9 * TILE_SIZE,
     );
+  });
+
+  it('should turn a fast enemy back and keep it alive when it paces into a spike', () => {
+    const start = patchFastEnemies(
+      createInitialState(createSpikeLevel(9, [ENEMY_SPAWN]), 0, []),
+    );
+    const states = nextTickStates(start, 400);
+
+    times(size(states), (tickIndex) =>
+      expect(
+        states[tickIndex].enemies[0].timers.death,
+        `alive at tick ${tickIndex}`,
+      ).toBeNull(),
+    );
+
+    const maxRight = reduce(
+      states,
+      (rightmost, state) =>
+        Math.max(rightmost, state.enemies[0].position.x + ENEMY_WIDTH),
+      0,
+    );
+
+    expect(maxRight, 'paced toward the spike').toBeGreaterThan(7 * TILE_SIZE);
   });
 
   it('should kill the enemy and clear it once it fades when it ends up on a spike', () => {

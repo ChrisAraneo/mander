@@ -4,6 +4,7 @@ import { pipe } from 'remeda';
 import { createRandom } from '../../../random/create-random';
 import { isRollUnder } from '../../../random/is-roll-under';
 import type { GameLevel } from '../../../types/game-level';
+import { FAST_ENEMY_CHANCE } from '../consts';
 import { computeEnemySpawnX } from './compute-enemy-spawn-x';
 import { computeEnemySpawnY } from './compute-enemy-spawn-y';
 import { createPatrol } from './create-patrol';
@@ -17,6 +18,7 @@ export const createPatrols = (level: GameLevel): Enemy[] =>
         toEnemyKind(
           !isSolid(level, spawn.x, spawn.y + 1),
           isRollUnder(level.hornedEnemyChance, random),
+          isRollUnder(FAST_ENEMY_CHANCE, random),
         ),
       ),
     ),

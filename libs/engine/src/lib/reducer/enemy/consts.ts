@@ -20,6 +20,10 @@ export const ENEMY_DEATH_SECONDS = 0.3;
 
 export const HORNED_ENEMY_CHANCE = 0.5;
 
+export const FAST_ENEMY_MOVE_SPEED = ENEMY_MOVE_SPEED * 1.75;
+
+export const FAST_ENEMY_CHANCE = 0.25;
+
 export const FLYING_ENEMY_MOVE_SPEED = ENEMY_MOVE_SPEED * 0.75;
 
 export const FLYING_ENEMY_RANGE = TILE_SIZE;

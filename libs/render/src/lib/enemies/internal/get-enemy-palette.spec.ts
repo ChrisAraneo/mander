@@ -25,6 +25,17 @@ describe('getEnemyPalette', () => {
     });
   });
 
+  it('should give the yellow palette when the enemy is fast', () => {
+    const result = getEnemyPalette('FAST');
+
+    expect(result).toEqual({
+      feet: '#A8861E',
+      body: '#E0BC2C',
+      belly: '#FFE06F',
+      brow: '#4A3A0C',
+    });
+  });
+
   it('should give the blue palette when the enemy flies', () => {
     const result = getEnemyPalette('FLYING');
 

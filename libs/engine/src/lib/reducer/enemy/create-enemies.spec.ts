@@ -7,7 +7,17 @@ import {
   TILE_ENEMY,
   TILE_SIZE,
 } from '@mander/model';
-import { every, filter, find, map, size, some, times } from 'lodash-es';
+import {
+  every,
+  filter,
+  find,
+  map,
+  size,
+  some,
+  sortBy,
+  times,
+  uniq,
+} from 'lodash-es';
 import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
@@ -141,20 +151,35 @@ describe('createEnemies', () => {
     expect(hornedCount, 'not suspiciously common').toBeLessThan(140);
   });
 
-  it('should hatch nothing but hopping enemies when the level asks for no horned ones', () => {
+  it('should spawn only hopping and fast enemies when the level asks for no horned ones', () => {
     const level = createLevelWithEnemies('SEED-HOPPING-ONLY', 200, 0);
     const enemies = createEnemies(level);
 
     expect(enemies).toHaveLength(200);
-    expect(every(enemies, (enemy) => enemy.kind === 'HOPPING')).toBe(true);
+    expect(sortBy(uniq(map(enemies, (enemy) => enemy.kind)))).toEqual([
+      'FAST',
+      'HOPPING',
+    ]);
   });
 
-  it('should hatch nothing but horned enemies when the level asks for them alone', () => {
+  it('should spawn only horned and fast enemies when the level asks for horned ones alone', () => {
     const level = createLevelWithEnemies('SEED-HORNED-ONLY', 200, 1);
     const enemies = createEnemies(level);
 
     expect(enemies).toHaveLength(200);
-    expect(every(enemies, (enemy) => enemy.kind === 'HORNED')).toBe(true);
+    expect(sortBy(uniq(map(enemies, (enemy) => enemy.kind)))).toEqual([
+      'FAST',
+      'HORNED',
+    ]);
+  });
+
+  it('should make roughly a quarter of the enemies fast when the level spawns many', () => {
+    const level = createLevelWithEnemies('SEED-B', 200);
+    const enemies = createEnemies(level);
+    const fastCount = size(filter(enemies, (enemy) => enemy.kind === 'FAST'));
+
+    expect(fastCount, 'not suspiciously rare').toBeGreaterThan(30);
+    expect(fastCount, 'not suspiciously common').toBeLessThan(70);
   });
 
   it('should still spawn flying enemies in the air when the level asks something else of the ground', () => {

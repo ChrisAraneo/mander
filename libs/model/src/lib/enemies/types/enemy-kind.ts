@@ -1,1 +1,1 @@
-export type EnemyKind = 'HOPPING' | 'HORNED' | 'FLYING' | 'BEARTRAP';
+export type EnemyKind = 'HOPPING' | 'HORNED' | 'FAST' | 'FLYING' | 'BEARTRAP';

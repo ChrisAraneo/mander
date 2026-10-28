@@ -14,6 +14,12 @@ describe('getEnemyMaxVelocityY', () => {
     expect(maxVelocityY).toBe(HORNED_ENEMY_JUMP_VELOCITY);
   });
 
+  it('should give the lower horned jump when the enemy is fast', () => {
+    const maxVelocityY = getEnemyMaxVelocityY('FAST');
+
+    expect(maxVelocityY).toBe(HORNED_ENEMY_JUMP_VELOCITY);
+  });
+
   it('should give the flying speed when the enemy flies', () => {
     const maxVelocityY = getEnemyMaxVelocityY('FLYING');
 

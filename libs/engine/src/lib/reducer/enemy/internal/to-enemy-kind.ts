@@ -5,7 +5,8 @@ import { toGroundEnemyKind } from './to-ground-enemy-kind';
 export const toEnemyKind = (
   isAirborne: boolean,
   isHorned: boolean,
+  isFast: boolean,
 ): EnemyKind =>
   match(isAirborne)
     .with(true, (): EnemyKind => 'FLYING')
-    .otherwise(() => toGroundEnemyKind(isHorned));
+    .otherwise(() => toGroundEnemyKind(isHorned, isFast));
