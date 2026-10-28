@@ -11,6 +11,7 @@ import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../../state/create-initial-state';
 import type { GameLevel } from '../../types/game-level';
 import type { GameState } from '../../types/game-state';
+import { BASE_AMMO } from '../bullet/consts';
 import { createFiredBullet } from '../bullet/create-fired-bullet';
 import { patchShot } from './patch-shot';
 
@@ -46,7 +47,7 @@ describe('patchShot', () => {
   it('should use up one bullet when the player shoots in a level being played', () => {
     const shot = patchShot(createState());
 
-    expect(shot.ammo).toBe(3);
+    expect(shot.ammo).toBe(BASE_AMMO + 3);
   });
 
   it('should fire a bullet from the player when the player shoots in a level being played', () => {
@@ -67,7 +68,7 @@ describe('patchShot', () => {
       createFiredBullet(state.player),
       createFiredBullet(state.player),
     ]);
-    expect(secondShot.ammo).toBe(2);
+    expect(secondShot.ammo).toBe(BASE_AMMO + 2);
   });
 
   it('should leave the rest of the state alone when the player shoots', () => {
@@ -77,7 +78,7 @@ describe('patchShot', () => {
 
     expect(shot).toEqual({
       ...state,
-      ammo: 3,
+      ammo: BASE_AMMO + 3,
       bullets: [createFiredBullet(state.player)],
     });
   });
@@ -91,7 +92,7 @@ describe('patchShot', () => {
   });
 
   it('should give back the same state when the player has no bullets', () => {
-    const state = createInitialState(LEVEL, 0, []);
+    const state: GameState = { ...createInitialState(LEVEL, 0, []), ammo: 0 };
 
     const shot = patchShot(state);
 

@@ -11,6 +11,7 @@ import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../../state/create-initial-state';
 import type { GameLevel } from '../../types/game-level';
 import type { GameState } from '../../types/game-state';
+import { BASE_AMMO } from '../bullet/consts';
 import { BASE_HEARTS } from '../player/consts';
 import { createBasePlayerVelocity } from '../player/create-base-player-velocity';
 import { handleChooseItem } from './handle-choose-item';
@@ -128,7 +129,9 @@ describe('handleChooseItem', () => {
     );
 
     expect(state.stars, 'the star it just took').toBe(1);
-    expect(state.ammo, 'and the rounds it was already carrying').toBe(4);
+    expect(state.ammo, 'and the rounds it was already carrying').toBe(
+      BASE_AMMO + 4,
+    );
     expect(state.player.hearts.value).toBe(BASE_HEARTS + 2);
   });
 
@@ -143,7 +146,7 @@ describe('handleChooseItem', () => {
       0,
     );
 
-    expect(gem.ammo, 'the rounds survive the star').toBe(4);
+    expect(gem.ammo, 'the rounds survive the star').toBe(BASE_AMMO + 4);
     expect(gem.stars, 'the star survives the gem').toBe(1);
     expect(gem.inventory).toEqual([TWO_BULLETS, STAR, RED_GEM]);
   });

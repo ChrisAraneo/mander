@@ -5,3 +5,5 @@ export const BULLET_SPEED = 420;
 export const BULLET_HITBOX_INSET = 1;
 
 export const BULLET_MUZZLE_RATIO = 0.65;
+
+export const BASE_AMMO = 5;

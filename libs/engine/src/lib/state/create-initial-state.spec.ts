@@ -11,6 +11,7 @@ import {
 import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
+import { BASE_AMMO } from '../reducer/bullet/consts';
 import { BASE_HEARTS } from '../reducer/player/consts';
 import type { GameLevel } from '../types/game-level';
 import { createInitialState } from './create-initial-state';
@@ -64,15 +65,15 @@ describe('createInitialState', () => {
   it('should fill the ammo, stars and hearts from the inventory when the player carries items', () => {
     const state = createInitialState(LEVEL, 0, INVENTORY);
 
-    expect(state.ammo).toBe(4);
+    expect(state.ammo).toBe(BASE_AMMO + 4);
     expect(state.stars).toBe(1);
     expect(state.player.hearts.value).toBe(BASE_HEARTS + 2);
   });
 
-  it('should give no ammo, no stars and the base hearts when the inventory is empty', () => {
+  it('should give the base ammo, no stars and the base hearts when the inventory is empty', () => {
     const state = createInitialState(LEVEL, 0, []);
 
-    expect(state.ammo).toBe(0);
+    expect(state.ammo).toBe(BASE_AMMO);
     expect(state.stars).toBe(0);
     expect(state.player.hearts.value).toBe(BASE_HEARTS);
   });

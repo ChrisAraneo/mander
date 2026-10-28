@@ -34,6 +34,7 @@ import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../state/create-initial-state';
 import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
+import { BASE_AMMO } from './bullet/consts';
 import { ENEMY_HEIGHT, HORNED_ENEMY_CHANCE } from './enemy/consts';
 import { nextGameState } from './next-game-state';
 import { BASE_HEARTS, PLAYER_HEIGHT } from './player/consts';
@@ -202,18 +203,21 @@ const nextTurn = (state: GameState, isRight: boolean): GameState =>
 
 describe('bullets', () => {
   it('should load a round for every bullet when the pack holds them', () => {
-    expect(createShooterState(3).ammo).toBe(3);
+    expect(createShooterState(3).ammo).toBe(BASE_AMMO + 3);
   });
 
   it('should spend a round and put a bullet in the air when the player shoots', () => {
     const state = nextShot(createShooterState(2));
 
-    expect(state.ammo, 'one round lighter').toBe(1);
+    expect(state.ammo, 'one round lighter').toBe(BASE_AMMO + 1);
     expect(size(state.bullets), 'and one bullet away').toBe(1);
   });
 
   it('should do nothing when the gun is empty', () => {
-    const state = createArmedState(createTestLevel(), SHOOTER_X, 0);
+    const state: GameState = {
+      ...createArmedState(createTestLevel(), SHOOTER_X, 0),
+      ammo: 0,
+    };
 
     expect(computeSimulation(nextShot(state))).toEqual(
       computeSimulation(state),
@@ -335,7 +339,7 @@ describe('bullets', () => {
   it('should keep the gun holstered when the chest is open', () => {
     const state: GameState = { ...createShooterState(1), status: 'CHEST' };
 
-    expect(nextShot(state).ammo).toBe(1);
+    expect(nextShot(state).ammo).toBe(BASE_AMMO + 1);
     expect(nextShot(state).bullets).toEqual([]);
   });
 
@@ -349,7 +353,7 @@ describe('bullets', () => {
     );
 
     expect(state.bullets).toEqual([]);
-    expect(state.ammo, 'the spent round stays spent').toBe(1);
+    expect(state.ammo, 'the spent round stays spent').toBe(BASE_AMMO + 1);
   });
 
   it('should carry the rounds left over when the next level loads', () => {
@@ -363,7 +367,7 @@ describe('bullets', () => {
       constant(0),
     );
 
-    expect(state.ammo).toBe(2);
+    expect(state.ammo).toBe(BASE_AMMO + 2);
     expect(state.bullets, 'though the shot in flight is left behind').toEqual(
       [],
     );

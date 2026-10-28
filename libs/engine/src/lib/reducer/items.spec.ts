@@ -25,6 +25,7 @@ import { describe, expect, it } from 'vitest';
 import { createInitialState } from '../state/create-initial-state';
 import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
+import { BASE_AMMO } from './bullet/consts';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
 import { nextGameState } from './next-game-state';
 import { BASE_HEARTS } from './player/consts';
@@ -137,10 +138,10 @@ describe('items', () => {
   });
 
   it('should load what its name promises when the card is a bullet card', () => {
-    expect(createChosenItemState(BULLET).ammo).toBe(2);
-    expect(createChosenItemState(TWO_BULLETS).ammo).toBe(4);
-    expect(createChosenItemState(THREE_BULLETS).ammo).toBe(6);
-    expect(createChosenItemState(FOUR_BULLETS).ammo).toBe(8);
+    expect(createChosenItemState(BULLET).ammo).toBe(BASE_AMMO + 2);
+    expect(createChosenItemState(TWO_BULLETS).ammo).toBe(BASE_AMMO + 4);
+    expect(createChosenItemState(THREE_BULLETS).ammo).toBe(BASE_AMMO + 6);
+    expect(createChosenItemState(FOUR_BULLETS).ammo).toBe(BASE_AMMO + 8);
   });
 
   it('should stack on top of the rounds already carried when a second bullet card is taken', () => {
@@ -156,6 +157,6 @@ describe('items', () => {
         { type: 'CHOOSE_ITEM', index: 0 },
         constant(0),
       ).ammo,
-    ).toBe(10);
+    ).toBe(BASE_AMMO + 10);
   });
 });
