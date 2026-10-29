@@ -5,6 +5,7 @@ import { isAlive } from '../../player/is-alive';
 
 const STOMP_PROOF_KINDS: readonly EnemyKind[] = Object.freeze([
   'HORNED',
+  'SHOOTER',
   'BEARTRAP',
 ]);
 

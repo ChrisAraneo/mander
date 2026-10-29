@@ -33,6 +33,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const createSpikeLevel = (): GameLevel =>
@@ -47,7 +48,7 @@ const createEnemyAt = (left: number, top: number): Enemy => ({
 
 const createDyingEnemyAt = (left: number, top: number): Enemy => ({
   ...createEnemyAt(left, top),
-  timers: { death: 0.1 },
+  timers: { death: 0.1, reload: 0 },
 });
 
 const createKilledEnemy = (enemy: Enemy): Enemy => ({
@@ -56,7 +57,7 @@ const createKilledEnemy = (enemy: Enemy): Enemy => ({
     x: { current: 0, max: enemy.velocity.x.max },
     y: enemy.velocity.y,
   },
-  timers: { death: 0 },
+  timers: { death: 0, reload: 0 },
 });
 
 const createBulletAt = (left: number, top: number): Bullet => ({

@@ -26,6 +26,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const LEVEL = createLevel(['.....', '..e..', '#####']);
@@ -53,7 +54,7 @@ describe('startEnemyDeath', () => {
 
     const dying = startEnemyDeath(enemy);
 
-    expect(dying.timers).toEqual({ death: 0 });
+    expect(dying.timers).toEqual({ death: 0, reload: 0 });
   });
 
   it('should keep the same rise or fall when the enemy starts to die', () => {

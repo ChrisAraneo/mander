@@ -113,6 +113,7 @@ const createTestLevel = (enemies: Point[] = []): GameLevel => ({
   ),
   chestItems: CARDS,
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
+  shooterEnemyChance: 0,
 });
 
 const patchSpikeTile = (level: GameLevel, column: number): GameLevel => ({

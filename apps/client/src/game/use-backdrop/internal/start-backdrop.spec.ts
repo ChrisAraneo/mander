@@ -19,6 +19,7 @@ const LEVEL: GameLevel = {
   tiles: times(4, (): Tile[] => times(4, constant(TILE_AIR))),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 };
 
 const CONTEXT = { kind: 'CONTEXT' } as unknown as CanvasRenderingContext2D;

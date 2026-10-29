@@ -29,7 +29,7 @@ const createEnemyAt = (top = ENEMY_Y, velocityY = 0): Enemy => ({
     x: { current: 0, max: 78 },
     y: { current: velocityY, max: ENEMY_JUMP_VELOCITY },
   },
-  timers: { death: null },
+  timers: { death: null, reload: 0 },
   spawn: { x: ENEMY_X, y: top },
   statuses: { isFacingRight: true, isGrounded: true },
 });

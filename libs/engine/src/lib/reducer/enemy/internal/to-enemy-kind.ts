@@ -6,7 +6,8 @@ export const toEnemyKind = (
   isAirborne: boolean,
   isHorned: boolean,
   isFast: boolean,
+  isShooter: boolean,
 ): EnemyKind =>
   match(isAirborne)
     .with(true, (): EnemyKind => 'FLYING')
-    .otherwise(() => toGroundEnemyKind(isHorned, isFast));
+    .otherwise(() => toGroundEnemyKind(isHorned, isFast, isShooter));

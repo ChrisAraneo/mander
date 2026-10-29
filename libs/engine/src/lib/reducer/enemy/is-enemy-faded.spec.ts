@@ -26,13 +26,14 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const LEVEL = createLevel(['.....', '..e..', '#####']);
 
 const createEnemyDyingFor = (death: number | null): Enemy => ({
   ...createEnemies(LEVEL)[0],
-  timers: { death },
+  timers: { death, reload: 0 },
 });
 
 describe('isEnemyFaded', () => {

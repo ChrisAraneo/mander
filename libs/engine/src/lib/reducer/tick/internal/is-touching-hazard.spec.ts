@@ -38,6 +38,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const LEVEL = createLevel([
@@ -65,7 +66,7 @@ const CLEAR_PLAYER = createPlayerAt(4 * TILE_SIZE, 2 * TILE_SIZE);
 const createEnemyOnPlayer = (death: number | null): Enemy => ({
   ...ENEMIES[0],
   position: { x: CLEAR_PLAYER.position.x, y: CLEAR_PLAYER.position.y + 12 },
-  timers: { death },
+  timers: { death, reload: 0 },
 });
 
 const CANNONBALL: Cannonball = {

@@ -31,6 +31,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const LEVEL = createLevel(['.....', '.....', 's.e..', '#####']);
@@ -58,7 +59,7 @@ const createEnemyOf = (kind: EnemyKind, death: number | null): Enemy => ({
   ...createEnemies(LEVEL)[0],
   kind,
   position: { x: ENEMY_X, y: ENEMY_Y },
-  timers: { death },
+  timers: { death, reload: 0 },
 });
 
 const PREVIOUS_PLAYER = createPlayerWithFeetAt(ENEMY_HEAD - 10, 400);
@@ -93,9 +94,10 @@ describe('filterStompedEnemies', () => {
     expect(stomped).toEqual([fast]);
   });
 
-  it('should give no enemies when the falling player lands on a horned enemy and a beartrap', () => {
+  it('should give no enemies when the falling player lands on a horned enemy, a shooter and a beartrap', () => {
     const enemies = [
       createEnemyOf('HORNED', null),
+      createEnemyOf('SHOOTER', null),
       createEnemyOf('BEARTRAP', null),
     ];
 

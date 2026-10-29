@@ -28,6 +28,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const LEVEL = createLevel(['.....', '.e.b.', '#####']);
@@ -63,7 +64,10 @@ describe('isCaughtByBeartrap', () => {
 
   it('should say no when the enemy inside the beartrap is dying', () => {
     const traps = [createTrapAt(100, 100)];
-    const prey: Enemy = { ...createPreyAt(110, 100), timers: { death: 0.1 } };
+    const prey: Enemy = {
+      ...createPreyAt(110, 100),
+      timers: { death: 0.1, reload: 0 },
+    };
 
     const isCaught = isCaughtByBeartrap(traps, prey);
 

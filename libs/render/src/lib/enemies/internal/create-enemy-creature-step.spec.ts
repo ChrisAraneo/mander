@@ -16,7 +16,7 @@ const createTestEnemy = (kind: EnemyKind): Enemy => ({
   kind,
   position: { x: 64, y: 96 },
   velocity: { x: { current: 0, max: 0 }, y: { current: 0, max: 0 } },
-  timers: { death: null },
+  timers: { death: null, reload: 0 },
   spawn: { x: 64, y: 96 },
   statuses: { isFacingRight: true, isGrounded: true },
 });
@@ -151,6 +151,35 @@ describe('createEnemyCreatureStep', () => {
       'lineTo(1, -6)',
       'stroke()',
     ]);
+  });
+
+  it('should add the same horns as a horned enemy when the enemy shoots', () => {
+    const calls = drawRecorded(
+      createEnemyCreatureStep(createTestEnemy('SHOOTER'), PALETTE, false, 0.2),
+    );
+
+    expect(calls).toEqual(
+      drawRecorded(
+        createEnemyCreatureStep(createTestEnemy('HORNED'), PALETTE, false, 0.2),
+      ),
+    );
+  });
+
+  it('should add no horns when the enemy is fast', () => {
+    const calls = drawRecorded(
+      createEnemyCreatureStep(createTestEnemy('FAST'), PALETTE, false, 0.2),
+    );
+
+    expect(calls).toEqual(
+      drawRecorded(
+        createEnemyCreatureStep(
+          createTestEnemy('HOPPING'),
+          PALETTE,
+          false,
+          0.2,
+        ),
+      ),
+    );
   });
 
   it('should add wings behind the body when the enemy flies', () => {

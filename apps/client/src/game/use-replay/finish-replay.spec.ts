@@ -19,6 +19,7 @@ const LEVEL: GameLevel = {
   tiles: times(4, (): Tile[] => times(4, constant(TILE_AIR))),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 };
 
 const RECORDING: Replay = { worldName: 'ABC', steps: 10, entries: [] };

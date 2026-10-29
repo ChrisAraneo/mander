@@ -30,6 +30,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const LEVEL = createLevel(['.....', '.....', 's.e..', '#####']);
@@ -48,7 +49,7 @@ const createEnemyAt = (
   ...createEnemies(LEVEL)[0],
   kind,
   position: { x: left, y: 110 },
-  timers: { death },
+  timers: { death, reload: 0 },
 });
 
 describe('filterHornedVictims', () => {
@@ -62,10 +63,30 @@ describe('filterHornedVictims', () => {
     expect(victims).toEqual([horned]);
   });
 
+  it('should give the shooter when a vulnerable player touches a living shooter', () => {
+    const player = createPlayerWith(0);
+    const shooter = createEnemyAt('SHOOTER', 100, null);
+    const far = createEnemyAt('SHOOTER', 300, null);
+
+    const victims = filterHornedVictims(player, [shooter, far]);
+
+    expect(victims).toEqual([shooter]);
+  });
+
+  it('should give no enemies when the shooter the player touches is dying', () => {
+    const player = createPlayerWith(0);
+    const dying = createEnemyAt('SHOOTER', 100, 0.1);
+
+    const victims = filterHornedVictims(player, [dying]);
+
+    expect(victims).toEqual([]);
+  });
+
   it('should give no enemies when the player touches enemies of other kinds', () => {
     const player = createPlayerWith(0);
     const enemies = [
       createEnemyAt('HOPPING', 100, null),
+      createEnemyAt('FAST', 100, null),
       createEnemyAt('FLYING', 100, null),
       createEnemyAt('BEARTRAP', 100, null),
     ];

@@ -61,7 +61,11 @@ const createRoom = (): Level => ({
 });
 
 const createTrap = (level: Level): Enemy =>
-  createEnemies({ ...level, hornedEnemyChance: HORNED_ENEMY_CHANCE })[0];
+  createEnemies({
+    ...level,
+    hornedEnemyChance: HORNED_ENEMY_CHANCE,
+    shooterEnemyChance: 0,
+  })[0];
 
 const createStandingPlayer = (gap: number): Player => ({
   position: {

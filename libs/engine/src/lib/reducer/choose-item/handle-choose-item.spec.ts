@@ -31,6 +31,7 @@ const createChestLevel = (chestItems: Item[]): GameLevel => ({
   tiles: [[TILE_DIRT]],
   chestItems,
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const createChestState = (

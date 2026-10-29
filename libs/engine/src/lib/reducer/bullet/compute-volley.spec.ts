@@ -31,6 +31,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const LEVEL = createLevel([
@@ -72,7 +73,7 @@ describe('computeVolley', () => {
   });
 
   it('should let the bullet fly on when the enemy it meets is already dying', () => {
-    const dyingEnemy = { ...ENEMIES[0], timers: { death: 0.1 } };
+    const dyingEnemy = { ...ENEMIES[0], timers: { death: 0.1, reload: 0 } };
     const bullet = createBulletAt(dyingEnemy.position.x, dyingEnemy.position.y);
 
     const volley = computeVolley([bullet], [dyingEnemy], FALLING_SPIKES, LEVEL);

@@ -27,7 +27,7 @@ const createWalkingEnemy = (positionX: number): Enemy => ({
   kind: 'HOPPING',
   position: { x: positionX, y: 74 },
   velocity: { x: { current: 78, max: 78 }, y: { current: 0, max: 430 } },
-  timers: { death: null },
+  timers: { death: null, reload: 0 },
   spawn: { x: positionX, y: 74 },
   statuses: { isFacingRight: true, isGrounded: true },
 });

@@ -27,6 +27,9 @@ import {
   FAST_ENEMY_MOVE_SPEED,
   FLYING_ENEMY_MOVE_SPEED,
   HORNED_ENEMY_JUMP_VELOCITY,
+  SHOOTER_ENEMY_CHANCE,
+  SHOOTER_ENEMY_MOVE_SPEED,
+  SHOOTER_RELOAD_SECONDS,
 } from '../consts';
 import { createPatrols } from './create-patrols';
 
@@ -44,6 +47,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const GROUND_LEVEL = createLevel(['.....', '..e..', '#####']);
@@ -72,6 +76,14 @@ const HUGE_LEVEL = createLevel([
 const computeKinds = (level: GameLevel): Enemy['kind'][] =>
   map(createPatrols(level), (enemy) => enemy.kind);
 
+const withShooters = (level: GameLevel): GameLevel => ({
+  ...level,
+  shooterEnemyChance: SHOOTER_ENEMY_CHANCE,
+});
+
+const computeShare = (level: GameLevel, kind: Enemy['kind']): number =>
+  size(filter(computeKinds(level), (rolled) => rolled === kind)) / 400;
+
 describe('createPatrols', () => {
   it('should set a hopping enemy on its spawn point when the enemy tile stands on solid ground', () => {
     const patrols = createPatrols(GROUND_LEVEL);
@@ -84,7 +96,7 @@ describe('createPatrols', () => {
           x: { current: 0, max: ENEMY_MOVE_SPEED },
           y: { current: 0, max: ENEMY_JUMP_VELOCITY },
         },
-        timers: { death: null },
+        timers: { death: null, reload: 0 },
         spawn: { x: 69, y: 42 },
         statuses: { isFacingRight: true, isGrounded: false },
       },
@@ -119,17 +131,49 @@ describe('createPatrols', () => {
     expect(sortBy(uniq(kinds))).toEqual(['FAST', 'HOPPING']);
   });
 
+  it('should spawn no shooters when the level does not roll for them', () => {
+    const kinds = computeKinds({ ...CROWDED_LEVEL, hornedEnemyChance: 0.5 });
+
+    expect(kinds).not.toContain('SHOOTER');
+  });
+
+  it('should mix shooters in when the level rolls for them', () => {
+    const level = withShooters({ ...CROWDED_LEVEL, hornedEnemyChance: 0.5 });
+
+    const kinds = computeKinds(level);
+
+    expect(kinds).toContain('SHOOTER');
+  });
+
   it('should make about a quarter of the ground enemies fast when the level has many enemies', () => {
     const level = { ...HUGE_LEVEL, hornedEnemyChance: 0.5 };
 
-    const fastShare =
-      size(filter(computeKinds(level), (kind) => kind === 'FAST')) / 400;
+    const fastShare = computeShare(level, 'FAST');
 
     expect(fastShare).toBeGreaterThan(FAST_ENEMY_CHANCE - 0.05);
     expect(fastShare).toBeLessThan(FAST_ENEMY_CHANCE + 0.05);
   });
 
-  it('should make no flying enemy fast when the level has many flying enemies', () => {
+  it('should leave fewer ground enemies fast when the level rolls for shooters too', () => {
+    const level = withShooters({ ...HUGE_LEVEL, hornedEnemyChance: 0.5 });
+    const expected = (1 - SHOOTER_ENEMY_CHANCE) * FAST_ENEMY_CHANCE;
+
+    const fastShare = computeShare(level, 'FAST');
+
+    expect(fastShare).toBeGreaterThan(expected - 0.05);
+    expect(fastShare).toBeLessThan(expected + 0.05);
+  });
+
+  it('should make about a seventh of the ground enemies shooters when the level rolls for them', () => {
+    const level = withShooters({ ...HUGE_LEVEL, hornedEnemyChance: 0.5 });
+
+    const shooterShare = computeShare(level, 'SHOOTER');
+
+    expect(shooterShare).toBeGreaterThan(SHOOTER_ENEMY_CHANCE - 0.05);
+    expect(shooterShare).toBeLessThan(SHOOTER_ENEMY_CHANCE + 0.05);
+  });
+
+  it('should make no flying enemy fast or a shooter when the level has many flying enemies', () => {
     const kinds = computeKinds(SKY_LEVEL);
 
     expect(kinds).toEqual(times(20, () => 'FLYING'));
@@ -180,6 +224,28 @@ describe('createPatrols', () => {
     expect(enemy?.velocity).toEqual({
       x: { current: 0, max: FAST_ENEMY_MOVE_SPEED },
       y: { current: 0, max: HORNED_ENEMY_JUMP_VELOCITY },
+    });
+  });
+
+  it('should give a shooter enemy the slow walking speed and the horned jump when it is set', () => {
+    const enemy = find(createPatrols(withShooters(CROWDED_LEVEL)), {
+      kind: 'SHOOTER',
+    });
+
+    expect(enemy?.velocity).toEqual({
+      x: { current: 0, max: SHOOTER_ENEMY_MOVE_SPEED },
+      y: { current: 0, max: HORNED_ENEMY_JUMP_VELOCITY },
+    });
+  });
+
+  it('should give a shooter enemy a full reload to wait out when it is set', () => {
+    const enemy = find(createPatrols(withShooters(CROWDED_LEVEL)), {
+      kind: 'SHOOTER',
+    });
+
+    expect(enemy?.timers).toEqual({
+      death: null,
+      reload: SHOOTER_RELOAD_SECONDS,
     });
   });
 

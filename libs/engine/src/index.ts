@@ -38,6 +38,8 @@ export * from './lib/reducer/enemy/is-overlapping-enemy';
 export * from './lib/reducer/enemy/is-player-near-trap';
 export * from './lib/reducer/enemy/next-beartrap';
 export * from './lib/reducer/enemy/next-enemy';
+export * from './lib/reducer/enemy/next-shooters';
+export * from './lib/reducer/enemy/types/salvo';
 export * from './lib/reducer/player/create-base-player-velocity';
 export * from './lib/reducer/player/consts';
 export * from './lib/reducer/player/create-player';

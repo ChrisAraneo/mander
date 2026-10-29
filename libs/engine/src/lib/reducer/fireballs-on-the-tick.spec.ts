@@ -43,6 +43,7 @@ const createTestLevel = (): GameLevel => ({
   ),
   chestItems: [],
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
+  shooterEnemyChance: 0,
 });
 
 const nextTick = (state: GameState): GameState =>

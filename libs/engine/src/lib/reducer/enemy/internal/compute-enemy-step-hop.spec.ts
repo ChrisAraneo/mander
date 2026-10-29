@@ -30,7 +30,7 @@ const createStandingEnemy = (isFacingRight: boolean): Enemy => ({
   kind: 'HOPPING',
   position: { x: 80, y: 74 },
   velocity: { x: { current: 78, max: 78 }, y: { current: 12, max: 430 } },
-  timers: { death: null },
+  timers: { death: null, reload: 0 },
   spawn: { x: 80, y: 74 },
   statuses: { isFacingRight, isGrounded: true },
 });

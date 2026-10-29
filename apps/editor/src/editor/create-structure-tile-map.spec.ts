@@ -1,4 +1,4 @@
-import { HORNED_ENEMY_CHANCE } from '@mander/engine';
+import { HORNED_ENEMY_CHANCE, SHOOTER_ENEMY_CHANCE } from '@mander/engine';
 import { TILE_AIR, TILE_BRICK, TILE_DIRT } from '@mander/model';
 import { STRUCTURE_END, STRUCTURE_START } from '@mander/structures';
 import { describe, expect, it } from 'vitest';
@@ -32,6 +32,7 @@ describe('createStructureTileMap', () => {
       ],
       chestItems: [],
       hornedEnemyChance: HORNED_ENEMY_CHANCE,
+      shooterEnemyChance: SHOOTER_ENEMY_CHANCE,
     });
   });
 

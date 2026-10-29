@@ -8,7 +8,7 @@ const createHoppingEnemy = (): Enemy => ({
   kind: 'HOPPING',
   position: { x: 100, y: 200 },
   velocity: { x: { current: 0, max: 0 }, y: { current: 0, max: 0 } },
-  timers: { death: null },
+  timers: { death: null, reload: 0 },
   spawn: { x: 100, y: 200 },
   statuses: { isFacingRight: true, isGrounded: true },
 });

@@ -22,6 +22,9 @@ export const createEnemyFigureStep = (
       createEnemyCreatureStep(enemy, palette, isDying, time),
     )
     .with('FAST', () => createEnemyCreatureStep(enemy, palette, isDying, time))
+    .with('SHOOTER', () =>
+      createEnemyCreatureStep(enemy, palette, isDying, time),
+    )
     .with('FLYING', () =>
       createEnemyCreatureStep(enemy, palette, isDying, time),
     )

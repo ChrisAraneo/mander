@@ -11,7 +11,7 @@ const createTestEnemy = (
   kind,
   position: { x: 64, y: 96 },
   velocity: { x: { current: 0, max: 0 }, y: { current: 0, max: 0 } },
-  timers: { death },
+  timers: { death, reload: 0 },
   spawn: { x: 70, y: 96 },
   statuses: { isFacingRight: true, isGrounded },
 });

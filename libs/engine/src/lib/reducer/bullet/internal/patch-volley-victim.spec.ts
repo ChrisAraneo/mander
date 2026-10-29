@@ -31,6 +31,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const LEVEL = createLevel(['..f..', '.e.e.', '#####']);
@@ -53,7 +54,7 @@ const createKilledEnemy = (enemy: Enemy): Enemy => ({
     x: { current: 0, max: enemy.velocity.x.max },
     y: enemy.velocity.y,
   },
-  timers: { death: 0 },
+  timers: { death: 0, reload: 0 },
 });
 
 describe('patchVolleyVictim', () => {

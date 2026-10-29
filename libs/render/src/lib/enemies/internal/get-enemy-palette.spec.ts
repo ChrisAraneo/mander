@@ -36,6 +36,17 @@ describe('getEnemyPalette', () => {
     });
   });
 
+  it('should give the gray palette when the enemy shoots', () => {
+    const result = getEnemyPalette('SHOOTER');
+
+    expect(result).toEqual({
+      feet: '#4A4A4A',
+      body: '#8A8A8A',
+      belly: '#B8B8B8',
+      brow: '#232323',
+    });
+  });
+
   it('should give the blue palette when the enemy flies', () => {
     const result = getEnemyPalette('FLYING');
 

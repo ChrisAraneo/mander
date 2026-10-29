@@ -28,6 +28,7 @@ const LEVEL: GameLevel = {
   tiles: map(ROWS, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 };
 
 const [ENEMY] = createEnemies(LEVEL);
@@ -64,7 +65,7 @@ describe('isAlive', () => {
   });
 
   it('should say the enemy is dead when the enemy has only just started dying', () => {
-    const enemy = { ...ENEMY, timers: { death: 0 } };
+    const enemy = { ...ENEMY, timers: { death: 0, reload: 0 } };
 
     expect(isAlive(enemy)).toBe(false);
   });

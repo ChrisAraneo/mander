@@ -8,6 +8,7 @@ import { isMirrored } from '../../structures/is-mirrored';
 import { isVertical } from '../../structures/is-vertical';
 import { createLevelMeta } from './create-level-meta';
 import { getHornedEnemyChance } from './get-horned-enemy-chance';
+import { getShooterEnemyChance } from './get-shooter-enemy-chance';
 import { hashLevelSeed } from './hash-level-seed';
 import { toMirroredLayers } from './to-mirrored-layers';
 import type { FurnishedLevel } from './types/furnished-level';
@@ -35,6 +36,7 @@ export const createGameLevel = ({
       backTiles: layers.backTiles,
       chestItems: takeRandomChestItems(random),
       hornedEnemyChance: getHornedEnemyChance(levelNumber),
+      shooterEnemyChance: getShooterEnemyChance(levelNumber),
       isOpenSided: isVertical(levelVariant),
       meta: createLevelMeta(structures),
     }),

@@ -27,6 +27,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const LEVEL = createLevel(['.....', '..e..', '#####']);
@@ -38,7 +39,7 @@ const createEnemyAt = (left: number, top: number): Enemy => ({
 
 const createDyingEnemyAt = (left: number, top: number): Enemy => ({
   ...createEnemyAt(left, top),
-  timers: { death: 0.1 },
+  timers: { death: 0.1, reload: 0 },
 });
 
 const createBulletAt = (left: number, top: number): Bullet => ({

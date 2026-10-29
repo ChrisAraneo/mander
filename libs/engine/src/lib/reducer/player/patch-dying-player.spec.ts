@@ -30,6 +30,7 @@ const LEVEL: GameLevel = {
   tiles: map(ROWS, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 };
 
 const createDyingPlayer = (velocityY: number, death: number): Player => ({

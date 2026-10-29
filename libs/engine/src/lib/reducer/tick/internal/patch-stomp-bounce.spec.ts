@@ -32,6 +32,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const LEVEL = createLevel(['.....', '.....', 's.e..', '#####']);
@@ -59,7 +60,7 @@ const createEnemyAt = (left: number, kind: EnemyKind): Enemy => ({
   ...createEnemies(LEVEL)[0],
   kind,
   position: { x: left, y: ENEMY_Y },
-  timers: { death: null },
+  timers: { death: null, reload: 0 },
 });
 
 const PREVIOUS_PLAYER = createPlayerWithFeetAt(ENEMY_HEAD - 10, 400);

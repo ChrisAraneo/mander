@@ -19,6 +19,7 @@ export const createPatrols = (level: GameLevel): Enemy[] =>
           !isSolid(level, spawn.x, spawn.y + 1),
           isRollUnder(level.hornedEnemyChance, random),
           isRollUnder(FAST_ENEMY_CHANCE, random),
+          isRollUnder(level.shooterEnemyChance, random),
         ),
       ),
     ),

@@ -27,6 +27,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const createExpectedBeartrap = (left: number, top: number): Enemy => ({
@@ -36,7 +37,7 @@ const createExpectedBeartrap = (left: number, top: number): Enemy => ({
     x: { current: 0, max: 0 },
     y: { current: 0, max: BEARTRAP_JUMP_VELOCITY },
   },
-  timers: { death: null },
+  timers: { death: null, reload: 0 },
   spawn: { x: left, y: top },
   statuses: { isFacingRight: true, isGrounded: false },
 });

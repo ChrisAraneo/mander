@@ -15,6 +15,7 @@ import { takeRandomChestItems } from '../../items/take-random-chest-items';
 import { toMirroredTiles } from '../../structures/to-mirrored-tiles';
 import { createGameLevel } from './create-game-level';
 import { getHornedEnemyChance } from './get-horned-enemy-chance';
+import { getShooterEnemyChance } from './get-shooter-enemy-chance';
 import { hashLevelSeed } from './hash-level-seed';
 
 const STRUCTURES = take([...NORMAL_STRUCTURES], 2);
@@ -73,6 +74,12 @@ describe('createGameLevel', () => {
     expect(
       map([1, 4, 7], (levelNumber) => createOn(levelNumber).hornedEnemyChance),
     ).toEqual(map([1, 4, 7], getHornedEnemyChance));
+  });
+
+  it('should send out the shooters the level allows when it creates it', () => {
+    expect(
+      map([1, 4, 7], (levelNumber) => createOn(levelNumber).shooterEnemyChance),
+    ).toEqual(map([1, 4, 7], getShooterEnemyChance));
   });
 
   it('should leave the sides open when the level is vertical', () => {

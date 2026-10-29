@@ -20,6 +20,7 @@ import type { GameState } from '../../../types/game-state';
 import { nextBullets } from '../../bullet/next-bullets';
 import { nextFallingSpikes } from '../../falling-spike/next-falling-spikes';
 import { nextFireballs } from '../../fireball/next-fireballs';
+import { createPatrol } from '../../enemy/internal/create-patrol';
 import { patchMovedBarrage } from './patch-moved-barrage';
 import { patchMovedEnemies } from './patch-moved-enemies';
 import { patchMovedTickHazards } from './patch-moved-tick-hazards';
@@ -41,6 +42,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const LEVEL = createLevel(['..c.....', '...v..f.', 's...e...', '########']);
@@ -88,6 +90,26 @@ describe('patchMovedTickHazards', () => {
       fireballs: nextFireballs(state.fireballs, DELTA_SECONDS),
       flyingBullets: nextBullets(LEVEL, state.bullets, DELTA_SECONDS),
     });
+  });
+
+  it('should add the cannonballs the shooters fire to the flying ones when a loaded shooter has the player in range', () => {
+    const state = {
+      ...createState(),
+      enemies: [
+        {
+          ...createPatrol({ x: 128, y: 64 }, 'SHOOTER'),
+          timers: { death: null, reload: 0 },
+          statuses: { isFacingRight: true, isGrounded: true },
+        },
+      ],
+    };
+    const player = createMovedPlayer();
+
+    const hazards = patchMovedTickHazards(state, player, DELTA_SECONDS);
+
+    expect(size(hazards.flying)).toBe(
+      size(patchMovedBarrage(state, player, DELTA_SECONDS).cannonballs) + 1,
+    );
   });
 
   it('should leave the given game alone when the hazards move for a tick', () => {

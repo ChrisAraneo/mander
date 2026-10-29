@@ -82,6 +82,7 @@ export * from './lib/enemies/tile-enemy';
 export * from './lib/enemies/types/hopping-enemy';
 export * from './lib/enemies/types/horned-enemy';
 export * from './lib/enemies/types/fast-enemy';
+export * from './lib/enemies/types/shooter-enemy';
 export * from './lib/enemies/types/flying-enemy';
 export * from './lib/enemies/tile-beartrap';
 export * from './lib/enemies/is-beartrap';

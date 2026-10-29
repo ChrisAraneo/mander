@@ -19,7 +19,7 @@ export const createEnemyCreatureStep = (
     createConditionalStep(enemy.kind === 'FLYING', createEnemyWingsStep(time)),
     createEnemyBodyStep(palette),
     createConditionalStep(
-      enemy.kind === 'HORNED',
+      enemy.kind === 'HORNED' || enemy.kind === 'SHOOTER',
       createEnemyHornsStep(palette),
     ),
     createEnemyEyesStep(isDying),

@@ -32,6 +32,7 @@ import {
   FLYING_ENEMY_MOVE_SPEED,
   HORNED_ENEMY_CHANCE,
   HORNED_ENEMY_JUMP_VELOCITY,
+  SHOOTER_ENEMY_CHANCE,
 } from './consts';
 import { createEnemies } from './create-enemies';
 
@@ -39,6 +40,7 @@ const createLevelWithEnemies = (
   seed: string,
   count: number,
   hornedEnemyChance = HORNED_ENEMY_CHANCE,
+  shooterEnemyChance = SHOOTER_ENEMY_CHANCE,
 ): GameLevel =>
   pipe(
     count + 2,
@@ -61,6 +63,7 @@ const createLevelWithEnemies = (
       tiles,
       chestItems: [],
       hornedEnemyChance,
+      shooterEnemyChance,
     }),
   );
 
@@ -68,6 +71,7 @@ const createLevelWithAirborneEnemies = (
   seed: string,
   count: number,
   hornedEnemyChance = HORNED_ENEMY_CHANCE,
+  shooterEnemyChance = SHOOTER_ENEMY_CHANCE,
 ): GameLevel =>
   pipe(
     count + 2,
@@ -90,6 +94,7 @@ const createLevelWithAirborneEnemies = (
       tiles,
       chestItems: [],
       hornedEnemyChance,
+      shooterEnemyChance,
     }),
   );
 
@@ -128,6 +133,7 @@ const createRoom = (): Level => ({
 const createArena = (): GameLevel => ({
   ...createRoom(),
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
+  shooterEnemyChance: 0,
 });
 
 describe('createEnemies', () => {
@@ -139,7 +145,7 @@ describe('createEnemies', () => {
     expect(second).toEqual(first);
   });
 
-  it('should split roughly half and half between hopping and horned when the level spawns many', () => {
+  it('should make roughly a third of the enemies horned when the level spawns many', () => {
     const level = createLevelWithEnemies('SEED-B', 200);
     const enemies = createEnemies(level);
     const hornedCount = size(
@@ -147,11 +153,11 @@ describe('createEnemies', () => {
     );
 
     expect(enemies).toHaveLength(200);
-    expect(hornedCount, 'not suspiciously rare').toBeGreaterThan(60);
-    expect(hornedCount, 'not suspiciously common').toBeLessThan(140);
+    expect(hornedCount, 'not suspiciously rare').toBeGreaterThan(40);
+    expect(hornedCount, 'not suspiciously common').toBeLessThan(90);
   });
 
-  it('should spawn only hopping and fast enemies when the level asks for no horned ones', () => {
+  it('should spawn only hopping, fast and shooter enemies when the level asks for no horned ones', () => {
     const level = createLevelWithEnemies('SEED-HOPPING-ONLY', 200, 0);
     const enemies = createEnemies(level);
 
@@ -159,10 +165,11 @@ describe('createEnemies', () => {
     expect(sortBy(uniq(map(enemies, (enemy) => enemy.kind)))).toEqual([
       'FAST',
       'HOPPING',
+      'SHOOTER',
     ]);
   });
 
-  it('should spawn only horned and fast enemies when the level asks for horned ones alone', () => {
+  it('should spawn only horned, fast and shooter enemies when the level asks for horned ones alone', () => {
     const level = createLevelWithEnemies('SEED-HORNED-ONLY', 200, 1);
     const enemies = createEnemies(level);
 
@@ -170,6 +177,7 @@ describe('createEnemies', () => {
     expect(sortBy(uniq(map(enemies, (enemy) => enemy.kind)))).toEqual([
       'FAST',
       'HORNED',
+      'SHOOTER',
     ]);
   });
 
@@ -262,7 +270,7 @@ describe('createEnemies', () => {
           x: { current: 0, max: 0 },
           y: { current: 0, max: BEARTRAP_JUMP_VELOCITY },
         },
-        timers: { death: null },
+        timers: { death: null, reload: 0 },
         spawn: { x: TRAP_X, y: TRAP_Y },
         statuses: { isFacingRight: true, isGrounded: false },
       },

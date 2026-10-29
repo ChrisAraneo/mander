@@ -30,6 +30,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const LEVEL = createLevel(['.....', '..e..', '#####']);
@@ -40,7 +41,7 @@ const createDyingEnemy = (): Enemy => ({
     x: { current: -ENEMY_MOVE_SPEED, max: ENEMY_MOVE_SPEED },
     y: { current: -120, max: ENEMY_JUMP_VELOCITY },
   },
-  timers: { death: 0.1 },
+  timers: { death: 0.1, reload: 0 },
   statuses: { isFacingRight: false, isGrounded: true },
 });
 
@@ -61,7 +62,10 @@ describe('finishEnemyDeath', () => {
 
     const finished = finishEnemyDeath(enemy);
 
-    expect(finished.timers).toEqual({ death: ENEMY_DEATH_SECONDS });
+    expect(finished.timers).toEqual({
+      death: ENEMY_DEATH_SECONDS,
+      reload: 0,
+    });
   });
 
   it('should keep the kind, place, spawn and statuses when its death is finished', () => {

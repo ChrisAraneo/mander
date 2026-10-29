@@ -7,7 +7,7 @@ const createTestEnemy = (spawnX: number, positionX: number): Enemy => ({
   kind: 'HOPPING',
   position: { x: positionX, y: 32 },
   velocity: { x: { current: 0, max: 0 }, y: { current: 0, max: 0 } },
-  timers: { death: null },
+  timers: { death: null, reload: 0 },
   spawn: { x: spawnX, y: 32 },
   statuses: { isFacingRight: true, isGrounded: true },
 });

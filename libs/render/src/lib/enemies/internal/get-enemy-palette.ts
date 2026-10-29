@@ -23,6 +23,13 @@ const FAST_PALETTE: EnemyPalette = {
   brow: '#4A3A0C',
 };
 
+const SHOOTER_PALETTE: EnemyPalette = {
+  feet: '#4A4A4A',
+  body: '#8A8A8A',
+  belly: '#B8B8B8',
+  brow: '#232323',
+};
+
 const FLYING_PALETTE: EnemyPalette = {
   feet: '#1E5FA8',
   body: '#3C8DE0',
@@ -35,6 +42,7 @@ export const getEnemyPalette = (kind: EnemyKind): EnemyPalette =>
     .with('HOPPING', () => HOPPING_PALETTE)
     .with('HORNED', () => HORNED_PALETTE)
     .with('FAST', () => FAST_PALETTE)
+    .with('SHOOTER', () => SHOOTER_PALETTE)
     .with('FLYING', () => FLYING_PALETTE)
     .with('BEARTRAP', () => HOPPING_PALETTE)
     .exhaustive();

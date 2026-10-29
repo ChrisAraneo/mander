@@ -1,8 +1,10 @@
-import type { Enemy, Player } from '@mander/model';
-import { filter } from 'lodash-es';
+import type { Enemy, EnemyKind, Player } from '@mander/model';
+import { filter, includes } from 'lodash-es';
 import { match } from 'ts-pattern';
 import { isTouchingEnemy } from '../../enemy/is-touching-enemy';
 import { isAlive } from '../../player/is-alive';
+
+const HORNED_KINDS: readonly EnemyKind[] = Object.freeze(['HORNED', 'SHOOTER']);
 
 export const filterHornedVictims = (
   player: Player,
@@ -13,7 +15,7 @@ export const filterHornedVictims = (
       filter(
         enemies,
         (enemy) =>
-          enemy.kind === 'HORNED' &&
+          includes(HORNED_KINDS, enemy.kind) &&
           isAlive(enemy) &&
           isTouchingEnemy(player, enemy),
       ),

@@ -18,6 +18,7 @@ export interface Enemy {
   };
   timers: {
     death: number | null;
+    reload: number;
   };
   spawn: {
     x: number;

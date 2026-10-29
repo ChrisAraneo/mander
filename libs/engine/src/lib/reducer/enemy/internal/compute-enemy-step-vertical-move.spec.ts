@@ -27,7 +27,7 @@ const createFallingEnemy = (positionY: number): Enemy => ({
   kind: 'HOPPING',
   position: { x: 36, y: positionY },
   velocity: { x: { current: 78, max: 78 }, y: { current: 0, max: 430 } },
-  timers: { death: null },
+  timers: { death: null, reload: 0 },
   spawn: { x: 36, y: positionY },
   statuses: { isFacingRight: true, isGrounded: false },
 });

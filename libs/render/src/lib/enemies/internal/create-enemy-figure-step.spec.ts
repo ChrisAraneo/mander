@@ -17,7 +17,7 @@ const createTestEnemy = (kind: EnemyKind, isGrounded: boolean): Enemy => ({
   kind,
   position: { x: 64, y: 96 },
   velocity: { x: { current: 0, max: 0 }, y: { current: 0, max: 0 } },
-  timers: { death: null },
+  timers: { death: null, reload: 0 },
   spawn: { x: 64, y: 96 },
   statuses: { isFacingRight: true, isGrounded },
 });
@@ -212,6 +212,28 @@ describe('createEnemyFigureStep', () => {
       drawRecorded(
         createEnemyFigureStep(
           createTestEnemy('HOPPING', true),
+          PALETTE,
+          false,
+          0.2,
+        ),
+      ),
+    );
+  });
+
+  it('should draw the same creature as a horned enemy when the enemy shoots', () => {
+    const calls = drawRecorded(
+      createEnemyFigureStep(
+        createTestEnemy('SHOOTER', true),
+        PALETTE,
+        false,
+        0.2,
+      ),
+    );
+
+    expect(calls).toEqual(
+      drawRecorded(
+        createEnemyFigureStep(
+          createTestEnemy('HORNED', true),
           PALETTE,
           false,
           0.2,

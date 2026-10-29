@@ -16,7 +16,7 @@ const createEnemyAt = (kind: EnemyKind, left: number, top: number): Enemy => ({
   kind,
   position: { x: left, y: top },
   velocity: { x: { current: 0, max: 0 }, y: { current: 0, max: 0 } },
-  timers: { death: null },
+  timers: { death: null, reload: 0 },
   spawn: { x: left, y: top },
   statuses: { isFacingRight: true, isGrounded: true },
 });
@@ -54,7 +54,7 @@ describe('patchCrushedEnemies', () => {
   });
 
   it('should leave the enemies alone when the trap is dying itself', () => {
-    const dying = { ...TRAP, timers: { death: 0.1 } };
+    const dying = { ...TRAP, timers: { death: 0.1, reload: 0 } };
     const prey = createEnemyAt('HOPPING', TRAP_X, TRAP_Y);
 
     expect(patchCrushedEnemies([dying, prey])).toEqual([dying, prey]);
@@ -63,7 +63,7 @@ describe('patchCrushedEnemies', () => {
   it('should leave the enemy where it lies when it is already dying', () => {
     const dying = {
       ...createEnemyAt('HOPPING', TRAP_X, TRAP_Y),
-      timers: { death: 0.2 },
+      timers: { death: 0.2, reload: 0 },
     };
 
     expect(patchCrushedEnemies([TRAP, dying])).toEqual([TRAP, dying]);

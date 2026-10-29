@@ -16,7 +16,7 @@ const ENEMY: Enemy = {
   kind: 'HOPPING',
   position: { x: 40, y: 74 },
   velocity: { x: { current: 78, max: 78 }, y: { current: 0, max: 430 } },
-  timers: { death: null },
+  timers: { death: null, reload: 0 },
   spawn: { x: 40, y: 74 },
   statuses: { isFacingRight: true, isGrounded: true },
 };

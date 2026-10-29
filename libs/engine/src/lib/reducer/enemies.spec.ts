@@ -32,6 +32,7 @@ import { match } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
 import { createInitialState } from '../state/create-initial-state';
+import { CANNON_RELOAD_SECONDS } from './cannon/consts';
 import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import {
@@ -43,6 +44,9 @@ import {
   FAST_ENEMY_MOVE_SPEED,
   HORNED_ENEMY_CHANCE,
   HORNED_ENEMY_JUMP_VELOCITY,
+  SHOOTER_ENEMY_MOVE_SPEED,
+  SHOOTER_RANGE,
+  SHOOTER_RELOAD_SECONDS,
 } from './enemy/consts';
 import { nextGameState } from './next-game-state';
 import {
@@ -128,6 +132,7 @@ const createTestLevel = (enemies: Point[] = []): GameLevel => ({
   ),
   chestItems: CARDS,
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
+  shooterEnemyChance: 0,
 });
 
 const SPAWN_X = getSpawnPosition(createTestLevel()).x;
@@ -211,6 +216,36 @@ const patchFastEnemies = (state: GameState): GameState =>
     'FAST',
     FAST_ENEMY_MOVE_SPEED,
     HORNED_ENEMY_JUMP_VELOCITY,
+  );
+
+const patchShooterEnemies = (state: GameState): GameState =>
+  pipe(
+    patchEnemyKinds(
+      state,
+      'SHOOTER',
+      SHOOTER_ENEMY_MOVE_SPEED,
+      HORNED_ENEMY_JUMP_VELOCITY,
+    ),
+    (patched): GameState => ({
+      ...patched,
+      enemies: map(patched.enemies, (enemy): Enemy => ({
+        ...enemy,
+        timers: { ...enemy.timers, reload: SHOOTER_RELOAD_SECONDS },
+      })),
+    }),
+  );
+
+const createShooterEnemyState = (playerLeft: number): GameState =>
+  pipe(
+    createInitialState(createTestLevel([ENEMY_SPAWN]), 0, []),
+    patchShooterEnemies,
+    (state): GameState => ({
+      ...state,
+      player: {
+        ...state.player,
+        position: { x: playerLeft, y: SURFACE - PLAYER_HEIGHT },
+      },
+    }),
   );
 
 const createHoppingEnemyState = (): GameState =>
@@ -612,7 +647,7 @@ describe('enemies', () => {
             y: { ...enemy.velocity.y, current: 0 },
           },
           statuses: { ...enemy.statuses, isGrounded: false },
-          timers: { death: 0 },
+          timers: { death: 0, reload: 0 },
         },
       ],
     };
@@ -750,7 +785,7 @@ describe('enemies', () => {
             x: { current: 0, max: ENEMY_MOVE_SPEED },
             y: { current: 0, max: ENEMY_JUMP_VELOCITY },
           },
-          timers: { death: null },
+          timers: { death: null, reload: 0 },
           spawn: { x: playerLeft + 17, y: enemyFloorY },
           statuses: { isFacingRight: true, isGrounded: true },
         },
@@ -1034,6 +1069,86 @@ describe('enemies', () => {
       'no stomp bounce for a horned enemy',
     ).toBeGreaterThan(0);
     expect(ticked.deaths).toBe(before);
+  });
+
+  it('should fire a cannonball towards the player when the shooter finishes its reload', () => {
+    const start = createShooterEnemyState(20 * TILE_SIZE);
+
+    const ticked = nextTicks(start, computeTickCount(SHOOTER_RELOAD_SECONDS));
+
+    expect(size(ticked.cannonballs), 'the shooter fired').toBeGreaterThan(0);
+    expect(
+      ticked.cannonballs[0].velocity.x.current,
+      'and aimed right at the player',
+    ).toBeGreaterThan(0);
+  });
+
+  it('should still be reloading when a cannon would already have fired', () => {
+    const start = createShooterEnemyState(20 * TILE_SIZE);
+
+    const ticked = nextTicks(start, computeTickCount(CANNON_RELOAD_SECONDS));
+
+    expect(ticked.cannonballs).toEqual([]);
+  });
+
+  it('should hold its fire when the player is out of the shooter range', () => {
+    const start = createShooterEnemyState(20 * TILE_SIZE);
+    const far: GameState = {
+      ...start,
+      enemies: map(start.enemies, (enemy): Enemy => ({
+        ...enemy,
+        position: {
+          x: enemy.position.x - SHOOTER_RANGE * 2,
+          y: enemy.position.y,
+        },
+      })),
+    };
+
+    const ticked = nextTicks(far, computeTickCount(SHOOTER_RELOAD_SECONDS));
+
+    expect(ticked.cannonballs).toEqual([]);
+  });
+
+  it('should walk at half the pace of a hopping enemy when the shooter paces', () => {
+    const computePace = (state: GameState): number =>
+      Math.abs(nextTicks(state, 10).enemies[0].velocity.x.current);
+
+    const shooterPace = computePace(createShooterEnemyState(20 * TILE_SIZE));
+    const hoppingPace = computePace(nextTicks(createHoppingEnemyState(), 1));
+
+    expect(shooterPace).toBeCloseTo(hoppingPace / 2);
+  });
+
+  it('should die and still cost a heart when the shooter is stomped from above', () => {
+    const start = createHoppingEnemyState();
+    const settled = nextTicks(start, 10);
+    const enemy = settled.enemies[0];
+    const falling: GameState = {
+      ...settled,
+      enemies: [{ ...enemy, kind: 'SHOOTER' }],
+      player: {
+        ...settled.player,
+        position: {
+          x: enemy.position.x,
+          y: enemy.position.y + 1 - PLAYER_HEIGHT,
+        },
+        velocity: {
+          ...settled.player.velocity,
+          y: { ...settled.player.velocity.y, current: 1000 },
+        },
+        statuses: { ...settled.player.statuses, isGrounded: false },
+      },
+    };
+    const ticked = nextTick(falling);
+
+    expect(ticked.enemies[0].timers.death, 'the hit kills it too').toBe(0);
+    expect(ticked.player.hearts.value, 'its horns still hurt').toBe(
+      BASE_HEARTS - 1,
+    );
+    expect(
+      ticked.player.velocity.y.current,
+      'no stomp bounce for a shooter',
+    ).toBeGreaterThan(0);
   });
 
   it('should spare the horned enemy when the player is still invincible', () => {

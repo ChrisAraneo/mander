@@ -29,7 +29,7 @@ const createRestingTrap = (): Enemy => ({
   kind: 'BEARTRAP',
   position: { x: 80, y: 74 },
   velocity: { x: { current: 0, max: 0 }, y: { current: 12, max: 430 } },
-  timers: { death: null },
+  timers: { death: null, reload: 0 },
   spawn: { x: 80, y: 74 },
   statuses: { isFacingRight: true, isGrounded: true },
 });

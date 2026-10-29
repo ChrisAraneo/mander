@@ -1,4 +1,5 @@
 import { GRAVITY, TILE_SIZE } from '@mander/model';
+import { CANNON_RANGE, CANNON_RELOAD_SECONDS } from '../cannon/consts';
 
 export const ENEMY_WIDTH = 22;
 
@@ -23,6 +24,14 @@ export const HORNED_ENEMY_CHANCE = 0.5;
 export const FAST_ENEMY_MOVE_SPEED = ENEMY_MOVE_SPEED * 1.75;
 
 export const FAST_ENEMY_CHANCE = 0.25;
+
+export const SHOOTER_ENEMY_MOVE_SPEED = ENEMY_MOVE_SPEED * 0.5;
+
+export const SHOOTER_ENEMY_CHANCE = 0.15;
+
+export const SHOOTER_RELOAD_SECONDS = CANNON_RELOAD_SECONDS * 2;
+
+export const SHOOTER_RANGE = CANNON_RANGE;
 
 export const FLYING_ENEMY_MOVE_SPEED = ENEMY_MOVE_SPEED * 0.75;
 

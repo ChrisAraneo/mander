@@ -11,7 +11,7 @@ const createEnemyAt = (kind: EnemyKind, left: number, top: number): Enemy => ({
   kind,
   position: { x: left, y: top },
   velocity: { x: { current: 30, max: 78 }, y: { current: 0, max: 0 } },
-  timers: { death: null },
+  timers: { death: null, reload: 0 },
   spawn: { x: left, y: top },
   statuses: { isFacingRight: true, isGrounded: true },
 });

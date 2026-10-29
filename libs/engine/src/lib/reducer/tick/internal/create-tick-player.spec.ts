@@ -28,6 +28,7 @@ const LEVEL: GameLevel = {
   tiles: map(ROWS, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 };
 
 const BASE_STATE = createInitialState(LEVEL, 0, []);

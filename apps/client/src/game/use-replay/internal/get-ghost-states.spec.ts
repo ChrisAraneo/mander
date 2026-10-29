@@ -43,6 +43,7 @@ const LEVEL: GameLevel = {
   ),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 };
 
 const TICK: Action = { type: 'TICK' };

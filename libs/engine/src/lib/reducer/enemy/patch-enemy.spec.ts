@@ -33,6 +33,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const FLAT_LEVEL = createLevel([
@@ -59,7 +60,7 @@ const createGroundedEnemy = (): Enemy => ({
 const createDyingEnemy = (): Enemy => ({
   ...createEnemies(FLAT_LEVEL)[0],
   position: { x: 133, y: 20 },
-  timers: { death: 0.1 },
+  timers: { death: 0.1, reload: 0 },
 });
 
 describe('patchEnemy', () => {

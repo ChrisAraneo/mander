@@ -29,7 +29,7 @@ const createFallingTrap = (): Enemy => ({
   kind: 'BEARTRAP',
   position: { x: 40, y: 10 },
   velocity: { x: { current: 0, max: 0 }, y: { current: 100, max: 430 } },
-  timers: { death: null },
+  timers: { death: null, reload: 0 },
   spawn: { x: 40, y: 10 },
   statuses: { isFacingRight: true, isGrounded: false },
 });

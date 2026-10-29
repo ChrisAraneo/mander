@@ -53,6 +53,7 @@ const createTestLevel = (seed: string): GameLevel => ({
   tiles: map(ROWS, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [createItem('CARD-0')],
   hornedEnemyChance: 0,
+  shooterEnemyChance: 0,
 });
 
 const LEVELS: GameLevel[] = [createTestLevel('ONE'), createTestLevel('TWO')];

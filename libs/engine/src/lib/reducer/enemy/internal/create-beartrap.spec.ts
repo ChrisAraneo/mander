@@ -14,7 +14,7 @@ describe('createBeartrap', () => {
         x: { current: 0, max: 0 },
         y: { current: 0, max: BEARTRAP_JUMP_VELOCITY },
       },
-      timers: { death: null },
+      timers: { death: null, reload: 0 },
       spawn: { x: 37, y: 42 },
       statuses: { isFacingRight: true, isGrounded: false },
     });
