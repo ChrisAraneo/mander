@@ -205,6 +205,24 @@ describe('createWorld', () => {
     expect(some(early, (enemy) => enemy.kind === 'HORNED')).toBe(false);
   });
 
+  it('should send no fast enemy out when the level is one of the first two of the day', () => {
+    const early = flatMap(WORLDS, (world) =>
+      flatMap(times(2), (index) => createEnemies(world.levels[index])),
+    );
+
+    expect(some(early, (enemy) => enemy.kind === 'FAST')).toBe(false);
+  });
+
+  it('should send fast enemies out when the level is the third or later', () => {
+    const late = flatMap(WORLDS, (world) =>
+      flatMap(range(2, LEVELS_PER_DAY), (index) =>
+        createEnemies(world.levels[index]),
+      ),
+    );
+
+    expect(some(late, (enemy) => enemy.kind === 'FAST')).toBe(true);
+  });
+
   it('should send no shooter out when the level is one of the first five of the day', () => {
     const early = flatMap(WORLDS, (world) =>
       flatMap(times(LEVELS_PER_DAY - 3), (index) =>

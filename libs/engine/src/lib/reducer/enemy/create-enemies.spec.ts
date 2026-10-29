@@ -29,6 +29,7 @@ import {
   ENEMY_JUMP_VELOCITY,
   ENEMY_MOVE_SPEED,
   ENEMY_WIDTH,
+  FAST_ENEMY_CHANCE,
   FLYING_ENEMY_MOVE_SPEED,
   HORNED_ENEMY_CHANCE,
   HORNED_ENEMY_JUMP_VELOCITY,
@@ -40,6 +41,7 @@ const createLevelWithEnemies = (
   seed: string,
   count: number,
   hornedEnemyChance = HORNED_ENEMY_CHANCE,
+  fastEnemyChance = FAST_ENEMY_CHANCE,
   shooterEnemyChance = SHOOTER_ENEMY_CHANCE,
 ): GameLevel =>
   pipe(
@@ -63,6 +65,7 @@ const createLevelWithEnemies = (
       tiles,
       chestItems: [],
       hornedEnemyChance,
+      fastEnemyChance,
       shooterEnemyChance,
     }),
   );
@@ -71,6 +74,7 @@ const createLevelWithAirborneEnemies = (
   seed: string,
   count: number,
   hornedEnemyChance = HORNED_ENEMY_CHANCE,
+  fastEnemyChance = FAST_ENEMY_CHANCE,
   shooterEnemyChance = SHOOTER_ENEMY_CHANCE,
 ): GameLevel =>
   pipe(
@@ -94,6 +98,7 @@ const createLevelWithAirborneEnemies = (
       tiles,
       chestItems: [],
       hornedEnemyChance,
+      fastEnemyChance,
       shooterEnemyChance,
     }),
   );
@@ -133,6 +138,7 @@ const createRoom = (): Level => ({
 const createArena = (): GameLevel => ({
   ...createRoom(),
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
+  fastEnemyChance: 0,
   shooterEnemyChance: 0,
 });
 

@@ -47,6 +47,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [],
   hornedEnemyChance: 0,
+  fastEnemyChance: 0,
   shooterEnemyChance: 0,
 });
 
@@ -75,6 +76,11 @@ const HUGE_LEVEL = createLevel([
 
 const computeKinds = (level: GameLevel): Enemy['kind'][] =>
   map(createPatrols(level), (enemy) => enemy.kind);
+
+const withFast = (level: GameLevel): GameLevel => ({
+  ...level,
+  fastEnemyChance: FAST_ENEMY_CHANCE,
+});
 
 const withShooters = (level: GameLevel): GameLevel => ({
   ...level,
@@ -117,18 +123,40 @@ describe('createPatrols', () => {
     expect(kinds).toEqual(['FLYING']);
   });
 
-  it('should make every ground enemy horned or fast when the horned chance is certain', () => {
+  it('should make every ground enemy horned when the horned chance is certain', () => {
     const level = { ...CROWDED_LEVEL, hornedEnemyChance: 1 };
+
+    const kinds = computeKinds(level);
+
+    expect(sortBy(uniq(kinds))).toEqual(['HORNED']);
+  });
+
+  it('should make every ground enemy horned or fast when the level rolls for fast ones too', () => {
+    const level = withFast({ ...CROWDED_LEVEL, hornedEnemyChance: 1 });
 
     const kinds = computeKinds(level);
 
     expect(sortBy(uniq(kinds))).toEqual(['FAST', 'HORNED']);
   });
 
-  it('should make every ground enemy hopping or fast when the horned chance is zero', () => {
+  it('should make every ground enemy hopping when the horned chance is zero', () => {
     const kinds = computeKinds(CROWDED_LEVEL);
 
-    expect(sortBy(uniq(kinds))).toEqual(['FAST', 'HOPPING']);
+    expect(sortBy(uniq(kinds))).toEqual(['HOPPING']);
+  });
+
+  it('should spawn no fast enemies when the level does not roll for them', () => {
+    const kinds = computeKinds({ ...CROWDED_LEVEL, hornedEnemyChance: 0.5 });
+
+    expect(kinds).not.toContain('FAST');
+  });
+
+  it('should mix fast enemies in when the level rolls for them', () => {
+    const level = withFast({ ...CROWDED_LEVEL, hornedEnemyChance: 0.5 });
+
+    const kinds = computeKinds(level);
+
+    expect(kinds).toContain('FAST');
   });
 
   it('should spawn no shooters when the level does not roll for them', () => {
@@ -145,8 +173,8 @@ describe('createPatrols', () => {
     expect(kinds).toContain('SHOOTER');
   });
 
-  it('should make about a quarter of the ground enemies fast when the level has many enemies', () => {
-    const level = { ...HUGE_LEVEL, hornedEnemyChance: 0.5 };
+  it('should make about a quarter of the ground enemies fast when the level rolls for them', () => {
+    const level = withFast({ ...HUGE_LEVEL, hornedEnemyChance: 0.5 });
 
     const fastShare = computeShare(level, 'FAST');
 
@@ -155,7 +183,9 @@ describe('createPatrols', () => {
   });
 
   it('should leave fewer ground enemies fast when the level rolls for shooters too', () => {
-    const level = withShooters({ ...HUGE_LEVEL, hornedEnemyChance: 0.5 });
+    const level = withShooters(
+      withFast({ ...HUGE_LEVEL, hornedEnemyChance: 0.5 }),
+    );
     const expected = (1 - SHOOTER_ENEMY_CHANCE) * FAST_ENEMY_CHANCE;
 
     const fastShare = computeShare(level, 'FAST');
@@ -219,7 +249,9 @@ describe('createPatrols', () => {
   });
 
   it('should give a fast enemy the fast walking speed and the horned jump when it is set', () => {
-    const enemy = find(createPatrols(CROWDED_LEVEL), { kind: 'FAST' });
+    const enemy = find(createPatrols(withFast(CROWDED_LEVEL)), {
+      kind: 'FAST',
+    });
 
     expect(enemy?.velocity).toEqual({
       x: { current: 0, max: FAST_ENEMY_MOVE_SPEED },

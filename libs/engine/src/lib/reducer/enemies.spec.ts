@@ -132,6 +132,7 @@ const createTestLevel = (enemies: Point[] = []): GameLevel => ({
   ),
   chestItems: CARDS,
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
+  fastEnemyChance: 0,
   shooterEnemyChance: 0,
 });
 

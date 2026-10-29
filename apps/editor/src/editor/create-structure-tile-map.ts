@@ -1,5 +1,6 @@
 import {
   type GameLevel,
+  FAST_ENEMY_CHANCE,
   HORNED_ENEMY_CHANCE,
   SHOOTER_ENEMY_CHANCE,
 } from '@mander/engine';
@@ -18,5 +19,6 @@ export const createStructureTileMap = ({
   backTiles: toStructureTiles(backTiles),
   chestItems: [],
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
+  fastEnemyChance: FAST_ENEMY_CHANCE,
   shooterEnemyChance: SHOOTER_ENEMY_CHANCE,
 });

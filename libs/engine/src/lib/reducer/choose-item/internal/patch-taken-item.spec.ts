@@ -29,6 +29,7 @@ const LEVEL: GameLevel = {
   tiles: [[TILE_DIRT]],
   chestItems: [RED_GEM],
   hornedEnemyChance: 0,
+  fastEnemyChance: 0,
   shooterEnemyChance: 0,
 };
 

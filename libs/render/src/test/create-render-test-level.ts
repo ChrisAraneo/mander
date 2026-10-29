@@ -64,6 +64,7 @@ export const createRenderTestLevel = (
       backTiles,
       chestItems: [],
       hornedEnemyChance: 0,
+      fastEnemyChance: 0,
       shooterEnemyChance: 0,
     }),
   );

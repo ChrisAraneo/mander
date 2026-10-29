@@ -43,6 +43,7 @@ const LEVEL: GameLevel = {
   ),
   chestItems: [],
   hornedEnemyChance: 0,
+  fastEnemyChance: 0,
   shooterEnemyChance: 0,
 };
 

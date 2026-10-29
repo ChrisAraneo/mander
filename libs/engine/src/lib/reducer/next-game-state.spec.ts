@@ -46,6 +46,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
   chestItems: [DOUBLE_HEART],
   hornedEnemyChance: 0,
+  fastEnemyChance: 0,
   shooterEnemyChance: 0,
 });
 

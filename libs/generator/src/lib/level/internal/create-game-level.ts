@@ -7,6 +7,7 @@ import { takeRandomChestItems } from '../../items/take-random-chest-items';
 import { isMirrored } from '../../structures/is-mirrored';
 import { isVertical } from '../../structures/is-vertical';
 import { createLevelMeta } from './create-level-meta';
+import { getFastEnemyChance } from './get-fast-enemy-chance';
 import { getHornedEnemyChance } from './get-horned-enemy-chance';
 import { getShooterEnemyChance } from './get-shooter-enemy-chance';
 import { hashLevelSeed } from './hash-level-seed';
@@ -36,6 +37,7 @@ export const createGameLevel = ({
       backTiles: layers.backTiles,
       chestItems: takeRandomChestItems(random),
       hornedEnemyChance: getHornedEnemyChance(levelNumber),
+      fastEnemyChance: getFastEnemyChance(levelNumber),
       shooterEnemyChance: getShooterEnemyChance(levelNumber),
       isOpenSided: isVertical(levelVariant),
       meta: createLevelMeta(structures),

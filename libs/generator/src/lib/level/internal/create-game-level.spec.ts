@@ -14,6 +14,7 @@ import type { LevelVariant } from '../../types/level-variant';
 import { takeRandomChestItems } from '../../items/take-random-chest-items';
 import { toMirroredTiles } from '../../structures/to-mirrored-tiles';
 import { createGameLevel } from './create-game-level';
+import { getFastEnemyChance } from './get-fast-enemy-chance';
 import { getHornedEnemyChance } from './get-horned-enemy-chance';
 import { getShooterEnemyChance } from './get-shooter-enemy-chance';
 import { hashLevelSeed } from './hash-level-seed';
@@ -74,6 +75,12 @@ describe('createGameLevel', () => {
     expect(
       map([1, 4, 7], (levelNumber) => createOn(levelNumber).hornedEnemyChance),
     ).toEqual(map([1, 4, 7], getHornedEnemyChance));
+  });
+
+  it('should send out the fast enemies the level allows when it creates it', () => {
+    expect(
+      map([1, 4, 7], (levelNumber) => createOn(levelNumber).fastEnemyChance),
+    ).toEqual(map([1, 4, 7], getFastEnemyChance));
   });
 
   it('should send out the shooters the level allows when it creates it', () => {

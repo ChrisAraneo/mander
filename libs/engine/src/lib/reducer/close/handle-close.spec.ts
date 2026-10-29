@@ -21,6 +21,7 @@ const createChestLevel = (): GameLevel => ({
   tiles: [[TILE_DIRT]],
   chestItems: [createTrinket('ON_OFFER')],
   hornedEnemyChance: 0,
+  fastEnemyChance: 0,
   shooterEnemyChance: 0,
 });
 

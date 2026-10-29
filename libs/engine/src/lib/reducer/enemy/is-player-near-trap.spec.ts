@@ -64,6 +64,7 @@ const createTrap = (level: Level): Enemy =>
   createEnemies({
     ...level,
     hornedEnemyChance: HORNED_ENEMY_CHANCE,
+    fastEnemyChance: 0,
     shooterEnemyChance: 0,
   })[0];
 
