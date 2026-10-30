@@ -8,6 +8,7 @@ import {
 } from '@mander/engine';
 import {
   findCannonTiles,
+  findEnemySpawns,
   findGemTiles,
   findTile,
   isSolid,
@@ -16,11 +17,14 @@ import {
   type Tile,
   TILE_AIR,
   TILE_CHEST,
+  TILE_ENEMY,
+  TILE_ENEMY_FLYING,
   TILE_KEY,
   TILE_PORTAL,
   TILE_SIZE,
   TILE_SPAWN,
   type Point,
+  type TileCell,
 } from '@mander/model';
 import type { RenderedWorld } from '@mander/render';
 import { STRUCTURE_WIDTH } from '@mander/structures';
@@ -144,6 +148,14 @@ const createEarlyVariants = (): string[][] =>
 const isClimbed = (run: Run): boolean =>
   !isNull(run.spawn) && !isNull(run.portal) && run.spawn.y > run.portal.y;
 
+const isUnderpinned = (level: Level, spawn: TileCell): boolean =>
+  isSolidTile(level.tiles[spawn.y + 1]?.[spawn.x] ?? TILE_AIR);
+
+const isSpawnAtHome = (level: Level, spawn: TileCell): boolean =>
+  match(spawn.tile === TILE_ENEMY_FLYING)
+    .with(true, () => !isUnderpinned(level, spawn))
+    .otherwise(() => isUnderpinned(level, spawn));
+
 const hasFlyingEnemiesOn = (indexes: number[]): boolean =>
   some(WORLDS, (world) =>
     some(indexes, (index) =>
@@ -259,6 +271,26 @@ describe('createWorld', () => {
     expect(hasFlyingEnemiesOn([5, 6, 7]), 'on the horned-only levels').toBe(
       true,
     );
+  });
+
+  it('should leave no spawn for the level to pick when it deals a day', () => {
+    const left = flatMap(WORLDS, (world) =>
+      flatMap(world.levels, (level) =>
+        filter(flatten(level.tiles), (tile) => tile === TILE_ENEMY),
+      ),
+    );
+
+    expect(left).toEqual([]);
+  });
+
+  it('should set every enemy down where its kind can live when it deals a day', () => {
+    const homeless = flatMap(WORLDS, (world) =>
+      flatMap(world.levels, (level) =>
+        filter(findEnemySpawns(level), (spawn) => !isSpawnAtHome(level, spawn)),
+      ),
+    );
+
+    expect(homeless).toEqual([]);
   });
 
   it('should hold the cannons back when the level is before the fifth', () => {

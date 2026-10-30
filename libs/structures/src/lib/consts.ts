@@ -6,6 +6,11 @@ import {
   TILE_CERAMIC,
   TILE_DIRT,
   TILE_ENEMY,
+  TILE_ENEMY_FAST,
+  TILE_ENEMY_FLYING,
+  TILE_ENEMY_HOPPING,
+  TILE_ENEMY_HORNED,
+  TILE_ENEMY_SHOOTER,
   TILE_FIREBALL,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
@@ -27,6 +32,16 @@ export const __ = TILE_AIR;
 export const DR = TILE_DIRT;
 
 export const EN = TILE_ENEMY;
+
+export const HP = TILE_ENEMY_HOPPING;
+
+export const HN = TILE_ENEMY_HORNED;
+
+export const FA = TILE_ENEMY_FAST;
+
+export const SH = TILE_ENEMY_SHOOTER;
+
+export const FL = TILE_ENEMY_FLYING;
 
 export const BT = TILE_BEARTRAP;
 

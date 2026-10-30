@@ -1,4 +1,4 @@
-import { type Enemy, findEnemyTiles, isSolid } from '@mander/model';
+import { type Enemy, findEnemySpawns, isSolid } from '@mander/model';
 import { map } from 'lodash-es';
 import { pipe } from 'remeda';
 import { createRandom } from '../../../random/create-random';
@@ -11,10 +11,11 @@ import { toEnemyKind } from './to-enemy-kind';
 
 export const createPatrols = (level: GameLevel): Enemy[] =>
   pipe(`${level.seed}#enemies`, createRandom, (random) =>
-    map(findEnemyTiles(level), (spawn) =>
+    map(findEnemySpawns(level), (spawn) =>
       createPatrol(
         { x: computeEnemySpawnX(spawn), y: computeEnemySpawnY(spawn) },
         toEnemyKind(
+          spawn.tile,
           !isSolid(level, spawn.x, spawn.y + 1),
           isRollUnder(level.hornedEnemyChance, random),
           isRollUnder(level.fastEnemyChance, random),

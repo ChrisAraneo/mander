@@ -1,13 +1,18 @@
-import type { EnemyKind } from '@mander/model';
-import { match } from 'ts-pattern';
-import { toGroundEnemyKind } from './to-ground-enemy-kind';
+import { type EnemyKind, type Tile, toTileEnemyKind } from '@mander/model';
+import { match, P } from 'ts-pattern';
+import { toRolledEnemyKind } from './to-rolled-enemy-kind';
+
+const { nullish } = P;
 
 export const toEnemyKind = (
+  tile: Tile,
   isAirborne: boolean,
   isHorned: boolean,
   isFast: boolean,
   isShooter: boolean,
 ): EnemyKind =>
-  match(isAirborne)
-    .with(true, (): EnemyKind => 'FLYING')
-    .otherwise(() => toGroundEnemyKind(isHorned, isFast, isShooter));
+  match(toTileEnemyKind(tile))
+    .with(nullish, () =>
+      toRolledEnemyKind(isAirborne, isHorned, isFast, isShooter),
+    )
+    .otherwise((kind) => kind);

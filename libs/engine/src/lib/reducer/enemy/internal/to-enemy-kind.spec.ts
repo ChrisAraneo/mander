@@ -1,53 +1,68 @@
+import {
+  TILE_ENEMY,
+  TILE_ENEMY_FAST,
+  TILE_ENEMY_FLYING,
+  TILE_ENEMY_HOPPING,
+  TILE_ENEMY_HORNED,
+  TILE_ENEMY_SHOOTER,
+} from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
 import { toEnemyKind } from './to-enemy-kind';
 
 describe('toEnemyKind', () => {
-  it('should give a flying enemy when the enemy starts in the air with horns', () => {
-    const kind = toEnemyKind(true, true, false, false);
+  it('should take the kind from the tile when the tile names a walking enemy', () => {
+    expect(toEnemyKind(TILE_ENEMY_HOPPING, false, true, true, true)).toBe(
+      'HOPPING',
+    );
+    expect(toEnemyKind(TILE_ENEMY_HORNED, false, false, true, true)).toBe(
+      'HORNED',
+    );
+    expect(toEnemyKind(TILE_ENEMY_FAST, false, true, false, true)).toBe('FAST');
+    expect(toEnemyKind(TILE_ENEMY_SHOOTER, false, true, true, false)).toBe(
+      'SHOOTER',
+    );
+  });
+
+  it('should take the kind from the tile when the tile names a flying enemy', () => {
+    const kind = toEnemyKind(TILE_ENEMY_FLYING, false, true, true, true);
 
     expect(kind).toBe('FLYING');
   });
 
-  it('should give a flying enemy when the enemy starts in the air without horns', () => {
-    const kind = toEnemyKind(true, false, false, false);
-
-    expect(kind).toBe('FLYING');
-  });
-
-  it('should give a flying enemy when the enemy starts in the air and is fast', () => {
-    const kind = toEnemyKind(true, false, true, false);
-
-    expect(kind).toBe('FLYING');
-  });
-
-  it('should give a flying enemy when the enemy starts in the air and shoots', () => {
-    const kind = toEnemyKind(true, false, false, true);
-
-    expect(kind).toBe('FLYING');
-  });
-
-  it('should give a horned enemy when the enemy starts on the ground with horns', () => {
-    const kind = toEnemyKind(false, true, false, false);
+  it('should leave the tile standing when it names a walking enemy in the air', () => {
+    const kind = toEnemyKind(TILE_ENEMY_HORNED, true, false, false, false);
 
     expect(kind).toBe('HORNED');
   });
 
-  it('should give a hopping enemy when the enemy starts on the ground without horns', () => {
-    const kind = toEnemyKind(false, false, false, false);
+  it('should roll the kind when the tile leaves it to the level and the enemy starts in the air', () => {
+    const kind = toEnemyKind(TILE_ENEMY, true, true, true, true);
 
-    expect(kind).toBe('HOPPING');
+    expect(kind).toBe('FLYING');
   });
 
-  it('should give a fast enemy when the enemy starts on the ground and is fast', () => {
-    const kind = toEnemyKind(false, true, true, false);
+  it('should roll a shooter when the tile leaves the kind to the level and the roll shoots', () => {
+    const kind = toEnemyKind(TILE_ENEMY, false, true, true, true);
+
+    expect(kind).toBe('SHOOTER');
+  });
+
+  it('should roll a fast enemy when the tile leaves the kind to the level and the roll is fast', () => {
+    const kind = toEnemyKind(TILE_ENEMY, false, true, true, false);
 
     expect(kind).toBe('FAST');
   });
 
-  it('should give a shooter enemy when the enemy starts on the ground and shoots', () => {
-    const kind = toEnemyKind(false, false, false, true);
+  it('should roll a horned enemy when the tile leaves the kind to the level and the roll has horns', () => {
+    const kind = toEnemyKind(TILE_ENEMY, false, true, false, false);
 
-    expect(kind).toBe('SHOOTER');
+    expect(kind).toBe('HORNED');
+  });
+
+  it('should roll a hopping enemy when the tile leaves the kind to the level and no roll lands', () => {
+    const kind = toEnemyKind(TILE_ENEMY, false, false, false, false);
+
+    expect(kind).toBe('HOPPING');
   });
 });

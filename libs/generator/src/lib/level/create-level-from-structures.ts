@@ -3,6 +3,7 @@ import type { Sector } from '@mander/structures';
 import { pipe } from 'remeda';
 import type { LevelVariant } from '../types/level-variant';
 import { addLevelEnds } from './internal/add-level-ends';
+import { addLevelEnemies } from './internal/add-level-enemies';
 import { addLevelFurniture } from './internal/add-level-furniture';
 import { addLevelPadding } from './internal/add-level-padding';
 import { createGameLevel } from './internal/create-game-level';
@@ -24,5 +25,6 @@ export const createLevelFromStructures = (
     addLevelPadding,
     removeLevelTraps,
     addLevelFurniture,
+    addLevelEnemies,
     createGameLevel,
   );
