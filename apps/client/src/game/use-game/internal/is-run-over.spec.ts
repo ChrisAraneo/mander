@@ -25,7 +25,12 @@ const createState = (patch: Partial<GameState> = {}): GameState => ({
   ...patch,
 });
 
-const WORLD = { name: 'ABC', levels: [LEVEL, LEVEL], score: 0 };
+const WORLD = {
+  name: 'ABC',
+  season: 'SPRING' as const,
+  levels: [LEVEL, LEVEL],
+  score: 0,
+};
 
 describe('isRunOver', () => {
   it('should be over when the player is out of hearts', () => {

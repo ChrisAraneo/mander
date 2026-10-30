@@ -9,10 +9,12 @@ const STRUCTURE_LEVEL_NUMBER = LEVELS_PER_DAY;
 
 export const createStructureWorldLevels = ({
   choice,
+  season,
   palette,
   random,
 }: StructureWorldPalette): RenderedWorld => ({
   name: choice.name,
+  season,
   levels: [
     createLevelFromStructures(
       STRUCTURE_LEVEL_NUMBER,

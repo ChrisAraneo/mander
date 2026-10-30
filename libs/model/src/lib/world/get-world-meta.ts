@@ -5,5 +5,6 @@ import type { WorldMeta } from './types/world-meta';
 
 export const getWorldMeta = (world: World): WorldMeta => ({
   name: world.name,
+  season: world.season,
   levels: map(world.levels, toWorldLevelMeta),
 });

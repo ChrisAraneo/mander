@@ -19,6 +19,7 @@ const createLevelWithMeta = (seed: string, structures: string[]): Level => ({
 
 const createWorld = (levels: Level[]): World => ({
   name: 'TEST',
+  season: 'SPRING',
   levels,
   score: 0,
 });
@@ -34,6 +35,7 @@ describe('getWorldMeta', () => {
       ),
     ).toEqual({
       name: 'TEST',
+      season: 'SPRING',
       levels: [
         { level: 1, structures: ['NORMAL_001', 'NORMAL_002'] },
         { level: 2, structures: ['VERTICAL_003'] },
@@ -48,6 +50,10 @@ describe('getWorldMeta', () => {
   });
 
   it('should list no levels when the world has no levels', () => {
-    expect(getWorldMeta(createWorld([]))).toEqual({ name: 'TEST', levels: [] });
+    expect(getWorldMeta(createWorld([]))).toEqual({
+      name: 'TEST',
+      season: 'SPRING',
+      levels: [],
+    });
   });
 });

@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { DEBUG_PARAM, WORLD_META_LABEL } from './consts';
 import { logWorldMeta } from './log-world-meta';
 
-const WORLD: World = { name: 'ABC', levels: [], score: 0 };
+const WORLD: World = { name: 'ABC', season: 'SPRING', levels: [], score: 0 };
 
 describe('logWorldMeta', () => {
   it('should write the world summary when the address asks for debugging', () => {

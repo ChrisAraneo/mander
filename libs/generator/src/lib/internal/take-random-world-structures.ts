@@ -6,12 +6,14 @@ import type { WorldLevelVariants } from './types/world-level-variants';
 
 export const takeRandomWorldStructures = ({
   name,
+  season,
   palette,
   levelVariants,
   random,
 }: WorldLevelVariants): WorldDrawnStructures =>
   pipe(levelVariants, createLevelCategories, (levelCategories) => ({
     name,
+    season,
     palette,
     levelVariants,
     levelCategories,

@@ -1,4 +1,5 @@
 import { createRandom } from '@mander/engine';
+import type { Season } from '@mander/model';
 import { find, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
@@ -8,7 +9,9 @@ import { STRUCTURE_CHOICES } from '../structure-choices';
 import type { StructureChoice } from '../types/structure-choice';
 import { createStructureWorldLevels } from './create-structure-world-levels';
 
-const PALETTE = createPalette(createRandom('PALETTE'));
+const SPRING: Season = 'SPRING';
+
+const PALETTE = createPalette(SPRING, createRandom('PALETTE'));
 
 const NORMAL_CHOICE = STRUCTURE_CHOICES[0];
 
@@ -19,6 +22,7 @@ const VERTICAL_CHOICE: StructureChoice =
 const createWith = (choice: StructureChoice, seed: string) =>
   createStructureWorldLevels({
     choice,
+    season: SPRING,
     palette: PALETTE,
     random: createRandom(seed),
   });
@@ -42,6 +46,10 @@ describe('createStructureWorldLevels', () => {
 
   it('should name the world after the structure when it builds the level', () => {
     expect(createWith(NORMAL_CHOICE, 'SEED').name).toBe(NORMAL_CHOICE.name);
+  });
+
+  it('should keep the season it was given when it builds the level', () => {
+    expect(createWith(NORMAL_CHOICE, 'SEED').season).toBe(SPRING);
   });
 
   it('should keep the palette it was given when it builds the level', () => {

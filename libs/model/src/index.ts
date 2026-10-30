@@ -76,6 +76,7 @@ export * from './lib/items/rare/purple-gem';
 export * from './lib/items/rare/four-bullets';
 export * from './lib/items/rare/triple-star';
 export * from './lib/items/rare/pink-gem';
+export * from './lib/world/types/season';
 export * from './lib/world/types/world';
 export * from './lib/world/types/world-meta';
 export * from './lib/world/get-world-meta';

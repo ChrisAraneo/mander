@@ -25,7 +25,12 @@ const createState = (patch: Partial<GameState> = {}): GameState => ({
   ...patch,
 });
 
-const WORLD = { name: 'ABC', levels: [LEVEL, LEVEL], score: 0 };
+const WORLD = {
+  name: 'ABC',
+  season: 'SPRING' as const,
+  levels: [LEVEL, LEVEL],
+  score: 0,
+};
 
 describe('shouldWriteScore', () => {
   it('should write the score when a level before the last has just been completed', () => {

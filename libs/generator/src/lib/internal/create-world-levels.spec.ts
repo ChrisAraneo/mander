@@ -1,4 +1,5 @@
 import { createRandom } from '@mander/engine';
+import type { Season } from '@mander/model';
 import { map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
@@ -9,7 +10,9 @@ import { createLevelVariants } from '../world/create-level-variants';
 import { takeRandomCategoryStructures } from '../world/take-random-category-structures';
 import { createWorldLevels } from './create-world-levels';
 
-const PALETTE = createPalette(createRandom('DAY-1'));
+const SPRING: Season = 'SPRING';
+
+const PALETTE = createPalette(SPRING, createRandom('DAY-1'));
 
 const LEVEL_VARIANTS = createLevelVariants(createRandom('DAY-1'));
 
@@ -23,6 +26,7 @@ const WORLD_STRUCTURES = takeRandomCategoryStructures(
 const createWith = (seed: string) =>
   createWorldLevels({
     name: 'WORLD',
+    season: SPRING,
     palette: PALETTE,
     levelVariants: LEVEL_VARIANTS,
     levelCategories: LEVEL_CATEGORIES,
@@ -57,6 +61,10 @@ describe('createWorldLevels', () => {
 
   it('should keep the name when it finishes a world', () => {
     expect(WORLD.name).toBe('WORLD');
+  });
+
+  it('should keep the season when it finishes a world', () => {
+    expect(WORLD.season).toBe(SPRING);
   });
 
   it('should keep the palette when it finishes a world', () => {

@@ -1,4 +1,5 @@
 import { createRandom } from '@mander/engine';
+import type { Season } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
 import { createPalette } from '../palette/create-palette';
@@ -7,7 +8,9 @@ import { createLevelVariants } from '../world/create-level-variants';
 import { takeRandomCategoryStructures } from '../world/take-random-category-structures';
 import { takeRandomWorldStructures } from './take-random-world-structures';
 
-const PALETTE = createPalette(createRandom('DAY-1'));
+const SPRING: Season = 'SPRING';
+
+const PALETTE = createPalette(SPRING, createRandom('DAY-1'));
 
 const LEVEL_VARIANTS = createLevelVariants(createRandom('DAY-1'));
 
@@ -16,6 +19,7 @@ const LEVEL_CATEGORIES = createLevelCategories(LEVEL_VARIANTS);
 const takeRandomWith = (seed: string) =>
   takeRandomWorldStructures({
     name: 'WORLD',
+    season: SPRING,
     palette: PALETTE,
     levelVariants: LEVEL_VARIANTS,
     random: createRandom(seed),
@@ -44,6 +48,7 @@ describe('takeRandomWorldStructures', () => {
     expect(
       takeRandomWorldStructures({
         name: 'WORLD',
+        season: SPRING,
         palette: PALETTE,
         levelVariants: [],
         random: createRandom('DAY-1'),
@@ -53,6 +58,10 @@ describe('takeRandomWorldStructures', () => {
 
   it('should pass the name on when it picks the structures', () => {
     expect(takeRandomWith('DAY-1').name).toBe('WORLD');
+  });
+
+  it('should pass the season on when it picks the structures', () => {
+    expect(takeRandomWith('DAY-1').season).toBe(SPRING);
   });
 
   it('should pass the palette on when it picks the structures', () => {
@@ -73,6 +82,7 @@ describe('takeRandomWorldStructures', () => {
     expect(
       takeRandomWorldStructures({
         name: 'WORLD',
+        season: SPRING,
         palette: PALETTE,
         levelVariants: LEVEL_VARIANTS,
         random,

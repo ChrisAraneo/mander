@@ -1,5 +1,6 @@
 import {
   createEnemies,
+  createRandom,
   getSpawnPosition,
   HORNED_ENEMY_CHANCE,
   PLAYER_HEIGHT,
@@ -24,9 +25,10 @@ import {
   TILE_SIZE,
   TILE_SPAWN,
   type Point,
+  type Season,
   type TileCell,
 } from '@mander/model';
-import type { RenderedWorld } from '@mander/render';
+import { parseHsl, type RenderedWorld } from '@mander/render';
 import { STRUCTURE_WIDTH } from '@mander/structures';
 import {
   countBy,
@@ -35,6 +37,7 @@ import {
   flatMap,
   flatten,
   floor,
+  includes,
   isNull,
   join,
   map,
@@ -56,6 +59,7 @@ import {
   STRUCTURES_PER_LEVEL,
 } from './consts';
 import { createWorld } from './create-world';
+import { takeRandomSeason } from './world/take-random-season';
 
 const { number } = P;
 
@@ -155,6 +159,18 @@ const isSpawnAtHome = (level: Level, spawn: TileCell): boolean =>
   match(spawn.tile === TILE_ENEMY_FLYING)
     .with(true, () => !isUnderpinned(level, spawn))
     .otherwise(() => isUnderpinned(level, spawn));
+
+const SEASONS: Season[] = ['SPRING', 'AUTUMN'];
+
+const readWorldGroundHues = (world: RenderedWorld): number[] =>
+  map(
+    [
+      world.palette.block,
+      world.palette.blockCap,
+      world.palette.blockCapHighlight,
+    ],
+    (colour) => parseHsl(colour)?.hue ?? 0,
+  );
 
 const hasFlyingEnemiesOn = (indexes: number[]): boolean =>
   some(WORLDS, (world) =>
@@ -479,16 +495,48 @@ describe('createWorld', () => {
     ).not.toEqual(map(WORLDS[1].levels, (level) => formatGrid(level.tiles)));
   });
 
+  it('should set the world in a season the game knows when it deals a day', () => {
+    expect(every(WORLDS, (world) => includes(SEASONS, world.season))).toBe(
+      true,
+    );
+  });
+
+  it('should deal both seasons when it deals the days of a fortnight', () => {
+    expect(uniq(map(WORLDS, (world) => world.season)).sort()).toEqual([
+      'AUTUMN',
+      'SPRING',
+    ]);
+  });
+
+  it('should draw the season from the seed of the world when it deals a day', () => {
+    expect(map(WORLDS, (world) => world.season)).toEqual(
+      map(WORLDS, (world) => takeRandomSeason(createRandom(world.name))),
+    );
+  });
+
+  it('should colour the ground after the season of the world when it deals a day', () => {
+    expect(
+      every(WORLDS, (world) =>
+        every(readWorldGroundHues(world), (hue) =>
+          match(world.season)
+            .with('SPRING', () => hue >= 50 && hue <= 152)
+            .otherwise(() => hue <= 68 || hue >= 336),
+        ),
+      ),
+    ).toBe(true);
+  });
+
   it('should deal the recorded world when it is given the first day of 2026', () => {
     const world = WORLDS[0];
 
     expect(world.name).toBe('0WK92JI16OFD5K');
+    expect(world.season).toBe('AUTUMN');
     expect(world.palette).toEqual({
-      sky: ['HSL(150, 35%, 30%)', 'HSL(33, 28%, 46%)', 'HSL(33, 57%, 60%)'],
-      hills: ['HSL(150, 29%, 40%)', 'HSL(150, 29%, 34%)'],
-      block: 'HSL(38, 30%, 28%)',
-      blockCap: 'HSL(128, 42%, 51%)',
-      blockCapHighlight: 'HSL(128, 46%, 57%)',
+      sky: ['HSL(222, 35%, 27%)', 'HSL(33, 28%, 43%)', 'HSL(33, 52%, 57%)'],
+      hills: ['HSL(222, 29%, 37%)', 'HSL(222, 29%, 31%)'],
+      block: 'HSL(50, 18%, 31%)',
+      blockCap: 'HSL(68, 45%, 52%)',
+      blockCapHighlight: 'HSL(68, 49%, 58%)',
     });
     expect(map(world.levels, (level) => level.seed)).toEqual([
       '187L7V10VY2475',

@@ -3,9 +3,10 @@ import type { PaletteDraft } from './types/palette-draft';
 import type { PaletteSkyDraft } from './types/palette-sky-draft';
 
 export const createPaletteGround = ({
+  season,
   sky,
   random,
 }: PaletteSkyDraft): PaletteDraft => ({
   sky,
-  ground: createRandomGround(random),
+  ground: createRandomGround(season, random),
 });

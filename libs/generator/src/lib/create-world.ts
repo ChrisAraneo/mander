@@ -6,12 +6,18 @@ import { createWorldLevels } from './internal/create-world-levels';
 import { createWorldPalette } from './internal/create-world-palette';
 import { takeRandomWorldStructures } from './internal/take-random-world-structures';
 import { computeWorldName } from './seed/compute-world-name';
+import { takeRandomSeason } from './world/take-random-season';
 
 export const createWorld = (date: Date): RenderedWorld =>
   pipe(
     date,
     computeWorldName,
-    (name) => ({ name, random: createRandom(name) }),
+    (name) =>
+      pipe(createRandom(name), (random) => ({
+        name,
+        season: takeRandomSeason(random),
+        random,
+      })),
     createWorldPalette,
     createWorldLevelVariants,
     takeRandomWorldStructures,

@@ -4,10 +4,12 @@ import type { WorldPalette } from './types/world-palette';
 
 export const createWorldLevelVariants = ({
   name,
+  season,
   palette,
   random,
 }: WorldPalette): WorldLevelVariants => ({
   name,
+  season,
   palette,
   levelVariants: createLevelVariants(random),
   random,
