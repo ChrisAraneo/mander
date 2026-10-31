@@ -50,6 +50,7 @@ import {
   times,
   uniq,
 } from 'lodash-es';
+import { pipe } from 'remeda';
 import { match, P } from 'ts-pattern';
 import { describe, expect, it } from 'vitest';
 
@@ -161,6 +162,18 @@ const isSpawnAtHome = (level: Level, spawn: TileCell): boolean =>
     .otherwise(() => isUnderpinned(level, spawn));
 
 const SEASONS: Season[] = ['SPRING', 'AUTUMN'];
+
+const readWorldMaterials = ({ palette }: RenderedWorld): string[] => [
+  palette.materials?.brick ?? '',
+  palette.materials?.wood ?? '',
+  palette.materials?.ceramic ?? '',
+];
+
+const readWorldMaterialHues = (world: RenderedWorld): number[] =>
+  map(readWorldMaterials(world), (colour) => parseHsl(colour)?.hue ?? 0);
+
+const readWorldMaterialShades = (world: RenderedWorld): number[] =>
+  map(readWorldMaterials(world), (colour) => parseHsl(colour)?.lightness ?? 0);
 
 const readWorldGroundHues = (world: RenderedWorld): number[] =>
   map(
@@ -526,6 +539,34 @@ describe('createWorld', () => {
     ).toBe(true);
   });
 
+  it('should build the walls out of clay, timber and glaze when it deals a day', () => {
+    expect(
+      every(WORLDS, (world) =>
+        pipe(
+          readWorldMaterialHues(world),
+          ([brick, wood, ceramic]) =>
+            (brick <= 48 || brick >= 326) &&
+            wood >= 6 &&
+            wood <= 52 &&
+            ceramic >= 128 &&
+            ceramic <= 330,
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it('should build the walls light in spring and deep in autumn when it deals a day', () => {
+    expect(
+      every(WORLDS, (world) =>
+        pipe(readWorldMaterialShades(world), (shades) =>
+          match(world.season)
+            .with('SPRING', () => every(shades, (shade) => shade >= 42))
+            .otherwise(() => every(shades, (shade) => shade <= 44)),
+        ),
+      ),
+    ).toBe(true);
+  });
+
   it('should deal the recorded world when it is given the first day of 2026', () => {
     const world = WORLDS[0];
 
@@ -537,6 +578,11 @@ describe('createWorld', () => {
       block: 'HSL(50, 18%, 31%)',
       blockCap: 'HSL(68, 45%, 52%)',
       blockCapHighlight: 'HSL(68, 49%, 58%)',
+      materials: {
+        brick: 'HSL(24, 54%, 42%)',
+        wood: 'HSL(22, 44%, 38%)',
+        ceramic: 'HSL(150, 34%, 36%)',
+      },
     });
     expect(map(world.levels, (level) => level.seed)).toEqual([
       '187L7V10VY2475',

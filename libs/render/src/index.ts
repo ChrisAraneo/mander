@@ -31,6 +31,7 @@ export * from './lib/types/material-style';
 export * from './lib/material/get-material-style';
 export * from './lib/material/types/material-tint';
 export * from './lib/material/get-material-tint';
+export * from './lib/types/palette-materials';
 export * from './lib/types/palette';
 export * from './lib/types/ghost';
 export * from './lib/sky/draw-sky';

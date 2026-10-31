@@ -25,6 +25,22 @@ const readGroundHues = (season: Season, seed: string): number[] =>
     ),
   );
 
+const readMaterials = (season: Season, seed: string): string[] =>
+  pipe(createPalette(season, createRandom(seed)), ({ materials }) => [
+    materials?.brick ?? '',
+    materials?.wood ?? '',
+    materials?.ceramic ?? '',
+  ]);
+
+const readMaterialHue = (season: Season, seed: string, index: number): number =>
+  parseHsl(readMaterials(season, seed)[index])?.hue ?? 0;
+
+const BRICK = 0;
+
+const WOOD = 1;
+
+const CERAMIC = 2;
+
 describe('createPalette', () => {
   it('should paint the world the same way when the generator starts from the same seed', () => {
     expect(createWith('WORLD-1')).toEqual(createWith('WORLD-1'));
@@ -54,6 +70,7 @@ describe('createPalette', () => {
           palette.block,
           palette.blockCap,
           palette.blockCapHighlight,
+          ...readMaterials(SPRING, 'WORLD-1'),
         ],
         (colour) => HSL_PATTERN.test(colour),
       ),
@@ -98,6 +115,70 @@ describe('createPalette', () => {
     ).toBe(true);
   });
 
+  it('should build the bricks out of clay when it paints a world', () => {
+    expect(
+      every(SEEDS, (seed) =>
+        every([SPRING, AUTUMN], (season) =>
+          pipe(
+            readMaterialHue(season, seed, BRICK),
+            (hue) => hue <= 48 || hue >= 326,
+          ),
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it('should cut the wood out of timber when it paints a world', () => {
+    expect(
+      every(SEEDS, (seed) =>
+        every([SPRING, AUTUMN], (season) =>
+          pipe(
+            readMaterialHue(season, seed, WOOD),
+            (hue) => hue >= 6 && hue <= 52,
+          ),
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it('should glaze the ceramics away from the clay and the timber when it paints a world', () => {
+    expect(
+      every(SEEDS, (seed) =>
+        every([SPRING, AUTUMN], (season) =>
+          pipe(
+            readMaterialHue(season, seed, CERAMIC),
+            (hue) => hue >= 128 && hue <= 330,
+          ),
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it('should give the worlds more than one brick, more than one wood and more than one ceramic', () => {
+    expect(
+      size(uniq(map(SEEDS, (seed) => readMaterials(SPRING, seed)[BRICK]))),
+    ).toBeGreaterThan(1);
+    expect(
+      size(uniq(map(SEEDS, (seed) => readMaterials(SPRING, seed)[WOOD]))),
+    ).toBeGreaterThan(1);
+    expect(
+      size(uniq(map(SEEDS, (seed) => readMaterials(SPRING, seed)[CERAMIC]))),
+    ).toBeGreaterThan(1);
+  });
+
+  it('should fire the bricks, the wood and the ceramics anew when the season turns', () => {
+    expect(
+      every(
+        SEEDS,
+        (seed) =>
+          !every(
+            readMaterials(SPRING, seed),
+            (colour, index) => colour === readMaterials(AUTUMN, seed)[index],
+          ),
+      ),
+    ).toBe(true);
+  });
+
   it('should paint another world when the season turns', () => {
     expect(createPalette(SPRING, createRandom('DAY-1'))).not.toEqual(
       createPalette(AUTUMN, createRandom('DAY-1')),
@@ -111,6 +192,11 @@ describe('createPalette', () => {
       block: 'HSL(112, 30%, 36%)',
       blockCap: 'HSL(132, 38%, 47%)',
       blockCapHighlight: 'HSL(132, 42%, 53%)',
+      materials: {
+        brick: 'HSL(4, 52%, 50%)',
+        wood: 'HSL(26, 30%, 48%)',
+        ceramic: 'HSL(148, 40%, 48%)',
+      },
     });
   });
 
@@ -121,6 +207,11 @@ describe('createPalette', () => {
       block: 'HSL(32, 30%, 36%)',
       blockCap: 'HSL(348, 38%, 47%)',
       blockCapHighlight: 'HSL(348, 42%, 53%)',
+      materials: {
+        brick: 'HSL(2, 56%, 42%)',
+        wood: 'HSL(14, 36%, 36%)',
+        ceramic: 'HSL(132, 32%, 34%)',
+      },
     });
   });
 });

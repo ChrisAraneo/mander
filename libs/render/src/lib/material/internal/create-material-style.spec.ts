@@ -14,6 +14,15 @@ const PALETTE: Palette = {
   blockCapHighlight: 'HSL(96, 47%, 54%)',
 };
 
+const GLAZED: Palette = {
+  ...PALETTE,
+  materials: {
+    brick: 'HSL(14, 46%, 44%)',
+    wood: 'HSL(30, 32%, 46%)',
+    ceramic: 'HSL(186, 50%, 46%)',
+  },
+};
+
 const GROUND: Hsl = { hue: 30, saturation: 25, lightness: 27 };
 
 describe('createMaterialStyle', () => {
@@ -24,6 +33,18 @@ describe('createMaterialStyle', () => {
       base: 'HSL(26, 21%, 43%)',
       cap: 'HSL(26, 21%, 50%)',
       capHighlight: 'HSL(26, 21%, 57%)',
+      joint: WOOD_JOINT,
+      highlight: HIGHLIGHT,
+    });
+  });
+
+  it('should take the rolled colour for wood and cap it with lighter shades when the season rolled one', () => {
+    const result = createMaterialStyle(TILE_WOOD, GLAZED, GROUND);
+
+    expect(result).toEqual({
+      base: 'HSL(30, 32%, 46%)',
+      cap: 'HSL(30, 32%, 53%)',
+      capHighlight: 'HSL(30, 32%, 60%)',
       joint: WOOD_JOINT,
       highlight: HIGHLIGHT,
     });

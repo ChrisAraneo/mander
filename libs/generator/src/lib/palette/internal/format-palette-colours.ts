@@ -2,6 +2,7 @@ import { type Palette, formatHslCss } from '@mander/render';
 import { computeHillShades } from './compute-hill-shades';
 import { computeSkyStops } from './compute-sky-stops';
 import { formatHillShades } from './format-hill-shades';
+import { formatPaletteMaterials } from './format-palette-materials';
 import { formatSkyStops } from './format-sky-stops';
 import type { PaletteDraft } from './types/palette-draft';
 
@@ -12,6 +13,7 @@ const CAP_HIGHLIGHT_LIGHTNESS_GAIN = 6;
 export const formatPaletteColours = ({
   sky,
   ground,
+  materials,
 }: PaletteDraft): Palette => ({
   sky: formatSkyStops(computeSkyStops(sky)),
   hills: formatHillShades(computeHillShades(sky)),
@@ -30,4 +32,5 @@ export const formatPaletteColours = ({
     saturation: ground.capSaturation + CAP_HIGHLIGHT_SATURATION_GAIN,
     lightness: ground.capLightness + CAP_HIGHLIGHT_LIGHTNESS_GAIN,
   }),
+  materials: formatPaletteMaterials(materials),
 });

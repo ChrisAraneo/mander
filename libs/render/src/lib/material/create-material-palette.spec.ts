@@ -28,6 +28,15 @@ const createTestPalette = (block: string): Palette => ({
 
 const BROWN = createTestPalette('HSL(30, 25%, 27%)');
 
+const GLAZED: Palette = {
+  ...BROWN,
+  materials: {
+    brick: 'HSL(14, 46%, 44%)',
+    wood: 'HSL(30, 32%, 46%)',
+    ceramic: 'HSL(186, 50%, 46%)',
+  },
+};
+
 const computeHueGap = (left: number, right: number): number =>
   Math.abs(((left - right + 540) % 360) - 180);
 
@@ -95,6 +104,31 @@ describe('createMaterialPalette', () => {
         toLightness(styles(tile).capHighlight),
         `${tile} cap highlight`,
       ).toBeGreaterThan(toLightness(styles(tile).cap)),
+    );
+  });
+
+  it('should paint the bricks, the wood and the ceramics in the colours the season rolled', () => {
+    const styles = createMaterialPalette(GLAZED);
+
+    expect(styles(TILE_BRICK).base).toBe('HSL(14, 46%, 44%)');
+    expect(styles(TILE_WOOD).base).toBe('HSL(30, 32%, 46%)');
+    expect(styles(TILE_CERAMIC).base).toBe('HSL(186, 50%, 46%)');
+  });
+
+  it('should leave the dirt and the stone on the ground colour when the season rolled materials', () => {
+    const styles = createMaterialPalette(GLAZED);
+
+    expect(styles(TILE_DIRT).base).toBe(GLAZED.block);
+    expect(styles(TILE_STONE).base).toBe('HSL(213, 3%, 46%)');
+  });
+
+  it('should cap the rolled materials lighter than their own bodies when it builds a palette', () => {
+    const styles = createMaterialPalette(GLAZED);
+
+    map([TILE_BRICK, TILE_WOOD, TILE_CERAMIC], (tile) =>
+      expect(toLightness(styles(tile).cap), `${tile} cap`).toBeGreaterThan(
+        toLightness(styles(tile).base),
+      ),
     );
   });
 

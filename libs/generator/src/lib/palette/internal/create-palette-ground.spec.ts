@@ -45,4 +45,16 @@ describe('createPaletteGround', () => {
   it('should pass the sky on when it picks the ground', () => {
     expect(createGroundIn('DAY-1').sky).toBe(SKY);
   });
+
+  it('should pass the season on when it picks the ground', () => {
+    expect(createGroundIn('DAY-1').season).toBe(SPRING);
+  });
+
+  it('should pass the generator on when it picks the ground', () => {
+    const random = createRandom('DAY-1');
+
+    expect(
+      createPaletteGround({ season: SPRING, sky: SKY, random }).random,
+    ).toBe(random);
+  });
 });
