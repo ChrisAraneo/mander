@@ -1,4 +1,5 @@
 import type { GameLevel, Random } from '@mander/engine';
+import type { Season } from '@mander/model';
 import type { Sector } from '@mander/structures';
 import { pipe } from 'remeda';
 import type { LevelVariant } from '../types/level-variant';
@@ -14,11 +15,12 @@ import { removeLevelWeapons } from './internal/remove-level-weapons';
 export const createLevelFromStructures = (
   levelNumber: number,
   levelVariant: LevelVariant,
+  season: Season,
   structures: Sector[],
   random: Random,
 ): GameLevel =>
   pipe(
-    { levelNumber, levelVariant, structures, random },
+    { levelNumber, levelVariant, season, structures, random },
     createLevelLayers,
     removeLevelWeapons,
     addLevelEnds,

@@ -1,4 +1,5 @@
 import { createRandom } from '@mander/engine';
+import type { Season } from '@mander/model';
 import {
   NORMAL_STRUCTURES,
   type Sector,
@@ -12,6 +13,8 @@ import { createLevelLayers } from './create-level-layers';
 
 const RANDOM = createRandom('SEED');
 
+const SPRING: Season = 'SPRING';
+
 const ACROSS: Sector[] = take([...NORMAL_STRUCTURES], 2);
 
 const UPWARD: Sector[] = take([...VERTICAL_STRUCTURES], 2);
@@ -22,6 +25,7 @@ describe('createLevelLayers', () => {
       createLevelLayers({
         levelNumber: 1,
         levelVariant: 'NORMAL',
+        season: SPRING,
         structures: [],
         random: RANDOM,
       }).levelType,
@@ -33,6 +37,7 @@ describe('createLevelLayers', () => {
       createLevelLayers({
         levelNumber: 2,
         levelVariant: 'VERTICAL',
+        season: SPRING,
         structures: [],
         random: RANDOM,
       }).levelType,
@@ -43,6 +48,7 @@ describe('createLevelLayers', () => {
     const { tiles, backTiles } = createLevelLayers({
       levelNumber: 1,
       levelVariant: 'NORMAL',
+      season: SPRING,
       structures: ACROSS,
       random: RANDOM,
     });
@@ -56,6 +62,7 @@ describe('createLevelLayers', () => {
     const { tiles, backTiles } = createLevelLayers({
       levelNumber: 2,
       levelVariant: 'VERTICAL',
+      season: SPRING,
       structures: UPWARD,
       random: RANDOM,
     });
@@ -69,6 +76,7 @@ describe('createLevelLayers', () => {
     const { tiles, backTiles } = createLevelLayers({
       levelNumber: 1,
       levelVariant: 'NORMAL',
+      season: SPRING,
       structures: [],
       random: RANDOM,
     });
@@ -82,6 +90,7 @@ describe('createLevelLayers', () => {
       createLevelLayers({
         levelNumber: 1,
         levelVariant: 'NORMAL',
+        season: SPRING,
         structures: [],
         random: RANDOM,
       }).random,
@@ -93,6 +102,7 @@ describe('createLevelLayers', () => {
       createLevelLayers({
         levelNumber: 3,
         levelVariant: 'NORMAL',
+        season: SPRING,
         structures: [],
         random: RANDOM,
       }).levelNumber,
@@ -104,10 +114,23 @@ describe('createLevelLayers', () => {
       createLevelLayers({
         levelNumber: 3,
         levelVariant: 'MIRRORED',
+        season: SPRING,
         structures: [],
         random: RANDOM,
       }).levelVariant,
     ).toBe('MIRRORED');
+  });
+
+  it('should pass the season on when it lays the structures out', () => {
+    expect(
+      createLevelLayers({
+        levelNumber: 1,
+        levelVariant: 'NORMAL',
+        season: SPRING,
+        structures: [],
+        random: RANDOM,
+      }).season,
+    ).toBe(SPRING);
   });
 
   it('should pass the structures on when it lays them out', () => {
@@ -115,6 +138,7 @@ describe('createLevelLayers', () => {
       createLevelLayers({
         levelNumber: 1,
         levelVariant: 'NORMAL',
+        season: SPRING,
         structures: ACROSS,
         random: RANDOM,
       }).structures,

@@ -1,5 +1,6 @@
 import { createRandom } from '@mander/engine';
 import {
+  type Season,
   TILE_AIR,
   TILE_DIRT,
   TILE_PORTAL,
@@ -24,6 +25,8 @@ const TILES: Record<string, Tile> = {
 const createGrid = (rows: string[]): Tile[][] =>
   map(rows, (row) => map([...row], (cell) => TILES[cell] ?? TILE_AIR));
 
+const SPRING: Season = 'SPRING';
+
 const STRUCTURES: Sector[] = [];
 
 const BACK_LEVEL: Tile[][] = [[TILE_AIR]];
@@ -33,6 +36,7 @@ const addEndsIn = (rows: string[], levelType: LevelType) =>
     levelNumber: 1,
     levelVariant: 'NORMAL',
     levelType,
+    season: SPRING,
     structures: STRUCTURES,
     tiles: createGrid(rows),
     backTiles: BACK_LEVEL,
@@ -79,6 +83,10 @@ describe('addLevelEnds', () => {
 
   it('should pass the level variant on when it places the ends', () => {
     expect(addEndsIn([], 'VERTICAL').levelVariant).toBe('NORMAL');
+  });
+
+  it('should pass the season on when it places the ends', () => {
+    expect(addEndsIn([], 'VERTICAL').season).toBe(SPRING);
   });
 
   it('should pass the structures on when it places the ends', () => {

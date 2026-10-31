@@ -9,6 +9,7 @@ export const addLevelFurniture = ({
   levelNumber,
   levelVariant,
   levelType,
+  season,
   structures,
   tiles,
   backTiles,
@@ -16,6 +17,7 @@ export const addLevelFurniture = ({
 }: LevelDraft): FurnishedLevel => ({
   levelNumber,
   levelVariant,
+  season,
   structures,
   tiles: addStones(
     addGems(addChest(addKey(tiles, levelType), levelType), levelType, random),

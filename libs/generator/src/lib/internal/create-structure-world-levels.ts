@@ -19,6 +19,7 @@ export const createStructureWorldLevels = ({
     createLevelFromStructures(
       STRUCTURE_LEVEL_NUMBER,
       toStructureLevelVariant(choice.category),
+      season,
       times(STRUCTURE_WORLD_REPEATS, () => choice.structure),
       random,
     ),

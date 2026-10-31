@@ -1,4 +1,5 @@
 import type { Random } from '@mander/engine';
+import type { Season } from '@mander/model';
 import type { Sector } from '@mander/structures';
 import { pipe } from 'remeda';
 import { createStructureLayers } from '../../layout/create-structure-layers';
@@ -9,11 +10,13 @@ import type { LevelDraft } from './types/level-draft';
 export const createLevelLayers = ({
   levelNumber,
   levelVariant,
+  season,
   structures,
   random,
 }: {
   levelNumber: number;
   levelVariant: LevelVariant;
+  season: Season;
   structures: Sector[];
   random: Random;
 }): LevelDraft =>
@@ -21,6 +24,7 @@ export const createLevelLayers = ({
     levelNumber,
     levelVariant,
     levelType,
+    season,
     structures,
     ...createStructureLayers(structures, levelType),
     random,

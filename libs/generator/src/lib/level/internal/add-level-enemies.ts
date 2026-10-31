@@ -8,6 +8,7 @@ import type { FurnishedLevel } from './types/furnished-level';
 export const addLevelEnemies = ({
   levelNumber,
   levelVariant,
+  season,
   structures,
   tiles,
   backTiles,
@@ -15,14 +16,15 @@ export const addLevelEnemies = ({
 }: FurnishedLevel): FurnishedLevel => ({
   levelNumber,
   levelVariant,
+  season,
   structures,
   tiles: randomizeEnemies(
     tiles,
     {
-      horned: getHornedEnemyChance(levelNumber),
-      fast: getFastEnemyChance(levelNumber),
-      shooter: getShooterEnemyChance(levelNumber),
-      freezing: getFreezingEnemyChance(levelNumber),
+      horned: getHornedEnemyChance(levelNumber, season),
+      fast: getFastEnemyChance(levelNumber, season),
+      shooter: getShooterEnemyChance(levelNumber, season),
+      freezing: getFreezingEnemyChance(levelNumber, season),
     },
     random,
   ),

@@ -1,5 +1,5 @@
 import { createRandom } from '@mander/engine';
-import { findTile, TILE_PORTAL, TILE_SPAWN } from '@mander/model';
+import { findTile, type Season, TILE_PORTAL, TILE_SPAWN } from '@mander/model';
 import {
   NORMAL_STRUCTURES,
   type Sector,
@@ -13,6 +13,8 @@ import { createLevelFromStructures } from './create-level-from-structures';
 
 const SEED = 'DAY-1';
 
+const SPRING: Season = 'SPRING';
+
 const ACROSS: Sector[] = take([...NORMAL_STRUCTURES], STRUCTURES_PER_LEVEL);
 
 const UPWARD: Sector[] = take([...VERTICAL_STRUCTURES], STRUCTURES_PER_LEVEL);
@@ -22,6 +24,7 @@ describe('createLevelFromStructures', () => {
     const level = createLevelFromStructures(
       1,
       'NORMAL',
+      SPRING,
       ACROSS,
       createRandom(SEED),
     );
@@ -34,6 +37,7 @@ describe('createLevelFromStructures', () => {
     const level = createLevelFromStructures(
       2,
       'VERTICAL',
+      SPRING,
       UPWARD,
       createRandom(SEED),
     );
@@ -46,6 +50,7 @@ describe('createLevelFromStructures', () => {
     const level = createLevelFromStructures(
       1,
       'NORMAL',
+      SPRING,
       ACROSS,
       createRandom(SEED),
     );
@@ -60,6 +65,7 @@ describe('createLevelFromStructures', () => {
     const level = createLevelFromStructures(
       3,
       'MIRRORED',
+      SPRING,
       ACROSS,
       createRandom(SEED),
     );
@@ -74,6 +80,7 @@ describe('createLevelFromStructures', () => {
     const level = createLevelFromStructures(
       2,
       'VERTICAL',
+      SPRING,
       UPWARD,
       createRandom(SEED),
     );
@@ -88,6 +95,7 @@ describe('createLevelFromStructures', () => {
     const level = createLevelFromStructures(
       1,
       'NORMAL',
+      SPRING,
       ACROSS,
       createRandom(SEED),
     );
@@ -100,6 +108,7 @@ describe('createLevelFromStructures', () => {
     const level = createLevelFromStructures(
       2,
       'VERTICAL',
+      SPRING,
       UPWARD,
       createRandom(SEED),
     );
@@ -109,19 +118,36 @@ describe('createLevelFromStructures', () => {
 
   it('should build the level the same way twice when the generator starts from the same seed and it gets the same structures', () => {
     expect(
-      createLevelFromStructures(4, 'NORMAL', ACROSS, createRandom(SEED)),
+      createLevelFromStructures(
+        4,
+        'NORMAL',
+        SPRING,
+        ACROSS,
+        createRandom(SEED),
+      ),
     ).toEqual(
-      createLevelFromStructures(4, 'NORMAL', ACROSS, createRandom(SEED)),
+      createLevelFromStructures(
+        4,
+        'NORMAL',
+        SPRING,
+        ACROSS,
+        createRandom(SEED),
+      ),
     );
   });
 
   it('should fill the chest another way when the generator starts from another seed', () => {
     expect(
-      createLevelFromStructures(1, 'NORMAL', ACROSS, createRandom(SEED))
+      createLevelFromStructures(1, 'NORMAL', SPRING, ACROSS, createRandom(SEED))
         .chestItems,
     ).not.toEqual(
-      createLevelFromStructures(1, 'NORMAL', ACROSS, createRandom('OTHER-SEED'))
-        .chestItems,
+      createLevelFromStructures(
+        1,
+        'NORMAL',
+        SPRING,
+        ACROSS,
+        createRandom('OTHER-SEED'),
+      ).chestItems,
     );
   });
 
@@ -129,6 +155,7 @@ describe('createLevelFromStructures', () => {
     const level = createLevelFromStructures(
       1,
       'NORMAL',
+      SPRING,
       [],
       createRandom(SEED),
     );
@@ -138,10 +165,31 @@ describe('createLevelFromStructures', () => {
     expect(level.height).toBe(0);
   });
 
+  it('should hand the level the enemies its season allows when it builds one', () => {
+    const summer = createLevelFromStructures(
+      8,
+      'NORMAL',
+      'SUMMER',
+      ACROSS,
+      createRandom(SEED),
+    );
+
+    expect(summer.hornedEnemyChance).toBeGreaterThan(0);
+    expect(summer.fastEnemyChance).toBe(0);
+    expect(summer.shooterEnemyChance).toBe(0);
+    expect(summer.freezingEnemyChance).toBe(0);
+  });
+
   it('should not change the old structures when it builds a level', () => {
     const structures = cloneDeep(ACROSS);
 
-    createLevelFromStructures(1, 'NORMAL', structures, createRandom(SEED));
+    createLevelFromStructures(
+      1,
+      'NORMAL',
+      SPRING,
+      structures,
+      createRandom(SEED),
+    );
 
     expect(structures).toEqual(ACROSS);
   });

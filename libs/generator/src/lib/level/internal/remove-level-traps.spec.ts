@@ -1,5 +1,6 @@
 import { createRandom } from '@mander/engine';
 import {
+  type Season,
   TILE_AIR,
   TILE_BEARTRAP,
   TILE_DIRT,
@@ -15,6 +16,8 @@ import { removeLevelTraps } from './remove-level-traps';
 const TRAPS = 20;
 
 const FIRST_UNTOUCHED_LEVEL = 6;
+
+const SPRING: Season = 'SPRING';
 
 const STRUCTURES: Sector[] = [];
 
@@ -34,6 +37,7 @@ const removeOn = (levelNumber: number, random = createRandom('DAY-1')) =>
     levelNumber,
     levelVariant: 'NORMAL',
     levelType: 'HORIZONTAL',
+    season: SPRING,
     structures: STRUCTURES,
     tiles: createLevel(),
     backTiles: BACK_LEVEL,
@@ -68,6 +72,7 @@ describe('removeLevelTraps', () => {
         levelNumber: 1,
         levelVariant: 'NORMAL',
         levelType: 'HORIZONTAL',
+        season: SPRING,
         structures: STRUCTURES,
         tiles: [],
         backTiles: [],
@@ -92,6 +97,10 @@ describe('removeLevelTraps', () => {
 
   it('should pass the level variant on when it clears the traps', () => {
     expect(removeOn(1).levelVariant).toBe('NORMAL');
+  });
+
+  it('should pass the season on when it clears the traps', () => {
+    expect(removeOn(1).season).toBe(SPRING);
   });
 
   it('should pass the structures on when it clears the traps', () => {

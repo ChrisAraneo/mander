@@ -1,5 +1,6 @@
 import { createRandom } from '@mander/engine';
 import {
+  type Season,
   TILE_AIR,
   TILE_CHEST,
   TILE_DIRT,
@@ -14,6 +15,8 @@ import { describe, expect, it } from 'vitest';
 
 import type { LevelType } from '../../types/level-type';
 import { addLevelFurniture } from './add-level-furniture';
+
+const SPRING: Season = 'SPRING';
 
 const STRUCTURES: Sector[] = [];
 
@@ -33,6 +36,7 @@ const addFurnitureIn = (
     levelNumber: 1,
     levelVariant: 'NORMAL',
     levelType,
+    season: SPRING,
     structures: STRUCTURES,
     tiles,
     backTiles: BACK_LEVEL,
@@ -109,6 +113,10 @@ describe('addLevelFurniture', () => {
 
   it('should pass the level variant on when it furnishes the level', () => {
     expect(addFurnitureIn([], 'HORIZONTAL').levelVariant).toBe('NORMAL');
+  });
+
+  it('should pass the season on when it furnishes the level', () => {
+    expect(addFurnitureIn([], 'HORIZONTAL').season).toBe(SPRING);
   });
 
   it('should pass the structures on when it furnishes the level', () => {

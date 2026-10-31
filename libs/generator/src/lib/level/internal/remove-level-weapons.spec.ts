@@ -1,5 +1,6 @@
 import { createRandom } from '@mander/engine';
 import {
+  type Season,
   TILE_AIR,
   TILE_CANNON,
   TILE_DIRT,
@@ -18,6 +19,8 @@ const FIRST_ARMED_LEVEL = 6;
 
 const RANDOM = createRandom('SEED');
 
+const SPRING: Season = 'SPRING';
+
 const STRUCTURES: Sector[] = [];
 
 const BACK_LEVEL: Tile[][] = [[TILE_AIR]];
@@ -32,6 +35,7 @@ const removeOn = (levelNumber: number) =>
     levelNumber,
     levelVariant: 'NORMAL',
     levelType: 'HORIZONTAL',
+    season: SPRING,
     structures: STRUCTURES,
     tiles: createLevel(),
     backTiles: BACK_LEVEL,
@@ -63,6 +67,7 @@ describe('removeLevelWeapons', () => {
         levelNumber: 1,
         levelVariant: 'NORMAL',
         levelType: 'HORIZONTAL',
+        season: SPRING,
         structures: STRUCTURES,
         tiles: [],
         backTiles: [],
@@ -85,6 +90,10 @@ describe('removeLevelWeapons', () => {
 
   it('should pass the level variant on when it clears the weapons', () => {
     expect(removeOn(1).levelVariant).toBe('NORMAL');
+  });
+
+  it('should pass the season on when it clears the weapons', () => {
+    expect(removeOn(1).season).toBe(SPRING);
   });
 
   it('should pass the structures on when it clears the weapons', () => {

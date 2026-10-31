@@ -1,5 +1,11 @@
 import { createRandom } from '@mander/engine';
-import { TILE_AIR, TILE_BRICK, TILE_DIRT, type Tile } from '@mander/model';
+import {
+  type Season,
+  TILE_AIR,
+  TILE_BRICK,
+  TILE_DIRT,
+  type Tile,
+} from '@mander/model';
 import type { Sector } from '@mander/structures';
 import { map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
@@ -8,6 +14,8 @@ import { addPadding } from '../../padding/add-padding';
 import { addLevelPadding } from './add-level-padding';
 
 const RANDOM = createRandom('SEED');
+
+const SPRING: Season = 'SPRING';
 
 const STRUCTURES: Sector[] = [];
 
@@ -26,6 +34,7 @@ const addPaddingIn = (tiles: Tile[][], backTiles: Tile[][]) =>
     levelNumber: 1,
     levelVariant: 'NORMAL',
     levelType: 'HORIZONTAL',
+    season: SPRING,
     structures: STRUCTURES,
     tiles,
     backTiles,
@@ -65,6 +74,10 @@ describe('addLevelPadding', () => {
 
   it('should pass the level variant on when it pads the level', () => {
     expect(addPaddingIn([], []).levelVariant).toBe('NORMAL');
+  });
+
+  it('should pass the season on when it pads the level', () => {
+    expect(addPaddingIn([], []).season).toBe(SPRING);
   });
 
   it('should pass the structures on when it pads the level', () => {

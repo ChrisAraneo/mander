@@ -6,6 +6,7 @@ export const removeLevelTraps = ({
   levelNumber,
   levelVariant,
   levelType,
+  season,
   structures,
   tiles,
   backTiles,
@@ -14,6 +15,7 @@ export const removeLevelTraps = ({
   levelNumber,
   levelVariant,
   levelType,
+  season,
   structures,
   tiles: removeBeartraps(
     removeSpikes(tiles, levelNumber, random),

@@ -8,6 +8,8 @@ import {
   hashString,
 } from '@mander/engine';
 import {
+  type Enemy,
+  type EnemyKind,
   findCannonTiles,
   findEnemySpawns,
   findGemTiles,
@@ -195,6 +197,46 @@ const hasFlyingEnemiesOn = (indexes: number[]): boolean =>
     ),
   );
 
+const WALKING_KINDS: EnemyKind[] = [
+  'HOPPING',
+  'HORNED',
+  'FAST',
+  'SHOOTER',
+  'FREEZING',
+];
+
+const filterWorldsOf = (season: Season): RenderedWorld[] =>
+  filter(WORLDS, (world) => world.season === season);
+
+const createSeasonEnemies = (season: Season, indexes: number[]): Enemy[] =>
+  flatMap(filterWorldsOf(season), (world) =>
+    flatMap(indexes, (index) => createEnemies(world.levels[index])),
+  );
+
+const takeWalkingKindsOf = (season: Season): EnemyKind[] =>
+  uniq(
+    filter(
+      map(
+        createSeasonEnemies(season, range(LEVELS_PER_DAY)),
+        (enemy) => enemy.kind,
+      ),
+      (kind) => includes(WALKING_KINDS, kind),
+    ),
+  ).sort();
+
+const hasKindOn = (
+  season: Season,
+  kind: EnemyKind,
+  indexes: number[],
+): boolean =>
+  some(createSeasonEnemies(season, indexes), (enemy) => enemy.kind === kind);
+
+const FIRST_TWO_INDEXES = range(2);
+
+const THIRD_ONWARD_INDEXES = range(2, LEVELS_PER_DAY);
+
+const LAST_THREE_INDEXES = range(LEVELS_PER_DAY - 3, LEVELS_PER_DAY);
+
 describe('createWorld', () => {
   it('should build every level out of its own structures when it deals a day', () => {
     const sharing = filter(
@@ -216,8 +258,8 @@ describe('createWorld', () => {
     ).toBe(true);
   });
 
-  it('should hold the horned enemies back when the level is before the third', () => {
-    const chances = map(WORLDS, (world) =>
+  it('should ramp the horned enemies up when it deals a summer day', () => {
+    const chances = map(filterWorldsOf('SUMMER'), (world) =>
       map(world.levels, (level) => level.hornedEnemyChance),
     );
 
@@ -238,6 +280,22 @@ describe('createWorld', () => {
     ]);
   });
 
+  it('should send out hopping and fast enemies only when it deals a spring day', () => {
+    expect(takeWalkingKindsOf('SPRING')).toEqual(['FAST', 'HOPPING']);
+  });
+
+  it('should send out hopping and horned enemies only when it deals a summer day', () => {
+    expect(takeWalkingKindsOf('SUMMER')).toEqual(['HOPPING', 'HORNED']);
+  });
+
+  it('should send out hopping and shooting enemies only when it deals an autumn day', () => {
+    expect(takeWalkingKindsOf('AUTUMN')).toEqual(['HOPPING', 'SHOOTER']);
+  });
+
+  it('should send out hopping and freezing enemies only when it deals a winter day', () => {
+    expect(takeWalkingKindsOf('WINTER')).toEqual(['FREEZING', 'HOPPING']);
+  });
+
   it('should send no horned enemy out when the level is one of the first two of the day', () => {
     const early = flatMap(WORLDS, (world) =>
       flatMap(times(2), (index) => createEnemies(world.levels[index])),
@@ -254,14 +312,20 @@ describe('createWorld', () => {
     expect(some(early, (enemy) => enemy.kind === 'FAST')).toBe(false);
   });
 
-  it('should send fast enemies out when the level is the third or later', () => {
-    const late = flatMap(WORLDS, (world) =>
-      flatMap(range(2, LEVELS_PER_DAY), (index) =>
-        createEnemies(world.levels[index]),
-      ),
-    );
+  it('should send no freezing enemy out when the level is one of the first two of the day', () => {
+    expect(hasKindOn('WINTER', 'FREEZING', FIRST_TWO_INDEXES)).toBe(false);
+  });
 
-    expect(some(late, (enemy) => enemy.kind === 'FAST')).toBe(true);
+  it('should send fast enemies out when the level is the third or later of a spring day', () => {
+    expect(hasKindOn('SPRING', 'FAST', THIRD_ONWARD_INDEXES)).toBe(true);
+  });
+
+  it('should send horned enemies out when the level is the third or later of a summer day', () => {
+    expect(hasKindOn('SUMMER', 'HORNED', THIRD_ONWARD_INDEXES)).toBe(true);
+  });
+
+  it('should send freezing enemies out when the level is the third or later of a winter day', () => {
+    expect(hasKindOn('WINTER', 'FREEZING', THIRD_ONWARD_INDEXES)).toBe(true);
   });
 
   it('should send no shooter out when the level is one of the first five of the day', () => {
@@ -274,32 +338,29 @@ describe('createWorld', () => {
     expect(some(early, (enemy) => enemy.kind === 'SHOOTER')).toBe(false);
   });
 
-  it('should send shooters out when the level is one of the last three of the day', () => {
-    const late = flatMap(WORLDS, (world) =>
-      flatMap(times(3), (index) =>
-        createEnemies(world.levels[LEVELS_PER_DAY - 1 - index]),
-      ),
-    );
-
-    expect(some(late, (enemy) => enemy.kind === 'SHOOTER')).toBe(true);
+  it('should send shooters out when the level is one of the last three of an autumn day', () => {
+    expect(hasKindOn('AUTUMN', 'SHOOTER', LAST_THREE_INDEXES)).toBe(true);
   });
 
-  it('should send no hopping enemy out when the level is one of the last three of the day', () => {
-    const late = flatMap(WORLDS, (world) =>
-      flatMap(times(3), (index) =>
-        createEnemies(world.levels[LEVELS_PER_DAY - 1 - index]),
-      ),
-    );
-
-    expect(some(late, (enemy) => enemy.kind === 'HOPPING')).toBe(false);
+  it('should send no hopping enemy out when the level is one of the last three of a summer day', () => {
+    expect(hasKindOn('SUMMER', 'HOPPING', LAST_THREE_INDEXES)).toBe(false);
   });
 
   it('should let flying enemies through when the level sits at any step of the ramp', () => {
     expect(hasFlyingEnemiesOn([0, 1]), 'on the hopping-only levels').toBe(true);
     expect(hasFlyingEnemiesOn([2, 3, 4]), 'on the mixed levels').toBe(true);
-    expect(hasFlyingEnemiesOn([5, 6, 7]), 'on the horned-only levels').toBe(
-      true,
-    );
+    expect(hasFlyingEnemiesOn([5, 6, 7]), 'on the last levels').toBe(true);
+  });
+
+  it('should let flying enemies through when the world is set in any season', () => {
+    expect(
+      map(SEASONS, (season) =>
+        some(
+          createSeasonEnemies(season, range(LEVELS_PER_DAY)),
+          (enemy) => enemy.kind === 'FLYING',
+        ),
+      ),
+    ).toEqual(map(SEASONS, () => true));
   });
 
   it('should leave no spawn for the level to pick when it deals a day', () => {

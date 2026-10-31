@@ -1,5 +1,6 @@
 import { createRandom } from '@mander/engine';
 import {
+  type Season,
   TILE_AIR,
   TILE_BRICK,
   TILE_DIRT,
@@ -15,9 +16,16 @@ import { takeRandomChestItems } from '../../items/take-random-chest-items';
 import { toMirroredTiles } from '../../structures/to-mirrored-tiles';
 import { createGameLevel } from './create-game-level';
 import { getFastEnemyChance } from './get-fast-enemy-chance';
+import { getFreezingEnemyChance } from './get-freezing-enemy-chance';
 import { getHornedEnemyChance } from './get-horned-enemy-chance';
 import { getShooterEnemyChance } from './get-shooter-enemy-chance';
 import { hashLevelSeed } from './hash-level-seed';
+
+const SPRING: Season = 'SPRING';
+
+const LEVELS = [1, 4, 7];
+
+const LAST_LEVEL = 8;
 
 const STRUCTURES = take([...NORMAL_STRUCTURES], 2);
 
@@ -31,10 +39,15 @@ const BACK: Tile[][] = [
   [TILE_AIR, TILE_AIR, TILE_AIR],
 ];
 
-const createOn = (levelNumber: number, levelVariant: LevelVariant = 'NORMAL') =>
+const createOn = (
+  levelNumber: number,
+  levelVariant: LevelVariant = 'NORMAL',
+  season: Season = SPRING,
+) =>
   createGameLevel({
     levelNumber,
     levelVariant,
+    season,
     structures: STRUCTURES,
     tiles: FRONT,
     backTiles: BACK,
@@ -73,20 +86,90 @@ describe('createGameLevel', () => {
 
   it('should send out the horned enemies the level allows when it creates it', () => {
     expect(
-      map([1, 4, 7], (levelNumber) => createOn(levelNumber).hornedEnemyChance),
-    ).toEqual(map([1, 4, 7], getHornedEnemyChance));
+      map(
+        LEVELS,
+        (levelNumber) =>
+          createOn(levelNumber, 'NORMAL', 'SUMMER').hornedEnemyChance,
+      ),
+    ).toEqual(
+      map(LEVELS, (levelNumber) => getHornedEnemyChance(levelNumber, 'SUMMER')),
+    );
   });
 
   it('should send out the fast enemies the level allows when it creates it', () => {
     expect(
-      map([1, 4, 7], (levelNumber) => createOn(levelNumber).fastEnemyChance),
-    ).toEqual(map([1, 4, 7], getFastEnemyChance));
+      map(
+        LEVELS,
+        (levelNumber) =>
+          createOn(levelNumber, 'NORMAL', 'SPRING').fastEnemyChance,
+      ),
+    ).toEqual(
+      map(LEVELS, (levelNumber) => getFastEnemyChance(levelNumber, 'SPRING')),
+    );
   });
 
   it('should send out the shooters the level allows when it creates it', () => {
     expect(
-      map([1, 4, 7], (levelNumber) => createOn(levelNumber).shooterEnemyChance),
-    ).toEqual(map([1, 4, 7], getShooterEnemyChance));
+      map(
+        LEVELS,
+        (levelNumber) =>
+          createOn(levelNumber, 'NORMAL', 'AUTUMN').shooterEnemyChance,
+      ),
+    ).toEqual(
+      map(LEVELS, (levelNumber) =>
+        getShooterEnemyChance(levelNumber, 'AUTUMN'),
+      ),
+    );
+  });
+
+  it('should send out the freezing enemies the level allows when it creates it', () => {
+    expect(
+      map(
+        LEVELS,
+        (levelNumber) =>
+          createOn(levelNumber, 'NORMAL', 'WINTER').freezingEnemyChance,
+      ),
+    ).toEqual(
+      map(LEVELS, (levelNumber) =>
+        getFreezingEnemyChance(levelNumber, 'WINTER'),
+      ),
+    );
+  });
+
+  it('should leave the fast enemies the only hard ones when the world is a spring one', () => {
+    const level = createOn(LAST_LEVEL, 'NORMAL', 'SPRING');
+
+    expect(level.fastEnemyChance).toBeGreaterThan(0);
+    expect(level.hornedEnemyChance).toBe(0);
+    expect(level.shooterEnemyChance).toBe(0);
+    expect(level.freezingEnemyChance).toBe(0);
+  });
+
+  it('should leave the horned enemies the only hard ones when the world is a summer one', () => {
+    const level = createOn(LAST_LEVEL, 'NORMAL', 'SUMMER');
+
+    expect(level.hornedEnemyChance).toBeGreaterThan(0);
+    expect(level.fastEnemyChance).toBe(0);
+    expect(level.shooterEnemyChance).toBe(0);
+    expect(level.freezingEnemyChance).toBe(0);
+  });
+
+  it('should leave the shooters the only hard ones when the world is an autumn one', () => {
+    const level = createOn(LAST_LEVEL, 'NORMAL', 'AUTUMN');
+
+    expect(level.shooterEnemyChance).toBeGreaterThan(0);
+    expect(level.fastEnemyChance).toBe(0);
+    expect(level.hornedEnemyChance).toBe(0);
+    expect(level.freezingEnemyChance).toBe(0);
+  });
+
+  it('should leave the freezing enemies the only hard ones when the world is a winter one', () => {
+    const level = createOn(LAST_LEVEL, 'NORMAL', 'WINTER');
+
+    expect(level.freezingEnemyChance).toBeGreaterThan(0);
+    expect(level.fastEnemyChance).toBe(0);
+    expect(level.hornedEnemyChance).toBe(0);
+    expect(level.shooterEnemyChance).toBe(0);
   });
 
   it('should leave the sides open when the level is vertical', () => {
@@ -111,6 +194,7 @@ describe('createGameLevel', () => {
     const level = createGameLevel({
       levelNumber: 1,
       levelVariant: 'NORMAL',
+      season: SPRING,
       structures: [],
       tiles: [],
       backTiles: [],
@@ -130,6 +214,7 @@ describe('createGameLevel', () => {
       createGameLevel({
         levelNumber: 1,
         levelVariant: 'NORMAL',
+        season: SPRING,
         structures: STRUCTURES,
         tiles: FRONT,
         backTiles: BACK,
@@ -139,6 +224,7 @@ describe('createGameLevel', () => {
       createGameLevel({
         levelNumber: 1,
         levelVariant: 'NORMAL',
+        season: SPRING,
         structures: STRUCTURES,
         tiles: FRONT,
         backTiles: BACK,

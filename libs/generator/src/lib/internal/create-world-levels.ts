@@ -20,6 +20,7 @@ export const createWorldLevels = ({
     createLevelFromStructures(
       index + 1,
       levelVariants[index],
+      season,
       sliceForLevel(worldStructures, levelCategories, index),
       random,
     ),
