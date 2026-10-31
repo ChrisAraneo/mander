@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computeWorldName, STRUCTURE_CHOICES } from '@mander/generator';
-import { find, groupBy, isFinite, size, tap, toLower } from 'lodash-es';
+import { find, groupBy, isFinite, noop, size, tap, toLower } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import { computed, ref } from 'vue';
 import { patchRef } from '../game/canvas';
@@ -17,6 +17,7 @@ import {
   formatClock,
   formatRunLabel,
   formatScore,
+  isDay,
   serializeDay,
 } from '../game/format';
 import {
@@ -43,6 +44,21 @@ const storage = tryGetLocalStorage();
 const isDebugShown = isDebug(window.location.search);
 
 const structureGroups = groupBy(STRUCTURE_CHOICES, (choice) => choice.category);
+
+const chosenDay = ref(date);
+
+const isChosenDayKnown = computed(() => isDay(chosenDay.value));
+
+const chosenWorldName = computed(() =>
+  match(isChosenDayKnown.value)
+    .with(true, () => computeWorldName(new Date(chosenDay.value)))
+    .otherwise(() => ''),
+);
+
+const handleDayStart = (): void =>
+  match(isChosenDayKnown.value)
+    .with(true, () => emit('start', chosenDay.value, null))
+    .otherwise(noop);
 
 const chosenStructure = ref(findStructureName(readLastStructure(storage)));
 
@@ -131,6 +147,25 @@ const formatPlayedWhen = (run: RunRecord): string =>
         >
         <button class="primary" @click="emit('start', date, null)">
           Start today's run
+        </button>
+      </div>
+
+      <div v-if="isDebugShown" class="daily-card">
+        <span class="label">Debug · any day</span>
+        <input
+          v-model="chosenDay"
+          type="date"
+          class="day-input"
+          aria-label="Day to build a world from" />
+        <span v-if="isChosenDayKnown" class="day-world"
+          >World {{ chosenWorldName }}</span
+        >
+        <span v-else class="day-unknown">Pick a day on the calendar</span>
+        <button
+          class="primary"
+          :disabled="!isChosenDayKnown"
+          @click="handleDayStart">
+          Play this day
         </button>
       </div>
 
@@ -319,6 +354,27 @@ h1 {
 
 .daily-card .primary {
   margin-top: 10px;
+}
+
+.day-input {
+  color-scheme: dark;
+}
+
+.day-world {
+  font-size: 18px;
+  font-weight: 700;
+  color: #e8eef6;
+  overflow-wrap: anywhere;
+}
+
+.day-unknown {
+  font-size: 13px;
+  color: #64758a;
+}
+
+.daily-card .primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .structure-row {
