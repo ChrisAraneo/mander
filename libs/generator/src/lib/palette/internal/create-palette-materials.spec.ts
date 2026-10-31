@@ -9,6 +9,8 @@ import type { PaletteSky } from './types/palette-sky';
 
 const SPRING: Season = 'SPRING';
 
+const SUMMER: Season = 'SUMMER';
+
 const AUTUMN: Season = 'AUTUMN';
 
 const WINTER: Season = 'WINTER';
@@ -51,6 +53,9 @@ describe('createPaletteMaterials', () => {
     );
     expect(createMaterialsIn(AUTUMN, 'DAY-1').materials).not.toEqual(
       createMaterialsIn(WINTER, 'DAY-1').materials,
+    );
+    expect(createMaterialsIn(SUMMER, 'DAY-1').materials).not.toEqual(
+      createMaterialsIn(SPRING, 'DAY-1').materials,
     );
   });
 

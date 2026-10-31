@@ -1,7 +1,7 @@
 import { createRandom } from '@mander/engine';
 import type { Season } from '@mander/model';
 import { toWrappedHue } from '@mander/render';
-import { every, map, size, times, uniq } from 'lodash-es';
+import { every, map, size, some, times, uniq } from 'lodash-es';
 import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
@@ -10,6 +10,8 @@ import { createRandomGround } from './create-random-ground';
 import type { PaletteGround } from './types/palette-ground';
 
 const SPRING: Season = 'SPRING';
+
+const SUMMER: Season = 'SUMMER';
 
 const AUTUMN: Season = 'AUTUMN';
 
@@ -23,6 +25,10 @@ const GOLD_HUE = 68;
 
 const WINE_HUE = 336;
 
+const SUN_HUE = 70;
+
+const PINK_HUE = 316;
+
 const CYAN_HUE = 186;
 
 const VIOLET_HUE = 292;
@@ -32,16 +38,23 @@ const createGrounds = (season: Season): PaletteGround[] =>
 
 const SPRING_GROUNDS = createGrounds(SPRING);
 
+const SUMMER_GROUNDS = createGrounds(SUMMER);
+
 const AUTUMN_GROUNDS = createGrounds(AUTUMN);
 
 const WINTER_GROUNDS = createGrounds(WINTER);
 
-const TEMPERATE_GROUNDS = [...SPRING_GROUNDS, ...AUTUMN_GROUNDS];
-
-const GROUNDS = [...TEMPERATE_GROUNDS, ...WINTER_GROUNDS];
+const GROUNDS = [
+  ...SPRING_GROUNDS,
+  ...SUMMER_GROUNDS,
+  ...AUTUMN_GROUNDS,
+  ...WINTER_GROUNDS,
+];
 
 const isGrowing = (hue: number): boolean =>
   hue >= YELLOW_HUE && hue <= GREEN_HUE;
+
+const isBurning = (hue: number): boolean => hue <= SUN_HUE || hue >= PINK_HUE;
 
 const isFalling = (hue: number): boolean => hue <= GOLD_HUE || hue >= WINE_HUE;
 
@@ -57,12 +70,16 @@ describe('createRandomGround', () => {
 
   it('should pick other grounds when the seeds differ', () => {
     expect(size(uniq(map(SPRING_GROUNDS, 'hue')))).toBeGreaterThan(1);
+    expect(size(uniq(map(SUMMER_GROUNDS, 'hue')))).toBeGreaterThan(1);
     expect(size(uniq(map(AUTUMN_GROUNDS, 'hue')))).toBeGreaterThan(1);
     expect(size(uniq(map(WINTER_GROUNDS, 'hue')))).toBeGreaterThan(1);
   });
 
   it('should pick another ground when the season turns', () => {
     expect(createRandomGround(SPRING, createRandom('WORLD-1'))).not.toEqual(
+      createRandomGround(SUMMER, createRandom('WORLD-1')),
+    );
+    expect(createRandomGround(SUMMER, createRandom('WORLD-1'))).not.toEqual(
       createRandomGround(AUTUMN, createRandom('WORLD-1')),
     );
     expect(createRandomGround(AUTUMN, createRandom('WORLD-1'))).not.toEqual(
@@ -92,6 +109,25 @@ describe('createRandomGround', () => {
       every(
         SPRING_GROUNDS,
         ({ hue, capHue }) => hue <= GREEN_HUE && capHue <= GREEN_HUE,
+      ),
+    ).toBe(true);
+  });
+
+  it('should bake the earth yellow, gold, orange and pink when the season is summer', () => {
+    expect(every(SUMMER_GROUNDS, ({ hue }) => isBurning(hue))).toBe(true);
+  });
+
+  it('should burn the caps yellow, gold and pink when the season is summer', () => {
+    expect(every(SUMMER_GROUNDS, ({ capHue }) => isBurning(capHue))).toBe(true);
+  });
+
+  it('should leave the green, the blue and the violet out of the ground when the season is summer', () => {
+    expect(
+      every(
+        SUMMER_GROUNDS,
+        ({ hue, capHue }) =>
+          !(hue > SUN_HUE && hue < PINK_HUE) &&
+          !(capHue > SUN_HUE && capHue < PINK_HUE),
       ),
     ).toBe(true);
   });
@@ -135,30 +171,68 @@ describe('createRandomGround', () => {
     ).toBe(true);
   });
 
-  it('should keep the ground between its lowest and highest shades when the season is spring or autumn', () => {
+  it('should keep the ground and its cap between their shades when the season is spring', () => {
     expect(
       every(
-        TEMPERATE_GROUNDS,
-        ({ saturation, lightness }) =>
+        SPRING_GROUNDS,
+        ({ saturation, lightness, capSaturation, capLightness }) =>
           saturation >= 18 &&
           saturation <= 30 &&
           lightness >= 28 &&
-          lightness <= 36,
-      ),
-    ).toBe(true);
-  });
-
-  it('should keep the cap between its lowest and highest shades when the season is spring or autumn', () => {
-    expect(
-      every(
-        TEMPERATE_GROUNDS,
-        ({ capSaturation, capLightness }) =>
+          lightness <= 36 &&
           capSaturation >= 34 &&
           capSaturation <= 50 &&
           capLightness >= 44 &&
           capLightness <= 54,
       ),
     ).toBe(true);
+  });
+
+  it('should keep the ground and its cap bright when the season is summer', () => {
+    expect(
+      every(
+        SUMMER_GROUNDS,
+        ({ saturation, lightness, capSaturation, capLightness }) =>
+          saturation >= 40 &&
+          saturation <= 56 &&
+          lightness >= 38 &&
+          lightness <= 48 &&
+          capSaturation >= 56 &&
+          capSaturation <= 72 &&
+          capLightness >= 56 &&
+          capLightness <= 66,
+      ),
+    ).toBe(true);
+  });
+
+  it('should keep the ground and its cap dark when the season is autumn', () => {
+    expect(
+      every(
+        AUTUMN_GROUNDS,
+        ({ saturation, lightness, capSaturation, capLightness }) =>
+          saturation >= 0 &&
+          saturation <= 30 &&
+          lightness >= 14 &&
+          lightness <= 36 &&
+          capSaturation >= 0 &&
+          capSaturation <= 50 &&
+          capLightness >= 38 &&
+          capLightness <= 54,
+      ),
+    ).toBe(true);
+  });
+
+  it('should wash the colour out of some grounds and leave them grey when the season is autumn', () => {
+    expect(some(AUTUMN_GROUNDS, ({ saturation }) => saturation <= 4)).toBe(
+      true,
+    );
+    expect(
+      some(AUTUMN_GROUNDS, ({ capSaturation }) => capSaturation <= 4),
+    ).toBe(true);
+  });
+
+  it('should sink some grounds to nearly black when the season is autumn', () => {
+    expect(some(AUTUMN_GROUNDS, ({ lightness }) => lightness <= 18)).toBe(true);
   });
 
   it('should drain the colour out of the earth when the season is winter', () => {
@@ -184,6 +258,12 @@ describe('createRandomGround', () => {
           capLightness >= 74 &&
           capLightness <= 84,
       ),
+    ).toBe(true);
+  });
+
+  it('should keep every cap lighter than the earth under it when it picks many grounds', () => {
+    expect(
+      every(GROUNDS, ({ lightness, capLightness }) => capLightness > lightness),
     ).toBe(true);
   });
 

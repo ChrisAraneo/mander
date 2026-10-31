@@ -11,6 +11,8 @@ const HSL_PATTERN = /^HSL\(\d+, \d+%, \d+%\)$/;
 
 const SPRING: Season = 'SPRING';
 
+const SUMMER: Season = 'SUMMER';
+
 const AUTUMN: Season = 'AUTUMN';
 
 const WINTER: Season = 'WINTER';
@@ -120,7 +122,7 @@ describe('createPalette', () => {
   it('should build the bricks out of clay when it paints a world', () => {
     expect(
       every(SEEDS, (seed) =>
-        every([SPRING, AUTUMN, WINTER], (season) =>
+        every([SPRING, SUMMER, AUTUMN, WINTER], (season) =>
           pipe(
             readMaterialHue(season, seed, BRICK),
             (hue) => hue <= 48 || hue >= 326,
@@ -133,7 +135,7 @@ describe('createPalette', () => {
   it('should cut the wood out of timber when it paints a world', () => {
     expect(
       every(SEEDS, (seed) =>
-        every([SPRING, AUTUMN, WINTER], (season) =>
+        every([SPRING, SUMMER, AUTUMN, WINTER], (season) =>
           pipe(
             readMaterialHue(season, seed, WOOD),
             (hue) => hue >= 6 && hue <= 52,
@@ -146,7 +148,7 @@ describe('createPalette', () => {
   it('should glaze the ceramics away from the clay and the timber when it paints a world', () => {
     expect(
       every(SEEDS, (seed) =>
-        every([SPRING, AUTUMN, WINTER], (season) =>
+        every([SPRING, SUMMER, AUTUMN, WINTER], (season) =>
           pipe(
             readMaterialHue(season, seed, CERAMIC),
             (hue) => hue >= 128 && hue <= 330,
@@ -188,6 +190,9 @@ describe('createPalette', () => {
     expect(createPalette(AUTUMN, createRandom('DAY-1'))).not.toEqual(
       createPalette(WINTER, createRandom('DAY-1')),
     );
+    expect(createPalette(SUMMER, createRandom('DAY-1'))).not.toEqual(
+      createPalette(SPRING, createRandom('DAY-1')),
+    );
   });
 
   it('should paint the recorded spring colours when the generator starts from the seed DAY-1', () => {
@@ -209,13 +214,13 @@ describe('createPalette', () => {
     expect(createPalette(AUTUMN, createRandom('DAY-1'))).toEqual({
       sky: ['HSL(216, 26%, 31%)', 'HSL(4, 21%, 47%)', 'HSL(4, 50%, 61%)'],
       hills: ['HSL(216, 20%, 41%)', 'HSL(216, 20%, 35%)'],
-      block: 'HSL(32, 30%, 36%)',
-      blockCap: 'HSL(348, 38%, 47%)',
-      blockCapHighlight: 'HSL(348, 42%, 53%)',
+      block: 'HSL(32, 29%, 34%)',
+      blockCap: 'HSL(348, 14%, 43%)',
+      blockCapHighlight: 'HSL(348, 18%, 49%)',
       materials: {
         brick: 'HSL(2, 56%, 42%)',
         wood: 'HSL(14, 36%, 36%)',
-        ceramic: 'HSL(132, 32%, 34%)',
+        ceramic: 'HSL(150, 34%, 36%)',
       },
     });
   });
@@ -250,6 +255,37 @@ describe('createPalette', () => {
         brick: 'HSL(2, 20%, 64%)',
         wood: 'HSL(18, 14%, 60%)',
         ceramic: 'HSL(174, 44%, 62%)',
+      },
+    });
+  });
+
+  it('should bake the ground and its cap in yellow, gold, orange and pink when the season is summer', () => {
+    expect(
+      every(SEEDS, (seed) =>
+        every(readGroundHues(SUMMER, seed), (hue) => hue <= 70 || hue >= 316),
+      ),
+    ).toBe(true);
+  });
+
+  it('should leave the green, the blue and the violet out of the ground when the season is summer', () => {
+    expect(
+      every(SEEDS, (seed) =>
+        every(readGroundHues(SUMMER, seed), (hue) => !(hue > 70 && hue < 316)),
+      ),
+    ).toBe(true);
+  });
+
+  it('should paint the recorded summer colours when the generator starts from the seed DAY-1', () => {
+    expect(createPalette(SUMMER, createRandom('DAY-1'))).toEqual({
+      sky: ['HSL(216, 26%, 31%)', 'HSL(4, 21%, 47%)', 'HSL(4, 50%, 61%)'],
+      hills: ['HSL(216, 20%, 41%)', 'HSL(216, 20%, 35%)'],
+      block: 'HSL(328, 56%, 47%)',
+      blockCap: 'HSL(332, 60%, 59%)',
+      blockCapHighlight: 'HSL(332, 64%, 65%)',
+      materials: {
+        brick: 'HSL(4, 70%, 58%)',
+        wood: 'HSL(18, 40%, 60%)',
+        ceramic: 'HSL(288, 58%, 62%)',
       },
     });
   });

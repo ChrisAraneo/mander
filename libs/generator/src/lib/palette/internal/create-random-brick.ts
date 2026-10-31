@@ -19,19 +19,40 @@ const SPRING_BRICK_TONES: PaletteMaterialTone[] = [
   { hue: 356, saturation: 38, lightness: 48 },
 ];
 
+const SUMMER_BRICK_TONES: PaletteMaterialTone[] = [
+  { hue: 4, saturation: 70, lightness: 58 },
+  { hue: 10, saturation: 64, lightness: 62 },
+  { hue: 16, saturation: 74, lightness: 56 },
+  { hue: 22, saturation: 58, lightness: 64 },
+  { hue: 28, saturation: 68, lightness: 60 },
+  { hue: 34, saturation: 62, lightness: 66 },
+  { hue: 40, saturation: 72, lightness: 58 },
+  { hue: 46, saturation: 56, lightness: 62 },
+  { hue: 328, saturation: 66, lightness: 64 },
+  { hue: 334, saturation: 60, lightness: 60 },
+  { hue: 340, saturation: 72, lightness: 66 },
+  { hue: 346, saturation: 58, lightness: 56 },
+  { hue: 350, saturation: 68, lightness: 62 },
+  { hue: 356, saturation: 62, lightness: 58 },
+];
+
 const AUTUMN_BRICK_TONES: PaletteMaterialTone[] = [
+  { hue: 0, saturation: 0, lightness: 30 },
   { hue: 2, saturation: 56, lightness: 42 },
   { hue: 6, saturation: 34, lightness: 36 },
   { hue: 10, saturation: 48, lightness: 38 },
   { hue: 14, saturation: 60, lightness: 38 },
   { hue: 16, saturation: 52, lightness: 40 },
+  { hue: 20, saturation: 4, lightness: 34 },
   { hue: 20, saturation: 44, lightness: 40 },
   { hue: 24, saturation: 54, lightness: 42 },
   { hue: 28, saturation: 38, lightness: 30 },
   { hue: 32, saturation: 48, lightness: 44 },
+  { hue: 34, saturation: 6, lightness: 36 },
   { hue: 40, saturation: 42, lightness: 42 },
   { hue: 328, saturation: 28, lightness: 32 },
   { hue: 336, saturation: 32, lightness: 38 },
+  { hue: 344, saturation: 2, lightness: 32 },
   { hue: 344, saturation: 40, lightness: 36 },
   { hue: 356, saturation: 46, lightness: 34 },
 ];
@@ -56,6 +77,7 @@ const WINTER_BRICK_TONES: PaletteMaterialTone[] = [
 const BRICK_TONES: Readonly<Record<Season, PaletteMaterialTone[]>> =
   Object.freeze({
     SPRING: SPRING_BRICK_TONES,
+    SUMMER: SUMMER_BRICK_TONES,
     AUTUMN: AUTUMN_BRICK_TONES,
     WINTER: WINTER_BRICK_TONES,
   });

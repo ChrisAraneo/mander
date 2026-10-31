@@ -1,12 +1,14 @@
 import { createRandom } from '@mander/engine';
 import type { Season } from '@mander/model';
-import { every, map, size, times, uniq } from 'lodash-es';
+import { every, map, size, some, times, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { createRandomBrick } from './create-random-brick';
 import type { PaletteMaterialTone } from './types/palette-material-tone';
 
 const SPRING: Season = 'SPRING';
+
+const SUMMER: Season = 'SUMMER';
 
 const AUTUMN: Season = 'AUTUMN';
 
@@ -21,11 +23,18 @@ const createBricks = (season: Season): PaletteMaterialTone[] =>
 
 const SPRING_BRICKS = createBricks(SPRING);
 
+const SUMMER_BRICKS = createBricks(SUMMER);
+
 const AUTUMN_BRICKS = createBricks(AUTUMN);
 
 const WINTER_BRICKS = createBricks(WINTER);
 
-const BRICKS = [...SPRING_BRICKS, ...AUTUMN_BRICKS, ...WINTER_BRICKS];
+const BRICKS = [
+  ...SPRING_BRICKS,
+  ...SUMMER_BRICKS,
+  ...AUTUMN_BRICKS,
+  ...WINTER_BRICKS,
+];
 
 const isClay = ({ hue }: PaletteMaterialTone): boolean =>
   hue <= CLAY_HUE_LOW || hue >= CLAY_HUE_HIGH;
@@ -39,12 +48,16 @@ describe('createRandomBrick', () => {
 
   it('should pick other bricks when the seeds differ', () => {
     expect(size(uniq(map(SPRING_BRICKS, 'hue')))).toBeGreaterThan(8);
+    expect(size(uniq(map(SUMMER_BRICKS, 'hue')))).toBeGreaterThan(8);
     expect(size(uniq(map(AUTUMN_BRICKS, 'hue')))).toBeGreaterThan(8);
     expect(size(uniq(map(WINTER_BRICKS, 'hue')))).toBeGreaterThan(8);
   });
 
   it('should pick another brick when the season turns', () => {
     expect(createRandomBrick(SPRING, createRandom('WORLD-1'))).not.toEqual(
+      createRandomBrick(SUMMER, createRandom('WORLD-1')),
+    );
+    expect(createRandomBrick(SUMMER, createRandom('WORLD-1'))).not.toEqual(
       createRandomBrick(AUTUMN, createRandom('WORLD-1')),
     );
     expect(createRandomBrick(AUTUMN, createRandom('WORLD-1'))).not.toEqual(
@@ -72,14 +85,28 @@ describe('createRandomBrick', () => {
     ).toBe(true);
   });
 
+  it('should fire the bricks hot and bright when the season is summer', () => {
+    expect(
+      every(
+        SUMMER_BRICKS,
+        ({ saturation, lightness }) =>
+          saturation >= 56 && saturation <= 74 && lightness >= 56,
+      ),
+    ).toBe(true);
+  });
+
   it('should fire the bricks deeper and darker when the season is autumn', () => {
     expect(
       every(
         AUTUMN_BRICKS,
         ({ saturation, lightness }) =>
-          saturation >= 28 && saturation <= 60 && lightness <= 44,
+          saturation >= 0 && saturation <= 60 && lightness <= 44,
       ),
     ).toBe(true);
+  });
+
+  it('should burn some bricks to grey ash when the season is autumn', () => {
+    expect(some(AUTUMN_BRICKS, ({ saturation }) => saturation <= 6)).toBe(true);
   });
 
   it('should dust the bricks pale and cold when the season is winter', () => {

@@ -19,18 +19,39 @@ const SPRING_CERAMIC_TONES: PaletteMaterialTone[] = [
   { hue: 306, saturation: 46, lightness: 50 },
 ];
 
+const SUMMER_CERAMIC_TONES: PaletteMaterialTone[] = [
+  { hue: 288, saturation: 58, lightness: 62 },
+  { hue: 292, saturation: 64, lightness: 58 },
+  { hue: 296, saturation: 56, lightness: 66 },
+  { hue: 300, saturation: 70, lightness: 60 },
+  { hue: 304, saturation: 60, lightness: 64 },
+  { hue: 308, saturation: 66, lightness: 58 },
+  { hue: 312, saturation: 54, lightness: 68 },
+  { hue: 316, saturation: 72, lightness: 62 },
+  { hue: 320, saturation: 58, lightness: 56 },
+  { hue: 322, saturation: 68, lightness: 66 },
+  { hue: 324, saturation: 62, lightness: 60 },
+  { hue: 326, saturation: 74, lightness: 64 },
+  { hue: 328, saturation: 56, lightness: 58 },
+  { hue: 330, saturation: 66, lightness: 62 },
+];
+
 const AUTUMN_CERAMIC_TONES: PaletteMaterialTone[] = [
   { hue: 132, saturation: 32, lightness: 34 },
   { hue: 150, saturation: 34, lightness: 36 },
   { hue: 164, saturation: 38, lightness: 34 },
   { hue: 186, saturation: 44, lightness: 38 },
+  { hue: 196, saturation: 30, lightness: 28 },
   { hue: 198, saturation: 46, lightness: 36 },
   { hue: 212, saturation: 40, lightness: 40 },
   { hue: 224, saturation: 52, lightness: 38 },
+  { hue: 232, saturation: 32, lightness: 26 },
   { hue: 238, saturation: 38, lightness: 42 },
   { hue: 268, saturation: 34, lightness: 36 },
+  { hue: 280, saturation: 30, lightness: 30 },
   { hue: 284, saturation: 40, lightness: 42 },
   { hue: 296, saturation: 36, lightness: 38 },
+  { hue: 316, saturation: 34, lightness: 28 },
   { hue: 318, saturation: 42, lightness: 42 },
   { hue: 324, saturation: 52, lightness: 36 },
   { hue: 330, saturation: 38, lightness: 44 },
@@ -56,6 +77,7 @@ const WINTER_CERAMIC_TONES: PaletteMaterialTone[] = [
 const CERAMIC_TONES: Readonly<Record<Season, PaletteMaterialTone[]>> =
   Object.freeze({
     SPRING: SPRING_CERAMIC_TONES,
+    SUMMER: SUMMER_CERAMIC_TONES,
     AUTUMN: AUTUMN_CERAMIC_TONES,
     WINTER: WINTER_CERAMIC_TONES,
   });

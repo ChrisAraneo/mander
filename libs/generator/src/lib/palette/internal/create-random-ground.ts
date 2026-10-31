@@ -15,6 +15,12 @@ const SPRING_CAP_HUES = [
   58, 64, 70, 76, 82, 88, 94, 100, 108, 116, 124, 132, 140, 148,
 ];
 
+const SUMMER_GROUND_HUES = [
+  14, 20, 26, 32, 38, 44, 50, 56, 320, 328, 334, 340, 346, 352,
+];
+
+const SUMMER_CAP_HUES = [54, 58, 62, 66, 70, 316, 324, 332, 340, 348];
+
 const AUTUMN_GROUND_HUES = [344, 350, 356, 2, 8, 14, 20, 26, 32, 38, 44, 50];
 
 const AUTUMN_CAP_HUES = [56, 60, 64, 68, 336, 342, 348, 352];
@@ -30,24 +36,40 @@ const WINTER_CAP_HUES = [
 
 const GROUND_HUES: Readonly<Record<Season, number[]>> = Object.freeze({
   SPRING: SPRING_GROUND_HUES,
+  SUMMER: SUMMER_GROUND_HUES,
   AUTUMN: AUTUMN_GROUND_HUES,
   WINTER: WINTER_GROUND_HUES,
 });
 
 const CAP_HUES: Readonly<Record<Season, number[]>> = Object.freeze({
   SPRING: SPRING_CAP_HUES,
+  SUMMER: SUMMER_CAP_HUES,
   AUTUMN: AUTUMN_CAP_HUES,
   WINTER: WINTER_CAP_HUES,
 });
 
-const TEMPERATE_GROUND_SHADES: PaletteGroundShades = {
+const SPRING_GROUND_SHADES: PaletteGroundShades = {
   saturation: { min: 18, max: 30 },
   lightness: { min: 28, max: 36 },
   capSaturation: { min: 34, max: 50 },
   capLightness: { min: 44, max: 54 },
 };
 
-const FROZEN_GROUND_SHADES: PaletteGroundShades = {
+const SUMMER_GROUND_SHADES: PaletteGroundShades = {
+  saturation: { min: 40, max: 56 },
+  lightness: { min: 38, max: 48 },
+  capSaturation: { min: 56, max: 72 },
+  capLightness: { min: 56, max: 66 },
+};
+
+const AUTUMN_GROUND_SHADES: PaletteGroundShades = {
+  saturation: { min: 0, max: 30 },
+  lightness: { min: 14, max: 36 },
+  capSaturation: { min: 0, max: 50 },
+  capLightness: { min: 38, max: 54 },
+};
+
+const WINTER_GROUND_SHADES: PaletteGroundShades = {
   saturation: { min: 14, max: 24 },
   lightness: { min: 30, max: 38 },
   capSaturation: { min: 12, max: 24 },
@@ -56,9 +78,10 @@ const FROZEN_GROUND_SHADES: PaletteGroundShades = {
 
 const GROUND_SHADES: Readonly<Record<Season, PaletteGroundShades>> =
   Object.freeze({
-    SPRING: TEMPERATE_GROUND_SHADES,
-    AUTUMN: TEMPERATE_GROUND_SHADES,
-    WINTER: FROZEN_GROUND_SHADES,
+    SPRING: SPRING_GROUND_SHADES,
+    SUMMER: SUMMER_GROUND_SHADES,
+    AUTUMN: AUTUMN_GROUND_SHADES,
+    WINTER: WINTER_GROUND_SHADES,
   });
 
 const createRandomShade = (

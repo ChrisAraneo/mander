@@ -161,7 +161,7 @@ const isSpawnAtHome = (level: Level, spawn: TileCell): boolean =>
     .with(true, () => !isUnderpinned(level, spawn))
     .otherwise(() => isUnderpinned(level, spawn));
 
-const SEASONS: Season[] = ['SPRING', 'AUTUMN', 'WINTER'];
+const SEASONS: Season[] = ['SPRING', 'SUMMER', 'AUTUMN', 'WINTER'];
 
 const readWorldMaterials = ({ palette }: RenderedWorld): string[] => [
   palette.materials?.brick ?? '',
@@ -518,6 +518,7 @@ describe('createWorld', () => {
     expect(uniq(map(WORLDS, (world) => world.season)).sort()).toEqual([
       'AUTUMN',
       'SPRING',
+      'SUMMER',
       'WINTER',
     ]);
   });
@@ -534,6 +535,7 @@ describe('createWorld', () => {
         every(readWorldGroundHues(world), (hue) =>
           match(world.season)
             .with('SPRING', () => hue >= 50 && hue <= 152)
+            .with('SUMMER', () => hue <= 70 || hue >= 316)
             .with('WINTER', () => hue >= 186 && hue <= 292)
             .otherwise(() => hue <= 68 || hue >= 336),
         ),
@@ -557,12 +559,13 @@ describe('createWorld', () => {
     ).toBe(true);
   });
 
-  it('should build the walls light in spring, deep in autumn and pale in winter when it deals a day', () => {
+  it('should build the walls light in spring, hot in summer, deep in autumn and pale in winter when it deals a day', () => {
     expect(
       every(WORLDS, (world) =>
         pipe(readWorldMaterialShades(world), (shades) =>
           match(world.season)
             .with('SPRING', () => every(shades, (shade) => shade >= 42))
+            .with('SUMMER', () => every(shades, (shade) => shade >= 52))
             .with('WINTER', () => every(shades, (shade) => shade >= 58))
             .otherwise(() => every(shades, (shade) => shade <= 44)),
         ),
@@ -578,9 +581,9 @@ describe('createWorld', () => {
     expect(world.palette).toEqual({
       sky: ['HSL(222, 35%, 27%)', 'HSL(33, 28%, 43%)', 'HSL(33, 52%, 57%)'],
       hills: ['HSL(222, 29%, 37%)', 'HSL(222, 29%, 31%)'],
-      block: 'HSL(50, 18%, 31%)',
-      blockCap: 'HSL(68, 45%, 52%)',
-      blockCapHighlight: 'HSL(68, 49%, 58%)',
+      block: 'HSL(50, 1%, 22%)',
+      blockCap: 'HSL(68, 34%, 50%)',
+      blockCapHighlight: 'HSL(68, 38%, 56%)',
       materials: {
         brick: 'HSL(24, 54%, 42%)',
         wood: 'HSL(22, 44%, 38%)',

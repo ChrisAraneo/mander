@@ -1,12 +1,14 @@
 import { createRandom } from '@mander/engine';
 import type { Season } from '@mander/model';
-import { every, map, size, times, uniq } from 'lodash-es';
+import { every, map, size, some, times, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { createRandomWood } from './create-random-wood';
 import type { PaletteMaterialTone } from './types/palette-material-tone';
 
 const SPRING: Season = 'SPRING';
+
+const SUMMER: Season = 'SUMMER';
 
 const AUTUMN: Season = 'AUTUMN';
 
@@ -21,11 +23,18 @@ const createPlanks = (season: Season): PaletteMaterialTone[] =>
 
 const SPRING_PLANKS = createPlanks(SPRING);
 
+const SUMMER_PLANKS = createPlanks(SUMMER);
+
 const AUTUMN_PLANKS = createPlanks(AUTUMN);
 
 const WINTER_PLANKS = createPlanks(WINTER);
 
-const PLANKS = [...SPRING_PLANKS, ...AUTUMN_PLANKS, ...WINTER_PLANKS];
+const PLANKS = [
+  ...SPRING_PLANKS,
+  ...SUMMER_PLANKS,
+  ...AUTUMN_PLANKS,
+  ...WINTER_PLANKS,
+];
 
 describe('createRandomWood', () => {
   it('should pick the same wood when the generator starts from the same seed', () => {
@@ -36,12 +45,16 @@ describe('createRandomWood', () => {
 
   it('should pick other woods when the seeds differ', () => {
     expect(size(uniq(map(SPRING_PLANKS, 'hue')))).toBeGreaterThan(8);
+    expect(size(uniq(map(SUMMER_PLANKS, 'hue')))).toBeGreaterThan(8);
     expect(size(uniq(map(AUTUMN_PLANKS, 'hue')))).toBeGreaterThan(8);
     expect(size(uniq(map(WINTER_PLANKS, 'hue')))).toBeGreaterThan(8);
   });
 
   it('should pick another wood when the season turns', () => {
     expect(createRandomWood(SPRING, createRandom('WORLD-1'))).not.toEqual(
+      createRandomWood(SUMMER, createRandom('WORLD-1')),
+    );
+    expect(createRandomWood(SUMMER, createRandom('WORLD-1'))).not.toEqual(
       createRandomWood(AUTUMN, createRandom('WORLD-1')),
     );
     expect(createRandomWood(AUTUMN, createRandom('WORLD-1'))).not.toEqual(
@@ -68,12 +81,31 @@ describe('createRandomWood', () => {
     ).toBe(true);
   });
 
+  it('should cut the planks from sunlit timber when the season is summer', () => {
+    expect(
+      every(
+        SUMMER_PLANKS,
+        ({ saturation, lightness }) =>
+          saturation >= 30 && saturation <= 56 && lightness >= 52,
+      ),
+    ).toBe(true);
+  });
+
   it('should cut the planks from aged timber when the season is autumn', () => {
     expect(
       every(
         AUTUMN_PLANKS,
         ({ saturation, lightness }) =>
-          saturation >= 8 && saturation <= 44 && lightness <= 40,
+          saturation >= 0 && saturation <= 44 && lightness <= 40,
+      ),
+    ).toBe(true);
+  });
+
+  it('should char some planks grey and black when the season is autumn', () => {
+    expect(
+      some(
+        AUTUMN_PLANKS,
+        ({ saturation, lightness }) => saturation <= 6 && lightness <= 28,
       ),
     ).toBe(true);
   });

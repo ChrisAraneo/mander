@@ -19,20 +19,41 @@ const SPRING_WOOD_TONES: PaletteMaterialTone[] = [
   { hue: 52, saturation: 18, lightness: 56 },
 ];
 
+const SUMMER_WOOD_TONES: PaletteMaterialTone[] = [
+  { hue: 10, saturation: 46, lightness: 54 },
+  { hue: 14, saturation: 52, lightness: 56 },
+  { hue: 18, saturation: 40, lightness: 60 },
+  { hue: 22, saturation: 56, lightness: 58 },
+  { hue: 26, saturation: 34, lightness: 64 },
+  { hue: 28, saturation: 48, lightness: 62 },
+  { hue: 32, saturation: 54, lightness: 56 },
+  { hue: 34, saturation: 38, lightness: 66 },
+  { hue: 38, saturation: 50, lightness: 60 },
+  { hue: 40, saturation: 30, lightness: 62 },
+  { hue: 44, saturation: 44, lightness: 64 },
+  { hue: 46, saturation: 56, lightness: 58 },
+  { hue: 50, saturation: 36, lightness: 66 },
+  { hue: 52, saturation: 48, lightness: 62 },
+];
+
 const AUTUMN_WOOD_TONES: PaletteMaterialTone[] = [
   { hue: 6, saturation: 34, lightness: 32 },
   { hue: 10, saturation: 30, lightness: 36 },
   { hue: 14, saturation: 36, lightness: 36 },
   { hue: 18, saturation: 38, lightness: 40 },
+  { hue: 20, saturation: 6, lightness: 24 },
   { hue: 22, saturation: 44, lightness: 38 },
+  { hue: 24, saturation: 2, lightness: 20 },
   { hue: 24, saturation: 32, lightness: 34 },
   { hue: 26, saturation: 16, lightness: 30 },
   { hue: 28, saturation: 8, lightness: 26 },
   { hue: 28, saturation: 34, lightness: 38 },
+  { hue: 30, saturation: 0, lightness: 16 },
   { hue: 30, saturation: 24, lightness: 32 },
   { hue: 32, saturation: 12, lightness: 38 },
   { hue: 34, saturation: 28, lightness: 40 },
   { hue: 38, saturation: 22, lightness: 36 },
+  { hue: 40, saturation: 4, lightness: 28 },
   { hue: 44, saturation: 20, lightness: 34 },
 ];
 
@@ -56,6 +77,7 @@ const WINTER_WOOD_TONES: PaletteMaterialTone[] = [
 const WOOD_TONES: Readonly<Record<Season, PaletteMaterialTone[]>> =
   Object.freeze({
     SPRING: SPRING_WOOD_TONES,
+    SUMMER: SUMMER_WOOD_TONES,
     AUTUMN: AUTUMN_WOOD_TONES,
     WINTER: WINTER_WOOD_TONES,
   });

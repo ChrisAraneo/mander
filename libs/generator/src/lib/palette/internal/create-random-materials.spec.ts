@@ -7,6 +7,8 @@ import { createRandomMaterials } from './create-random-materials';
 
 const SPRING: Season = 'SPRING';
 
+const SUMMER: Season = 'SUMMER';
+
 const AUTUMN: Season = 'AUTUMN';
 
 const WINTER: Season = 'WINTER';
@@ -40,6 +42,9 @@ describe('createRandomMaterials', () => {
     );
     expect(createRandomMaterials(AUTUMN, createRandom('DAY-1'))).not.toEqual(
       createRandomMaterials(WINTER, createRandom('DAY-1')),
+    );
+    expect(createRandomMaterials(SUMMER, createRandom('DAY-1'))).not.toEqual(
+      createRandomMaterials(SPRING, createRandom('DAY-1')),
     );
   });
 });
