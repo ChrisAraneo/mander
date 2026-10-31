@@ -38,6 +38,25 @@ import {
 } from './consts';
 import { createEnemies } from './create-enemies';
 
+const SPREAD = 0.5;
+
+const FREEZING_SHARE = (1 - SHOOTER_ENEMY_CHANCE) * FREEZING_ENEMY_CHANCE;
+
+const FAST_SHARE =
+  (1 - SHOOTER_ENEMY_CHANCE) * (1 - FREEZING_ENEMY_CHANCE) * FAST_ENEMY_CHANCE;
+
+const HORNED_SHARE =
+  (1 - SHOOTER_ENEMY_CHANCE) *
+  (1 - FREEZING_ENEMY_CHANCE) *
+  (1 - FAST_ENEMY_CHANCE) *
+  HORNED_ENEMY_CHANCE;
+
+const computeFewest = (share: number, count: number): number =>
+  share * count * (1 - SPREAD);
+
+const computeMost = (share: number, count: number): number =>
+  share * count * (1 + SPREAD);
+
 const createLevelWithEnemies = (
   seed: string,
   count: number,
@@ -157,7 +176,7 @@ describe('createEnemies', () => {
     expect(second).toEqual(first);
   });
 
-  it('should make roughly a third of the enemies horned when the level spawns many', () => {
+  it('should send out as many horned enemies as the chances leave them when the level spawns many', () => {
     const level = createLevelWithEnemies('SEED-B', 200);
     const enemies = createEnemies(level);
     const hornedCount = size(
@@ -165,8 +184,12 @@ describe('createEnemies', () => {
     );
 
     expect(enemies).toHaveLength(200);
-    expect(hornedCount, 'not suspiciously rare').toBeGreaterThan(40);
-    expect(hornedCount, 'not suspiciously common').toBeLessThan(90);
+    expect(hornedCount, 'not suspiciously rare').toBeGreaterThan(
+      computeFewest(HORNED_SHARE, 200),
+    );
+    expect(hornedCount, 'not suspiciously common').toBeLessThan(
+      computeMost(HORNED_SHARE, 200),
+    );
   });
 
   it('should spawn only hopping, fast, shooter and freezing enemies when the level asks for no horned ones', () => {
@@ -195,13 +218,32 @@ describe('createEnemies', () => {
     ]);
   });
 
-  it('should make roughly a quarter of the enemies fast when the level spawns many', () => {
+  it('should send out as many fast enemies as the chances leave them when the level spawns many', () => {
     const level = createLevelWithEnemies('SEED-B', 200);
     const enemies = createEnemies(level);
     const fastCount = size(filter(enemies, (enemy) => enemy.kind === 'FAST'));
 
-    expect(fastCount, 'not suspiciously rare').toBeGreaterThan(30);
-    expect(fastCount, 'not suspiciously common').toBeLessThan(70);
+    expect(fastCount, 'not suspiciously rare').toBeGreaterThan(
+      computeFewest(FAST_SHARE, 200),
+    );
+    expect(fastCount, 'not suspiciously common').toBeLessThan(
+      computeMost(FAST_SHARE, 200),
+    );
+  });
+
+  it('should send out as many freezing enemies as the chances leave them when the level spawns many', () => {
+    const level = createLevelWithEnemies('SEED-B', 200);
+    const enemies = createEnemies(level);
+    const freezingCount = size(
+      filter(enemies, (enemy) => enemy.kind === 'FREEZING'),
+    );
+
+    expect(freezingCount, 'not suspiciously rare').toBeGreaterThan(
+      computeFewest(FREEZING_SHARE, 200),
+    );
+    expect(freezingCount, 'not suspiciously common').toBeLessThan(
+      computeMost(FREEZING_SHARE, 200),
+    );
   });
 
   it('should still spawn flying enemies in the air when the level asks something else of the ground', () => {
