@@ -10,6 +10,8 @@ const SPRING: Season = 'SPRING';
 
 const AUTUMN: Season = 'AUTUMN';
 
+const WINTER: Season = 'WINTER';
+
 const TIMBER_HUE_MIN = 6;
 
 const TIMBER_HUE_MAX = 52;
@@ -21,7 +23,9 @@ const SPRING_PLANKS = createPlanks(SPRING);
 
 const AUTUMN_PLANKS = createPlanks(AUTUMN);
 
-const PLANKS = [...SPRING_PLANKS, ...AUTUMN_PLANKS];
+const WINTER_PLANKS = createPlanks(WINTER);
+
+const PLANKS = [...SPRING_PLANKS, ...AUTUMN_PLANKS, ...WINTER_PLANKS];
 
 describe('createRandomWood', () => {
   it('should pick the same wood when the generator starts from the same seed', () => {
@@ -33,11 +37,15 @@ describe('createRandomWood', () => {
   it('should pick other woods when the seeds differ', () => {
     expect(size(uniq(map(SPRING_PLANKS, 'hue')))).toBeGreaterThan(8);
     expect(size(uniq(map(AUTUMN_PLANKS, 'hue')))).toBeGreaterThan(8);
+    expect(size(uniq(map(WINTER_PLANKS, 'hue')))).toBeGreaterThan(8);
   });
 
   it('should pick another wood when the season turns', () => {
     expect(createRandomWood(SPRING, createRandom('WORLD-1'))).not.toEqual(
       createRandomWood(AUTUMN, createRandom('WORLD-1')),
+    );
+    expect(createRandomWood(AUTUMN, createRandom('WORLD-1'))).not.toEqual(
+      createRandomWood(WINTER, createRandom('WORLD-1')),
     );
   });
 
@@ -66,6 +74,16 @@ describe('createRandomWood', () => {
         AUTUMN_PLANKS,
         ({ saturation, lightness }) =>
           saturation >= 8 && saturation <= 44 && lightness <= 40,
+      ),
+    ).toBe(true);
+  });
+
+  it('should bleach the planks with frost when the season is winter', () => {
+    expect(
+      every(
+        WINTER_PLANKS,
+        ({ saturation, lightness }) =>
+          saturation >= 4 && saturation <= 16 && lightness >= 58,
       ),
     ).toBe(true);
   });

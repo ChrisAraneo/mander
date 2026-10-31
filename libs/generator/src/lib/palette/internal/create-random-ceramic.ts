@@ -36,10 +36,28 @@ const AUTUMN_CERAMIC_TONES: PaletteMaterialTone[] = [
   { hue: 330, saturation: 38, lightness: 44 },
 ];
 
+const WINTER_CERAMIC_TONES: PaletteMaterialTone[] = [
+  { hue: 174, saturation: 44, lightness: 62 },
+  { hue: 182, saturation: 48, lightness: 66 },
+  { hue: 188, saturation: 52, lightness: 60 },
+  { hue: 194, saturation: 46, lightness: 70 },
+  { hue: 200, saturation: 54, lightness: 64 },
+  { hue: 206, saturation: 42, lightness: 72 },
+  { hue: 212, saturation: 50, lightness: 62 },
+  { hue: 220, saturation: 56, lightness: 68 },
+  { hue: 228, saturation: 44, lightness: 66 },
+  { hue: 238, saturation: 48, lightness: 60 },
+  { hue: 252, saturation: 40, lightness: 70 },
+  { hue: 266, saturation: 46, lightness: 64 },
+  { hue: 280, saturation: 42, lightness: 68 },
+  { hue: 294, saturation: 38, lightness: 62 },
+];
+
 const CERAMIC_TONES: Readonly<Record<Season, PaletteMaterialTone[]>> =
   Object.freeze({
     SPRING: SPRING_CERAMIC_TONES,
     AUTUMN: AUTUMN_CERAMIC_TONES,
+    WINTER: WINTER_CERAMIC_TONES,
   });
 
 export const createRandomCeramic = (

@@ -36,10 +36,28 @@ const AUTUMN_WOOD_TONES: PaletteMaterialTone[] = [
   { hue: 44, saturation: 20, lightness: 34 },
 ];
 
+const WINTER_WOOD_TONES: PaletteMaterialTone[] = [
+  { hue: 10, saturation: 10, lightness: 62 },
+  { hue: 14, saturation: 6, lightness: 66 },
+  { hue: 18, saturation: 14, lightness: 60 },
+  { hue: 20, saturation: 8, lightness: 70 },
+  { hue: 24, saturation: 12, lightness: 64 },
+  { hue: 26, saturation: 4, lightness: 72 },
+  { hue: 28, saturation: 16, lightness: 58 },
+  { hue: 30, saturation: 10, lightness: 68 },
+  { hue: 34, saturation: 6, lightness: 74 },
+  { hue: 36, saturation: 14, lightness: 62 },
+  { hue: 40, saturation: 8, lightness: 70 },
+  { hue: 44, saturation: 12, lightness: 66 },
+  { hue: 48, saturation: 6, lightness: 72 },
+  { hue: 52, saturation: 10, lightness: 64 },
+];
+
 const WOOD_TONES: Readonly<Record<Season, PaletteMaterialTone[]>> =
   Object.freeze({
     SPRING: SPRING_WOOD_TONES,
     AUTUMN: AUTUMN_WOOD_TONES,
+    WINTER: WINTER_WOOD_TONES,
   });
 
 export const createRandomWood = (

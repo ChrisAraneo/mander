@@ -10,9 +10,15 @@ const SPRING: Season = 'SPRING';
 
 const AUTUMN: Season = 'AUTUMN';
 
+const WINTER: Season = 'WINTER';
+
 const GLAZE_HUE_MIN = 128;
 
 const GLAZE_HUE_MAX = 330;
+
+const ICE_HUE_MIN = 174;
+
+const ICE_HUE_MAX = 294;
 
 const createPots = (season: Season): PaletteMaterialTone[] =>
   times(200, (day) =>
@@ -23,7 +29,9 @@ const SPRING_POTS = createPots(SPRING);
 
 const AUTUMN_POTS = createPots(AUTUMN);
 
-const POTS = [...SPRING_POTS, ...AUTUMN_POTS];
+const WINTER_POTS = createPots(WINTER);
+
+const POTS = [...SPRING_POTS, ...AUTUMN_POTS, ...WINTER_POTS];
 
 describe('createRandomCeramic', () => {
   it('should pick the same ceramic when the generator starts from the same seed', () => {
@@ -35,11 +43,15 @@ describe('createRandomCeramic', () => {
   it('should pick other ceramics when the seeds differ', () => {
     expect(size(uniq(map(SPRING_POTS, 'hue')))).toBeGreaterThan(8);
     expect(size(uniq(map(AUTUMN_POTS, 'hue')))).toBeGreaterThan(8);
+    expect(size(uniq(map(WINTER_POTS, 'hue')))).toBeGreaterThan(8);
   });
 
   it('should pick another ceramic when the season turns', () => {
     expect(createRandomCeramic(SPRING, createRandom('WORLD-1'))).not.toEqual(
       createRandomCeramic(AUTUMN, createRandom('WORLD-1')),
+    );
+    expect(createRandomCeramic(AUTUMN, createRandom('WORLD-1'))).not.toEqual(
+      createRandomCeramic(WINTER, createRandom('WORLD-1')),
     );
   });
 
@@ -69,6 +81,22 @@ describe('createRandomCeramic', () => {
         AUTUMN_POTS,
         ({ saturation, lightness }) =>
           saturation >= 30 && saturation <= 52 && lightness <= 44,
+      ),
+    ).toBe(true);
+  });
+
+  it('should glaze the pots cyan, blue and violet when the season is winter', () => {
+    expect(
+      every(WINTER_POTS, ({ hue }) => hue >= ICE_HUE_MIN && hue <= ICE_HUE_MAX),
+    ).toBe(true);
+  });
+
+  it('should glaze the pots in ice when the season is winter', () => {
+    expect(
+      every(
+        WINTER_POTS,
+        ({ saturation, lightness }) =>
+          saturation >= 38 && saturation <= 56 && lightness >= 60,
       ),
     ).toBe(true);
   });

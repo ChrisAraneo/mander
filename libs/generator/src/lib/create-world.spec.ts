@@ -161,7 +161,7 @@ const isSpawnAtHome = (level: Level, spawn: TileCell): boolean =>
     .with(true, () => !isUnderpinned(level, spawn))
     .otherwise(() => isUnderpinned(level, spawn));
 
-const SEASONS: Season[] = ['SPRING', 'AUTUMN'];
+const SEASONS: Season[] = ['SPRING', 'AUTUMN', 'WINTER'];
 
 const readWorldMaterials = ({ palette }: RenderedWorld): string[] => [
   palette.materials?.brick ?? '',
@@ -514,10 +514,11 @@ describe('createWorld', () => {
     );
   });
 
-  it('should deal both seasons when it deals the days of a fortnight', () => {
+  it('should deal every season when it deals the days of a fortnight', () => {
     expect(uniq(map(WORLDS, (world) => world.season)).sort()).toEqual([
       'AUTUMN',
       'SPRING',
+      'WINTER',
     ]);
   });
 
@@ -533,6 +534,7 @@ describe('createWorld', () => {
         every(readWorldGroundHues(world), (hue) =>
           match(world.season)
             .with('SPRING', () => hue >= 50 && hue <= 152)
+            .with('WINTER', () => hue >= 186 && hue <= 292)
             .otherwise(() => hue <= 68 || hue >= 336),
         ),
       ),
@@ -555,12 +557,13 @@ describe('createWorld', () => {
     ).toBe(true);
   });
 
-  it('should build the walls light in spring and deep in autumn when it deals a day', () => {
+  it('should build the walls light in spring, deep in autumn and pale in winter when it deals a day', () => {
     expect(
       every(WORLDS, (world) =>
         pipe(readWorldMaterialShades(world), (shades) =>
           match(world.season)
             .with('SPRING', () => every(shades, (shade) => shade >= 42))
+            .with('WINTER', () => every(shades, (shade) => shade >= 58))
             .otherwise(() => every(shades, (shade) => shade <= 44)),
         ),
       ),

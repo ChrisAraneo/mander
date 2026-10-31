@@ -1,1 +1,1 @@
-export type Season = 'SPRING' | 'AUTUMN';
+export type Season = 'SPRING' | 'AUTUMN' | 'WINTER';

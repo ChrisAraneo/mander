@@ -13,6 +13,8 @@ const SPRING: Season = 'SPRING';
 
 const AUTUMN: Season = 'AUTUMN';
 
+const WINTER: Season = 'WINTER';
+
 const SEEDS = times(50, (day) => `WORLD-${day}`);
 
 const createWith = (seed: string) => createPalette(SPRING, createRandom(seed));
@@ -118,7 +120,7 @@ describe('createPalette', () => {
   it('should build the bricks out of clay when it paints a world', () => {
     expect(
       every(SEEDS, (seed) =>
-        every([SPRING, AUTUMN], (season) =>
+        every([SPRING, AUTUMN, WINTER], (season) =>
           pipe(
             readMaterialHue(season, seed, BRICK),
             (hue) => hue <= 48 || hue >= 326,
@@ -131,7 +133,7 @@ describe('createPalette', () => {
   it('should cut the wood out of timber when it paints a world', () => {
     expect(
       every(SEEDS, (seed) =>
-        every([SPRING, AUTUMN], (season) =>
+        every([SPRING, AUTUMN, WINTER], (season) =>
           pipe(
             readMaterialHue(season, seed, WOOD),
             (hue) => hue >= 6 && hue <= 52,
@@ -144,7 +146,7 @@ describe('createPalette', () => {
   it('should glaze the ceramics away from the clay and the timber when it paints a world', () => {
     expect(
       every(SEEDS, (seed) =>
-        every([SPRING, AUTUMN], (season) =>
+        every([SPRING, AUTUMN, WINTER], (season) =>
           pipe(
             readMaterialHue(season, seed, CERAMIC),
             (hue) => hue >= 128 && hue <= 330,
@@ -183,6 +185,9 @@ describe('createPalette', () => {
     expect(createPalette(SPRING, createRandom('DAY-1'))).not.toEqual(
       createPalette(AUTUMN, createRandom('DAY-1')),
     );
+    expect(createPalette(AUTUMN, createRandom('DAY-1'))).not.toEqual(
+      createPalette(WINTER, createRandom('DAY-1')),
+    );
   });
 
   it('should paint the recorded spring colours when the generator starts from the seed DAY-1', () => {
@@ -211,6 +216,40 @@ describe('createPalette', () => {
         brick: 'HSL(2, 56%, 42%)',
         wood: 'HSL(14, 36%, 36%)',
         ceramic: 'HSL(132, 32%, 34%)',
+      },
+    });
+  });
+
+  it('should freeze the ground and its cap in cyan, blue and violet when the season is winter', () => {
+    expect(
+      every(SEEDS, (seed) =>
+        every(readGroundHues(WINTER, seed), (hue) => hue >= 186 && hue <= 292),
+      ),
+    ).toBe(true);
+  });
+
+  it('should leave the green, the gold and the red out of the ground when the season is winter', () => {
+    expect(
+      every(SEEDS, (seed) =>
+        every(
+          readGroundHues(WINTER, seed),
+          (hue) => !(hue <= 152 || hue >= 336),
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it('should paint the recorded winter colours when the generator starts from the seed DAY-1', () => {
+    expect(createPalette(WINTER, createRandom('DAY-1'))).toEqual({
+      sky: ['HSL(216, 26%, 31%)', 'HSL(4, 21%, 47%)', 'HSL(4, 50%, 61%)'],
+      hills: ['HSL(216, 20%, 41%)', 'HSL(216, 20%, 35%)'],
+      block: 'HSL(248, 24%, 38%)',
+      blockCap: 'HSL(264, 15%, 77%)',
+      blockCapHighlight: 'HSL(264, 19%, 83%)',
+      materials: {
+        brick: 'HSL(2, 20%, 64%)',
+        wood: 'HSL(18, 14%, 60%)',
+        ceramic: 'HSL(174, 44%, 62%)',
       },
     });
   });

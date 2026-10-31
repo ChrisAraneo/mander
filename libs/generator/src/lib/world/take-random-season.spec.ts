@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 import { takeRandomSeason } from './take-random-season';
 
-const SEASONS: Season[] = ['SPRING', 'AUTUMN'];
+const SEASONS: Season[] = ['SPRING', 'AUTUMN', 'WINTER'];
 
 const DRAWS = 2000;
 

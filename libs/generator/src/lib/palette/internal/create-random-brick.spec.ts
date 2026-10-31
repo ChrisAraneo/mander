@@ -10,6 +10,8 @@ const SPRING: Season = 'SPRING';
 
 const AUTUMN: Season = 'AUTUMN';
 
+const WINTER: Season = 'WINTER';
+
 const CLAY_HUE_LOW = 48;
 
 const CLAY_HUE_HIGH = 326;
@@ -21,7 +23,9 @@ const SPRING_BRICKS = createBricks(SPRING);
 
 const AUTUMN_BRICKS = createBricks(AUTUMN);
 
-const BRICKS = [...SPRING_BRICKS, ...AUTUMN_BRICKS];
+const WINTER_BRICKS = createBricks(WINTER);
+
+const BRICKS = [...SPRING_BRICKS, ...AUTUMN_BRICKS, ...WINTER_BRICKS];
 
 const isClay = ({ hue }: PaletteMaterialTone): boolean =>
   hue <= CLAY_HUE_LOW || hue >= CLAY_HUE_HIGH;
@@ -36,11 +40,15 @@ describe('createRandomBrick', () => {
   it('should pick other bricks when the seeds differ', () => {
     expect(size(uniq(map(SPRING_BRICKS, 'hue')))).toBeGreaterThan(8);
     expect(size(uniq(map(AUTUMN_BRICKS, 'hue')))).toBeGreaterThan(8);
+    expect(size(uniq(map(WINTER_BRICKS, 'hue')))).toBeGreaterThan(8);
   });
 
   it('should pick another brick when the season turns', () => {
     expect(createRandomBrick(SPRING, createRandom('WORLD-1'))).not.toEqual(
       createRandomBrick(AUTUMN, createRandom('WORLD-1')),
+    );
+    expect(createRandomBrick(AUTUMN, createRandom('WORLD-1'))).not.toEqual(
+      createRandomBrick(WINTER, createRandom('WORLD-1')),
     );
   });
 
@@ -70,6 +78,16 @@ describe('createRandomBrick', () => {
         AUTUMN_BRICKS,
         ({ saturation, lightness }) =>
           saturation >= 28 && saturation <= 60 && lightness <= 44,
+      ),
+    ).toBe(true);
+  });
+
+  it('should dust the bricks pale and cold when the season is winter', () => {
+    expect(
+      every(
+        WINTER_BRICKS,
+        ({ saturation, lightness }) =>
+          saturation >= 12 && saturation <= 26 && lightness >= 58,
       ),
     ).toBe(true);
   });

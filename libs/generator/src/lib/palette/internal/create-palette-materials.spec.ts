@@ -11,6 +11,8 @@ const SPRING: Season = 'SPRING';
 
 const AUTUMN: Season = 'AUTUMN';
 
+const WINTER: Season = 'WINTER';
+
 const SKY: PaletteSky = {
   hue: 200,
   glowHue: 30,
@@ -46,6 +48,9 @@ describe('createPaletteMaterials', () => {
   it('should pick other materials when the season turns', () => {
     expect(createMaterialsIn(SPRING, 'DAY-1').materials).not.toEqual(
       createMaterialsIn(AUTUMN, 'DAY-1').materials,
+    );
+    expect(createMaterialsIn(AUTUMN, 'DAY-1').materials).not.toEqual(
+      createMaterialsIn(WINTER, 'DAY-1').materials,
     );
   });
 

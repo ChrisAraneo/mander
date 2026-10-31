@@ -9,6 +9,8 @@ const SPRING: Season = 'SPRING';
 
 const AUTUMN: Season = 'AUTUMN';
 
+const WINTER: Season = 'WINTER';
+
 describe('createRandomMaterials', () => {
   it('should pick the brick, the wood and the ceramic when it picks the materials', () => {
     const materials = createRandomMaterials(SPRING, createRandom('DAY-1'));
@@ -35,6 +37,9 @@ describe('createRandomMaterials', () => {
   it('should pick other materials when the season turns', () => {
     expect(createRandomMaterials(SPRING, createRandom('DAY-1'))).not.toEqual(
       createRandomMaterials(AUTUMN, createRandom('DAY-1')),
+    );
+    expect(createRandomMaterials(AUTUMN, createRandom('DAY-1'))).not.toEqual(
+      createRandomMaterials(WINTER, createRandom('DAY-1')),
     );
   });
 });
