@@ -35,7 +35,7 @@ const createMovingPlayer = (
     y: { current: 50, max: PLAYER_MAX_JUMP_VELOCITY },
   },
   hearts: { value: 3 },
-  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
+  timers: { death: null, invincibility: 0, star: 0, hurt: 0, cold: 0 },
   statuses: { isFacingRight, isGrounded, isJumpQueued },
 });
 

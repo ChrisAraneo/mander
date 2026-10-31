@@ -17,7 +17,7 @@ describe('createStandingPlayer', () => {
         isGrounded: true,
         isJumpQueued: false,
       },
-      timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
+      timers: { death: null, invincibility: 0, star: 0, hurt: 0, cold: 0 },
     });
   });
 });

@@ -7,6 +7,7 @@ import type {
   Fireball,
   Player,
   Point,
+  Snowball,
 } from '@mander/model';
 import type { GameLevel } from '../../../../types/game-level';
 import type { GameState } from '../../../../types/game-state';
@@ -25,6 +26,7 @@ export interface TickEntities {
   level: GameLevel;
   enemies: Enemy[];
   cannonballs: Cannonball[];
+  snowballs: Snowball[];
   canReach: boolean;
   gems: Point[];
 }

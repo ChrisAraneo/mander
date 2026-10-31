@@ -6,6 +6,7 @@ import type {
   FallingSpike,
   Fireball,
   Player,
+  Snowball,
 } from '@mander/model';
 import type { GameLevel } from '../../../../types/game-level';
 import type { GameState } from '../../../../types/game-state';
@@ -16,8 +17,10 @@ export interface TickVolley {
   deltaSeconds: number;
   cannons: Cannon[];
   flying: Cannonball[];
+  snowballs: Snowball[];
   fireballs: Fireball[];
   hits: Cannonball[];
+  chills: Snowball[];
   player: Player;
   deaths: number;
   status: GameStatus;

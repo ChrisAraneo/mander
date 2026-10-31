@@ -5,9 +5,11 @@ export const toGroundEnemyKind = (
   isHorned: boolean,
   isFast: boolean,
   isShooter: boolean,
+  isFreezing: boolean,
 ): EnemyKind =>
-  match({ isHorned, isFast, isShooter })
+  match({ isHorned, isFast, isShooter, isFreezing })
     .with({ isShooter: true }, (): EnemyKind => 'SHOOTER')
+    .with({ isFreezing: true }, (): EnemyKind => 'FREEZING')
     .with({ isFast: true }, (): EnemyKind => 'FAST')
     .with({ isHorned: true }, (): EnemyKind => 'HORNED')
     .otherwise((): EnemyKind => 'HOPPING');

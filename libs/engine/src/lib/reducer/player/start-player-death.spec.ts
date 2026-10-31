@@ -15,7 +15,7 @@ const createRunningPlayer = (): Player => ({
     y: { current: -200, max: PLAYER_MAX_JUMP_VELOCITY },
   },
   hearts: { value: 2 },
-  timers: { death: null, invincibility: 1, star: 0.5, hurt: 0.1 },
+  timers: { death: null, invincibility: 1, star: 0.5, hurt: 0.1, cold: 0 },
   statuses: { isFacingRight: false, isGrounded: true, isJumpQueued: true },
 });
 
@@ -35,7 +35,7 @@ describe('startPlayerDeath', () => {
         },
       },
       hearts: { value: 2 },
-      timers: { death: 0, invincibility: 1, star: 0.5, hurt: 0.1 },
+      timers: { death: 0, invincibility: 1, star: 0.5, hurt: 0.1, cold: 0 },
       statuses: {
         isFacingRight: false,
         isGrounded: false,

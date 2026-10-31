@@ -14,7 +14,7 @@ const createPlayerWith = (hearts: number): Player => ({
     y: { current: 0, max: 500 },
   },
   hearts: { value: hearts },
-  timers: { death: null, invincibility: 0, star: 1.5, hurt: 0 },
+  timers: { death: null, invincibility: 0, star: 1.5, hurt: 0, cold: 0 },
   statuses: { isFacingRight: true, isGrounded: true, isJumpQueued: false },
 });
 
@@ -29,6 +29,7 @@ describe('patchHurtPlayer', () => {
         invincibility: HURT_INVINCIBLE_SECONDS,
         star: 1.5,
         hurt: HURT_FLASH_SECONDS,
+        cold: 0,
       },
     });
   });

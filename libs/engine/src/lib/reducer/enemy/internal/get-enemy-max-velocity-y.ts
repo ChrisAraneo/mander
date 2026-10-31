@@ -12,6 +12,7 @@ export const getEnemyMaxVelocityY = (kind: EnemyKind): number =>
     .with('HORNED', () => HORNED_ENEMY_JUMP_VELOCITY)
     .with('FAST', () => HORNED_ENEMY_JUMP_VELOCITY)
     .with('SHOOTER', () => HORNED_ENEMY_JUMP_VELOCITY)
+    .with('FREEZING', () => HORNED_ENEMY_JUMP_VELOCITY)
     .with('FLYING', () => FLYING_ENEMY_MOVE_SPEED)
     .with('BEARTRAP', () => ENEMY_JUMP_VELOCITY)
     .exhaustive(() => ENEMY_JUMP_VELOCITY);

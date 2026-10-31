@@ -26,6 +26,9 @@ import {
   FAST_ENEMY_CHANCE,
   FAST_ENEMY_MOVE_SPEED,
   FLYING_ENEMY_MOVE_SPEED,
+  FREEZING_ENEMY_CHANCE,
+  FREEZING_ENEMY_MOVE_SPEED,
+  FREEZING_RELOAD_SECONDS,
   HORNED_ENEMY_JUMP_VELOCITY,
   SHOOTER_ENEMY_CHANCE,
   SHOOTER_ENEMY_MOVE_SPEED,
@@ -49,6 +52,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   hornedEnemyChance: 0,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 });
 
 const GROUND_LEVEL = createLevel(['.....', '..e..', '#####']);
@@ -85,6 +89,11 @@ const withFast = (level: GameLevel): GameLevel => ({
 const withShooters = (level: GameLevel): GameLevel => ({
   ...level,
   shooterEnemyChance: SHOOTER_ENEMY_CHANCE,
+});
+
+const withFreezers = (level: GameLevel): GameLevel => ({
+  ...level,
+  freezingEnemyChance: FREEZING_ENEMY_CHANCE,
 });
 
 const computeShare = (level: GameLevel, kind: Enemy['kind']): number =>
@@ -166,11 +175,25 @@ describe('createPatrols', () => {
   });
 
   it('should mix shooters in when the level rolls for them', () => {
-    const level = withShooters({ ...CROWDED_LEVEL, hornedEnemyChance: 0.5 });
+    const level = withShooters({ ...HUGE_LEVEL, hornedEnemyChance: 0.5 });
 
     const kinds = computeKinds(level);
 
     expect(kinds).toContain('SHOOTER');
+  });
+
+  it('should spawn no freezing enemies when the level does not roll for them', () => {
+    const kinds = computeKinds({ ...CROWDED_LEVEL, hornedEnemyChance: 0.5 });
+
+    expect(kinds).not.toContain('FREEZING');
+  });
+
+  it('should mix freezing enemies in when the level rolls for them', () => {
+    const level = withFreezers({ ...HUGE_LEVEL, hornedEnemyChance: 0.5 });
+
+    const kinds = computeKinds(level);
+
+    expect(kinds).toContain('FREEZING');
   });
 
   it('should make about a quarter of the ground enemies fast when the level rolls for them', () => {
@@ -260,7 +283,7 @@ describe('createPatrols', () => {
   });
 
   it('should give a shooter enemy the slow walking speed and the horned jump when it is set', () => {
-    const enemy = find(createPatrols(withShooters(CROWDED_LEVEL)), {
+    const enemy = find(createPatrols(withShooters(HUGE_LEVEL)), {
       kind: 'SHOOTER',
     });
 
@@ -271,13 +294,35 @@ describe('createPatrols', () => {
   });
 
   it('should give a shooter enemy a full reload to wait out when it is set', () => {
-    const enemy = find(createPatrols(withShooters(CROWDED_LEVEL)), {
+    const enemy = find(createPatrols(withShooters(HUGE_LEVEL)), {
       kind: 'SHOOTER',
     });
 
     expect(enemy?.timers).toEqual({
       death: null,
       reload: SHOOTER_RELOAD_SECONDS,
+    });
+  });
+
+  it('should give a freezing enemy the slow walking speed and the horned jump when it is set', () => {
+    const enemy = find(createPatrols(withFreezers(HUGE_LEVEL)), {
+      kind: 'FREEZING',
+    });
+
+    expect(enemy?.velocity).toEqual({
+      x: { current: 0, max: FREEZING_ENEMY_MOVE_SPEED },
+      y: { current: 0, max: HORNED_ENEMY_JUMP_VELOCITY },
+    });
+  });
+
+  it('should give a freezing enemy a full reload to wait out when it is set', () => {
+    const enemy = find(createPatrols(withFreezers(HUGE_LEVEL)), {
+      kind: 'FREEZING',
+    });
+
+    expect(enemy?.timers).toEqual({
+      death: null,
+      reload: FREEZING_RELOAD_SECONDS,
     });
   });
 

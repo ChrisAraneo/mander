@@ -11,6 +11,7 @@ export const patchRespawnedState = (state: GameState): GameState => ({
   enemies: createEnemies(state.level),
   cannons: createCannons(state.level),
   cannonballs: [],
+  snowballs: [],
   fallingSpikes: createFallingSpikes(state.level),
   fireballs: createFireballs(state.level),
   bullets: [],

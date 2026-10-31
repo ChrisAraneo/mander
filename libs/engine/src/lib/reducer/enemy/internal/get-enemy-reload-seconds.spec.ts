@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { SHOOTER_RELOAD_SECONDS } from '../consts';
+import { FREEZING_RELOAD_SECONDS, SHOOTER_RELOAD_SECONDS } from '../consts';
 import { getEnemyReloadSeconds } from './get-enemy-reload-seconds';
 
 describe('getEnemyReloadSeconds', () => {
@@ -8,6 +8,12 @@ describe('getEnemyReloadSeconds', () => {
     const reload = getEnemyReloadSeconds('SHOOTER');
 
     expect(reload).toBe(SHOOTER_RELOAD_SECONDS);
+  });
+
+  it('should give a full reload when the enemy freezes', () => {
+    const reload = getEnemyReloadSeconds('FREEZING');
+
+    expect(reload).toBe(FREEZING_RELOAD_SECONDS);
   });
 
   it('should give no reload when the enemy is hopping', () => {

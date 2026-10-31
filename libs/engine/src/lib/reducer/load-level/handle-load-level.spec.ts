@@ -28,6 +28,7 @@ const createLevel = (seed: string, rows: string[]): GameLevel => ({
   hornedEnemyChance: 0,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 });
 
 const OLD_LEVEL = createLevel('OLD', ['.....', '.S...', '#####']);

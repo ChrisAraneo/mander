@@ -12,8 +12,10 @@ export const createTickEntities = (
     deltaSeconds,
     cannons,
     flying,
+    snowballs,
     fireballs,
     hits,
+    chills,
     player,
     deaths,
     status,
@@ -36,6 +38,7 @@ export const createTickEntities = (
   level,
   enemies: patchCrushedEnemies(shot),
   cannonballs: filter(flying, (cannonball) => !includes(hits, cannonball)),
+  snowballs: filter(snowballs, (snowball) => !includes(chills, snowball)),
   canReach,
   gems: match(canReach)
     .with(true, () => filterLeftBehind(player, state.gems))

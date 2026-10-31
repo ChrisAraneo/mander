@@ -20,6 +20,7 @@ import type { GameState } from '../../../types/game-state';
 import { nextBullets } from '../../bullet/next-bullets';
 import { nextFallingSpikes } from '../../falling-spike/next-falling-spikes';
 import { nextFireballs } from '../../fireball/next-fireballs';
+import { nextSnowballs } from '../../snowball/next-snowballs';
 import { createPatrol } from '../../enemy/internal/create-patrol';
 import { patchMovedBarrage } from './patch-moved-barrage';
 import { patchMovedEnemies } from './patch-moved-enemies';
@@ -44,6 +45,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   hornedEnemyChance: 0,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 });
 
 const LEVEL = createLevel(['..c.....', '...v..f.', 's...e...', '########']);
@@ -82,6 +84,7 @@ describe('patchMovedTickHazards', () => {
       steppedEnemies: patchMovedEnemies(state, player, DELTA_SECONDS),
       cannons: patchMovedBarrage(state, player, DELTA_SECONDS).cannons,
       flying: patchMovedBarrage(state, player, DELTA_SECONDS).cannonballs,
+      snowballs: nextSnowballs(LEVEL, state.snowballs, DELTA_SECONDS),
       fallingSpikes: nextFallingSpikes(
         LEVEL,
         state.fallingSpikes,
@@ -111,6 +114,24 @@ describe('patchMovedTickHazards', () => {
     expect(size(hazards.flying)).toBe(
       size(patchMovedBarrage(state, player, DELTA_SECONDS).cannonballs) + 1,
     );
+  });
+
+  it('should add the snowballs the freezing enemies throw to the flying ones when a loaded one has the player in range', () => {
+    const state = {
+      ...createState(),
+      enemies: [
+        {
+          ...createPatrol({ x: 128, y: 64 }, 'FREEZING'),
+          timers: { death: null, reload: 0 },
+          statuses: { isFacingRight: true, isGrounded: true },
+        },
+      ],
+    };
+    const player = createMovedPlayer();
+
+    const hazards = patchMovedTickHazards(state, player, DELTA_SECONDS);
+
+    expect(size(hazards.snowballs)).toBe(1);
   });
 
   it('should leave the given game alone when the hazards move for a tick', () => {

@@ -12,7 +12,12 @@ import { describe, expect, it } from 'vitest';
 import type { EnemyChances } from '../../types/enemy-chances';
 import { filterEnemyCells } from './filter-enemy-cells';
 
-const CHANCES: EnemyChances = { horned: 0.5, fast: 0.25, shooter: 0.15 };
+const CHANCES: EnemyChances = {
+  horned: 0.5,
+  fast: 0.25,
+  shooter: 0.15,
+  freezing: 0.15,
+};
 
 const RANDOM = createRandom('DAY-1');
 

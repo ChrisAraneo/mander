@@ -21,6 +21,7 @@ export interface Player {
     invincibility: number;
     star: number;
     hurt: number;
+    cold: number;
   };
   statuses: {
     isFacingRight: boolean;

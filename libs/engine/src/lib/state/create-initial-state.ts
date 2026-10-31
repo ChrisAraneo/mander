@@ -24,6 +24,7 @@ export const createInitialState = (
   enemies: createEnemies(level),
   cannons: createCannons(level),
   cannonballs: [],
+  snowballs: [],
   fallingSpikes: createFallingSpikes(level),
   fireballs: createFireballs(level),
   bullets: [],

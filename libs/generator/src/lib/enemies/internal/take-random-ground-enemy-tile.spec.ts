@@ -13,7 +13,7 @@ import { describe, expect, it } from 'vitest';
 import type { EnemyChances } from '../../types/enemy-chances';
 import { takeRandomGroundEnemyTile } from './take-random-ground-enemy-tile';
 
-const NOTHING: EnemyChances = { horned: 0, fast: 0, shooter: 0 };
+const NOTHING: EnemyChances = { horned: 0, fast: 0, shooter: 0, freezing: 0 };
 
 const DRAWS = 400;
 
@@ -43,14 +43,14 @@ describe('takeRandomGroundEnemyTile', () => {
   });
 
   it('should make every enemy a shooter when the level is certain of them', () => {
-    expect(uniq(takeMany({ horned: 1, fast: 1, shooter: 1 }))).toEqual([
-      TILE_ENEMY_SHOOTER,
-    ]);
+    expect(
+      uniq(takeMany({ horned: 1, fast: 1, shooter: 1, freezing: 1 })),
+    ).toEqual([TILE_ENEMY_SHOOTER]);
   });
 
   it('should hand shooters the share the level promised them when it rolls for them', () => {
     const share = computeShare(
-      takeMany({ horned: 0.5, fast: 0.25, shooter: 0.15 }),
+      takeMany({ horned: 0.5, fast: 0.25, shooter: 0.15, freezing: 0.15 }),
       TILE_ENEMY_SHOOTER,
     );
 
@@ -59,8 +59,10 @@ describe('takeRandomGroundEnemyTile', () => {
   });
 
   it('should draw the same enemies when the generator starts from the same seed', () => {
-    expect(takeMany({ horned: 0.5, fast: 0.25, shooter: 0.15 })).toEqual(
-      takeMany({ horned: 0.5, fast: 0.25, shooter: 0.15 }),
+    expect(
+      takeMany({ horned: 0.5, fast: 0.25, shooter: 0.15, freezing: 0.15 }),
+    ).toEqual(
+      takeMany({ horned: 0.5, fast: 0.25, shooter: 0.15, freezing: 0.15 }),
     );
   });
 });

@@ -31,7 +31,7 @@ const createPlayer = (
   position: { x: left, y: top },
   velocity: createBasePlayerVelocity(),
   hearts: { value: 3 },
-  timers: { death: null, invincibility, star: 0, hurt: 0 },
+  timers: { death: null, invincibility, star: 0, hurt: 0, cold: 0 },
   statuses: {
     isFacingRight: true,
     isGrounded: false,

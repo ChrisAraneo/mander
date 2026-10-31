@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import { ENEMY_MOVE_SPEED, FAST_ENEMY_MOVE_SPEED } from '../consts';
+import {
+  ENEMY_MOVE_SPEED,
+  FAST_ENEMY_MOVE_SPEED,
+  FREEZING_ENEMY_MOVE_SPEED,
+  SHOOTER_ENEMY_MOVE_SPEED,
+} from '../consts';
 import { getEnemyMoveSpeed } from './get-enemy-move-speed';
 
 describe('getEnemyMoveSpeed', () => {
@@ -32,6 +37,18 @@ describe('getEnemyMoveSpeed', () => {
     const moveSpeed = getEnemyMoveSpeed('FAST');
 
     expect(moveSpeed).toBe(getEnemyMoveSpeed('HORNED') * 1.75);
+  });
+
+  it('should give the slow walking speed when the enemy shoots', () => {
+    const moveSpeed = getEnemyMoveSpeed('SHOOTER');
+
+    expect(moveSpeed).toBe(SHOOTER_ENEMY_MOVE_SPEED);
+  });
+
+  it('should give the slow walking speed when the enemy freezes', () => {
+    const moveSpeed = getEnemyMoveSpeed('FREEZING');
+
+    expect(moveSpeed).toBe(FREEZING_ENEMY_MOVE_SPEED);
   });
 
   it('should give the usual walking speed when the enemy is a beartrap', () => {

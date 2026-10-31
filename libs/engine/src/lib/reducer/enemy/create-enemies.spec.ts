@@ -31,6 +31,7 @@ import {
   ENEMY_WIDTH,
   FAST_ENEMY_CHANCE,
   FLYING_ENEMY_MOVE_SPEED,
+  FREEZING_ENEMY_CHANCE,
   HORNED_ENEMY_CHANCE,
   HORNED_ENEMY_JUMP_VELOCITY,
   SHOOTER_ENEMY_CHANCE,
@@ -43,6 +44,7 @@ const createLevelWithEnemies = (
   hornedEnemyChance = HORNED_ENEMY_CHANCE,
   fastEnemyChance = FAST_ENEMY_CHANCE,
   shooterEnemyChance = SHOOTER_ENEMY_CHANCE,
+  freezingEnemyChance = FREEZING_ENEMY_CHANCE,
 ): GameLevel =>
   pipe(
     count + 2,
@@ -67,6 +69,7 @@ const createLevelWithEnemies = (
       hornedEnemyChance,
       fastEnemyChance,
       shooterEnemyChance,
+      freezingEnemyChance,
     }),
   );
 
@@ -76,6 +79,7 @@ const createLevelWithAirborneEnemies = (
   hornedEnemyChance = HORNED_ENEMY_CHANCE,
   fastEnemyChance = FAST_ENEMY_CHANCE,
   shooterEnemyChance = SHOOTER_ENEMY_CHANCE,
+  freezingEnemyChance = FREEZING_ENEMY_CHANCE,
 ): GameLevel =>
   pipe(
     count + 2,
@@ -100,6 +104,7 @@ const createLevelWithAirborneEnemies = (
       hornedEnemyChance,
       fastEnemyChance,
       shooterEnemyChance,
+      freezingEnemyChance,
     }),
   );
 
@@ -140,6 +145,7 @@ const createArena = (): GameLevel => ({
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 });
 
 describe('createEnemies', () => {
@@ -163,25 +169,27 @@ describe('createEnemies', () => {
     expect(hornedCount, 'not suspiciously common').toBeLessThan(90);
   });
 
-  it('should spawn only hopping, fast and shooter enemies when the level asks for no horned ones', () => {
+  it('should spawn only hopping, fast, shooter and freezing enemies when the level asks for no horned ones', () => {
     const level = createLevelWithEnemies('SEED-HOPPING-ONLY', 200, 0);
     const enemies = createEnemies(level);
 
     expect(enemies).toHaveLength(200);
     expect(sortBy(uniq(map(enemies, (enemy) => enemy.kind)))).toEqual([
       'FAST',
+      'FREEZING',
       'HOPPING',
       'SHOOTER',
     ]);
   });
 
-  it('should spawn only horned, fast and shooter enemies when the level asks for horned ones alone', () => {
+  it('should spawn only horned, fast, shooter and freezing enemies when the level asks for horned ones alone', () => {
     const level = createLevelWithEnemies('SEED-HORNED-ONLY', 200, 1);
     const enemies = createEnemies(level);
 
     expect(enemies).toHaveLength(200);
     expect(sortBy(uniq(map(enemies, (enemy) => enemy.kind)))).toEqual([
       'FAST',
+      'FREEZING',
       'HORNED',
       'SHOOTER',
     ]);

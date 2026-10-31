@@ -34,6 +34,7 @@ const LEVEL: GameLevel = {
   hornedEnemyChance: 0,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 };
 
 const DELTA_SECONDS = 0.03125;
@@ -55,7 +56,7 @@ const createStandingPlayer = (
   position: { x: left, y: 112 },
   velocity: createBasePlayerVelocity(),
   hearts: { value: 3 },
-  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
+  timers: { death: null, invincibility: 0, star: 0, hurt: 0, cold: 0 },
   statuses: { isFacingRight, isGrounded: true, isJumpQueued: false },
 });
 
@@ -70,7 +71,7 @@ const createAirbornePlayer = (
     y: { current: velocityY, max: PLAYER_MAX_JUMP_VELOCITY },
   },
   hearts: { value: 3 },
-  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
+  timers: { death: null, invincibility: 0, star: 0, hurt: 0, cold: 0 },
   statuses: { isFacingRight: true, isGrounded: false, isJumpQueued },
 });
 

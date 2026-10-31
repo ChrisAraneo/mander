@@ -1,4 +1,5 @@
 import { pipe } from 'remeda';
+import { getPlayerMoveVelocity } from '../get-player-move-velocity';
 import { computePlayerJump } from './compute-player-jump';
 import { isFacingRightFor } from './is-facing-right-for';
 import { toHorizontalDirection } from './to-horizontal-direction';
@@ -15,7 +16,7 @@ export const computePlayerStepIntent = ({
     input,
     toHorizontalDirection,
     (direction) => ({
-      velocityX: direction * player.velocity.x.max,
+      velocityX: direction * getPlayerMoveVelocity(player),
       isFacingRight: isFacingRightFor(direction, player.statuses.isFacingRight),
       jump: computePlayerJump(
         {

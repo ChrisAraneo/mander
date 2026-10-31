@@ -6,6 +6,7 @@ import { TILE_BEARTRAP } from './tile-beartrap';
 import { TILE_ENEMY } from './tile-enemy';
 import { TILE_ENEMY_FAST } from './tile-enemy-fast';
 import { TILE_ENEMY_FLYING } from './tile-enemy-flying';
+import { TILE_ENEMY_FREEZING } from './tile-enemy-freezing';
 import { TILE_ENEMY_HOPPING } from './tile-enemy-hopping';
 import { TILE_ENEMY_HORNED } from './tile-enemy-horned';
 import { TILE_ENEMY_SHOOTER } from './tile-enemy-shooter';
@@ -17,6 +18,7 @@ describe('toTileEnemyKind', () => {
     expect(toTileEnemyKind(TILE_ENEMY_HORNED)).toBe('HORNED');
     expect(toTileEnemyKind(TILE_ENEMY_FAST)).toBe('FAST');
     expect(toTileEnemyKind(TILE_ENEMY_SHOOTER)).toBe('SHOOTER');
+    expect(toTileEnemyKind(TILE_ENEMY_FREEZING)).toBe('FREEZING');
   });
 
   it('should name the flying enemy when the tile stands for one', () => {

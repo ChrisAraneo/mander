@@ -24,6 +24,7 @@ const createLevel = (): GameLevel => ({
   hornedEnemyChance: 0,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 });
 
 const LEVEL = createLevel();
@@ -36,7 +37,7 @@ describe('createPlayer', () => {
       position: getSpawnPosition(LEVEL),
       velocity: createBasePlayerVelocity(),
       hearts: { value: 4 },
-      timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
+      timers: { death: null, invincibility: 0, star: 0, hurt: 0, cold: 0 },
       statuses: {
         isFacingRight: true,
         isGrounded: false,

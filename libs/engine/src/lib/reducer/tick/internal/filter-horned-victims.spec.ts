@@ -32,6 +32,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   hornedEnemyChance: 0,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 });
 
 const LEVEL = createLevel(['.....', '.....', 's.e..', '#####']);
@@ -39,7 +40,7 @@ const LEVEL = createLevel(['.....', '.....', 's.e..', '#####']);
 const createPlayerWith = (invincibility: number): Player => ({
   ...createPlayer(LEVEL, { hearts: { value: 3 } }),
   position: { x: 100, y: 100 },
-  timers: { death: null, invincibility, star: 0, hurt: 0 },
+  timers: { death: null, invincibility, star: 0, hurt: 0, cold: 0 },
 });
 
 const createEnemyAt = (

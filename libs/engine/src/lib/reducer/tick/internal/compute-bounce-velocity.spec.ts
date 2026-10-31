@@ -11,7 +11,7 @@ const PLAYER: Player = {
     y: { current: 150, max: 500 },
   },
   hearts: { value: 3 },
-  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
+  timers: { death: null, invincibility: 0, star: 0, hurt: 0, cold: 0 },
   statuses: { isFacingRight: true, isGrounded: false, isJumpQueued: false },
 };
 

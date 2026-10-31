@@ -28,6 +28,7 @@ import { createPlayerStep } from '../player/create-player-step';
 import { createPortalStep } from '../portal/create-portal-step';
 import { findPortalRectangle } from '../portal/find-portal-rectangle';
 import { drawSky } from '../sky/draw-sky';
+import { createSnowballStep } from '../snowball/create-snowball-step';
 import { createFallingSpikeStep } from '../spike/create-falling-spike-step';
 import { drawTiles } from '../tile/draw-tiles';
 import type { Focus } from '../types/focus';
@@ -95,6 +96,7 @@ export const drawGame = (
         ),
         createPlayerStep(state.player, state.time),
         createEachStep(state.cannonballs, createCannonballStep),
+        createEachStep(state.snowballs, createSnowballStep),
         createEachStep(state.fireballs, (fireball) =>
           createFireballStep(fireball, state.time),
         ),

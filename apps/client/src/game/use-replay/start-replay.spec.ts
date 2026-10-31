@@ -27,6 +27,7 @@ const LEVEL: GameLevel = {
   hornedEnemyChance: 0,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 };
 
 const RECORDING: Replay = { worldName: 'ABC', steps: 10, entries: [] };

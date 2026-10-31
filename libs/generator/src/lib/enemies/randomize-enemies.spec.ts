@@ -15,9 +15,14 @@ import { describe, expect, it } from 'vitest';
 import type { EnemyChances } from '../types/enemy-chances';
 import { randomizeEnemies } from './randomize-enemies';
 
-const NOTHING: EnemyChances = { horned: 0, fast: 0, shooter: 0 };
+const NOTHING: EnemyChances = { horned: 0, fast: 0, shooter: 0, freezing: 0 };
 
-const EVERYTHING: EnemyChances = { horned: 0.5, fast: 0.25, shooter: 0.15 };
+const EVERYTHING: EnemyChances = {
+  horned: 0.5,
+  fast: 0.25,
+  shooter: 0.15,
+  freezing: 0.15,
+};
 
 const WIDTH = 40;
 

@@ -28,13 +28,14 @@ const createLevel = (rows: string[]): GameLevel => ({
   hornedEnemyChance: 0,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 });
 
 const LEVEL = createLevel(['.....', '.S...', '#####']);
 
 const createTimedPlayer = (invincibility: number, star: number): Player => ({
   ...createPlayer(LEVEL, { hearts: { value: 3 } }),
-  timers: { death: null, invincibility, star, hurt: 0.5 },
+  timers: { death: null, invincibility, star, hurt: 0.5, cold: 0 },
 });
 
 describe('patchShieldedPlayer', () => {
@@ -50,6 +51,7 @@ describe('patchShieldedPlayer', () => {
         invincibility: STAR_INVINCIBLE_SECONDS,
         star: STAR_INVINCIBLE_SECONDS,
         hurt: 0.5,
+        cold: 0,
       },
     });
   });

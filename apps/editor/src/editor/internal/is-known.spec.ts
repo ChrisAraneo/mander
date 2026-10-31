@@ -1,4 +1,9 @@
-import { TILE_AIR, TILE_BRICK, TILE_ENEMY } from '@mander/model';
+import {
+  TILE_AIR,
+  TILE_BRICK,
+  TILE_ENEMY,
+  TILE_ENEMY_FREEZING,
+} from '@mander/model';
 import { STRUCTURE_START } from '@mander/structures';
 import { describe, expect, it } from 'vitest';
 
@@ -10,6 +15,7 @@ describe('isKnown', () => {
   it('should accept the cell when it is a hazard, air or a marker', () => {
     expect(isKnown(TILE_ENEMY)).toBe(true);
     expect(isKnown(TILE_AIR)).toBe(true);
+    expect(isKnown(TILE_ENEMY_FREEZING)).toBe(true);
     expect(isKnown(STRUCTURE_START)).toBe(true);
   });
 

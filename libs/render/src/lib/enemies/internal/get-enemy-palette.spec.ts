@@ -47,6 +47,17 @@ describe('getEnemyPalette', () => {
     });
   });
 
+  it('should give the white palette when the enemy freezes', () => {
+    const result = getEnemyPalette('FREEZING');
+
+    expect(result).toEqual({
+      feet: '#C9DCE8',
+      body: '#FFFFFF',
+      belly: '#EAF6FF',
+      brow: '#7C9CB2',
+    });
+  });
+
   it('should give the blue palette when the enemy flies', () => {
     const result = getEnemyPalette('FLYING');
 

@@ -4,4 +4,5 @@ export interface GameLevel extends Level {
   hornedEnemyChance: number;
   fastEnemyChance: number;
   shooterEnemyChance: number;
+  freezingEnemyChance: number;
 }

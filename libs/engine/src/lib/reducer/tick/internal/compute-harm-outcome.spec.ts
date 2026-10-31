@@ -35,6 +35,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   hornedEnemyChance: 0,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 });
 
 const LEVEL = createLevel([
@@ -67,7 +68,7 @@ const createDyingPlayerAt = (top: number, hearts: number): Player => ({
     },
   },
   hearts: { value: hearts },
-  timers: { death: 0, invincibility: 0, star: 0, hurt: 0 },
+  timers: { death: 0, invincibility: 0, star: 0, hurt: 0, cold: 0 },
   statuses: { isFacingRight: true, isGrounded: false, isJumpQueued: false },
 });
 
@@ -110,6 +111,7 @@ describe('computeHarmOutcome', () => {
           invincibility: HURT_INVINCIBLE_SECONDS,
           star: 0,
           hurt: HURT_FLASH_SECONDS,
+          cold: 0,
         },
       },
       deaths: 2,

@@ -32,6 +32,7 @@ const LEVEL: GameLevel = {
   hornedEnemyChance: 0,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 };
 
 const createDyingPlayer = (velocityY: number, death: number): Player => ({
@@ -41,7 +42,7 @@ const createDyingPlayer = (velocityY: number, death: number): Player => ({
     y: { current: velocityY, max: PLAYER_MAX_JUMP_VELOCITY },
   },
   hearts: { value: 2 },
-  timers: { death, invincibility: 0, star: 0, hurt: 0 },
+  timers: { death, invincibility: 0, star: 0, hurt: 0, cold: 0 },
   statuses: { isFacingRight: true, isGrounded: false, isJumpQueued: false },
 });
 
@@ -58,7 +59,7 @@ describe('patchDyingPlayer', () => {
         y: { current: 156.25, max: PLAYER_MAX_JUMP_VELOCITY },
       },
       hearts: { value: 2 },
-      timers: { death: 0.28125, invincibility: 0, star: 0, hurt: 0 },
+      timers: { death: 0.28125, invincibility: 0, star: 0, hurt: 0, cold: 0 },
       statuses: {
         isFacingRight: true,
         isGrounded: false,

@@ -7,7 +7,10 @@ export const toRolledEnemyKind = (
   isHorned: boolean,
   isFast: boolean,
   isShooter: boolean,
+  isFreezing: boolean,
 ): EnemyKind =>
   match(isAirborne)
     .with(true, (): EnemyKind => 'FLYING')
-    .otherwise(() => toGroundEnemyKind(isHorned, isFast, isShooter));
+    .otherwise(() =>
+      toGroundEnemyKind(isHorned, isFast, isShooter, isFreezing),
+    );

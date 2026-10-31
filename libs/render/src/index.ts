@@ -35,6 +35,7 @@ export * from './lib/types/palette-materials';
 export * from './lib/types/palette';
 export * from './lib/types/ghost';
 export * from './lib/sky/draw-sky';
+export * from './lib/snowball/create-snowball-step';
 export * from './lib/spike/create-falling-spike-step';
 export * from './lib/spike/create-prong-step';
 export * from './lib/spike/create-spike-step';

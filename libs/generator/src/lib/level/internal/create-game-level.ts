@@ -8,6 +8,7 @@ import { isMirrored } from '../../structures/is-mirrored';
 import { isVertical } from '../../structures/is-vertical';
 import { createLevelMeta } from './create-level-meta';
 import { getFastEnemyChance } from './get-fast-enemy-chance';
+import { getFreezingEnemyChance } from './get-freezing-enemy-chance';
 import { getHornedEnemyChance } from './get-horned-enemy-chance';
 import { getShooterEnemyChance } from './get-shooter-enemy-chance';
 import { hashLevelSeed } from './hash-level-seed';
@@ -39,6 +40,7 @@ export const createGameLevel = ({
       hornedEnemyChance: getHornedEnemyChance(levelNumber),
       fastEnemyChance: getFastEnemyChance(levelNumber),
       shooterEnemyChance: getShooterEnemyChance(levelNumber),
+      freezingEnemyChance: getFreezingEnemyChance(levelNumber),
       isOpenSided: isVertical(levelVariant),
       meta: createLevelMeta(structures),
     }),

@@ -35,6 +35,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   hornedEnemyChance: 0,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 });
 
 const SKY_LEVEL = createLevel(['.....', '..e..', '.....', '.....', '#####']);
@@ -86,6 +87,25 @@ describe('patchLivingEnemy', () => {
 
   it('should walk the enemy when it is a fast enemy', () => {
     const enemy = createPatrol(createPatrols(GROUND_LEVEL)[0].spawn, 'FAST');
+
+    const patched = patchLivingEnemy(GROUND_LEVEL, enemy, PLAYER, 0.02);
+
+    expect(patched).toEqual(nextEnemy(GROUND_LEVEL, enemy, PLAYER, 0.02));
+  });
+
+  it('should walk the enemy when it is a shooter enemy', () => {
+    const enemy = createPatrol(createPatrols(GROUND_LEVEL)[0].spawn, 'SHOOTER');
+
+    const patched = patchLivingEnemy(GROUND_LEVEL, enemy, PLAYER, 0.02);
+
+    expect(patched).toEqual(nextEnemy(GROUND_LEVEL, enemy, PLAYER, 0.02));
+  });
+
+  it('should walk the enemy when it is a freezing enemy', () => {
+    const enemy = createPatrol(
+      createPatrols(GROUND_LEVEL)[0].spawn,
+      'FREEZING',
+    );
 
     const patched = patchLivingEnemy(GROUND_LEVEL, enemy, PLAYER, 0.02);
 

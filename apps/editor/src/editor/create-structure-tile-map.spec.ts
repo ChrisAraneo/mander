@@ -1,5 +1,6 @@
 import {
   FAST_ENEMY_CHANCE,
+  FREEZING_ENEMY_CHANCE,
   HORNED_ENEMY_CHANCE,
   SHOOTER_ENEMY_CHANCE,
 } from '@mander/engine';
@@ -38,6 +39,7 @@ describe('createStructureTileMap', () => {
       hornedEnemyChance: HORNED_ENEMY_CHANCE,
       fastEnemyChance: FAST_ENEMY_CHANCE,
       shooterEnemyChance: SHOOTER_ENEMY_CHANCE,
+      freezingEnemyChance: FREEZING_ENEMY_CHANCE,
     });
   });
 

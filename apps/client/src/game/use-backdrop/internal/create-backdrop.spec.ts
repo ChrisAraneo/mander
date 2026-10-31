@@ -23,6 +23,7 @@ const createLevel = (seed: string): GameLevel => ({
   hornedEnemyChance: 0,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 });
 
 const createWorldFixture = (count: number): RenderedWorld =>

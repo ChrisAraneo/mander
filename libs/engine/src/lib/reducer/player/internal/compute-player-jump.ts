@@ -1,6 +1,7 @@
 import type { Player } from '@mander/model';
 import { match } from 'ts-pattern';
 import type { InputState } from '../../../types/input-state';
+import { getPlayerJumpVelocity } from '../get-player-jump-velocity';
 import type { PlayerJump } from './types/player-jump';
 
 export const computePlayerJump = (
@@ -13,7 +14,7 @@ export const computePlayerJump = (
     isGrounded: base.isGrounded,
   })
     .with({ shouldJump: true, isGrounded: true }, (): PlayerJump => ({
-      velocityY: -player.velocity.y.max,
+      velocityY: -getPlayerJumpVelocity(player),
       isGrounded: false,
     }))
     .otherwise(() => base);

@@ -33,3 +33,11 @@ export const HURT_INVINCIBLE_SECONDS = 2;
 export const HURT_FLASH_SECONDS = 0.2;
 
 export const STAR_INVINCIBLE_SECONDS = 3;
+
+export const COLD_SECONDS = 2;
+
+export const COLD_MOVE_FACTOR = 0.5;
+
+export const COLD_JUMP_HEIGHT_FACTOR = 0.5;
+
+export const COLD_JUMP_VELOCITY_FACTOR = Math.sqrt(COLD_JUMP_HEIGHT_FACTOR);

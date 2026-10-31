@@ -9,7 +9,7 @@ const PLAYER: Player = {
   position: { x: 100, y: 200 },
   velocity: createBasePlayerVelocity(),
   hearts: { value: 3 },
-  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
+  timers: { death: null, invincibility: 0, star: 0, hurt: 0, cold: 0 },
   statuses: { isFacingRight: true, isGrounded: true, isJumpQueued: false },
 };
 

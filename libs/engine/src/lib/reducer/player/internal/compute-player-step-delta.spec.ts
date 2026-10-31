@@ -29,7 +29,7 @@ const createStandingPlayer = (): Player => ({
   position: { x: 32, y: 16 },
   velocity: createBasePlayerVelocity(),
   hearts: { value: 3 },
-  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
+  timers: { death: null, invincibility: 0, star: 0, hurt: 0, cold: 0 },
   statuses: { isFacingRight: true, isGrounded: true, isJumpQueued: false },
 });
 

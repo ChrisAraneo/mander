@@ -45,7 +45,7 @@ const createPlayerWithFeetAt = (
     y: { current: velocityY, max: 520 },
   },
   hearts: { value: 5 },
-  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
+  timers: { death: null, invincibility: 0, star: 0, hurt: 0, cold: 0 },
   statuses: {
     isFacingRight: true,
     isGrounded: false,

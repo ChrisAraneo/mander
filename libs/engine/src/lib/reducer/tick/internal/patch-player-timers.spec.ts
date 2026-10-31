@@ -15,12 +15,13 @@ const createPlayerWith = (timers: Player['timers']): Player => ({
 });
 
 describe('patchPlayerTimers', () => {
-  it('should count the invincibility, star and hurt timers down by the time passed when they are running', () => {
+  it('should count the invincibility, star, hurt and cold timers down by the time passed when they are running', () => {
     const player = createPlayerWith({
       death: null,
       invincibility: 1,
       star: 2,
       hurt: 0.5,
+      cold: 1.5,
     });
 
     const cooled = patchPlayerTimers(player, 0.25);
@@ -28,6 +29,7 @@ describe('patchPlayerTimers', () => {
     expect(cooled.timers.invincibility).toBeCloseTo(0.75, 6);
     expect(cooled.timers.star).toBeCloseTo(1.75, 6);
     expect(cooled.timers.hurt).toBeCloseTo(0.25, 6);
+    expect(cooled.timers.cold).toBeCloseTo(1.25, 6);
   });
 
   it('should stop the timers at zero when less time is left on them than has passed', () => {
@@ -36,6 +38,7 @@ describe('patchPlayerTimers', () => {
       invincibility: 0.1,
       star: 0,
       hurt: 0.05,
+      cold: 0.2,
     });
 
     const cooled = patchPlayerTimers(player, 0.25);
@@ -45,6 +48,7 @@ describe('patchPlayerTimers', () => {
       invincibility: 0,
       star: 0,
       hurt: 0,
+      cold: 0,
     });
   });
 
@@ -54,6 +58,7 @@ describe('patchPlayerTimers', () => {
       invincibility: 0,
       star: 0,
       hurt: 0,
+      cold: 0,
     });
 
     const cooled = patchPlayerTimers(player, 0.25);
@@ -67,6 +72,7 @@ describe('patchPlayerTimers', () => {
       invincibility: 1,
       star: 2,
       hurt: 0.5,
+      cold: 1,
     });
 
     const cooled = patchPlayerTimers(player, 0.25);
@@ -80,12 +86,19 @@ describe('patchPlayerTimers', () => {
       invincibility: 1,
       star: 2,
       hurt: 0.5,
+      cold: 1,
     });
 
     patchPlayerTimers(player, 0.25);
 
     expect(player).toEqual(
-      createPlayerWith({ death: null, invincibility: 1, star: 2, hurt: 0.5 }),
+      createPlayerWith({
+        death: null,
+        invincibility: 1,
+        star: 2,
+        hurt: 0.5,
+        cold: 1,
+      }),
     );
   });
 });

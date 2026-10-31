@@ -10,6 +10,7 @@ export const createRespawnedTickHazards = (state: GameState): TickHazardSet =>
   createTickHazardSet(
     createEnemies(state.level),
     createReloadedBarrage(state.level),
+    [],
     createFallingSpikes(state.level),
     createFireballs(state.level),
     [],

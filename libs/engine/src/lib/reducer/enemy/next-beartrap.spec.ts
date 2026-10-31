@@ -77,6 +77,7 @@ const createTrap = (level: Level): Enemy =>
     hornedEnemyChance: HORNED_ENEMY_CHANCE,
     fastEnemyChance: 0,
     shooterEnemyChance: 0,
+    freezingEnemyChance: 0,
   })[0];
 
 const createStandingPlayer = (gap: number): Player => ({
@@ -86,7 +87,7 @@ const createStandingPlayer = (gap: number): Player => ({
   },
   velocity: createBasePlayerVelocity(),
   hearts: { value: 3 },
-  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
+  timers: { death: null, invincibility: 0, star: 0, hurt: 0, cold: 0 },
   statuses: { isFacingRight: true, isGrounded: true, isJumpQueued: false },
 });
 

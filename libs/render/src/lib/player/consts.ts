@@ -37,3 +37,13 @@ export const INVINCIBLE_HURT_PLAYER_COLORS: Readonly<PlayerColors> =
 export const INVINCIBLE_MIN_ALPHA = 0.3;
 
 export const INVINCIBLE_PULSES_PER_SECOND = 6;
+
+export const COLD_PLAYER_COLORS: Readonly<PlayerColors> = Object.freeze({
+  legs: '#2F5E86',
+  body: '#7FC3E8',
+  strap: '#5EA8D2',
+  skin: '#BFE4F4',
+  hair: '#3B5F74',
+  eye: '#13303F',
+  outline: STROKE_COLOR,
+});

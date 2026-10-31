@@ -10,7 +10,7 @@ const createJumpingPlayer = (): Player => ({
   position: { x: 32, y: 64 },
   velocity: createBasePlayerVelocity(),
   hearts: { value: 3 },
-  timers: { death: null, invincibility: 1, star: 0.5, hurt: 0.2 },
+  timers: { death: null, invincibility: 1, star: 0.5, hurt: 0.2, cold: 0 },
   statuses: { isFacingRight: true, isGrounded: false, isJumpQueued: true },
 });
 

@@ -8,6 +8,7 @@ import type {
   Item,
   Player,
   Point,
+  Snowball,
 } from '@mander/model';
 import type { GameLevel } from './game-level';
 import type { GameStatus } from './game-status';
@@ -20,6 +21,7 @@ export interface GameState {
   enemies: Enemy[];
   cannons: Cannon[];
   cannonballs: Cannonball[];
+  snowballs: Snowball[];
   fallingSpikes: FallingSpike[];
   fireballs: Fireball[];
   bullets: Bullet[];

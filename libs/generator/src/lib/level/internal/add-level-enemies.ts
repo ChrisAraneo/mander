@@ -1,5 +1,6 @@
 import { randomizeEnemies } from '../../enemies/randomize-enemies';
 import { getFastEnemyChance } from './get-fast-enemy-chance';
+import { getFreezingEnemyChance } from './get-freezing-enemy-chance';
 import { getHornedEnemyChance } from './get-horned-enemy-chance';
 import { getShooterEnemyChance } from './get-shooter-enemy-chance';
 import type { FurnishedLevel } from './types/furnished-level';
@@ -21,6 +22,7 @@ export const addLevelEnemies = ({
       horned: getHornedEnemyChance(levelNumber),
       fast: getFastEnemyChance(levelNumber),
       shooter: getShooterEnemyChance(levelNumber),
+      freezing: getFreezingEnemyChance(levelNumber),
     },
     random,
   ),

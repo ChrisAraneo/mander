@@ -7,7 +7,7 @@ const createTestPlayer = (hurt: number, death: number | null): Player => ({
   position: { x: 64, y: 96 },
   velocity: { x: { current: 0, max: 220 }, y: { current: 0, max: 400 } },
   hearts: { value: 3 },
-  timers: { death, invincibility: 0, star: 0, hurt },
+  timers: { death, invincibility: 0, star: 0, hurt, cold: 0 },
   statuses: { isFacingRight: true, isGrounded: true, isJumpQueued: false },
 });
 

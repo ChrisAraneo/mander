@@ -10,9 +10,10 @@ export const toEnemyKind = (
   isHorned: boolean,
   isFast: boolean,
   isShooter: boolean,
+  isFreezing: boolean,
 ): EnemyKind =>
   match(toTileEnemyKind(tile))
     .with(nullish, () =>
-      toRolledEnemyKind(isAirborne, isHorned, isFast, isShooter),
+      toRolledEnemyKind(isAirborne, isHorned, isFast, isShooter, isFreezing),
     )
     .otherwise((kind) => kind);

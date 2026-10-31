@@ -59,6 +59,7 @@ const patchArenaSpawn = (level: Level): GameLevel => ({
   hornedEnemyChance: HORNED_ENEMY_CHANCE,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 });
 
 const createArena = (): GameLevel => patchArenaSpawn(createRoom());

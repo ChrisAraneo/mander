@@ -10,5 +10,6 @@ export const patchPlayerTimers = (
     invincibility: Math.max(0, player.timers.invincibility - deltaSeconds),
     star: Math.max(0, player.timers.star - deltaSeconds),
     hurt: Math.max(0, player.timers.hurt - deltaSeconds),
+    cold: Math.max(0, player.timers.cold - deltaSeconds),
   },
 });

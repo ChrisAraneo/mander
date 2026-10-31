@@ -12,7 +12,7 @@ import { describe, expect, it } from 'vitest';
 import type { EnemyChances } from '../../types/enemy-chances';
 import { createEnemyPatches } from './create-enemy-patches';
 
-const CHANCES: EnemyChances = { horned: 0, fast: 0, shooter: 0 };
+const CHANCES: EnemyChances = { horned: 0, fast: 0, shooter: 0, freezing: 0 };
 
 const GRID: Tile[][] = [
   [TILE_ENEMY, TILE_ENEMY],

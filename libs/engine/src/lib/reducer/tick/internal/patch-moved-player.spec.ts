@@ -31,6 +31,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   hornedEnemyChance: 0,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 });
 
 const LEVEL = createLevel([
@@ -59,6 +60,7 @@ describe('patchMovedPlayer', () => {
       invincibility: 0,
       star: 0,
       hurt: 0,
+      cold: 0,
     });
 
     const player = patchMovedPlayer(state, DELTA_SECONDS);
@@ -74,6 +76,7 @@ describe('patchMovedPlayer', () => {
       invincibility: 1,
       star: 1,
       hurt: 0.1,
+      cold: 0,
     });
 
     const player = patchMovedPlayer(state, DELTA_SECONDS);
@@ -90,6 +93,7 @@ describe('patchMovedPlayer', () => {
       invincibility: 1,
       star: 2,
       hurt: 0.1,
+      cold: 0,
     });
 
     const player = patchMovedPlayer(state, DELTA_SECONDS);
@@ -108,6 +112,7 @@ describe('patchMovedPlayer', () => {
       invincibility: 1,
       star: 2,
       hurt: 0.1,
+      cold: 0,
     });
 
     const player = patchMovedPlayer(state, DELTA_SECONDS);
@@ -125,12 +130,19 @@ describe('patchMovedPlayer', () => {
       invincibility: 1,
       star: 2,
       hurt: 0.1,
+      cold: 0,
     });
 
     patchMovedPlayer(state, DELTA_SECONDS);
 
     expect(state).toEqual(
-      createStateWith({ death: null, invincibility: 1, star: 2, hurt: 0.1 }),
+      createStateWith({
+        death: null,
+        invincibility: 1,
+        star: 2,
+        hurt: 0.1,
+        cold: 0,
+      }),
     );
   });
 });

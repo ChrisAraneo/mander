@@ -242,6 +242,28 @@ describe('createEnemyFigureStep', () => {
     );
   });
 
+  it('should draw the same creature as a horned enemy when the enemy freezes', () => {
+    const calls = drawRecorded(
+      createEnemyFigureStep(
+        createTestEnemy('FREEZING', true),
+        PALETTE,
+        false,
+        0.2,
+      ),
+    );
+
+    expect(calls).toEqual(
+      drawRecorded(
+        createEnemyFigureStep(
+          createTestEnemy('HORNED', true),
+          PALETTE,
+          false,
+          0.2,
+        ),
+      ),
+    );
+  });
+
   it('should draw the creature with wings when the enemy flies', () => {
     const calls = drawRecorded(
       createEnemyFigureStep(

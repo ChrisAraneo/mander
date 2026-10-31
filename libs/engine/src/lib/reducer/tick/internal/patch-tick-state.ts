@@ -28,6 +28,7 @@ export const patchTickState = ({
   level,
   enemies,
   cannonballs,
+  snowballs,
   canReach,
   gems,
 }: TickEntities): GameState => ({
@@ -37,6 +38,7 @@ export const patchTickState = ({
   enemies,
   cannons,
   cannonballs,
+  snowballs,
   fallingSpikes: unshot,
   fireballs,
   bullets,

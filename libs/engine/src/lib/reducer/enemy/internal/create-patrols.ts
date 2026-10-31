@@ -20,6 +20,7 @@ export const createPatrols = (level: GameLevel): Enemy[] =>
           isRollUnder(level.hornedEnemyChance, random),
           isRollUnder(level.fastEnemyChance, random),
           isRollUnder(level.shooterEnemyChance, random),
+          isRollUnder(level.freezingEnemyChance, random),
         ),
       ),
     ),

@@ -15,6 +15,7 @@ export const patchLivingEnemy = (
     .with('HORNED', () => nextEnemy(level, enemy, player, deltaSeconds))
     .with('FAST', () => nextEnemy(level, enemy, player, deltaSeconds))
     .with('SHOOTER', () => nextEnemy(level, enemy, player, deltaSeconds))
+    .with('FREEZING', () => nextEnemy(level, enemy, player, deltaSeconds))
     .with('FLYING', () => patchFlyingEnemy(level, enemy, deltaSeconds))
     .with('BEARTRAP', () => nextBeartrap(level, enemy, player, deltaSeconds))
     .exhaustive(() => nextEnemy(level, enemy, player, deltaSeconds));

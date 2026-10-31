@@ -29,6 +29,7 @@ const createLevel = (rows: string[]): GameLevel => ({
   hornedEnemyChance: 0,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 });
 
 const LEVEL = createLevel(['.....', '.S...', '#####']);
@@ -66,6 +67,7 @@ describe('patchStarUse', () => {
       invincibility: STAR_INVINCIBLE_SECONDS,
       star: STAR_INVINCIBLE_SECONDS,
       hurt: 0,
+      cold: 0,
     });
   });
 

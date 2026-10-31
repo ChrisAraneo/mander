@@ -68,6 +68,7 @@ const createTestLevel = (): GameLevel => ({
   hornedEnemyChance: 0,
   fastEnemyChance: 0,
   shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
 });
 
 const createState = (): GameState =>

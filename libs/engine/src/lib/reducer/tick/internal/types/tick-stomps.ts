@@ -6,6 +6,7 @@ import type {
   FallingSpike,
   Fireball,
   Player,
+  Snowball,
 } from '@mander/model';
 import type { GameState } from '../../../../types/game-state';
 
@@ -15,6 +16,7 @@ export interface TickStomps {
   isPlayerAlive: boolean;
   cannons: Cannon[];
   flying: Cannonball[];
+  snowballs: Snowball[];
   fallingSpikes: FallingSpike[];
   fireballs: Fireball[];
   flyingBullets: Bullet[];

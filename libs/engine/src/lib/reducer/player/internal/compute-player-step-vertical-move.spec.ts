@@ -28,7 +28,7 @@ const createAirbornePlayer = (positionY: number): Player => ({
   position: { x: 100, y: positionY },
   velocity: createBasePlayerVelocity(),
   hearts: { value: 3 },
-  timers: { death: null, invincibility: 0, star: 0, hurt: 0 },
+  timers: { death: null, invincibility: 0, star: 0, hurt: 0, cold: 0 },
   statuses: { isFacingRight: false, isGrounded: false, isJumpQueued: false },
 });
 

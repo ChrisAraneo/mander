@@ -5,6 +5,7 @@ import type {
   Enemy,
   FallingSpike,
   Fireball,
+  Snowball,
 } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
@@ -16,6 +17,8 @@ const ENEMIES = [{ kind: 'HOPPING' }] as unknown as Enemy[];
 const CANNONS = [{ isFacingRight: true }] as unknown as Cannon[];
 
 const CANNONBALLS = [{ position: { x: 1, y: 2 } }] as unknown as Cannonball[];
+
+const SNOWBALLS = [{ position: { x: 7, y: 8 } }] as unknown as Snowball[];
 
 const FALLING_SPIKES = [
   { position: { x: 3, y: 4 } },
@@ -29,6 +32,7 @@ const createHazards = (): TickHazardSet =>
   createTickHazardSet(
     ENEMIES,
     { cannons: CANNONS, cannonballs: CANNONBALLS },
+    SNOWBALLS,
     FALLING_SPIKES,
     FIREBALLS,
     BULLETS,
@@ -47,6 +51,10 @@ describe('createTickHazardSet', () => {
     expect(createHazards().flying).toBe(CANNONBALLS);
   });
 
+  it('should keep the snowballs flying when it gathers the hazards', () => {
+    expect(createHazards().snowballs).toBe(SNOWBALLS);
+  });
+
   it('should carry the falling spikes, fireballs and bullets on when it gathers the hazards', () => {
     const hazards = createHazards();
 
@@ -62,12 +70,14 @@ describe('createTickHazardSet', () => {
       [],
       [],
       [],
+      [],
     );
 
     expect(hazards).toEqual({
       steppedEnemies: [],
       cannons: [],
       flying: [],
+      snowballs: [],
       fallingSpikes: [],
       fireballs: [],
       flyingBullets: [],

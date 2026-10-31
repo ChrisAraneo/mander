@@ -20,6 +20,18 @@ describe('getEnemyMaxVelocityY', () => {
     expect(maxVelocityY).toBe(HORNED_ENEMY_JUMP_VELOCITY);
   });
 
+  it('should give the lower horned jump when the enemy shoots', () => {
+    const maxVelocityY = getEnemyMaxVelocityY('SHOOTER');
+
+    expect(maxVelocityY).toBe(HORNED_ENEMY_JUMP_VELOCITY);
+  });
+
+  it('should give the lower horned jump when the enemy freezes', () => {
+    const maxVelocityY = getEnemyMaxVelocityY('FREEZING');
+
+    expect(maxVelocityY).toBe(HORNED_ENEMY_JUMP_VELOCITY);
+  });
+
   it('should give the flying speed when the enemy flies', () => {
     const maxVelocityY = getEnemyMaxVelocityY('FLYING');
 

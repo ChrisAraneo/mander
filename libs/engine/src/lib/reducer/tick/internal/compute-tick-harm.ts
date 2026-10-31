@@ -1,8 +1,10 @@
-import { type Cannonball, type Enemy } from '@mander/model';
+import { type Cannonball, type Enemy, type Snowball } from '@mander/model';
 import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { filterStrikingCannonballs } from '../../cannon/filter-striking-cannonballs';
 import { isBurning } from '../../fireball/is-burning';
+import { patchChilledPlayer } from '../../player/patch-chilled-player';
+import { filterChillingSnowballs } from '../../snowball/filter-chilling-snowballs';
 import { computeHarmOutcome } from './compute-harm-outcome';
 import { filterHornedVictims } from './filter-horned-victims';
 import type { TickHarm } from './types/tick-harm';
@@ -15,6 +17,7 @@ export const computeTickHarm = ({
   isPlayerAlive,
   cannons,
   flying,
+  snowballs,
   fallingSpikes,
   fireballs,
   flyingBullets,
@@ -29,11 +32,15 @@ export const computeTickHarm = ({
       hits: match(isPlayerAlive)
         .with(true, () => filterStrikingCannonballs(bounced, flying))
         .otherwise((): Cannonball[] => []),
+      chills: match(isPlayerAlive)
+        .with(true, () => filterChillingSnowballs(bounced, snowballs))
+        .otherwise((): Snowball[] => []),
       isBurned: isPlayerAlive && isBurning(bounced, fireballs),
     },
-    ({ gored, hits, isBurned }) => ({
+    ({ gored, hits, chills, isBurned }) => ({
       gored,
       hits,
+      chills,
       outcome: match(isPlayerAlive)
         .with(true, () =>
           computeHarmOutcome(
@@ -51,18 +58,20 @@ export const computeTickHarm = ({
           status: 'PLAYING',
         })),
     }),
-    ({ gored, hits, outcome }): TickHarm => ({
+    ({ gored, hits, chills, outcome }): TickHarm => ({
       state,
       deltaSeconds,
       cannons,
       flying,
+      snowballs,
       fallingSpikes,
       fireballs,
       flyingBullets,
       afterStomps,
       gored,
       hits,
-      player: outcome.player,
+      chills,
+      player: patchChilledPlayer(outcome.player, chills),
       deaths: outcome.deaths,
       status: outcome.status,
     }),
