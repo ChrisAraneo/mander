@@ -66,7 +66,7 @@ describe('createFireballs', () => {
     ).toEqual(['FIRE', 'ICE']);
   });
 
-  it('should hang a pink ball on the block when the block is a pink ball one', () => {
+  it('should hang a pair of pink balls on the block when the block is a pink ball one', () => {
     expect(
       map(
         createFireballs(
@@ -77,7 +77,27 @@ describe('createFireballs', () => {
         ),
         (fireball) => fireball.kind,
       ),
-    ).toEqual(['PINK', 'PINK']);
+    ).toEqual(['PINK', 'PINK', 'PINK', 'PINK']);
+  });
+
+  it('should send the two pink balls of a block round opposite ways when it hangs them', () => {
+    expect(
+      sortBy(
+        map(
+          createFireballs(createLevel([[TILE_PINKBALL], [TILE_DIRT]])),
+          (fireball) => fireball.spin,
+        ),
+      ),
+    ).toEqual(['ANTICLOCKWISE', 'CLOCKWISE']);
+  });
+
+  it('should set the two pink balls of a block off on opposite sides when it hangs them', () => {
+    const [germ, twin] = createFireballs(
+      createLevel([[TILE_PINKBALL], [TILE_DIRT]]),
+    );
+
+    expect(twin.origin).toEqual(germ.origin);
+    expect(twin.angle).not.toBe(germ.angle);
   });
 
   it('should hang the fireball off the middle of its block when it creates one', () => {

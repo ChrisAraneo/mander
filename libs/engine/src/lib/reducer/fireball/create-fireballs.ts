@@ -5,9 +5,10 @@ import {
   findPinkballTiles,
   type Level,
 } from '@mander/model';
-import { map } from 'lodash-es';
+import { flatMap, map } from 'lodash-es';
 import { pipe } from 'remeda';
 import { createRandom } from '../../random/create-random';
+import { createGermPair } from './internal/create-germ-pair';
 import { createSpinningFireball } from './internal/create-spinning-fireball';
 
 export const createFireballs = (level: Level): Fireball[] =>
@@ -18,7 +19,7 @@ export const createFireballs = (level: Level): Fireball[] =>
     ...map(findIceballTiles(level), (tile) =>
       createSpinningFireball('ICE', tile, random),
     ),
-    ...map(findPinkballTiles(level), (tile) =>
-      createSpinningFireball('PINK', tile, random),
+    ...flatMap(findPinkballTiles(level), (tile) =>
+      createGermPair(tile, random),
     ),
   ]);

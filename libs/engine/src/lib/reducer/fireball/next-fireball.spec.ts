@@ -8,7 +8,17 @@ import {
   TILE_FIREBALL,
   TILE_SIZE,
 } from '@mander/model';
-import { every, head, map, reduce, round, size, times, uniq } from 'lodash-es';
+import {
+  every,
+  floor,
+  head,
+  map,
+  reduce,
+  round,
+  size,
+  times,
+  uniq,
+} from 'lodash-es';
 import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
@@ -20,6 +30,7 @@ import {
   PINKBALL_LOOPS,
   PINKBALL_LOOP_RADIUS,
   PINKBALL_LOOP_SECONDS,
+  PINKBALL_SPEED_SCALE,
 } from './consts';
 import { createFireballs } from './create-fireballs';
 import { getFireballPosition } from './get-fireball-position';
@@ -46,10 +57,15 @@ const computeOrbitRadius = (fireball: Fireball): number =>
   );
 
 const nextFlight = (fireball: Fireball, seconds: number): Fireball =>
-  reduce(
-    times(round(seconds / DELTA_SECONDS)),
-    (turning: Fireball) => nextFireball(turning, DELTA_SECONDS),
-    fireball,
+  pipe(floor(seconds / DELTA_SECONDS), (frames) =>
+    nextFireball(
+      reduce(
+        times(frames),
+        (turning: Fireball) => nextFireball(turning, DELTA_SECONDS),
+        fireball,
+      ),
+      seconds - frames * DELTA_SECONDS,
+    ),
   );
 
 const ONE_BLOCK = createLevel([[TILE_FIREBALL], [TILE_DIRT]]);
@@ -189,12 +205,18 @@ describe('nextFireball', () => {
     );
   });
 
-  it('should take the pink ball round a whole loop while the fireball flies half its orbit', () => {
+  it('should take the pink ball round a whole loop when it has flown one loop long', () => {
     expect(
       nextFlight(createLivingPinkball(), PINKBALL_LOOP_SECONDS).angle,
     ).toBeCloseTo(2 * Math.PI, 6);
+  });
+
+  it('should leave the pink ball a fraction of the way round its loop when the fireball has flown half its orbit', () => {
     expect(
-      nextFlight(createFlyingFireball(), PINKBALL_LOOP_SECONDS).angle,
+      nextFlight(createLivingPinkball(), FIREBALL_ORBIT_SECONDS / 2).angle,
+    ).toBeCloseTo(PINKBALL_SPEED_SCALE * 2 * Math.PI, 6);
+    expect(
+      nextFlight(createFlyingFireball(), FIREBALL_ORBIT_SECONDS / 2).angle,
     ).toBeCloseTo(Math.PI, 6);
   });
 
@@ -268,9 +290,9 @@ describe('nextFireball', () => {
     expect(size(uniq(steps))).toBe(1);
   });
 
-  it('should fly the pink ball at the same speed as the fireball flies', () => {
+  it('should fly the pink ball at a fraction of the speed the fireball flies', () => {
     expect(computeStepLength(createLivingPinkball(), 0)).toBeCloseTo(
-      computeStepLength(createFlyingFireball(), 0),
+      PINKBALL_SPEED_SCALE * computeStepLength(createFlyingFireball(), 0),
       2,
     );
   });
@@ -283,7 +305,7 @@ describe('nextFireball', () => {
             nextFlight(createLivingPinkball(), (step * GERM_SECONDS) / 200),
           ),
         ),
-        (reach) => reach <= FIREBALL_ORBIT_RADIUS,
+        (reach) => round(reach, 6) <= FIREBALL_ORBIT_RADIUS,
       ),
     ).toBe(true));
 
