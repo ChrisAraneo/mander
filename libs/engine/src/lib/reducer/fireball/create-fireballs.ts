@@ -2,6 +2,7 @@ import {
   type Fireball,
   findFireballTiles,
   findIceballTiles,
+  findPinkballTiles,
   type Level,
 } from '@mander/model';
 import { map } from 'lodash-es';
@@ -16,5 +17,8 @@ export const createFireballs = (level: Level): Fireball[] =>
     ),
     ...map(findIceballTiles(level), (tile) =>
       createSpinningFireball('ICE', tile, random),
+    ),
+    ...map(findPinkballTiles(level), (tile) =>
+      createSpinningFireball('PINK', tile, random),
     ),
   ]);

@@ -16,6 +16,8 @@ import {
   FIREBALL_ORBIT_RADIUS,
   FIREBALL_ORBIT_SECONDS,
   FIREBALL_ORBIT_TILES,
+  PINKBALL_SPIRAL_RADIUS,
+  PINKBALL_SPIRAL_TURNS,
 } from './consts';
 import { createFireballs } from './create-fireballs';
 import { getFireballPosition } from './get-fireball-position';
@@ -54,6 +56,14 @@ const createTurningFireball = (spin: FireballSpin): Fireball => ({
 });
 
 const START = createTurningFireball('CLOCKWISE').origin;
+
+const SPIRAL_ARM_SECONDS = PINKBALL_SPIRAL_TURNS * FIREBALL_ORBIT_SECONDS;
+
+const createSpirallingPinkball = (): Fireball => ({
+  ...createTurningFireball('CLOCKWISE'),
+  kind: 'PINK',
+  angle: 0,
+});
 
 describe('nextFireball', () => {
   it('should hold the fireball five blocks out when it has flown a long way', () => {
@@ -151,7 +161,35 @@ describe('nextFireball', () => {
     );
   });
 
-  it('should keep the angle inside a single turn when the fireball turns anticlockwise', () => {
+  it('should wind the pink ball in to its closest point when it has flown one arm of the spiral', () => {
+    expect(
+      computeOrbitRadius(
+        nextFlight(createSpirallingPinkball(), SPIRAL_ARM_SECONDS),
+      ),
+    ).toBeCloseTo(FIREBALL_ORBIT_RADIUS - PINKBALL_SPIRAL_RADIUS, 0);
+  });
+
+  it('should wind the pink ball back out to the full orbit when it has flown the whole cycle', () => {
+    expect(
+      computeOrbitRadius(
+        nextFlight(createSpirallingPinkball(), 2 * SPIRAL_ARM_SECONDS),
+      ),
+    ).toBeCloseTo(FIREBALL_ORBIT_RADIUS, 0);
+  });
+
+  it('should draw the pink ball steadily inwards when it flies the first arm of the spiral', () => {
+    const reaches = map(times(6), (step) =>
+      computeOrbitRadius(
+        nextFlight(createSpirallingPinkball(), (step * SPIRAL_ARM_SECONDS) / 5),
+      ),
+    );
+
+    times(5, (step) =>
+      expect(reaches[step + 1], `after  steps`).toBeLessThan(reaches[step]),
+    );
+  });
+
+  it('should keep the angle inside the spiral cycle when the fireball turns anticlockwise', () => {
     const angles = times(
       20,
       (step) =>
@@ -162,7 +200,9 @@ describe('nextFireball', () => {
       expect(angles[step], `after ${step / 4}s`).toBeGreaterThanOrEqual(0),
     );
     times(size(angles), (step) =>
-      expect(angles[step], `after ${step / 4}s`).toBeLessThan(Math.PI * 2),
+      expect(angles[step], `after -es`).toBeLessThan(
+        2 * PINKBALL_SPIRAL_TURNS * 2 * Math.PI,
+      ),
     );
   });
 });

@@ -13,3 +13,10 @@ export const FROST_FIREBALL: Readonly<FireballColors> = Object.freeze({
   edge: '#1D7FC4',
   tail: 'RGBA(79, 227, 242, 0.5)',
 });
+
+export const BLOSSOM_FIREBALL: Readonly<FireballColors> = Object.freeze({
+  core: '#FFF0F8',
+  flame: '#FF72C4',
+  edge: '#C2256E',
+  tail: 'RGBA(255, 114, 196, 0.5)',
+});

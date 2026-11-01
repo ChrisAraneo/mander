@@ -3,6 +3,7 @@ import {
   TILE_CANNON,
   TILE_FIREBALL,
   TILE_ICEBALL,
+  TILE_PINKBALL,
   TILE_PORTAL,
   TILE_SPAWN,
   TILE_SPIKE,
@@ -21,7 +22,7 @@ import type { LevelCategory } from './world/types/level-category';
 
 const HAZARDS: readonly (readonly Tile[])[] = [
   [TILE_CANNON],
-  [TILE_FIREBALL, TILE_ICEBALL],
+  [TILE_FIREBALL, TILE_ICEBALL, TILE_PINKBALL],
   [TILE_BEARTRAP],
   [TILE_SPIKE],
 ];

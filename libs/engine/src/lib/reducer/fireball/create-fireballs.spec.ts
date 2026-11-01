@@ -5,6 +5,7 @@ import {
   TILE_DIRT,
   TILE_FIREBALL,
   TILE_ICEBALL,
+  TILE_PINKBALL,
   TILE_SIZE,
 } from '@mander/model';
 import { head, map, size, sortBy, times, uniq } from 'lodash-es';
@@ -63,6 +64,20 @@ describe('createFireballs', () => {
         (fireball) => fireball.kind,
       ),
     ).toEqual(['FIRE', 'ICE']);
+  });
+
+  it('should hang a pink ball on the block when the block is a pink ball one', () => {
+    expect(
+      map(
+        createFireballs(
+          createLevel([
+            [TILE_PINKBALL, TILE_AIR, TILE_PINKBALL],
+            [TILE_DIRT, TILE_DIRT, TILE_DIRT],
+          ]),
+        ),
+        (fireball) => fireball.kind,
+      ),
+    ).toEqual(['PINK', 'PINK']);
   });
 
   it('should hang the fireball off the middle of its block when it creates one', () => {

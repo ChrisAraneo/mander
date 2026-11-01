@@ -99,6 +99,17 @@ describe('fireballs on the tick', () => {
     expect(nextTick(state).player.hearts.value).toBe(state.player.hearts.value);
   });
 
+  it('should burn a heart off the player when the pink ball sweeps through them', () => {
+    const state = nextTick(createInitialState(createTestLevel(), 0, []));
+    const hearts = state.player.hearts.value;
+    const burned = nextTick({
+      ...state,
+      fireballs: [createFireballOnPlayer(state, 'PINK')],
+    });
+
+    expect(burned.player.hearts.value).toBe(hearts - 1);
+  });
+
   it('should freeze the player when the ice ball sweeps through them', () => {
     const state = nextTick(createInitialState(createTestLevel(), 0, []));
     const chilled = nextTick({

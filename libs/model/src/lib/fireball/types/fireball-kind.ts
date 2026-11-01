@@ -1,1 +1,1 @@
-export type FireballKind = 'FIRE' | 'ICE';
+export type FireballKind = 'FIRE' | 'ICE' | 'PINK';

@@ -18,6 +18,7 @@ import { TILE_DIRT } from './tile-dirt';
 import { TILE_FIREBALL } from './tile-fireball';
 import { TILE_ICE } from './tile-ice';
 import { TILE_ICEBALL } from './tile-iceball';
+import { TILE_PINKBALL } from './tile-pinkball';
 import { TILE_STONE } from './tile-stone';
 import { TILE_WOOD } from './tile-wood';
 
@@ -44,6 +45,10 @@ describe('isSolidTile', () => {
 
   it('should return true when the tile is an ice ball block the player can stand on', () => {
     expect(isSolidTile(TILE_ICEBALL)).toBe(true);
+  });
+
+  it('should return true when the tile is a pink ball block the player can stand on', () => {
+    expect(isSolidTile(TILE_PINKBALL)).toBe(true);
   });
 
   it('should return false when the tile does not block or is a pickup', () => {

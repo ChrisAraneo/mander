@@ -6,6 +6,7 @@ import {
   TILE_FIREBALL,
   TILE_ICE,
   TILE_ICEBALL,
+  TILE_PINKBALL,
   TILE_STONE,
   TILE_WOOD,
 } from '@mander/model';
@@ -19,6 +20,7 @@ import {
   FIREBALL_STYLE,
   ICE_STYLE,
   ICEBALL_STYLE,
+  PINKBALL_STYLE,
   STONE_STYLE,
   WOOD_STYLE,
 } from './consts';
@@ -226,6 +228,35 @@ describe('createMaterialStep', () => {
       'fillRect(10, 38, 2, 7)',
       'fillRect(21, 41, 2, 9)',
       'set fillStyle(#EDFEFF)',
+      'beginPath()',
+      'arc(16, 48, 4, 0, 6.2832)',
+      'fill()',
+      'restore()',
+    ]);
+  });
+
+  it('should draw the blossom veins and core when the tile is a pink ball block', () => {
+    const calls = drawRecorded(
+      createMaterialStep(TILE_PINKBALL, 0, 32, PINKBALL_STYLE),
+    );
+
+    expect(calls).toEqual([
+      'save()',
+      'set fillStyle(RGBA(0, 0, 0, 0.45))',
+      'fillRect(4, 38, 8, 2)',
+      'fillRect(18, 37, 10, 2)',
+      'fillRect(3, 48, 6, 2)',
+      'fillRect(20, 52, 9, 2)',
+      'fillRect(10, 39, 2, 7)',
+      'fillRect(21, 42, 2, 9)',
+      'set fillStyle(#FF72C4)',
+      'fillRect(4, 37, 8, 2)',
+      'fillRect(18, 36, 10, 2)',
+      'fillRect(3, 47, 6, 2)',
+      'fillRect(20, 51, 9, 2)',
+      'fillRect(10, 38, 2, 7)',
+      'fillRect(21, 41, 2, 9)',
+      'set fillStyle(#FFF0F8)',
       'beginPath()',
       'arc(16, 48, 4, 0, 6.2832)',
       'fill()',

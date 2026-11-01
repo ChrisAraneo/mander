@@ -20,6 +20,12 @@ describe('createSpinningFireball', () => {
     );
   });
 
+  it('should mark the ball as a pink one when it is hung on a pink ball block', () => {
+    expect(
+      createSpinningFireball('PINK', TILE, createRandom('SEED')).kind,
+    ).toBe('PINK');
+  });
+
   it('should hang the ball off the middle of its block when it creates one', () => {
     expect(
       createSpinningFireball('FIRE', TILE, createRandom('SEED')).origin,

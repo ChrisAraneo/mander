@@ -1,4 +1,4 @@
-import { FULL_TURN } from './consts';
+import { SPIRAL_CYCLE_ANGLE } from './consts';
 
 export const computeWrappedAngle = (angle: number): number =>
-  ((angle % FULL_TURN) + FULL_TURN) % FULL_TURN;
+  ((angle % SPIRAL_CYCLE_ANGLE) + SPIRAL_CYCLE_ANGLE) % SPIRAL_CYCLE_ANGLE;

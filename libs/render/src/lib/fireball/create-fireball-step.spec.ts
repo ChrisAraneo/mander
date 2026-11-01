@@ -3,7 +3,7 @@ import { filter, last, map, split, startsWith, trimEnd } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { drawRecorded } from '../../test/draw-recorded';
-import { EMBER_FIREBALL, FROST_FIREBALL } from './consts';
+import { BLOSSOM_FIREBALL, EMBER_FIREBALL, FROST_FIREBALL } from './consts';
 import { createFireballStep } from './create-fireball-step';
 
 const CLOCKWISE_FIREBALL: Fireball = {
@@ -105,6 +105,20 @@ describe('createFireballStep', () => {
         createFireballStep({ ...CLOCKWISE_FIREBALL, kind: 'ICE' }, 0),
       ),
     ).toContain('set fillStyle(RGBA(79, 227, 242, 0.5))');
+  });
+
+  it('should draw the pink ball in blossom when it is a pink one', () => {
+    expect(
+      filterStopColours(
+        drawRecorded(
+          createFireballStep({ ...CLOCKWISE_FIREBALL, kind: 'PINK' }, 0),
+        ),
+      ),
+    ).toEqual([
+      BLOSSOM_FIREBALL.core,
+      BLOSSOM_FIREBALL.flame,
+      BLOSSOM_FIREBALL.edge,
+    ]);
   });
 
   it('should keep the fireball burning in embers when it is bolted to the level', () => {

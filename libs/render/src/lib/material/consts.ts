@@ -83,3 +83,13 @@ export const ICEBALL_STYLE: Readonly<MaterialStyle> = Object.freeze({
   joint: 'RGBA(0, 0, 0, 0.45)',
   highlight: ICE_HIGHLIGHT,
 });
+
+export const PINKBALL_COLOUR = 'HSL(323, 24%, 22%)';
+
+export const PINKBALL_STYLE: Readonly<MaterialStyle> = Object.freeze({
+  base: '#3B2331',
+  cap: '#4C2E40',
+  capHighlight: '#5F3B50',
+  joint: 'RGBA(0, 0, 0, 0.45)',
+  highlight: HIGHLIGHT,
+});
