@@ -1,5 +1,13 @@
 import type { Fireball } from '@mander/model';
-import { filter, last, map, split, startsWith, trimEnd } from 'lodash-es';
+import {
+  filter,
+  includes,
+  last,
+  map,
+  split,
+  startsWith,
+  trimEnd,
+} from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { drawRecorded } from '../../test/draw-recorded';
@@ -33,11 +41,6 @@ describe('createFireballStep', () => {
     expect(calls).toEqual([
       'save()',
       'translate(360, 200)',
-      'rotate(1.5708)',
-      'set fillStyle(RGBA(255, 138, 42, 0.5))',
-      'beginPath()',
-      'ellipse(-11, 0, 22, 4.5, 0, 0, 6.2832)',
-      'fill()',
       'beginPath()',
       'arc(0, 0, 8, 0, 6.2832)',
       'set strokeStyle(#0f0d16)',
@@ -64,11 +67,6 @@ describe('createFireballStep', () => {
     expect(calls).toEqual([
       'save()',
       'translate(153.9772, 213.1263)',
-      'rotate(-0.3708)',
-      'set fillStyle(RGBA(255, 138, 42, 0.5))',
-      'beginPath()',
-      'ellipse(-11, 0, 22, 4.5, 0, 0, 6.2832)',
-      'fill()',
       'beginPath()',
       'arc(0, 0, 8.9031, 0, 6.2832)',
       'set strokeStyle(#0f0d16)',
@@ -99,12 +97,15 @@ describe('createFireballStep', () => {
     ).toEqual([FROST_FIREBALL.core, FROST_FIREBALL.flame, FROST_FIREBALL.edge]);
   });
 
-  it('should trail the ice ball in frost when it is an icy one', () => {
+  it('should drag no tail behind the ice ball when it draws one', () => {
     expect(
-      drawRecorded(
-        createFireballStep({ ...CLOCKWISE_FIREBALL, kind: 'ICE' }, 0),
+      filter(
+        drawRecorded(
+          createFireballStep({ ...CLOCKWISE_FIREBALL, kind: 'ICE' }, 0),
+        ),
+        (call) => includes(call, 'ellipse('),
       ),
-    ).toContain('set fillStyle(RGBA(79, 227, 242, 0.5))');
+    ).toEqual([]);
   });
 
   it('should draw the pink ball in blossom when it is a pink one', () => {

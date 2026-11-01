@@ -61,7 +61,9 @@ const createFireballOnPlayer = (
     x: state.player.position.x + PLAYER_WIDTH / 2 - FIREBALL_ORBIT_RADIUS,
     y: state.player.position.y + PLAYER_HEIGHT / 2,
   },
-  angle: 0,
+  angle: match(kind)
+    .with('PINK', () => Math.PI)
+    .otherwise(() => 0),
 });
 
 describe('fireballs on the tick', () => {

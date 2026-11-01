@@ -21,11 +21,6 @@ describe('createFireballFlameStep', () => {
     expect(calls).toEqual([
       'save()',
       'translate(10, 20)',
-      'rotate(1.5708)',
-      'set fillStyle(RGBA(255, 138, 42, 0.5))',
-      'beginPath()',
-      'ellipse(-11, 0, 22, 4.5, 0, 0, 6.2832)',
-      'fill()',
       'beginPath()',
       'arc(0, 0, 8, 0, 6.2832)',
       'set strokeStyle(#0f0d16)',

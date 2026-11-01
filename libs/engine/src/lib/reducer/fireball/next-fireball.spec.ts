@@ -8,7 +8,7 @@ import {
   TILE_FIREBALL,
   TILE_SIZE,
 } from '@mander/model';
-import { head, map, reduce, round, size, times } from 'lodash-es';
+import { every, head, map, reduce, round, size, times, uniq } from 'lodash-es';
 import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
@@ -16,8 +16,10 @@ import {
   FIREBALL_ORBIT_RADIUS,
   FIREBALL_ORBIT_SECONDS,
   FIREBALL_ORBIT_TILES,
-  PINKBALL_SPIRAL_RADIUS,
-  PINKBALL_SPIRAL_TURNS,
+  PINKBALL_ANGULAR_SPEED,
+  PINKBALL_LOOPS,
+  PINKBALL_LOOP_RADIUS,
+  PINKBALL_LOOP_SECONDS,
 } from './consts';
 import { createFireballs } from './create-fireballs';
 import { getFireballPosition } from './get-fireball-position';
@@ -33,6 +35,10 @@ const createLevel = (tiles: Tile[][]): Level => ({
 });
 
 const DELTA_SECONDS = 1 / 60;
+
+const GERM_LOOP_TURN = (Math.PI * 2) / PINKBALL_LOOPS;
+
+const GERM_SECONDS = PINKBALL_LOOPS * PINKBALL_LOOP_SECONDS;
 
 const computeOrbitRadius = (fireball: Fireball): number =>
   pipe(fireball, getFireballPosition, (orbiting) =>
@@ -57,13 +63,35 @@ const createTurningFireball = (spin: FireballSpin): Fireball => ({
 
 const START = createTurningFireball('CLOCKWISE').origin;
 
-const SPIRAL_ARM_SECONDS = PINKBALL_SPIRAL_TURNS * FIREBALL_ORBIT_SECONDS;
-
-const createSpirallingPinkball = (): Fireball => ({
+const createFlyingFireball = (): Fireball => ({
   ...createTurningFireball('CLOCKWISE'),
-  kind: 'PINK',
   angle: 0,
 });
+
+const createLivingPinkball = (): Fireball => ({
+  ...createFlyingFireball(),
+  kind: 'PINK',
+});
+
+const computeStepLength = (fireball: Fireball, seconds: number): number =>
+  pipe(
+    nextFlight(fireball, seconds),
+    (flown) => ({
+      from: getFireballPosition(flown),
+      to: getFireballPosition(nextFireball(flown, DELTA_SECONDS)),
+    }),
+    ({ from, to }) => Math.hypot(to.x - from.x, to.y - from.y),
+  );
+
+const ONE_STEP = PINKBALL_LOOP_RADIUS * PINKBALL_ANGULAR_SPEED * DELTA_SECONDS;
+
+const computeGapFrom = (fireball: Fireball, direction: number): number =>
+  pipe(getFireballPosition(fireball), (at) =>
+    Math.hypot(
+      at.x - fireball.origin.x - FIREBALL_ORBIT_RADIUS * Math.cos(direction),
+      at.y - fireball.origin.y - FIREBALL_ORBIT_RADIUS * Math.sin(direction),
+    ),
+  );
 
 describe('nextFireball', () => {
   it('should hold the fireball five blocks out when it has flown a long way', () => {
@@ -161,35 +189,105 @@ describe('nextFireball', () => {
     );
   });
 
-  it('should wind the pink ball in to its closest point when it has flown one arm of the spiral', () => {
+  it('should take the pink ball round a whole loop while the fireball flies half its orbit', () => {
     expect(
-      computeOrbitRadius(
-        nextFlight(createSpirallingPinkball(), SPIRAL_ARM_SECONDS),
-      ),
-    ).toBeCloseTo(FIREBALL_ORBIT_RADIUS - PINKBALL_SPIRAL_RADIUS, 0);
+      nextFlight(createLivingPinkball(), PINKBALL_LOOP_SECONDS).angle,
+    ).toBeCloseTo(2 * Math.PI, 6);
+    expect(
+      nextFlight(createFlyingFireball(), PINKBALL_LOOP_SECONDS).angle,
+    ).toBeCloseTo(Math.PI, 6);
   });
 
-  it('should wind the pink ball back out to the full orbit when it has flown the whole cycle', () => {
+  it('should swing the pink ball out from its block to its furthest reach and back when it flies a loop', () => {
+    expect(computeOrbitRadius(createLivingPinkball())).toBeCloseTo(0, 6);
     expect(
       computeOrbitRadius(
-        nextFlight(createSpirallingPinkball(), 2 * SPIRAL_ARM_SECONDS),
+        nextFlight(createLivingPinkball(), PINKBALL_LOOP_SECONDS / 2),
       ),
-    ).toBeCloseTo(FIREBALL_ORBIT_RADIUS, 0);
+    ).toBeCloseTo(FIREBALL_ORBIT_RADIUS, 1);
+    expect(
+      computeOrbitRadius(
+        nextFlight(createLivingPinkball(), PINKBALL_LOOP_SECONDS),
+      ),
+    ).toBeCloseTo(0, 3);
   });
 
-  it('should draw the pink ball steadily inwards when it flies the first arm of the spiral', () => {
-    const reaches = map(times(6), (step) =>
-      computeOrbitRadius(
-        nextFlight(createSpirallingPinkball(), (step * SPIRAL_ARM_SECONDS) / 5),
+  it('should bring the pink ball home to its block at the end of every loop', () =>
+    times(PINKBALL_LOOPS, (loop) =>
+      expect(
+        computeOrbitRadius(
+          nextFlight(
+            createLivingPinkball(),
+            (loop + 1) * PINKBALL_LOOP_SECONDS,
+          ),
+        ),
+        `loop ${loop + 1}`,
+      ).toBeCloseTo(0, 3),
+    ));
+
+  it('should turn each loop a sixth of a circle on from the last so the six of them ring the block', () =>
+    times(PINKBALL_LOOPS, (loop) =>
+      expect(
+        computeGapFrom(
+          nextFlight(
+            createLivingPinkball(),
+            (loop + 0.5) * PINKBALL_LOOP_SECONDS,
+          ),
+          loop * GERM_LOOP_TURN,
+        ),
+        `loop `,
+      ).toBeLessThan(ONE_STEP),
+    ));
+
+  it('should set the pink ball off on the first loop again when it has flown all six', () => {
+    expect(
+      computeGapFrom(nextFlight(createLivingPinkball(), GERM_SECONDS), 0),
+    ).toBeCloseTo(FIREBALL_ORBIT_RADIUS, 1);
+    expect(
+      computeGapFrom(
+        nextFlight(
+          createLivingPinkball(),
+          GERM_SECONDS + PINKBALL_LOOP_SECONDS / 2,
+        ),
+        0,
+      ),
+    ).toBeLessThan(ONE_STEP);
+  });
+
+  it('should hold the pink ball at one steady speed all the way round a loop', () => {
+    const steps = map(times(60), (step) =>
+      round(
+        computeStepLength(
+          createLivingPinkball(),
+          (step * PINKBALL_LOOP_SECONDS) / 60,
+        ),
+        6,
       ),
     );
 
-    times(5, (step) =>
-      expect(reaches[step + 1], `after  steps`).toBeLessThan(reaches[step]),
+    expect(size(uniq(steps))).toBe(1);
+  });
+
+  it('should fly the pink ball at the same speed as the fireball flies', () => {
+    expect(computeStepLength(createLivingPinkball(), 0)).toBeCloseTo(
+      computeStepLength(createFlyingFireball(), 0),
+      2,
     );
   });
 
-  it('should keep the angle inside the spiral cycle when the fireball turns anticlockwise', () => {
+  it('should keep the pink ball within five blocks of its block wherever it is on the germ', () =>
+    expect(
+      every(
+        map(times(200), (step) =>
+          computeOrbitRadius(
+            nextFlight(createLivingPinkball(), (step * GERM_SECONDS) / 200),
+          ),
+        ),
+        (reach) => reach <= FIREBALL_ORBIT_RADIUS,
+      ),
+    ).toBe(true));
+
+  it('should keep the angle inside the germ cycle when the fireball turns anticlockwise', () => {
     const angles = times(
       20,
       (step) =>
@@ -200,8 +298,8 @@ describe('nextFireball', () => {
       expect(angles[step], `after ${step / 4}s`).toBeGreaterThanOrEqual(0),
     );
     times(size(angles), (step) =>
-      expect(angles[step], `after -es`).toBeLessThan(
-        2 * PINKBALL_SPIRAL_TURNS * 2 * Math.PI,
+      expect(angles[step], `after ${step / 4}s`).toBeLessThan(
+        PINKBALL_LOOPS * 2 * Math.PI,
       ),
     );
   });

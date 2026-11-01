@@ -1,7 +1,9 @@
-import { PINKBALL_SPIRAL_TURNS } from '../consts';
+import { PINKBALL_LOOPS } from '../consts';
 
 export const FULL_TURN = Math.PI * 2;
 
-export const SPIRAL_ARM_ANGLE = PINKBALL_SPIRAL_TURNS * FULL_TURN;
+export const QUARTER_TURN = FULL_TURN / 4;
 
-export const SPIRAL_CYCLE_ANGLE = 2 * SPIRAL_ARM_ANGLE;
+export const GERM_LOOP_ANGLE = FULL_TURN / PINKBALL_LOOPS;
+
+export const GERM_CYCLE_ANGLE = PINKBALL_LOOPS * FULL_TURN;

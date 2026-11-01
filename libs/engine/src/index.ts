@@ -30,7 +30,6 @@ export * from './lib/reducer/falling-spike/next-falling-spike';
 export * from './lib/reducer/fireball/consts';
 export * from './lib/reducer/fireball/next-fireballs';
 export * from './lib/reducer/fireball/create-fireballs';
-export * from './lib/reducer/fireball/get-fireball-heading';
 export * from './lib/reducer/fireball/get-fireball-position';
 export * from './lib/reducer/fireball/is-burning';
 export * from './lib/reducer/fireball/is-freezing';

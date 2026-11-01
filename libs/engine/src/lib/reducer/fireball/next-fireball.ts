@@ -1,5 +1,5 @@
 import type { Fireball } from '@mander/model';
-import { FIREBALL_ANGULAR_SPEED } from './consts';
+import { computeAngularSpeed } from './internal/compute-angular-speed';
 import { computeWrappedAngle } from './internal/compute-wrapped-angle';
 import { toSpinDirection } from './internal/to-spin-direction';
 
@@ -10,6 +10,8 @@ export const nextFireball = (
   ...fireball,
   angle: computeWrappedAngle(
     fireball.angle +
-      toSpinDirection(fireball.spin) * FIREBALL_ANGULAR_SPEED * deltaSeconds,
+      toSpinDirection(fireball.spin) *
+        computeAngularSpeed(fireball.kind) *
+        deltaSeconds,
   ),
 });

@@ -20,11 +20,6 @@ describe('drawFireball', () => {
     expect(calls).toEqual([
       'save()',
       'translate(250.3747, 199.0748)',
-      'rotate(2.2708)',
-      'set fillStyle(RGBA(255, 138, 42, 0.5))',
-      'beginPath()',
-      'ellipse(-11, 0, 22, 4.5, 0, 0, 6.2832)',
-      'fill()',
       'beginPath()',
       'arc(0, 0, 8.9486, 0, 6.2832)',
       'set strokeStyle(#0f0d16)',
