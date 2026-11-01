@@ -4,6 +4,7 @@ import {
   TILE_CERAMIC,
   TILE_DIRT,
   TILE_FIREBALL,
+  TILE_ICE,
   TILE_STONE,
   TILE_WOOD,
 } from '@mander/model';
@@ -15,6 +16,7 @@ import {
   CERAMIC_STYLE,
   DIRT_STYLE,
   FIREBALL_STYLE,
+  ICE_STYLE,
   STONE_STYLE,
   WOOD_STYLE,
 } from './consts';
@@ -176,6 +178,27 @@ describe('createMaterialStep', () => {
       'arc(16, 48, 4, 0, 6.2832)',
       'fill()',
       'restore()',
+    ]);
+  });
+
+  it('should draw the frosted cracks and glints when the tile is ice', () => {
+    const calls = drawRecorded(createMaterialStep(TILE_ICE, 32, 64, ICE_STYLE));
+
+    expect(calls).toEqual([
+      'set fillStyle(RGBA(74, 132, 170, 0.42))',
+      'fillRect(36, 74, 10, 1)',
+      'fillRect(46, 74, 1, 7)',
+      'fillRect(47, 81, 8, 1)',
+      'fillRect(53, 67, 1, 7)',
+      'fillRect(38, 85, 1, 6)',
+      'set fillStyle(RGBA(255, 255, 255, 0.34))',
+      'fillRect(36, 88, 3, 2)',
+      'fillRect(39, 85, 3, 2)',
+      'fillRect(42, 82, 3, 2)',
+      'set fillStyle(RGBA(255, 255, 255, 0.72))',
+      'fillRect(55, 70, 4, 1)',
+      'fillRect(56, 69, 1, 3)',
+      'fillRect(40, 77, 3, 1)',
     ]);
   });
 

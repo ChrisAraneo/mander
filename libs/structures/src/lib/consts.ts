@@ -13,6 +13,7 @@ import {
   TILE_ENEMY_HORNED,
   TILE_ENEMY_SHOOTER,
   TILE_FIREBALL,
+  TILE_ICE,
   TILE_SPIKE,
   TILE_SPIKE_CEILING,
   TILE_SPIKE_FALLING,
@@ -65,6 +66,8 @@ export const CR = TILE_CERAMIC;
 export const CN = TILE_CANNON;
 
 export const FB = TILE_FIREBALL;
+
+export const IC = TILE_ICE;
 
 export const SS = STRUCTURE_START;
 

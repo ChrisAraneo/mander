@@ -9,6 +9,7 @@ import { addLevelFurniture } from './internal/add-level-furniture';
 import { addLevelPadding } from './internal/add-level-padding';
 import { createGameLevel } from './internal/create-game-level';
 import { createLevelLayers } from './internal/create-level-layers';
+import { freezeLevelBlocks } from './internal/freeze-level-blocks';
 import { removeLevelTraps } from './internal/remove-level-traps';
 import { removeLevelWeapons } from './internal/remove-level-weapons';
 
@@ -27,6 +28,7 @@ export const createLevelFromStructures = (
     addLevelPadding,
     removeLevelTraps,
     addLevelFurniture,
+    freezeLevelBlocks,
     addLevelEnemies,
     createGameLevel,
   );

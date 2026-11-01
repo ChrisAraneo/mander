@@ -57,3 +57,19 @@ export const FIREBALL_STYLE: Readonly<MaterialStyle> = Object.freeze({
 export const CAP_LIGHTNESS_GAIN = 7;
 
 export const BACK_SHADE = 'RGBA(15, 13, 22, 0.46)';
+
+export const ICE_JOINT = 'RGBA(74, 132, 170, 0.42)';
+
+export const ICE_HIGHLIGHT = 'RGBA(255, 255, 255, 0.34)';
+
+export const ICE_GLINT = 'RGBA(255, 255, 255, 0.72)';
+
+export const ICE_COLOUR = 'HSL(196, 64%, 77%)';
+
+export const ICE_STYLE: Readonly<MaterialStyle> = Object.freeze({
+  base: '#9FD8EC',
+  cap: '#BCE6F5',
+  capHighlight: '#DCF4FB',
+  joint: ICE_JOINT,
+  highlight: ICE_HIGHLIGHT,
+});

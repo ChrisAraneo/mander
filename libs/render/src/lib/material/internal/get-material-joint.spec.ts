@@ -1,7 +1,7 @@
-import { TILE_BRICK, TILE_DIRT, TILE_WOOD } from '@mander/model';
+import { TILE_BRICK, TILE_DIRT, TILE_ICE, TILE_WOOD } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
-import { JOINT, WOOD_JOINT } from '../consts';
+import { ICE_JOINT, JOINT, WOOD_JOINT } from '../consts';
 import { getMaterialJoint } from './get-material-joint';
 
 describe('getMaterialJoint', () => {
@@ -9,6 +9,12 @@ describe('getMaterialJoint', () => {
     const result = getMaterialJoint(TILE_WOOD);
 
     expect(result).toBe(WOOD_JOINT);
+  });
+
+  it('should give the frosted joint when the tile is ice', () => {
+    const result = getMaterialJoint(TILE_ICE);
+
+    expect(result).toBe(ICE_JOINT);
   });
 
   it('should give the usual joint when the tile is brick', () => {

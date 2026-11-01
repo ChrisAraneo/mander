@@ -9,7 +9,11 @@ import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import type { InputState } from '../../../types/input-state';
-import { PLAYER_MAX_JUMP_VELOCITY, PLAYER_MAX_MOVE_VELOCITY } from '../consts';
+import {
+  ACCELERATION_SECONDS,
+  PLAYER_MAX_JUMP_VELOCITY,
+  PLAYER_MAX_MOVE_VELOCITY,
+} from '../consts';
 import { computePlayerStepIntent } from './compute-player-step-intent';
 
 const LEGEND: Record<string, Tile> = { '.': TILE_AIR, '#': TILE_DIRT };
@@ -45,6 +49,10 @@ const createInput = (
   isJump: boolean,
 ): InputState => ({ isLeft, isRight, isJump });
 
+const DELTA_SECONDS = 0.02;
+
+const STEP = PLAYER_MAX_MOVE_VELOCITY * (DELTA_SECONDS / ACCELERATION_SECONDS);
+
 const LEVEL = createLevel();
 
 const RIGHT_FACING_PLAYER = createMovingPlayer(true, true, false);
@@ -66,27 +74,27 @@ const BOTH_INPUT = createInput(true, true, false);
 const JUMP_INPUT = createInput(false, false, true);
 
 describe('computePlayerStepIntent', () => {
-  it('should run the player right at full speed and face them right when only the right key is held', () => {
+  it('should set the player off to the right and face them right when only the right key is held', () => {
     const step = computePlayerStepIntent({
       level: LEVEL,
       player: LEFT_FACING_PLAYER,
       input: RIGHT_INPUT,
-      deltaSeconds: 0.02,
+      deltaSeconds: DELTA_SECONDS,
     });
 
-    expect(step.velocityX).toBe(PLAYER_MAX_MOVE_VELOCITY);
+    expect(step.velocityX).toBeCloseTo(STEP, 10);
     expect(step.isFacingRight).toBe(true);
   });
 
-  it('should run the player left at full speed and face them left when only the left key is held', () => {
+  it('should set the player off to the left and face them left when only the left key is held', () => {
     const step = computePlayerStepIntent({
       level: LEVEL,
       player: RIGHT_FACING_PLAYER,
       input: LEFT_INPUT,
-      deltaSeconds: 0.02,
+      deltaSeconds: DELTA_SECONDS,
     });
 
-    expect(step.velocityX).toBe(-PLAYER_MAX_MOVE_VELOCITY);
+    expect(step.velocityX).toBeCloseTo(-STEP, 10);
     expect(step.isFacingRight).toBe(false);
   });
 
@@ -95,7 +103,7 @@ describe('computePlayerStepIntent', () => {
       level: LEVEL,
       player: LEFT_FACING_PLAYER,
       input: NO_INPUT,
-      deltaSeconds: 0.02,
+      deltaSeconds: DELTA_SECONDS,
     });
 
     expect(step.velocityX).toBe(0);
@@ -107,7 +115,7 @@ describe('computePlayerStepIntent', () => {
       level: LEVEL,
       player: LEFT_FACING_PLAYER,
       input: BOTH_INPUT,
-      deltaSeconds: 0.02,
+      deltaSeconds: DELTA_SECONDS,
     });
 
     expect(step.velocityX).toBe(0);
@@ -119,7 +127,7 @@ describe('computePlayerStepIntent', () => {
       level: LEVEL,
       player: RIGHT_FACING_PLAYER,
       input: JUMP_INPUT,
-      deltaSeconds: 0.02,
+      deltaSeconds: DELTA_SECONDS,
     });
 
     expect(step.velocityY).toBe(-PLAYER_MAX_JUMP_VELOCITY);
@@ -131,7 +139,7 @@ describe('computePlayerStepIntent', () => {
       level: LEVEL,
       player: QUEUED_PLAYER,
       input: NO_INPUT,
-      deltaSeconds: 0.02,
+      deltaSeconds: DELTA_SECONDS,
     });
 
     expect(step.velocityY).toBe(-PLAYER_MAX_JUMP_VELOCITY);
@@ -143,7 +151,7 @@ describe('computePlayerStepIntent', () => {
       level: LEVEL,
       player: AIRBORNE_PLAYER,
       input: JUMP_INPUT,
-      deltaSeconds: 0.02,
+      deltaSeconds: DELTA_SECONDS,
     });
 
     expect(step.velocityY).toBe(50);
@@ -155,7 +163,7 @@ describe('computePlayerStepIntent', () => {
       level: LEVEL,
       player: RIGHT_FACING_PLAYER,
       input: RIGHT_INPUT,
-      deltaSeconds: 0.02,
+      deltaSeconds: DELTA_SECONDS,
     });
 
     expect(step.level).toBe(LEVEL);
@@ -166,7 +174,7 @@ describe('computePlayerStepIntent', () => {
       level: LEVEL,
       player: RIGHT_FACING_PLAYER,
       input: RIGHT_INPUT,
-      deltaSeconds: 0.02,
+      deltaSeconds: DELTA_SECONDS,
     });
 
     expect(step.player).toBe(RIGHT_FACING_PLAYER);
@@ -177,7 +185,7 @@ describe('computePlayerStepIntent', () => {
       level: LEVEL,
       player: RIGHT_FACING_PLAYER,
       input: RIGHT_INPUT,
-      deltaSeconds: 0.02,
+      deltaSeconds: DELTA_SECONDS,
     });
 
     expect(step.input).toBe(RIGHT_INPUT);
@@ -188,7 +196,7 @@ describe('computePlayerStepIntent', () => {
       level: LEVEL,
       player: RIGHT_FACING_PLAYER,
       input: RIGHT_INPUT,
-      deltaSeconds: 0.02,
+      deltaSeconds: DELTA_SECONDS,
     });
 
     expect(step.deltaSeconds).toBe(0.02);

@@ -1,4 +1,5 @@
 import {
+  FIXED_STEP_SECONDS,
   type Item,
   type Tile,
   TILE_AIR,
@@ -18,7 +19,12 @@ import type { GameLevel } from '../types/game-level';
 import type { GameState } from '../types/game-state';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
 import { nextGameState } from './next-game-state';
-import { BASE_HEARTS, PLAYER_HEIGHT, PLAYER_WIDTH } from './player/consts';
+import {
+  ACCELERATION_SECONDS,
+  BASE_HEARTS,
+  PLAYER_HEIGHT,
+  PLAYER_WIDTH,
+} from './player/consts';
 import { getSpawnPosition } from './player/get-spawn-position';
 
 const LEGEND: Record<string, Tile> = {
@@ -80,6 +86,8 @@ const createTestLevel = (): GameLevel => ({
 
 const SPAWN_X = getSpawnPosition(createTestLevel()).x;
 
+const STOP_TICKS = Math.ceil(ACCELERATION_SECONDS / FIXED_STEP_SECONDS);
+
 const nextTick = (state: GameState): GameState =>
   nextGameState(state, { type: 'TICK' }, constant(0));
 
@@ -112,7 +120,7 @@ describe('movement actions', () => {
     expect(landed.player.velocity.y.current).toBe(0);
   });
 
-  it('should move the player and stop them again when right is pressed and released', () => {
+  it('should move the player and roll them to a stop when right is pressed and released', () => {
     const start = createSettledState(3 * TILE_SIZE);
     const pressed = nextGameState(
       start,
@@ -130,9 +138,13 @@ describe('movement actions', () => {
       { type: 'MOVE_RIGHT_STOP' },
       constant(0),
     );
-    const stopped = nextTicks(released, 5);
+    const stopped = nextTicks(released, STOP_TICKS);
 
-    expect(stopped.player.position.x).toBe(movedX);
+    expect(stopped.player.velocity.x.current).toBe(0);
+    expect(stopped.player.position.x).toBeGreaterThan(movedX);
+    expect(nextTicks(stopped, STOP_TICKS).player.position.x).toBe(
+      stopped.player.position.x,
+    );
   });
 
   it('should stop the player when a wall stands to their left', () => {

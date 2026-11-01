@@ -41,3 +41,9 @@ export const COLD_MOVE_FACTOR = 0.5;
 export const COLD_JUMP_HEIGHT_FACTOR = 0.5;
 
 export const COLD_JUMP_VELOCITY_FACTOR = Math.sqrt(COLD_JUMP_HEIGHT_FACTOR);
+
+export const ACCELERATION_SECONDS = 0.08;
+
+export const ICE_ACCELERATION_SECONDS = 0.38;
+
+export const ICE_PROBE_DEPTH = 2;

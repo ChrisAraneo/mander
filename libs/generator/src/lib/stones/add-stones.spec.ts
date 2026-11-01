@@ -5,6 +5,7 @@ import {
   TILE_AIR,
   TILE_BRICK,
   TILE_DIRT,
+  TILE_ICE,
   TILE_SPIKE,
   TILE_STONE,
 } from '@mander/model';
@@ -24,6 +25,7 @@ import {
   times,
   uniq,
 } from 'lodash-es';
+import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
 import { DEEP_DIRT_DEPTH, DIRT_DEPTH } from '../consts';
@@ -276,22 +278,31 @@ describe('addStones', () => {
     ).toEqual([]);
   });
 
-  it('should settle stone into every level when a day is dealt', () => {
-    const bare = filter(
-      flatten(
-        map(
-          times(10, (day) => new Date(Date.UTC(2026, 7, 1 + day))),
-          (date) =>
-            map(createWorld(date).levels, (level, index) => ({
+  it('should settle stone into every level when a day is dealt, frozen over as ice in winter', () => {
+    const settled = flatten(
+      map(
+        times(10, (day) => new Date(Date.UTC(2026, 7, 1 + day))),
+        (date) =>
+          pipe(createWorld(date), ({ season, levels }) =>
+            map(levels, (level, index) => ({
               index,
+              isFrozen: season === 'WINTER',
               stones: size(filterCells(level.tiles, TILE_STONE)),
+              ice: size(filterCells(level.tiles, TILE_ICE)),
             })),
-        ),
+          ),
       ),
-      ({ stones }) => stones === 0,
     );
 
-    expect(bare).toEqual([]);
+    expect(
+      filter(settled, ({ isFrozen, stones }) => !isFrozen && stones === 0),
+    ).toEqual([]);
+    expect(
+      filter(settled, ({ isFrozen, ice }) => isFrozen && ice === 0),
+    ).toEqual([]);
+    expect(
+      filter(settled, ({ isFrozen, stones }) => isFrozen && stones > 0),
+    ).toEqual([]);
   }, 120000);
 
   it('should give back an empty grid when the grid is empty', () => {

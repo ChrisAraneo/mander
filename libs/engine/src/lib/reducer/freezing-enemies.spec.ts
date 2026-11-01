@@ -23,6 +23,7 @@ import {
 import { createPatrol } from './enemy/internal/create-patrol';
 import { nextGameState } from './next-game-state';
 import {
+  ACCELERATION_SECONDS,
   BASE_HEARTS,
   COLD_JUMP_HEIGHT_FACTOR,
   COLD_MOVE_FACTOR,
@@ -242,10 +243,13 @@ describe('freezing enemies', () => {
       constant(0),
     );
 
-    expect(nextTick(moved).player.velocity.x.current).toBeCloseTo(
-      PLAYER_MAX_MOVE_VELOCITY * COLD_MOVE_FACTOR,
-      6,
-    );
+    expect(
+      nextTicksWhile(
+        moved,
+        Math.ceil(ACCELERATION_SECONDS / DELTA_SECONDS),
+        constant(true),
+      ).player.velocity.x.current,
+    ).toBeCloseTo(PLAYER_MAX_MOVE_VELOCITY * COLD_MOVE_FACTOR, 6);
   });
 
   it('should cover half the ground in a tick when the cold player walks', () => {

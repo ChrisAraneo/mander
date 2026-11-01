@@ -16,6 +16,7 @@ import { TILE_CANNON } from './tile-cannon';
 import { TILE_CERAMIC } from './tile-ceramic';
 import { TILE_DIRT } from './tile-dirt';
 import { TILE_FIREBALL } from './tile-fireball';
+import { TILE_ICE } from './tile-ice';
 import { TILE_STONE } from './tile-stone';
 import { TILE_WOOD } from './tile-wood';
 
@@ -26,6 +27,10 @@ describe('isSolidTile', () => {
     expect(isSolidTile(TILE_STONE)).toBe(true);
     expect(isSolidTile(TILE_WOOD)).toBe(true);
     expect(isSolidTile(TILE_CERAMIC)).toBe(true);
+  });
+
+  it('should return true when the tile is an ice block', () => {
+    expect(isSolidTile(TILE_ICE)).toBe(true);
   });
 
   it('should return true when the tile is a cannon the player can stand on', () => {

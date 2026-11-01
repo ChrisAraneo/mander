@@ -10,7 +10,11 @@ import { describe, expect, it } from 'vitest';
 
 import type { GameLevel } from '../../types/game-level';
 import type { InputState } from '../../types/input-state';
-import { PLAYER_MAX_JUMP_VELOCITY, PLAYER_MAX_MOVE_VELOCITY } from './consts';
+import {
+  ACCELERATION_SECONDS,
+  PLAYER_MAX_JUMP_VELOCITY,
+  PLAYER_MAX_MOVE_VELOCITY,
+} from './consts';
 import { createBasePlayerVelocity } from './create-base-player-velocity';
 import { nextPlayer } from './next-player';
 
@@ -38,6 +42,8 @@ const LEVEL: GameLevel = {
 };
 
 const DELTA_SECONDS = 0.03125;
+
+const STEP = PLAYER_MAX_MOVE_VELOCITY * (DELTA_SECONDS / ACCELERATION_SECONDS);
 
 const NO_INPUT: InputState = { isLeft: false, isRight: false, isJump: false };
 
@@ -76,23 +82,25 @@ const createAirbornePlayer = (
 });
 
 describe('nextPlayer', () => {
-  it('should walk the player right at full speed when only right is held', () => {
+  it('should set the player off to the right when only right is held', () => {
     const player = createStandingPlayer(100, false);
 
     const stepped = nextPlayer(LEVEL, player, RIGHT_INPUT, DELTA_SECONDS);
 
-    expect(stepped.position).toEqual({ x: 106.5625, y: 112 });
-    expect(stepped.velocity.x.current).toBe(PLAYER_MAX_MOVE_VELOCITY);
+    expect(stepped.position.x).toBeCloseTo(100 + STEP * DELTA_SECONDS, 10);
+    expect(stepped.position.y).toBe(112);
+    expect(stepped.velocity.x.current).toBeCloseTo(STEP, 10);
     expect(stepped.statuses.isFacingRight).toBe(true);
   });
 
-  it('should walk the player left at full speed when only left is held', () => {
+  it('should set the player off to the left when only left is held', () => {
     const player = createStandingPlayer(100, true);
 
     const stepped = nextPlayer(LEVEL, player, LEFT_INPUT, DELTA_SECONDS);
 
-    expect(stepped.position).toEqual({ x: 93.4375, y: 112 });
-    expect(stepped.velocity.x.current).toBe(-PLAYER_MAX_MOVE_VELOCITY);
+    expect(stepped.position.x).toBeCloseTo(100 - STEP * DELTA_SECONDS, 10);
+    expect(stepped.position.y).toBe(112);
+    expect(stepped.velocity.x.current).toBeCloseTo(-STEP, 10);
     expect(stepped.statuses.isFacingRight).toBe(false);
   });
 

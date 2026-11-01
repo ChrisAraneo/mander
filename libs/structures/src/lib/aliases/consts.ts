@@ -12,6 +12,7 @@ import {
   FL,
   HN,
   HP,
+  IC,
   SC,
   SF,
   SH,
@@ -40,6 +41,7 @@ export const ALIAS_MAP: ReadonlyMap<number, string> = new Map<number, string>([
   [CR, 'CR'],
   [CN, 'CN'],
   [FB, 'FB'],
+  [IC, 'IC'],
   [SS, 'SS'],
   [EE, 'EE'],
 ]);
