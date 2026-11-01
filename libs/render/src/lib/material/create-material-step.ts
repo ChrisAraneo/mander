@@ -6,6 +6,7 @@ import {
   TILE_CERAMIC,
   TILE_FIREBALL,
   TILE_ICE,
+  TILE_ICEBALL,
 } from '@mander/model';
 import { match } from 'ts-pattern';
 import { drawNothing } from '../canvas/draw-nothing';
@@ -14,6 +15,7 @@ import type { MaterialStyle } from '../types/material-style';
 import { createBrickStep } from './internal/create-brick-step';
 import { createCeramicStep } from './internal/create-ceramic-step';
 import { createFireballTileStep } from './internal/create-fireball-tile-step';
+import { createIceballTileStep } from './internal/create-iceball-tile-step';
 import { createIceStep } from './internal/create-ice-step';
 import { createStoneStep } from './internal/create-stone-step';
 import { createWoodStep } from './internal/create-wood-step';
@@ -31,4 +33,5 @@ export const createMaterialStep = (
     .with(TILE_CERAMIC, () => createCeramicStep(pixelX, pixelY, style))
     .with(TILE_FIREBALL, () => createFireballTileStep(pixelX, pixelY, style))
     .with(TILE_ICE, () => createIceStep(pixelX, pixelY, style))
+    .with(TILE_ICEBALL, () => createIceballTileStep(pixelX, pixelY, style))
     .otherwise(() => drawNothing);

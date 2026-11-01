@@ -5,6 +5,7 @@ import { drawRecorded } from '../../test/draw-recorded';
 import { drawFireball } from './draw-fireball';
 
 const FIREBALL: Fireball = {
+  kind: 'FIRE',
   spin: 'CLOCKWISE',
   origin: { x: 128, y: 96 },
   angle: 0.7,

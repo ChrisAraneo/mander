@@ -6,6 +6,7 @@ import { EMBER_FIREBALL } from '../consts';
 import { createFireballFlameStep } from './create-fireball-flame-step';
 
 const FIREBALL: Fireball = {
+  kind: 'FIRE',
   spin: 'CLOCKWISE',
   origin: { x: 200, y: 200 },
   angle: 0,

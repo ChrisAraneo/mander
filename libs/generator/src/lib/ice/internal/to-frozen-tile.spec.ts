@@ -7,6 +7,7 @@ import {
   TILE_ENEMY,
   TILE_FIREBALL,
   TILE_ICE,
+  TILE_ICEBALL,
   TILE_SPIKE,
   TILE_STONE,
   TILE_WOOD,
@@ -27,11 +28,16 @@ describe('toFrozenTile', () => {
     expect(toFrozenTile(TILE_DIRT)).toBe(TILE_DIRT);
   });
 
-  it('should leave the tile alone when it is a weapon the player has to face', () => {
-    expect(map([TILE_CANNON, TILE_FIREBALL], toFrozenTile)).toEqual([
-      TILE_CANNON,
-      TILE_FIREBALL,
-    ]);
+  it('should swap the fireball for an ice ball when it is a fireball block', () => {
+    expect(toFrozenTile(TILE_FIREBALL)).toBe(TILE_ICEBALL);
+  });
+
+  it('should leave the tile alone when it is a cannon the player has to face', () => {
+    expect(toFrozenTile(TILE_CANNON)).toBe(TILE_CANNON);
+  });
+
+  it('should leave the tile alone when it is already an ice ball', () => {
+    expect(toFrozenTile(TILE_ICEBALL)).toBe(TILE_ICEBALL);
   });
 
   it('should leave the tile alone when it is already ice', () => {

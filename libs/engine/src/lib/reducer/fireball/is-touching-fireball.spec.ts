@@ -34,6 +34,7 @@ const createLevel = (rows: string[]): GameLevel => ({
 const LEVEL = createLevel(['.....', '.....', 's....', '#####']);
 
 const FIREBALL: Fireball = {
+  kind: 'FIRE',
   spin: 'CLOCKWISE',
   origin: { x: 0, y: 100 },
   angle: 0,

@@ -5,6 +5,7 @@ import {
   TILE_DIRT,
   TILE_FIREBALL,
   TILE_ICE,
+  TILE_ICEBALL,
   TILE_STONE,
   TILE_WOOD,
 } from '@mander/model';
@@ -17,6 +18,7 @@ import {
   DIRT_STYLE,
   FIREBALL_STYLE,
   ICE_STYLE,
+  ICEBALL_STYLE,
   STONE_STYLE,
   WOOD_STYLE,
 } from './consts';
@@ -199,6 +201,35 @@ describe('createMaterialStep', () => {
       'fillRect(55, 70, 4, 1)',
       'fillRect(56, 69, 1, 3)',
       'fillRect(40, 77, 3, 1)',
+    ]);
+  });
+
+  it('should draw the frozen veins and core when the tile is an ice ball block', () => {
+    const calls = drawRecorded(
+      createMaterialStep(TILE_ICEBALL, 0, 32, ICEBALL_STYLE),
+    );
+
+    expect(calls).toEqual([
+      'save()',
+      'set fillStyle(RGBA(0, 0, 0, 0.45))',
+      'fillRect(4, 38, 8, 2)',
+      'fillRect(18, 37, 10, 2)',
+      'fillRect(3, 48, 6, 2)',
+      'fillRect(20, 52, 9, 2)',
+      'fillRect(10, 39, 2, 7)',
+      'fillRect(21, 42, 2, 9)',
+      'set fillStyle(#4FE3F2)',
+      'fillRect(4, 37, 8, 2)',
+      'fillRect(18, 36, 10, 2)',
+      'fillRect(3, 47, 6, 2)',
+      'fillRect(20, 51, 9, 2)',
+      'fillRect(10, 38, 2, 7)',
+      'fillRect(21, 41, 2, 9)',
+      'set fillStyle(#EDFEFF)',
+      'beginPath()',
+      'arc(16, 48, 4, 0, 6.2832)',
+      'fill()',
+      'restore()',
     ]);
   });
 

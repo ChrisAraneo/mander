@@ -4,6 +4,7 @@ import {
   TILE_AIR,
   TILE_DIRT,
   TILE_FIREBALL,
+  TILE_ICEBALL,
   TILE_SIZE,
 } from '@mander/model';
 import { head, map, size, sortBy, times, uniq } from 'lodash-es';
@@ -34,6 +35,34 @@ describe('createFireballs', () => {
         ]),
       ),
     ).toHaveLength(2);
+  });
+
+  it('should hang an icy ball on the block when the block is an ice ball one', () => {
+    expect(
+      createFireballs(
+        createLevel([
+          [TILE_ICEBALL, TILE_AIR, TILE_ICEBALL],
+          [TILE_DIRT, TILE_DIRT, TILE_DIRT],
+        ]),
+      ),
+    ).toEqual([
+      expect.objectContaining({ kind: 'ICE' }),
+      expect.objectContaining({ kind: 'ICE' }),
+    ]);
+  });
+
+  it('should light both kinds of ball when the level holds both blocks', () => {
+    expect(
+      map(
+        createFireballs(
+          createLevel([
+            [TILE_FIREBALL, TILE_ICEBALL],
+            [TILE_DIRT, TILE_DIRT],
+          ]),
+        ),
+        (fireball) => fireball.kind,
+      ),
+    ).toEqual(['FIRE', 'ICE']);
   });
 
   it('should hang the fireball off the middle of its block when it creates one', () => {

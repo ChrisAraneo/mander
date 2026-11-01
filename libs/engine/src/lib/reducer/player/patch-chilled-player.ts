@@ -6,8 +6,9 @@ import { COLD_SECONDS } from './consts';
 export const patchChilledPlayer = (
   player: Player,
   chills: Snowball[],
+  isFrozen = false,
 ): Player =>
-  match(isEmpty(chills))
+  match(isEmpty(chills) && !isFrozen)
     .with(true, () => player)
     .otherwise((): Player => ({
       ...player,

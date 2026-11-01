@@ -5,8 +5,8 @@ import { FIREBALL_ANGULAR_SPEED } from './consts';
 import { nextFireballs } from './next-fireballs';
 
 const createFireballs = (): Fireball[] => [
-  { spin: 'CLOCKWISE', origin: { x: 100, y: 50 }, angle: 1 },
-  { spin: 'ANTICLOCKWISE', origin: { x: 300, y: 80 }, angle: 2 },
+  { kind: 'FIRE', spin: 'CLOCKWISE', origin: { x: 100, y: 50 }, angle: 1 },
+  { kind: 'FIRE', spin: 'ANTICLOCKWISE', origin: { x: 300, y: 80 }, angle: 2 },
 ];
 
 describe('nextFireballs', () => {

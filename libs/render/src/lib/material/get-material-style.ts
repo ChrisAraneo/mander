@@ -4,6 +4,7 @@ import {
   TILE_CERAMIC,
   TILE_FIREBALL,
   TILE_ICE,
+  TILE_ICEBALL,
   TILE_STONE,
   TILE_WOOD,
 } from '@mander/model';
@@ -15,6 +16,7 @@ import {
   DIRT_STYLE,
   FIREBALL_STYLE,
   ICE_STYLE,
+  ICEBALL_STYLE,
   STONE_STYLE,
   WOOD_STYLE,
 } from './consts';
@@ -27,4 +29,5 @@ export const getMaterialStyle = (tile: Tile): MaterialStyle =>
     .with(TILE_CERAMIC, () => CERAMIC_STYLE)
     .with(TILE_FIREBALL, () => FIREBALL_STYLE)
     .with(TILE_ICE, () => ICE_STYLE)
+    .with(TILE_ICEBALL, () => ICEBALL_STYLE)
     .otherwise(() => DIRT_STYLE);

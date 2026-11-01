@@ -34,7 +34,7 @@ export const HURT_FLASH_SECONDS = 0.2;
 
 export const STAR_INVINCIBLE_SECONDS = 3;
 
-export const COLD_SECONDS = 2;
+export const COLD_SECONDS = 1.25;
 
 export const COLD_MOVE_FACTOR = 0.5;
 

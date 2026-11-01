@@ -2,13 +2,14 @@ import {
   TILE_BEARTRAP,
   TILE_CANNON,
   TILE_FIREBALL,
+  TILE_ICEBALL,
   TILE_PORTAL,
   TILE_SPAWN,
   TILE_SPIKE,
   type Tile,
 } from '@mander/model';
 import { getFront } from '@mander/structures';
-import { every, filter, find, flatten, map, size } from 'lodash-es';
+import { every, filter, find, flatten, includes, map, size } from 'lodash-es';
 import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
@@ -18,15 +19,20 @@ import { STRUCTURE_CHOICES } from './structure-choices';
 import type { StructureChoice } from './types/structure-choice';
 import type { LevelCategory } from './world/types/level-category';
 
-const HAZARDS: readonly Tile[] = [
-  TILE_CANNON,
-  TILE_FIREBALL,
-  TILE_BEARTRAP,
-  TILE_SPIKE,
+const HAZARDS: readonly (readonly Tile[])[] = [
+  [TILE_CANNON],
+  [TILE_FIREBALL, TILE_ICEBALL],
+  [TILE_BEARTRAP],
+  [TILE_SPIKE],
 ];
 
 const countTiles = (rows: readonly (readonly Tile[])[], tile: Tile): number =>
   size(filter(flatten(rows), (cell) => cell === tile));
+
+const countAnyTiles = (
+  rows: readonly (readonly Tile[])[],
+  tiles: readonly Tile[],
+): number => size(filter(flatten(rows), (cell) => includes(tiles, cell)));
 
 const filterChoices = (category: LevelCategory): StructureChoice[] =>
   filter(STRUCTURE_CHOICES, (choice) => choice.category === category);
@@ -47,9 +53,9 @@ const hasAllHazardsKept = (choice: StructureChoice): boolean =>
     every(
       HAZARDS,
       (hazard) =>
-        countTiles(tiles, hazard) >=
+        countAnyTiles(tiles, hazard) >=
         STRUCTURE_WORLD_REPEATS *
-          countTiles(getFront(choice.structure), hazard),
+          countAnyTiles(getFront(choice.structure), hazard),
     ),
   );
 

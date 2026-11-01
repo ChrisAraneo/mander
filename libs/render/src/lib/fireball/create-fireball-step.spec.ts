@@ -3,16 +3,18 @@ import { filter, last, map, split, startsWith, trimEnd } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { drawRecorded } from '../../test/draw-recorded';
-import { EMBER_FIREBALL } from './consts';
+import { EMBER_FIREBALL, FROST_FIREBALL } from './consts';
 import { createFireballStep } from './create-fireball-step';
 
 const CLOCKWISE_FIREBALL: Fireball = {
+  kind: 'FIRE',
   spin: 'CLOCKWISE',
   origin: { x: 200, y: 200 },
   angle: 0,
 };
 
 const ANTICLOCKWISE_FIREBALL: Fireball = {
+  kind: 'FIRE',
   spin: 'ANTICLOCKWISE',
   origin: { x: 96, y: 64 },
   angle: 1.2,
@@ -85,6 +87,24 @@ describe('createFireballStep', () => {
       'fill()',
       'restore()',
     ]);
+  });
+
+  it('should draw the ice ball in frost when it is an icy one', () => {
+    expect(
+      filterStopColours(
+        drawRecorded(
+          createFireballStep({ ...CLOCKWISE_FIREBALL, kind: 'ICE' }, 0),
+        ),
+      ),
+    ).toEqual([FROST_FIREBALL.core, FROST_FIREBALL.flame, FROST_FIREBALL.edge]);
+  });
+
+  it('should trail the ice ball in frost when it is an icy one', () => {
+    expect(
+      drawRecorded(
+        createFireballStep({ ...CLOCKWISE_FIREBALL, kind: 'ICE' }, 0),
+      ),
+    ).toContain('set fillStyle(RGBA(79, 227, 242, 0.5))');
   });
 
   it('should keep the fireball burning in embers when it is bolted to the level', () => {

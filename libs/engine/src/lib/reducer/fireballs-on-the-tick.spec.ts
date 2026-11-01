@@ -17,7 +17,7 @@ import type { GameState } from '../types/game-state';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
 import { FIREBALL_ORBIT_RADIUS } from './fireball/consts';
 import { nextGameState } from './next-game-state';
-import { PLAYER_HEIGHT, PLAYER_WIDTH } from './player/consts';
+import { COLD_SECONDS, PLAYER_HEIGHT, PLAYER_WIDTH } from './player/consts';
 
 const { number } = P;
 
@@ -51,7 +51,11 @@ const createTestLevel = (): GameLevel => ({
 const nextTick = (state: GameState): GameState =>
   nextGameState(state, { type: 'TICK' }, constant(0));
 
-const createFireballOnPlayer = (state: GameState): Fireball => ({
+const createFireballOnPlayer = (
+  state: GameState,
+  kind: Fireball['kind'] = 'FIRE',
+): Fireball => ({
+  kind,
   spin: 'CLOCKWISE',
   origin: {
     x: state.player.position.x + PLAYER_WIDTH / 2 - FIREBALL_ORBIT_RADIUS,
@@ -93,5 +97,25 @@ describe('fireballs on the tick', () => {
     const state = nextTick(createInitialState(createTestLevel(), 0, []));
 
     expect(nextTick(state).player.hearts.value).toBe(state.player.hearts.value);
+  });
+
+  it('should freeze the player when the ice ball sweeps through them', () => {
+    const state = nextTick(createInitialState(createTestLevel(), 0, []));
+    const chilled = nextTick({
+      ...state,
+      fireballs: [createFireballOnPlayer(state, 'ICE')],
+    });
+
+    expect(chilled.player.timers.cold).toBe(COLD_SECONDS);
+  });
+
+  it('should take no heart off the player when the ice ball sweeps through them', () => {
+    const state = nextTick(createInitialState(createTestLevel(), 0, []));
+    const chilled = nextTick({
+      ...state,
+      fireballs: [createFireballOnPlayer(state, 'ICE')],
+    });
+
+    expect(chilled.player.hearts.value).toBe(state.player.hearts.value);
   });
 });

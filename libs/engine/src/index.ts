@@ -33,6 +33,8 @@ export * from './lib/reducer/fireball/create-fireballs';
 export * from './lib/reducer/fireball/get-fireball-heading';
 export * from './lib/reducer/fireball/get-fireball-position';
 export * from './lib/reducer/fireball/is-burning';
+export * from './lib/reducer/fireball/is-freezing';
+export * from './lib/reducer/fireball/is-iceball';
 export * from './lib/reducer/fireball/is-touching-fireball';
 export * from './lib/reducer/fireball/next-fireball';
 export * from './lib/reducer/enemy/consts';

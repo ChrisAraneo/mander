@@ -211,10 +211,10 @@ describe('freezing enemies', () => {
     expect(chilled.player.timers.invincibility).toBe(0);
   });
 
-  it('should give the player two seconds of cold when a snowball lands', () => {
+  it('should give the player a short spell of cold when a snowball lands', () => {
     const chilled = nextTicksUntilChilled(createSettledState());
 
-    expect(COLD_SECONDS).toBe(2);
+    expect(COLD_SECONDS).toBe(1.25);
     expect(chilled.player.timers.cold).toBe(COLD_SECONDS);
   });
 

@@ -34,6 +34,18 @@ describe('patchChilledPlayer', () => {
     expect(chilled.timers.cold).toBe(COLD_SECONDS);
   });
 
+  it('should put the whole cold on the player when an ice ball swept through them', () => {
+    const chilled = patchChilledPlayer(createPlayerWithCold(0), [], true);
+
+    expect(chilled.timers.cold).toBe(COLD_SECONDS);
+  });
+
+  it('should hand the same player back when neither a snowball nor an ice ball touched them', () => {
+    const player = createPlayerWithCold(0);
+
+    expect(patchChilledPlayer(player, [], false)).toBe(player);
+  });
+
   it('should set the cold back to the whole time when a snowball lands on an already cold player', () => {
     const chilled = patchChilledPlayer(createPlayerWithCold(0.1), [SNOWBALL]);
 

@@ -5,6 +5,7 @@ import {
   TILE_DIRT,
   TILE_FIREBALL,
   TILE_ICE,
+  TILE_ICEBALL,
   TILE_STONE,
   TILE_WOOD,
 } from '@mander/model';
@@ -16,6 +17,7 @@ import {
   DIRT_STYLE,
   FIREBALL_STYLE,
   ICE_STYLE,
+  ICEBALL_STYLE,
   STONE_STYLE,
   WOOD_STYLE,
 } from './consts';
@@ -29,6 +31,7 @@ describe('getMaterialStyle', () => {
     expect(getMaterialStyle(TILE_CERAMIC)).toBe(CERAMIC_STYLE);
     expect(getMaterialStyle(TILE_FIREBALL)).toBe(FIREBALL_STYLE);
     expect(getMaterialStyle(TILE_ICE)).toBe(ICE_STYLE);
+    expect(getMaterialStyle(TILE_ICEBALL)).toBe(ICEBALL_STYLE);
   });
 
   it('should give the dirt style when the tile is dirt', () => {

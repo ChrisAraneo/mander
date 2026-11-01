@@ -5,6 +5,7 @@ import { FIREBALL_ORBIT_RADIUS } from './consts';
 import { getFireballPosition } from './get-fireball-position';
 
 const createFireballAt = (angle: number): Fireball => ({
+  kind: 'FIRE',
   spin: 'CLOCKWISE',
   origin: { x: 100, y: 50 },
   angle,

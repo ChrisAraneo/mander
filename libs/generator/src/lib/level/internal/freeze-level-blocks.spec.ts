@@ -4,7 +4,9 @@ import {
   TILE_AIR,
   TILE_BRICK,
   TILE_DIRT,
+  TILE_FIREBALL,
   TILE_ICE,
+  TILE_ICEBALL,
   type Tile,
   TILE_WOOD,
 } from '@mander/model';
@@ -18,6 +20,7 @@ const STRUCTURES: Sector[] = [];
 const createTiles = (): Tile[][] => [
   [TILE_AIR, TILE_BRICK],
   [TILE_DIRT, TILE_WOOD],
+  [TILE_FIREBALL, TILE_DIRT],
 ];
 
 const createBackTiles = (): Tile[][] => [[TILE_BRICK, TILE_AIR]];
@@ -38,7 +41,16 @@ describe('freezeLevelBlocks', () => {
     expect(freezeIn('WINTER').tiles).toEqual([
       [TILE_AIR, TILE_ICE],
       [TILE_DIRT, TILE_ICE],
+      [TILE_ICEBALL, TILE_DIRT],
     ]);
+  });
+
+  it('should swap the fireballs for ice balls when the season is winter', () => {
+    expect(freezeIn('WINTER').tiles[2]).toEqual([TILE_ICEBALL, TILE_DIRT]);
+  });
+
+  it('should leave the fireballs burning when the season is not winter', () => {
+    expect(freezeIn('AUTUMN').tiles[2]).toEqual([TILE_FIREBALL, TILE_DIRT]);
   });
 
   it('should freeze the blocks standing behind the level when the season is winter', () => {

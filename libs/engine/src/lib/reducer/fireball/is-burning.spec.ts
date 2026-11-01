@@ -4,6 +4,7 @@ import {
   type Tile,
   TILE_DIRT,
   TILE_FIREBALL,
+  TILE_ICEBALL,
   TILE_SIZE,
 } from '@mander/model';
 import { head, size } from 'lodash-es';
@@ -41,6 +42,8 @@ const createPlayer = (
 
 const [FIREBALL] = createFireballs(createLevel([[TILE_FIREBALL], [TILE_DIRT]]));
 
+const [ICEBALL] = createFireballs(createLevel([[TILE_ICEBALL], [TILE_DIRT]]));
+
 const FIREBALL_POSITION = getFireballPosition(FIREBALL);
 
 describe('isBurning', () => {
@@ -74,6 +77,18 @@ describe('isBurning', () => {
           1.5,
         ),
         [FIREBALL],
+      ),
+    ).toBe(false);
+  });
+
+  it('should spare the player when the ball they stand in is an icy one', () => {
+    expect(
+      isBurning(
+        createPlayer(
+          FIREBALL_POSITION.x - PLAYER_WIDTH / 2,
+          FIREBALL_POSITION.y - PLAYER_HEIGHT / 2,
+        ),
+        [ICEBALL],
       ),
     ).toBe(false);
   });

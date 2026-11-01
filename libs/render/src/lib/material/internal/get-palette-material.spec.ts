@@ -3,13 +3,14 @@ import {
   TILE_CERAMIC,
   TILE_DIRT,
   TILE_ICE,
+  TILE_ICEBALL,
   TILE_STONE,
   TILE_WOOD,
 } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
 import type { Palette } from '../../types/palette';
-import { ICE_COLOUR } from '../consts';
+import { ICE_COLOUR, ICEBALL_COLOUR } from '../consts';
 import { getPaletteMaterial } from './get-palette-material';
 
 const PLAIN: Palette = {
@@ -39,6 +40,11 @@ describe('getPaletteMaterial', () => {
   it('should hand back the frozen colour when the tile is ice, whatever the level rolled', () => {
     expect(getPaletteMaterial(TILE_ICE, ROLLED)).toBe(ICE_COLOUR);
     expect(getPaletteMaterial(TILE_ICE, PLAIN)).toBe(ICE_COLOUR);
+  });
+
+  it('should hand back the frozen colour when the tile is an ice ball block, whatever the level rolled', () => {
+    expect(getPaletteMaterial(TILE_ICEBALL, ROLLED)).toBe(ICEBALL_COLOUR);
+    expect(getPaletteMaterial(TILE_ICEBALL, PLAIN)).toBe(ICEBALL_COLOUR);
   });
 
   it('should hand back no colour when the tile grows out of the ground', () => {

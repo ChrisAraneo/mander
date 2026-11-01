@@ -3,6 +3,7 @@ import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
 import { filterStrikingCannonballs } from '../../cannon/filter-striking-cannonballs';
 import { isBurning } from '../../fireball/is-burning';
+import { isFreezing } from '../../fireball/is-freezing';
 import { patchChilledPlayer } from '../../player/patch-chilled-player';
 import { filterChillingSnowballs } from '../../snowball/filter-chilling-snowballs';
 import { computeHarmOutcome } from './compute-harm-outcome';
@@ -36,11 +37,13 @@ export const computeTickHarm = ({
         .with(true, () => filterChillingSnowballs(bounced, snowballs))
         .otherwise((): Snowball[] => []),
       isBurned: isPlayerAlive && isBurning(bounced, fireballs),
+      isFrozen: isPlayerAlive && isFreezing(bounced, fireballs),
     },
-    ({ gored, hits, chills, isBurned }) => ({
+    ({ gored, hits, chills, isBurned, isFrozen }) => ({
       gored,
       hits,
       chills,
+      isFrozen,
       outcome: match(isPlayerAlive)
         .with(true, () =>
           computeHarmOutcome(
@@ -58,7 +61,7 @@ export const computeTickHarm = ({
           status: 'PLAYING',
         })),
     }),
-    ({ gored, hits, chills, outcome }): TickHarm => ({
+    ({ gored, hits, chills, isFrozen, outcome }): TickHarm => ({
       state,
       deltaSeconds,
       cannons,
@@ -71,7 +74,7 @@ export const computeTickHarm = ({
       gored,
       hits,
       chills,
-      player: patchChilledPlayer(outcome.player, chills),
+      player: patchChilledPlayer(outcome.player, chills, isFrozen),
       deaths: outcome.deaths,
       status: outcome.status,
     }),
