@@ -242,7 +242,7 @@ describe('createEnemyFigureStep', () => {
     );
   });
 
-  it('should draw the same creature as a horned enemy when the enemy freezes', () => {
+  it('should draw the same creature as a hopping enemy when the enemy freezes', () => {
     const calls = drawRecorded(
       createEnemyFigureStep(
         createTestEnemy('FREEZING', true),
@@ -255,7 +255,7 @@ describe('createEnemyFigureStep', () => {
     expect(calls).toEqual(
       drawRecorded(
         createEnemyFigureStep(
-          createTestEnemy('HORNED', true),
+          createTestEnemy('HOPPING', true),
           PALETTE,
           false,
           0.2,

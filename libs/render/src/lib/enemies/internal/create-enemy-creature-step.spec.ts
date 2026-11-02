@@ -165,14 +165,19 @@ describe('createEnemyCreatureStep', () => {
     );
   });
 
-  it('should add the same horns as a horned enemy when the enemy freezes', () => {
+  it('should add no horns when the enemy freezes', () => {
     const calls = drawRecorded(
       createEnemyCreatureStep(createTestEnemy('FREEZING'), PALETTE, false, 0.2),
     );
 
     expect(calls).toEqual(
       drawRecorded(
-        createEnemyCreatureStep(createTestEnemy('HORNED'), PALETTE, false, 0.2),
+        createEnemyCreatureStep(
+          createTestEnemy('HOPPING'),
+          PALETTE,
+          false,
+          0.2,
+        ),
       ),
     );
   });
