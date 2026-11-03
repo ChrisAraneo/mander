@@ -4,6 +4,7 @@ import {
   type Tile,
   TILE_AIR,
   TILE_DIRT,
+  TILE_SAND,
 } from '@mander/model';
 import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
@@ -11,17 +12,25 @@ import { describe, expect, it } from 'vitest';
 import { computeEnemyHorizontalMove } from './compute-enemy-horizontal-move';
 import type { EnemyStepIntent } from './types/enemy-step-intent';
 
-const LEGEND: Record<string, Tile> = { '.': TILE_AIR, '#': TILE_DIRT };
+const LEGEND: Record<string, Tile> = {
+  '.': TILE_AIR,
+  '#': TILE_DIRT,
+  s: TILE_SAND,
+};
+
+const createLevel = (rows: string[]): Level => ({
+  seed: 'SEED',
+  width: size(head(rows)),
+  height: size(rows),
+  tiles: map(rows, (row) => map(row, (symbol) => LEGEND[symbol])),
+  chestItems: [],
+});
 
 const ROWS = ['......', '......', '...#..', '######'];
 
-const LEVEL: Level = {
-  seed: 'SEED',
-  width: size(head(ROWS)),
-  height: size(ROWS),
-  tiles: map(ROWS, (row) => map(row, (symbol) => LEGEND[symbol])),
-  chestItems: [],
-};
+const LEVEL = createLevel(ROWS);
+
+const SAND_LEVEL = createLevel(['......', '......', '......', 'ssssss']);
 
 const createWalkingEnemy = (positionX: number): Enemy => ({
   kind: 'HOPPING',
@@ -72,5 +81,24 @@ describe('computeEnemyHorizontalMove', () => {
 
     expect(move.position).toBe(40);
     expect(move.isBlocked).toBe(false);
+  });
+
+  it('should move the enemy at 0.65 of its top speed when it walks on sand', () => {
+    const move = computeEnemyHorizontalMove({
+      ...createIntent(40, 1, 0.04),
+      level: SAND_LEVEL,
+    });
+
+    expect(move.position).toBeCloseTo(42.028, 6);
+    expect(move.isBlocked).toBe(false);
+  });
+
+  it('should move the enemy left at 0.65 of its top speed when it walks left on sand', () => {
+    const move = computeEnemyHorizontalMove({
+      ...createIntent(40, -1, 0.04),
+      level: SAND_LEVEL,
+    });
+
+    expect(move.position).toBeCloseTo(37.972, 6);
   });
 });

@@ -5,13 +5,19 @@ import {
   TILE_ICE,
   TILE_ICEBALL,
   TILE_PINKBALL,
+  TILE_SAND,
   TILE_STONE,
   TILE_WOOD,
 } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
 import type { Palette } from '../../types/palette';
-import { ICE_COLOUR, ICEBALL_COLOUR, PINKBALL_COLOUR } from '../consts';
+import {
+  ICE_COLOUR,
+  ICEBALL_COLOUR,
+  PINKBALL_COLOUR,
+  SAND_COLOUR,
+} from '../consts';
 import { getPaletteMaterial } from './get-palette-material';
 
 const PLAIN: Palette = {
@@ -51,6 +57,11 @@ describe('getPaletteMaterial', () => {
   it('should hand back the blossom colour when the tile is a pink ball block, whatever the level rolled', () => {
     expect(getPaletteMaterial(TILE_PINKBALL, ROLLED)).toBe(PINKBALL_COLOUR);
     expect(getPaletteMaterial(TILE_PINKBALL, PLAIN)).toBe(PINKBALL_COLOUR);
+  });
+
+  it('should give the sand colour when the tile is sand, whatever colours the level rolled', () => {
+    expect(getPaletteMaterial(TILE_SAND, ROLLED)).toBe(SAND_COLOUR);
+    expect(getPaletteMaterial(TILE_SAND, PLAIN)).toBe(SAND_COLOUR);
   });
 
   it('should hand back no colour when the tile grows out of the ground', () => {

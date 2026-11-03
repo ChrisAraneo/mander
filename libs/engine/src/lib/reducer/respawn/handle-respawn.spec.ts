@@ -64,7 +64,7 @@ const patchRespawnState = (initial: GameState): GameState => ({
   cannonballs: [
     {
       position: { x: 100, y: 64 },
-      velocity: { x: { current: 5, max: 5 } },
+      velocity: { x: { current: 5, max: 5 }, y: { current: 0, max: 5 } },
     },
   ],
   fallingSpikes: [],

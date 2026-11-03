@@ -4,6 +4,9 @@ import { describe, expect, it } from 'vitest';
 import { createHeldCannonShot } from './create-held-cannon-shot';
 
 const CANNON: Cannon = {
+  kind: 'REGULAR',
+  barrelAngle: 0,
+  roundIndex: 0,
   position: { x: 320, y: 64 },
   timers: { reload: 0 },
   statuses: { isFacingRight: true },

@@ -32,9 +32,19 @@ const LEVEL = createLevel(ROWS);
 
 const LEVEL_RIGHT_EDGE = size(head(ROWS)) * TILE_SIZE;
 
+const LEVEL_BOTTOM_EDGE = size(ROWS) * TILE_SIZE;
+
 const createCannonball = (left: number): Cannonball => ({
   position: { x: left, y: TILE_SIZE },
-  velocity: { x: { current: CANNONBALL_SPEED, max: CANNONBALL_SPEED } },
+  velocity: {
+    x: { current: CANNONBALL_SPEED, max: CANNONBALL_SPEED },
+    y: { current: 0, max: CANNONBALL_SPEED },
+  },
+});
+
+const createCannonballAtHeight = (top: number): Cannonball => ({
+  ...createCannonball(100),
+  position: { x: 100, y: top },
 });
 
 describe('isCannonballOutOfLevel', () => {
@@ -69,6 +79,42 @@ describe('isCannonballOutOfLevel', () => {
     const isOut = isCannonballOutOfLevel(
       LEVEL,
       createCannonball(LEVEL_RIGHT_EDGE),
+    );
+
+    expect(isOut).toBe(false);
+  });
+
+  it('should say yes when the cannonball has fully left past the top of the level', () => {
+    const isOut = isCannonballOutOfLevel(
+      LEVEL,
+      createCannonballAtHeight(-CANNONBALL_SIZE - 0.5),
+    );
+
+    expect(isOut).toBe(true);
+  });
+
+  it('should say no when the bottom of the cannonball touches the top of the level', () => {
+    const isOut = isCannonballOutOfLevel(
+      LEVEL,
+      createCannonballAtHeight(-CANNONBALL_SIZE),
+    );
+
+    expect(isOut).toBe(false);
+  });
+
+  it('should say yes when the cannonball has passed the bottom of the level', () => {
+    const isOut = isCannonballOutOfLevel(
+      LEVEL,
+      createCannonballAtHeight(LEVEL_BOTTOM_EDGE + 0.5),
+    );
+
+    expect(isOut).toBe(true);
+  });
+
+  it('should say no when the cannonball sits exactly on the bottom of the level', () => {
+    const isOut = isCannonballOutOfLevel(
+      LEVEL,
+      createCannonballAtHeight(LEVEL_BOTTOM_EDGE),
     );
 
     expect(isOut).toBe(false);

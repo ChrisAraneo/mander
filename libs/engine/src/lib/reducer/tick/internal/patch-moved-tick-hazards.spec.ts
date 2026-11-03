@@ -54,7 +54,7 @@ const DELTA_SECONDS = 0.02;
 
 const createCannonball = (): Cannonball => ({
   position: { x: 100, y: 10 },
-  velocity: { x: { current: 200, max: 200 } },
+  velocity: { x: { current: 200, max: 200 }, y: { current: 0, max: 200 } },
 });
 
 const createBullet = (): Bullet => ({

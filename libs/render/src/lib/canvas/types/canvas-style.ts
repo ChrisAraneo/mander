@@ -1,6 +1,12 @@
 export type CanvasStyle = Partial<
   Pick<
     CanvasRenderingContext2D,
-    'fillStyle' | 'globalAlpha' | 'lineJoin' | 'lineWidth' | 'strokeStyle'
+    | 'fillStyle'
+    | 'globalAlpha'
+    | 'globalCompositeOperation'
+    | 'imageSmoothingEnabled'
+    | 'lineJoin'
+    | 'lineWidth'
+    | 'strokeStyle'
   >
 >;

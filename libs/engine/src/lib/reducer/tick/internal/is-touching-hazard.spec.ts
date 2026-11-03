@@ -73,7 +73,7 @@ const createEnemyOnPlayer = (death: number | null): Enemy => ({
 
 const CANNONBALL: Cannonball = {
   position: { x: 0, y: 0 },
-  velocity: { x: { current: 0, max: 0 } },
+  velocity: { x: { current: 0, max: 0 }, y: { current: 0, max: 0 } },
 };
 
 describe('isTouchingHazard', () => {

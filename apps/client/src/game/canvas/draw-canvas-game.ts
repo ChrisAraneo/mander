@@ -30,6 +30,7 @@ export const drawCanvasGame = (
           patchViewport(element),
           focus,
           ghosts,
+          cell.lighting.value,
         ),
     )
     .otherwise(noop);

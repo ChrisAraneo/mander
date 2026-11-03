@@ -5,13 +5,16 @@ import {
   TILE_AIR,
   TILE_DIRT,
   TILE_ICE,
+  TILE_SAND,
   TILE_SIZE,
 } from '@mander/model';
 import { head, map, reduce, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
+import { SAND_MOVE_FACTOR } from '../../sand/consts';
 import {
   ACCELERATION_SECONDS,
+  COLD_MOVE_FACTOR,
   ICE_ACCELERATION_SECONDS,
   PLAYER_HEIGHT,
   PLAYER_MAX_JUMP_VELOCITY,
@@ -23,9 +26,10 @@ const LEGEND: Record<string, Tile> = {
   '.': TILE_AIR,
   '#': TILE_DIRT,
   '~': TILE_ICE,
+  s: TILE_SAND,
 };
 
-const ROWS = ['....', '....', '##~~'];
+const ROWS = ['......', '......', '##~~ss'];
 
 const LEVEL: Level = {
   seed: 'SEED',
@@ -42,6 +46,10 @@ const TICK = 1 / 60;
 const DIRT_X = 0;
 
 const ICE_X = 2 * TILE_SIZE;
+
+const SAND_X = 4 * TILE_SIZE;
+
+const SAND_VELOCITY = PLAYER_MAX_MOVE_VELOCITY * SAND_MOVE_FACTOR;
 
 const toStep = (seconds: number): number =>
   (PLAYER_MAX_MOVE_VELOCITY / seconds) * TICK;
@@ -170,5 +178,67 @@ describe('computePlayerVelocityX', () => {
     expect(
       slide(ICE_X, -1, 2 * ICE_ACCELERATION_SECONDS, PLAYER_MAX_MOVE_VELOCITY),
     ).toBe(-PLAYER_MAX_MOVE_VELOCITY);
+  });
+
+  it('should bring the player up to 0.65 of full speed when they hold the key on sand', () => {
+    expect(slide(SAND_X, 1, ACCELERATION_SECONDS, 0)).toBeCloseTo(
+      SAND_VELOCITY,
+      10,
+    );
+  });
+
+  it('should slow the player to 0.65 of full speed when they run onto sand at full speed', () => {
+    expect(
+      slide(SAND_X, 1, ACCELERATION_SECONDS, PLAYER_MAX_MOVE_VELOCITY),
+    ).toBeCloseTo(SAND_VELOCITY, 10);
+  });
+
+  it('should move the player left at 0.65 of full speed when they hold the left key on sand', () => {
+    expect(slide(SAND_X, -1, ACCELERATION_SECONDS, 0)).toBeCloseTo(
+      -SAND_VELOCITY,
+      10,
+    );
+  });
+
+  it('should bring the player to a standstill when they let go of the key on sand', () => {
+    expect(slide(SAND_X, 0, ACCELERATION_SECONDS, SAND_VELOCITY)).toBe(0);
+  });
+
+  it('should keep the player at full speed when they are in the air above sand', () => {
+    expect(
+      computePlayerVelocityX(
+        LEVEL,
+        {
+          ...createPlayer(SAND_X, PLAYER_MAX_MOVE_VELOCITY),
+          statuses: {
+            isFacingRight: true,
+            isGrounded: false,
+            isJumpQueued: false,
+          },
+        },
+        1,
+        TICK,
+      ),
+    ).toBe(PLAYER_MAX_MOVE_VELOCITY);
+  });
+
+  it('should slow a cold player further when they walk on sand', () => {
+    expect(
+      computePlayerVelocityX(
+        LEVEL,
+        {
+          ...createPlayer(
+            SAND_X,
+            PLAYER_MAX_MOVE_VELOCITY * COLD_MOVE_FACTOR * SAND_MOVE_FACTOR,
+          ),
+          timers: { death: null, invincibility: 0, star: 0, hurt: 0, cold: 1 },
+        },
+        1,
+        TICK,
+      ),
+    ).toBeCloseTo(
+      PLAYER_MAX_MOVE_VELOCITY * COLD_MOVE_FACTOR * SAND_MOVE_FACTOR,
+      10,
+    );
   });
 });

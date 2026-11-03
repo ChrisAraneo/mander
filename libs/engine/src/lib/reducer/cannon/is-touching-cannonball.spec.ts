@@ -37,7 +37,10 @@ const PLAYER: Player = {
 
 const createCannonballAt = (left: number, top: number): Cannonball => ({
   position: { x: left, y: top },
-  velocity: { x: { current: CANNONBALL_SPEED, max: CANNONBALL_SPEED } },
+  velocity: {
+    x: { current: CANNONBALL_SPEED, max: CANNONBALL_SPEED },
+    y: { current: 0, max: CANNONBALL_SPEED },
+  },
 });
 
 describe('isTouchingCannonball', () => {

@@ -84,6 +84,18 @@ export const ICEBALL_STYLE: Readonly<MaterialStyle> = Object.freeze({
   highlight: ICE_HIGHLIGHT,
 });
 
+export const SAND_JOINT = 'RGBA(138, 98, 42, 0.42)';
+
+export const SAND_COLOUR = 'HSL(43, 66%, 67%)';
+
+export const SAND_STYLE: Readonly<MaterialStyle> = Object.freeze({
+  base: '#E2C373',
+  cap: '#E8D091',
+  capHighlight: '#EFDCAF',
+  joint: SAND_JOINT,
+  highlight: HIGHLIGHT,
+});
+
 export const PINKBALL_COLOUR = 'HSL(323, 24%, 22%)';
 
 export const PINKBALL_STYLE: Readonly<MaterialStyle> = Object.freeze({

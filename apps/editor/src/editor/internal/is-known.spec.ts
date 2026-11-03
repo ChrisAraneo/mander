@@ -1,8 +1,10 @@
 import {
   TILE_AIR,
   TILE_BRICK,
+  TILE_CANNON_TRIPLE,
   TILE_ENEMY,
   TILE_ENEMY_FREEZING,
+  TILE_SAND,
 } from '@mander/model';
 import { STRUCTURE_START } from '@mander/structures';
 import { describe, expect, it } from 'vitest';
@@ -21,6 +23,14 @@ describe('isKnown', () => {
 
   it('should accept the cell when it is a block', () => {
     expect(isKnown(TILE_BRICK)).toBe(true);
+  });
+
+  it('should turn the cell away when it is a triple cannon', () => {
+    expect(isKnown(TILE_CANNON_TRIPLE)).toBe(false);
+  });
+
+  it('should turn the cell away when it is sand', () => {
+    expect(isKnown(TILE_SAND)).toBe(false);
   });
 
   it('should turn the cell away when the game does not know it', () => {

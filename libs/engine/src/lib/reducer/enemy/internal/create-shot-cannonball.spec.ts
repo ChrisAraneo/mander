@@ -69,6 +69,15 @@ describe('createShotCannonball', () => {
     });
   });
 
+  it('should send the cannonball on a level line when the shooter fires', () => {
+    const cannonball = createShotCannonball(SHOOTER, createPlayerAt(600));
+
+    expect(cannonball.velocity.y).toEqual({
+      current: 0,
+      max: CANNONBALL_SPEED,
+    });
+  });
+
   it('should send the cannonball left at cannonball speed when the player stands to the left', () => {
     const cannonball = createShotCannonball(SHOOTER, createPlayerAt(100));
 

@@ -13,4 +13,8 @@ describe('createCanvasCell', () => {
   it('should hold no drawing context when the cell is new', () => {
     expect(createCanvasCell(ref(null)).context.value).toBeNull();
   });
+
+  it('should hold no lighting when the cell is new', () => {
+    expect(createCanvasCell(ref(null)).lighting.value).toBeUndefined();
+  });
 });

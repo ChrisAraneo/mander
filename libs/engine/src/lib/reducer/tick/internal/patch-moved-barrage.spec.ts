@@ -44,6 +44,9 @@ const LEVEL = createLevel([
 ]);
 
 const createCannon = (reload: number): Cannon => ({
+  kind: 'REGULAR',
+  barrelAngle: 0,
+  roundIndex: 0,
   position: { x: 320, y: 64 },
   timers: { reload },
   statuses: { isFacingRight: false },
@@ -51,7 +54,10 @@ const createCannon = (reload: number): Cannon => ({
 
 const createCannonball = (left: number): Cannonball => ({
   position: { x: left, y: 10 },
-  velocity: { x: { current: CANNONBALL_SPEED, max: CANNONBALL_SPEED } },
+  velocity: {
+    x: { current: CANNONBALL_SPEED, max: CANNONBALL_SPEED },
+    y: { current: 0, max: CANNONBALL_SPEED },
+  },
 });
 
 const createState = (
@@ -105,6 +111,9 @@ describe('patchMovedBarrage', () => {
 
     expect(barrage.cannons).toEqual([
       {
+        kind: 'REGULAR',
+        barrelAngle: 0,
+        roundIndex: 0,
         position: { x: 320, y: 64 },
         timers: { reload: CANNON_RELOAD_SECONDS },
         statuses: { isFacingRight: true },
@@ -114,7 +123,10 @@ describe('patchMovedBarrage', () => {
     expect(barrage.cannonballs[0].position.x).toBeCloseTo(104.4, 6);
     expect(barrage.cannonballs[1]).toEqual({
       position: { x: 330, y: 74 },
-      velocity: { x: { current: CANNONBALL_SPEED, max: CANNONBALL_SPEED } },
+      velocity: {
+        x: { current: CANNONBALL_SPEED, max: CANNONBALL_SPEED },
+        y: { current: 0, max: CANNONBALL_SPEED },
+      },
     });
   });
 

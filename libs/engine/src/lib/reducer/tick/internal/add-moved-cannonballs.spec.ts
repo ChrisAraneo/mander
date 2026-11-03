@@ -42,6 +42,9 @@ const LEVEL = createLevel([
 ]);
 
 const CANNON: Cannon = {
+  kind: 'REGULAR',
+  barrelAngle: 0,
+  roundIndex: 0,
   position: { x: 320, y: 64 },
   timers: { reload: 10 },
   statuses: { isFacingRight: false },
@@ -49,7 +52,10 @@ const CANNON: Cannon = {
 
 const createCannonball = (left: number): Cannonball => ({
   position: { x: left, y: 10 },
-  velocity: { x: { current: CANNONBALL_SPEED, max: CANNONBALL_SPEED } },
+  velocity: {
+    x: { current: CANNONBALL_SPEED, max: CANNONBALL_SPEED },
+    y: { current: 0, max: CANNONBALL_SPEED },
+  },
 });
 
 const createState = (cannonballs: Cannonball[]): GameState => ({

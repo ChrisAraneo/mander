@@ -6,7 +6,7 @@ import { computeCannonballHitbox } from './compute-cannonball-hitbox';
 
 const createFlyingCannonball = (): Cannonball => ({
   position: { x: 100, y: 200 },
-  velocity: { x: { current: 220, max: 220 } },
+  velocity: { x: { current: 220, max: 220 }, y: { current: 0, max: 220 } },
 });
 
 describe('computeCannonballHitbox', () => {

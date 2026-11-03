@@ -1,8 +1,10 @@
 import {
+  type Cannonball,
   type Item,
   type Tile,
   TILE_AIR,
   TILE_CANNON,
+  TILE_CANNON_TRIPLE,
   TILE_CHEST,
   TILE_DIRT,
   TILE_KEY,
@@ -14,10 +16,13 @@ import {
 import {
   ceil,
   constant,
+  every,
   filter,
   head,
   isEmpty,
   map,
+  min,
+  range,
   reduce,
   size,
   times,
@@ -34,6 +39,7 @@ import {
   CANNON_RELOAD_SECONDS,
   CANNONBALL_SIZE,
   CANNONBALL_SPEED,
+  TRIPLE_CANNON_SHOT_GAP_SECONDS,
 } from './cannon/consts';
 import { HORNED_ENEMY_CHANCE } from './enemy/consts';
 import { nextGameState } from './next-game-state';
@@ -163,6 +169,39 @@ const createStandingState = (level: GameLevel, left: number): GameState =>
 const createCannonState = (left = 6 * TILE_SIZE): GameState =>
   createStandingState(createCannonLevel(), left);
 
+const patchTripleCannonTile = (level: GameLevel): GameLevel => ({
+  ...level,
+  tiles: map(level.tiles, (row) =>
+    map(row, (tile) =>
+      match(tile)
+        .with(TILE_CANNON, () => TILE_CANNON_TRIPLE)
+        .otherwise(() => tile),
+    ),
+  ),
+});
+
+const createTripleCannonState = (): GameState =>
+  createStandingState(
+    patchTripleCannonTile(createCannonLevel()),
+    CANNON_X + 15 * TILE_SIZE,
+  );
+
+const computeDegrees = (radians: number): number =>
+  Math.round((radians * 180) / Math.PI);
+
+const computeShotDegrees = ({ velocity }: Cannonball): number =>
+  computeDegrees(Math.atan2(velocity.y.current, Math.abs(velocity.x.current)));
+
+const computeFiringTicks = (start: GameState, states: GameState[]): number[] =>
+  pipe([start, ...states], (previous) =>
+    filter(
+      range(size(states)),
+      (tick) =>
+        states[tick].cannons[0].roundIndex !==
+        previous[tick].cannons[0].roundIndex,
+    ),
+  );
+
 const patchOutfieldColumns = (level: GameLevel): GameLevel => ({
   ...level,
   width: level.width + OUTFIELD,
@@ -186,8 +225,10 @@ const createStateAtRange = (tileCount: number): GameState =>
   );
 
 const nextTicksUntilFired = (start: GameState): GameState =>
-  nextTicksWhile(start, computeTickCount(CANNON_RELOAD_SECONDS), (state) =>
-    isEmpty(state.cannonballs),
+  nextTicksWhile(
+    start,
+    computeTickCount(CANNON_RELOAD_SECONDS * 1.5),
+    (state) => isEmpty(state.cannonballs),
   );
 
 const nextTicksUntilStruck = (start: GameState): GameState =>
@@ -403,6 +444,7 @@ describe('cannons', () => {
           },
           velocity: {
             x: { current: -CANNONBALL_SPEED, max: CANNONBALL_SPEED },
+            y: { current: 0, max: CANNONBALL_SPEED },
           },
         },
       ],
@@ -422,6 +464,7 @@ describe('cannons', () => {
           position: { x: 0, y: SURFACE - CANNONBALL_SIZE },
           velocity: {
             x: { current: -CANNONBALL_SPEED, max: CANNONBALL_SPEED },
+            y: { current: 0, max: CANNONBALL_SPEED },
           },
         },
       ],
@@ -429,6 +472,150 @@ describe('cannons', () => {
     const swept = nextTicks(launched, computeTickCount(0.2));
 
     expect(swept.cannonballs).toEqual([]);
+  });
+
+  it('should shoot a single cannonball when a triple cannon has just loaded', () => {
+    expect(
+      nextTicksUntilFired(createTripleCannonState()).cannonballs,
+    ).toHaveLength(1);
+  });
+
+  it('should hold the next shot back for the gap when a triple cannon has just fired', () => {
+    const fired = nextTicksUntilFired(createTripleCannonState());
+
+    expect(
+      nextTicks(fired, computeTickCount(TRIPLE_CANNON_SHOT_GAP_SECONDS - 0.1))
+        .cannonballs,
+    ).toHaveLength(1);
+    expect(
+      nextTicks(fired, computeTickCount(TRIPLE_CANNON_SHOT_GAP_SECONDS))
+        .cannonballs,
+    ).toHaveLength(2);
+  });
+
+  it('should shoot upwards, then level, then downwards when a triple cannon has fired all three', () => {
+    const fired = nextTicks(
+      nextTicksUntilFired(createTripleCannonState()),
+      computeTickCount(TRIPLE_CANNON_SHOT_GAP_SECONDS * 2),
+    );
+
+    expect(map(fired.cannonballs, computeShotDegrees)).toEqual([-20, 0, 20]);
+  });
+
+  it('should take one and a half times as long to shoot when the cannon is triple', () => {
+    const start = createTripleCannonState();
+    const ticksBeforeLastReload = computeTickCount(CANNON_RELOAD_SECONDS * 1.4);
+    const ticksPastLastReload = computeTickCount(CANNON_RELOAD_SECONDS * 1.5);
+
+    expect(nextTicks(start, ticksBeforeLastReload).cannonballs).toEqual([]);
+    expect(nextTicks(start, ticksPastLastReload).cannonballs).toHaveLength(1);
+  });
+
+  it('should come round to its first shot again one and a half reloads later when the cannon is triple', () => {
+    const start = createTripleCannonState();
+    const states = nextTickStates(start, computeTickCount(11));
+    const ticks = computeFiringTicks(start, states);
+
+    expect(size(ticks)).toBeGreaterThanOrEqual(4);
+    expect((ticks[3] - ticks[0]) * DELTA_SECONDS).toBeCloseTo(
+      CANNON_RELOAD_SECONDS * 1.5,
+      1,
+    );
+  });
+
+  it('should point the barrel along each shot when a triple cannon fires', () => {
+    const start = createTripleCannonState();
+    const states = nextTickStates(start, computeTickCount(7));
+    const ticks = computeFiringTicks(start, states);
+
+    expect(
+      map(ticks, (tick) => computeDegrees(states[tick].cannons[0].barrelAngle)),
+    ).toEqual([-20, 0, 20]);
+  });
+
+  it('should move the barrel before every shot when a triple cannon fires', () => {
+    const start = createTripleCannonState();
+    const states = nextTickStates(start, computeTickCount(7));
+    const ticks = computeFiringTicks(start, states);
+    const turns = map(ticks, (tick) =>
+      Math.abs(
+        states[tick].cannons[0].barrelAngle -
+          states[tick - computeTickCount(0.5)].cannons[0].barrelAngle,
+      ),
+    );
+
+    expect(size(turns)).toBe(3);
+    expect(min(turns)).toBeGreaterThan(0.2);
+  });
+
+  it('should swing the barrel back to level when a triple cannon has fired its third shot', () => {
+    const fired = nextTicks(
+      nextTicksUntilFired(createTripleCannonState()),
+      computeTickCount(TRIPLE_CANNON_SHOT_GAP_SECONDS * 2 + 1),
+    );
+
+    expect(fired.cannons[0].barrelAngle).toBe(0);
+  });
+
+  it('should never move the barrel when the cannon is regular', () => {
+    const states = nextTickStates(
+      createCannonState(),
+      computeTickCount(CANNON_RELOAD_SECONDS * 2),
+    );
+
+    expect(every(states, (state) => state.cannons[0].barrelAngle === 0)).toBe(
+      true,
+    );
+  });
+
+  it('should climb as it flies when the first ball of a triple cannon has fired', () => {
+    const fired = nextTicksUntilFired(createTripleCannonState());
+    const flown = nextTicks(fired, computeTickCount(0.1));
+
+    expect(flown.cannonballs[0].position.y).toBeLessThan(
+      fired.cannonballs[0].position.y,
+    );
+  });
+
+  it('should hurt the player when an angled ball of the triple shot reaches them', () => {
+    const start = createTripleCannonState();
+    const aimed = {
+      ...start,
+      cannonballs: [
+        {
+          position: {
+            x: start.player.position.x,
+            y: start.player.position.y - 20,
+          },
+          velocity: {
+            x: { current: 0, max: CANNONBALL_SPEED },
+            y: { current: CANNONBALL_SPEED, max: CANNONBALL_SPEED },
+          },
+        },
+      ],
+    };
+
+    const struck = nextTicksUntilStruck(aimed);
+
+    expect(struck.player.hearts.value).toBe(start.player.hearts.value - 1);
+  });
+
+  it('should be swept away when an angled cannonball flies off the top of the level', () => {
+    const start = createCannonState();
+    const launched = {
+      ...start,
+      cannonballs: [
+        {
+          position: { x: 10 * TILE_SIZE, y: 0 },
+          velocity: {
+            x: { current: 0, max: CANNONBALL_SPEED },
+            y: { current: -CANNONBALL_SPEED, max: CANNONBALL_SPEED },
+          },
+        },
+      ],
+    };
+
+    expect(nextTicks(launched, computeTickCount(0.2)).cannonballs).toEqual([]);
   });
 
   it('should reload every cannon and clear the air when the player respawns', () => {

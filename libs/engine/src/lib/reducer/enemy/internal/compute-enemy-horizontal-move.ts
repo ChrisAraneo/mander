@@ -1,6 +1,7 @@
 import { computeHorizontalMove } from '../../collision/compute-horizontal-move';
 import type { AxisMove } from '../../collision/types/axis-move';
 import { ENEMY_HEIGHT, ENEMY_WIDTH } from '../consts';
+import { computeEnemyWalkSpeed } from './compute-enemy-walk-speed';
 import type { EnemyStepIntent } from './types/enemy-step-intent';
 
 export const computeEnemyHorizontalMove = ({
@@ -15,5 +16,5 @@ export const computeEnemyHorizontalMove = ({
     enemy.position.y,
     ENEMY_WIDTH,
     ENEMY_HEIGHT,
-    facing * enemy.velocity.x.max * deltaSeconds,
+    facing * computeEnemyWalkSpeed(level, enemy) * deltaSeconds,
   );

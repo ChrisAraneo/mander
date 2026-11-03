@@ -1,4 +1,5 @@
 import { type Cannon } from '@mander/model';
+import { createRotateStep } from '../canvas/create-rotate-step';
 import { createScaleStep } from '../canvas/create-scale-step';
 import { createSequenceStep } from '../canvas/create-sequence-step';
 import { createTranslateStep } from '../canvas/create-translate-step';
@@ -24,6 +25,7 @@ export const createCannonStep = (cannon: Cannon): CanvasStep =>
     drawCannonMount,
     drawCannonRivets,
     createScaleStep(computeFacing(cannon.statuses.isFacingRight), 1),
+    createRotateStep(cannon.barrelAngle),
     drawCannonBarrel,
     drawCannonTrunnion,
     createCannonChargeStep(computeCannonCharge(cannon)),

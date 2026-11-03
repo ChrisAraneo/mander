@@ -7,6 +7,9 @@ import type { Salvo } from '../../enemy/types/salvo';
 import { addSalvoCannonballs } from './add-salvo-cannonballs';
 
 const CANNON: Cannon = {
+  kind: 'REGULAR',
+  barrelAngle: 0,
+  roundIndex: 0,
   position: { x: 320, y: 64 },
   timers: { reload: 2 },
   statuses: { isFacingRight: true },
@@ -14,7 +17,10 @@ const CANNON: Cannon = {
 
 const createCannonball = (left: number): Cannonball => ({
   position: { x: left, y: 10 },
-  velocity: { x: { current: CANNONBALL_SPEED, max: CANNONBALL_SPEED } },
+  velocity: {
+    x: { current: CANNONBALL_SPEED, max: CANNONBALL_SPEED },
+    y: { current: 0, max: CANNONBALL_SPEED },
+  },
 });
 
 const createBarrage = (cannonballs: Cannonball[]): Barrage => ({

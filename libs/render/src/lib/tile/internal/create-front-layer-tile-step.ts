@@ -2,7 +2,7 @@ import {
   type Level,
   isSpikeTile,
   isSolidTile,
-  TILE_CANNON,
+  isCannonTile,
 } from '@mander/model';
 import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
@@ -24,7 +24,7 @@ export const createFrontLayerTileStep = (
       tile,
       isSpike: isSpikeTile(tile),
       isSolid: isSolidTile(tile),
-      isCannon: tile === TILE_CANNON,
+      isCannon: isCannonTile(tile),
     }),
     ({ tile, isSpike, isSolid, isCannon }) =>
       match({ isSpike, isSolid, isCannon })

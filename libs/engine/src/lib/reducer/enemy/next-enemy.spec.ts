@@ -7,6 +7,7 @@ import {
   TILE_AIR,
   TILE_DIRT,
   TILE_ENEMY,
+  TILE_SAND,
 } from '@mander/model';
 import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
@@ -14,6 +15,7 @@ import { describe, expect, it } from 'vitest';
 import type { GameLevel } from '../../types/game-level';
 import { PLAYER_HEIGHT } from '../player/consts';
 import { createPlayer } from '../player/create-player';
+import { SAND_MOVE_FACTOR } from '../sand/consts';
 import {
   ENEMY_DEATH_SECONDS,
   ENEMY_JUMP_VELOCITY,
@@ -28,6 +30,7 @@ const LEGEND: Record<string, Tile> = {
   '.': TILE_AIR,
   '#': TILE_DIRT,
   e: TILE_ENEMY,
+  s: TILE_SAND,
 };
 
 const createLevel = (rows: string[]): GameLevel => ({
@@ -52,6 +55,13 @@ const FLAT_LEVEL = createLevel([
 const WALL_LEVEL = createLevel(['......', '......', '...e#.', '######']);
 
 const LEDGE_LEVEL = createLevel(['......', '......', '.e....', '##....']);
+
+const SAND_LEVEL = createLevel([
+  '..........',
+  '..........',
+  '....e.....',
+  'ssssssssss',
+]);
 
 const createEnemyIn = (
   level: GameLevel,
@@ -87,6 +97,32 @@ describe('nextEnemy', () => {
       isFacingRight: true,
       isGrounded: true,
     });
+  });
+
+  it('should walk at 0.65 of its own speed when it stands on sand', () => {
+    const enemy = createEnemyIn(SAND_LEVEL, 133, 74, true);
+
+    const stepped = nextEnemy(SAND_LEVEL, enemy, FAR_PLAYER, DELTA_SECONDS);
+
+    expect(stepped.position.x).toBeCloseTo(
+      133 + ENEMY_MOVE_SPEED * SAND_MOVE_FACTOR * DELTA_SECONDS,
+      6,
+    );
+    expect(stepped.velocity.x.current).toBe(
+      ENEMY_MOVE_SPEED * SAND_MOVE_FACTOR,
+    );
+    expect(stepped.velocity.x.max).toBe(ENEMY_MOVE_SPEED);
+  });
+
+  it('should move at its own speed when it is in the air above sand', () => {
+    const enemy = createEnemyIn(SAND_LEVEL, 133, 40, false);
+
+    const stepped = nextEnemy(SAND_LEVEL, enemy, FAR_PLAYER, DELTA_SECONDS);
+
+    expect(stepped.position.x).toBeCloseTo(
+      133 + ENEMY_MOVE_SPEED * DELTA_SECONDS,
+      6,
+    );
   });
 
   it('should turn to face left when it walks into a wall', () => {

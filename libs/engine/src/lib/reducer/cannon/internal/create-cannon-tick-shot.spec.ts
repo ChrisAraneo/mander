@@ -39,6 +39,9 @@ const createPlayerAt = (left: number): Player => ({
 });
 
 const createCannon = (reload: number): Cannon => ({
+  kind: 'REGULAR',
+  barrelAngle: 0,
+  roundIndex: 0,
   position: { x: 320, y: 64 },
   timers: { reload },
   statuses: { isFacingRight: true },
@@ -69,10 +72,30 @@ describe('createCannonTickShot', () => {
 
     const shot = createCannonTickShot(cannon, createPlayerAt(400), 0.02);
 
-    expect(shot.cannonball).toEqual(createFiredCannonball(cannon));
+    expect(shot.cannonball).toEqual(createFiredCannonball(cannon, 0));
     expect(shot.cannon.timers.reload).toBeCloseTo(
       0.01 - 0.02 + CANNON_RELOAD_SECONDS,
       6,
     );
+  });
+
+  it('should turn the barrel towards the next round when the player is in range and the shot is close', () => {
+    const cannon: Cannon = { ...createCannon(0.5), kind: 'TRIPLE' };
+
+    const shot = createCannonTickShot(cannon, createPlayerAt(400), 0.02);
+
+    expect(shot.cannon.barrelAngle).toBeLessThan(0);
+  });
+
+  it('should hold the barrel where it is when the player is out of range', () => {
+    const cannon: Cannon = {
+      ...createCannon(0.5),
+      kind: 'TRIPLE',
+      barrelAngle: -0.1,
+    };
+
+    const shot = createCannonTickShot(cannon, createPlayerAt(1100), 0.02);
+
+    expect(shot.cannon.barrelAngle).toBe(-0.1);
   });
 });

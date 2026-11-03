@@ -7,6 +7,7 @@ import {
   TILE_ICE,
   TILE_ICEBALL,
   TILE_PINKBALL,
+  TILE_SAND,
   TILE_STONE,
   TILE_WOOD,
 } from '@mander/model';
@@ -21,6 +22,7 @@ import {
   ICE_STYLE,
   ICEBALL_STYLE,
   PINKBALL_STYLE,
+  SAND_STYLE,
   STONE_STYLE,
   WOOD_STYLE,
 } from './consts';
@@ -261,6 +263,30 @@ describe('createMaterialStep', () => {
       'arc(16, 48, 4, 0, 6.2832)',
       'fill()',
       'restore()',
+    ]);
+  });
+
+  it('should draw the ripples and the light grains when the tile is sand', () => {
+    const calls = drawRecorded(createMaterialStep(TILE_SAND, 0, 0, SAND_STYLE));
+
+    expect(calls).toEqual([
+      'set fillStyle(RGBA(138, 98, 42, 0.42))',
+      'fillRect(18, 4, 8, 1)',
+      'fillRect(26, 3, 4, 1)',
+      'fillRect(3, 11, 7, 1)',
+      'fillRect(10, 10, 6, 1)',
+      'fillRect(16, 11, 5, 1)',
+      'fillRect(13, 19, 8, 1)',
+      'fillRect(21, 18, 6, 1)',
+      'fillRect(27, 19, 3, 1)',
+      'fillRect(2, 26, 6, 1)',
+      'fillRect(8, 25, 7, 1)',
+      'fillRect(15, 26, 4, 1)',
+      'set fillStyle(RGBA(255, 255, 255, 0.16))',
+      'fillRect(5, 15, 3, 2)',
+      'fillRect(24, 12, 3, 2)',
+      'fillRect(22, 24, 3, 2)',
+      'fillRect(4, 21, 2, 1)',
     ]);
   });
 

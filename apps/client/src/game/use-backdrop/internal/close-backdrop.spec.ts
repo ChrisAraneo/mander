@@ -29,6 +29,7 @@ const CONTEXT = { kind: 'CONTEXT' } as unknown as CanvasRenderingContext2D;
 
 const CANVAS = {
   getContext: () => CONTEXT,
+  ownerDocument: { createElement: () => ({ getContext: () => null }) },
 } as unknown as HTMLCanvasElement;
 
 const createBackdropFixture = (canvas: HTMLCanvasElement | null): Backdrop => ({

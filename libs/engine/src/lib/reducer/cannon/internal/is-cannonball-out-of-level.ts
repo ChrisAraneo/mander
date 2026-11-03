@@ -6,4 +6,6 @@ export const isCannonballOutOfLevel = (
   cannonball: Cannonball,
 ): boolean =>
   cannonball.position.x + CANNONBALL_SIZE < 0 ||
-  cannonball.position.x > level.width * TILE_SIZE;
+  cannonball.position.x > level.width * TILE_SIZE ||
+  cannonball.position.y + CANNONBALL_SIZE < 0 ||
+  cannonball.position.y > level.height * TILE_SIZE;

@@ -4,6 +4,9 @@ import { describe, expect, it } from 'vitest';
 import { computeCannonCharge } from './compute-cannon-charge';
 
 const createTestCannon = (reload: number): Cannon => ({
+  kind: 'REGULAR',
+  barrelAngle: 0,
+  roundIndex: 0,
   position: { x: 0, y: 0 },
   timers: { reload },
   statuses: { isFacingRight: true },

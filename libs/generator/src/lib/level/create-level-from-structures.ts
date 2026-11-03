@@ -10,6 +10,7 @@ import { addLevelPadding } from './internal/add-level-padding';
 import { createGameLevel } from './internal/create-game-level';
 import { createLevelLayers } from './internal/create-level-layers';
 import { patchSeasonalBlocks } from './internal/patch-seasonal-blocks';
+import { patchSeasonalCannons } from './internal/patch-seasonal-cannons';
 import { removeLevelTraps } from './internal/remove-level-traps';
 import { removeLevelWeapons } from './internal/remove-level-weapons';
 
@@ -29,6 +30,7 @@ export const createLevelFromStructures = (
     removeLevelTraps,
     addLevelFurniture,
     patchSeasonalBlocks,
+    patchSeasonalCannons,
     addLevelEnemies,
     createGameLevel,
   );

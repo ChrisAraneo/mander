@@ -4,7 +4,7 @@ import { tap } from 'lodash-es';
 import { pipe } from 'remeda';
 import { animationFrames } from 'rxjs';
 import { onMounted, onUnmounted, type Ref } from 'vue';
-import { createCanvasCell } from '../canvas';
+import { closeCanvas, createCanvasCell } from '../canvas';
 import { findGhostRuns, readSave, tryGetLocalStorage } from '../storage';
 import { finishReplay, type ReplaySession, useReplay } from '../use-replay';
 import { startArchiveReplay } from './internal/start-archive-replay';
@@ -38,5 +38,8 @@ export const useArchive = (
       ),
     (session) =>
       tap(session, () => onMounted(() => startArchiveReplay(session))),
-    (session) => tap(session, () => onUnmounted(() => finishReplay(session))),
+    (session) =>
+      tap(session, () =>
+        onUnmounted(() => closeCanvas(finishReplay(session).stage.cell)),
+      ),
   );

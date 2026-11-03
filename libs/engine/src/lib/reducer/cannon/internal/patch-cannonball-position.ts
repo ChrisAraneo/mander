@@ -6,7 +6,7 @@ export const patchCannonballPosition = (
 ): Cannonball => ({
   ...cannonball,
   position: {
-    ...cannonball.position,
     x: cannonball.position.x + cannonball.velocity.x.current * deltaSeconds,
+    y: cannonball.position.y + cannonball.velocity.y.current * deltaSeconds,
   },
 });

@@ -2,6 +2,18 @@ import { TILE_SIZE } from '@mander/model';
 
 export const CANNON_RELOAD_SECONDS = 3.5;
 
+export const CANNON_AIM_SECONDS = 0.7;
+
+export const CANNON_RESTING_ANGLE = 0;
+
+export const TRIPLE_CANNON_RELOAD_SECONDS = CANNON_RELOAD_SECONDS * 1.5;
+
+export const TRIPLE_CANNON_SHOT_GAP_SECONDS = CANNON_AIM_SECONDS;
+
+export const TRIPLE_CANNON_SPREAD_RADIANS = (20 * Math.PI) / 180;
+
+export const CANNON_BARREL_TURN_SPEED = TRIPLE_CANNON_SPREAD_RADIANS / 0.5;
+
 export const CANNON_RANGE_TILES = 20;
 
 export const CANNON_RANGE = CANNON_RANGE_TILES * TILE_SIZE;

@@ -24,6 +24,8 @@ import { HILL_LAYERS } from '../hill/consts';
 import { createHillLayerStep } from '../hill/create-hill-layer-step';
 import { createKeyStep } from '../key/create-key-step';
 import { findKeyRectangle } from '../key/find-key-rectangle';
+import { createLightingStep } from '../lighting/create-lighting-step';
+import type { LightingPass } from '../lighting/types/lighting-pass';
 import { createPlayerStep } from '../player/create-player-step';
 import { createPortalStep } from '../portal/create-portal-step';
 import { findPortalRectangle } from '../portal/find-portal-rectangle';
@@ -44,6 +46,7 @@ export const drawGame = (
   viewport: Viewport,
   focus: Focus = computePlayerFocus(state),
   ghosts: Ghost[] = [],
+  lighting?: LightingPass,
 ): void =>
   pipe(
     state.level,
@@ -102,5 +105,8 @@ export const drawGame = (
         ),
         createEachStep(state.bullets, createBulletStep),
         drawRestore,
+        createOptionalStep(lighting, (pass) =>
+          createLightingStep(pass, { state, viewport, cameraX, cameraY }),
+        ),
       ),
   );

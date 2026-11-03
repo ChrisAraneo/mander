@@ -51,7 +51,10 @@ const createFinishedState = (): GameState => ({
     { position: { x: 10, y: 20 }, velocity: { x: { current: 5, max: 5 } } },
   ],
   cannonballs: [
-    { position: { x: 30, y: 40 }, velocity: { x: { current: -2, max: 2 } } },
+    {
+      position: { x: 30, y: 40 },
+      velocity: { x: { current: -2, max: 2 }, y: { current: 0, max: 2 } },
+    },
   ],
   status: 'COMPLETE',
   hasKey: true,

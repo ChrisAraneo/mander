@@ -1,7 +1,7 @@
-import { TILE_CANNON } from '../blocks/tile-cannon';
-import { findTiles } from '../tile/find-tiles';
+import { findTileCells } from '../tile/find-tile-cells';
+import type { TileCell } from '../tile/types/tile-cell';
 import type { Level } from '../types/level';
-import type { Point } from '../types/point';
+import { isCannonTile } from './is-cannon-tile';
 
-export const findCannonTiles = (level: Level): Point[] =>
-  findTiles(level, TILE_CANNON);
+export const findCannonTiles = (level: Level): TileCell[] =>
+  findTileCells(level, isCannonTile);

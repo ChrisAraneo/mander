@@ -6,15 +6,43 @@ import { createCannonballStep } from './create-cannonball-step';
 
 const CANNONBALL_RIGHT: Cannonball = {
   position: { x: 200, y: 40 },
-  velocity: { x: { current: 220, max: 220 } },
+  velocity: { x: { current: 220, max: 220 }, y: { current: 0, max: 220 } },
 };
 
 const CANNONBALL_LEFT: Cannonball = {
   position: { x: 80, y: 60 },
-  velocity: { x: { current: -220, max: 220 } },
+  velocity: { x: { current: -220, max: 220 }, y: { current: 0, max: 220 } },
+};
+
+const CANNONBALL_CLIMBING_RIGHT: Cannonball = {
+  position: { x: 200, y: 40 },
+  velocity: { x: { current: 100, max: 220 }, y: { current: -100, max: 220 } },
+};
+
+const CANNONBALL_CLIMBING_LEFT: Cannonball = {
+  position: { x: 200, y: 40 },
+  velocity: { x: { current: -100, max: 220 }, y: { current: -100, max: 220 } },
 };
 
 describe('createCannonballStep', () => {
+  it('should tilt the trail back along the flight when the ball climbs to the right', () => {
+    const calls = drawRecorded(createCannonballStep(CANNONBALL_CLIMBING_RIGHT));
+
+    expect(calls).toContain('scale(1, 1)');
+    expect(calls).toContain(
+      'ellipse(-5.3033, 5.3033, 15, 3.2, -0.7854, 0, 6.2832)',
+    );
+  });
+
+  it('should tilt the mirrored trail back along the flight when the ball climbs to the left', () => {
+    const calls = drawRecorded(createCannonballStep(CANNONBALL_CLIMBING_LEFT));
+
+    expect(calls).toContain('scale(-1, 1)');
+    expect(calls).toContain(
+      'ellipse(-5.3033, 5.3033, 15, 3.2, -0.7854, 0, 6.2832)',
+    );
+  });
+
   it('should draw the ball with its trail behind it when it flies to the right', () => {
     const calls = drawRecorded(createCannonballStep(CANNONBALL_RIGHT));
 

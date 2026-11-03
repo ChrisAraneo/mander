@@ -1,6 +1,9 @@
 import type { Bullet, Cannonball, FallingSpike } from '@mander/model';
+import { last, map, size, takeRight } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
+import { createRecordingContext } from '../../test/create-recording-context';
+import { createRecordingLightingPass } from '../../test/create-recording-lighting-pass';
 import { createRenderTestState } from '../../test/create-render-test-state';
 import { hashRecorded } from '../../test/hash-recorded';
 import type { Palette } from '../types/palette';
@@ -30,7 +33,10 @@ const BULLETS: Bullet[] = [
 ];
 
 const CANNONBALLS: Cannonball[] = [
-  { position: { x: 200, y: 40 }, velocity: { x: { current: -220, max: 220 } } },
+  {
+    position: { x: 200, y: 40 },
+    velocity: { x: { current: -220, max: 220 }, y: { current: 0, max: 220 } },
+  },
 ];
 
 const FALLING_SPIKES: FallingSpike[] = [
@@ -49,7 +55,7 @@ describe('drawGame', () => {
       drawGame(context, state, PALETTE, VIEWPORT),
     );
 
-    expect(fingerprint).toBe('494:1AKY1201T4LXIT');
+    expect(fingerprint).toBe('495:0KDR4LM169CETJ');
   });
 
   it('should draw the ghosts and look at the given focus when both are given', () => {
@@ -61,7 +67,7 @@ describe('drawGame', () => {
       ]),
     );
 
-    expect(fingerprint).toBe('541:1R6YTUP1F3VYM9');
+    expect(fingerprint).toBe('542:1S18T6P03X9GNF');
   });
 
   it('should draw the moving objects on top when bullets, cannonballs and falling spikes are about', () => {
@@ -76,7 +82,43 @@ describe('drawGame', () => {
       drawGame(context, state, PALETTE, VIEWPORT),
     );
 
-    expect(fingerprint).toBe('558:1R8PU2M0V2M0H8');
+    expect(fingerprint).toBe('559:11YKRVV1Y2JQFR');
+  });
+
+  it('should lay the light over everything else when it is given a lighting pass', () => {
+    const state = createRenderTestState(SCENE_ROWS, { time: 1.25 });
+    const { pass, calls: glCalls } = createRecordingLightingPass();
+    const { context, calls } = createRecordingContext();
+
+    drawGame(context, state, PALETTE, VIEWPORT, undefined, [], pass);
+
+    expect(map(takeRight(calls, 5), 'name')).toEqual([
+      'save',
+      'set globalCompositeOperation',
+      'set imageSmoothingEnabled',
+      'drawImage',
+      'restore',
+    ]);
+    expect(last(glCalls)?.name).toBe('drawArrays');
+  });
+
+  it('should draw the same scene without the light when no lighting pass is given', () => {
+    const state = createRenderTestState(SCENE_ROWS, { time: 1.25 });
+    const lit = createRecordingContext();
+    const unlit = createRecordingContext();
+
+    drawGame(
+      lit.context,
+      state,
+      PALETTE,
+      VIEWPORT,
+      undefined,
+      [],
+      createRecordingLightingPass().pass,
+    );
+    drawGame(unlit.context, state, PALETTE, VIEWPORT);
+
+    expect(size(lit.calls) - size(unlit.calls)).toBe(5);
   });
 
   it('should centre a small level in the view when the level is narrower than the view', () => {

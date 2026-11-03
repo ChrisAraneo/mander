@@ -1,3 +1,4 @@
+import { TILE_CANNON_TRIPLE } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
 import { createRenderTestLevel } from '../../../test/create-render-test-level';
@@ -42,6 +43,19 @@ describe('createFrontLayerTileStep', () => {
   it('should draw nothing when the tile is a cannon', () => {
     const calls = drawRecorded(
       createFrontLayerTileStep(LEVEL, 2, 0, MATERIALS),
+    );
+
+    expect(calls).toEqual([]);
+  });
+
+  it('should draw nothing when the tile is a triple cannon', () => {
+    const level = {
+      ...LEVEL,
+      tiles: [[TILE_CANNON_TRIPLE]],
+    };
+
+    const calls = drawRecorded(
+      createFrontLayerTileStep(level, 0, 0, MATERIALS),
     );
 
     expect(calls).toEqual([]);

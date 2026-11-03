@@ -13,12 +13,14 @@ import { TILE_SPIKE_CEILING } from '../spike/tile-spike-ceiling';
 import { isSolidTile } from './is-solid-tile';
 import { TILE_BRICK } from './tile-brick';
 import { TILE_CANNON } from './tile-cannon';
+import { TILE_CANNON_TRIPLE } from './tile-cannon-triple';
 import { TILE_CERAMIC } from './tile-ceramic';
 import { TILE_DIRT } from './tile-dirt';
 import { TILE_FIREBALL } from './tile-fireball';
 import { TILE_ICE } from './tile-ice';
 import { TILE_ICEBALL } from './tile-iceball';
 import { TILE_PINKBALL } from './tile-pinkball';
+import { TILE_SAND } from './tile-sand';
 import { TILE_STONE } from './tile-stone';
 import { TILE_WOOD } from './tile-wood';
 
@@ -35,8 +37,13 @@ describe('isSolidTile', () => {
     expect(isSolidTile(TILE_ICE)).toBe(true);
   });
 
+  it('should return true when the tile is a sand block', () => {
+    expect(isSolidTile(TILE_SAND)).toBe(true);
+  });
+
   it('should return true when the tile is a cannon the player can stand on', () => {
     expect(isSolidTile(TILE_CANNON)).toBe(true);
+    expect(isSolidTile(TILE_CANNON_TRIPLE)).toBe(true);
   });
 
   it('should return true when the tile is a fireball block the player can stand on', () => {

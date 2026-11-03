@@ -1,5 +1,4 @@
 import {
-  isSolidTile,
   TILE_AIR,
   TILE_BEARTRAP,
   TILE_ENEMY,
@@ -15,6 +14,7 @@ import {
 } from '@mander/model';
 import { STRUCTURE_START, STRUCTURE_END } from '@mander/structures';
 import { includes } from 'lodash-es';
+import { isPlaceableBlock } from './is-placeable-block';
 
 const KNOWN_TILES = [
   TILE_AIR,
@@ -34,4 +34,4 @@ const KNOWN_TILES = [
 ];
 
 export const isKnown = (cell: number): boolean =>
-  includes(KNOWN_TILES, cell) || isSolidTile(cell);
+  includes(KNOWN_TILES, cell) || isPlaceableBlock(cell);

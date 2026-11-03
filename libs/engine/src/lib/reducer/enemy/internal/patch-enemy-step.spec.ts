@@ -4,6 +4,7 @@ import {
   type Tile,
   TILE_AIR,
   TILE_DIRT,
+  TILE_SAND,
   TILE_SIZE,
 } from '@mander/model';
 import { head, map, size } from 'lodash-es';
@@ -14,7 +15,11 @@ import { ENEMY_PIT_DEPTH_TILES } from './consts';
 import { patchEnemyStep } from './patch-enemy-step';
 import type { EnemyStepVerticalMove } from './types/enemy-step-vertical-move';
 
-const LEGEND: Record<string, Tile> = { '.': TILE_AIR, '#': TILE_DIRT };
+const LEGEND: Record<string, Tile> = {
+  '.': TILE_AIR,
+  '#': TILE_DIRT,
+  s: TILE_SAND,
+};
 
 const ROWS = ['......', '......', '......', '######'];
 
@@ -69,6 +74,25 @@ describe('patchEnemyStep', () => {
       isFacingRight: false,
       isGrounded: true,
     });
+  });
+
+  it('should record 0.65 of the top speed and keep the top speed when the enemy walked on sand', () => {
+    const patched = patchEnemyStep({
+      ...STEP,
+      level: {
+        ...LEVEL,
+        tiles: map(['......', '......', '......', 'ssssss'], (row) =>
+          map(row, (symbol) => LEGEND[symbol]),
+        ),
+      },
+      enemy: {
+        ...createWalkingEnemy(),
+        position: { x: 36, y: 74 },
+        statuses: { isFacingRight: true, isGrounded: true },
+      },
+    });
+
+    expect(patched.velocity.x).toEqual({ current: -50.7, max: 78 });
   });
 
   it('should keep the same timers and spawn point when it finishes the step', () => {

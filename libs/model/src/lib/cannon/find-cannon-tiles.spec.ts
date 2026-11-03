@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { TILE_AIR } from '../air/tile-air';
 import { TILE_CANNON } from '../blocks/tile-cannon';
+import { TILE_CANNON_TRIPLE } from '../blocks/tile-cannon-triple';
 import { TILE_DIRT } from '../blocks/tile-dirt';
 import type { Level } from '../types/level';
 import type { Tile } from '../types/tile';
@@ -27,9 +28,9 @@ describe('findCannonTiles', () => {
         ]),
       ),
     ).toEqual([
-      { x: 0, y: 0 },
-      { x: 2, y: 0 },
-      { x: 1, y: 1 },
+      { x: 0, y: 0, tile: TILE_CANNON },
+      { x: 2, y: 0, tile: TILE_CANNON },
+      { x: 1, y: 1, tile: TILE_CANNON },
     ]);
   });
 
@@ -41,7 +42,21 @@ describe('findCannonTiles', () => {
           [TILE_DIRT, TILE_DIRT],
         ]),
       ),
-    ).toEqual([{ x: 1, y: 0 }]);
+    ).toEqual([{ x: 1, y: 0, tile: TILE_CANNON }]);
+  });
+
+  it('should return the triple cannons too when the level has both kinds', () => {
+    expect(
+      findCannonTiles(
+        createLevel([
+          [TILE_CANNON_TRIPLE, TILE_CANNON],
+          [TILE_DIRT, TILE_DIRT],
+        ]),
+      ),
+    ).toEqual([
+      { x: 0, y: 0, tile: TILE_CANNON_TRIPLE },
+      { x: 1, y: 0, tile: TILE_CANNON },
+    ]);
   });
 
   it('should return nothing when the level has no cannon', () => {

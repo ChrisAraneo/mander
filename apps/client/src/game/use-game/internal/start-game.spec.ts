@@ -43,6 +43,7 @@ const CONTEXT = { kind: 'CONTEXT' } as unknown as CanvasRenderingContext2D;
 
 const CANVAS = {
   getContext: (): CanvasRenderingContext2D => CONTEXT,
+  ownerDocument: { createElement: () => ({ getContext: () => null }) },
 } as unknown as HTMLCanvasElement;
 
 const createStorage = (store: Map<string, string>): Storage =>

@@ -18,5 +18,9 @@ export const createShotCannonball = (
         toFacing(isPlayerRightOfShooter(shooter, player)) * CANNONBALL_SPEED,
       max: CANNONBALL_SPEED,
     },
+    y: {
+      current: 0,
+      max: CANNONBALL_SPEED,
+    },
   },
 });

@@ -4,6 +4,9 @@ import { describe, expect, it } from 'vitest';
 import { patchCannonCooldown } from './patch-cannon-cooldown';
 
 const createCannon = (reload: number): Cannon => ({
+  kind: 'REGULAR',
+  barrelAngle: 0,
+  roundIndex: 0,
   position: { x: 320, y: 64 },
   timers: { reload },
   statuses: { isFacingRight: true },

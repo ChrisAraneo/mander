@@ -19,13 +19,19 @@ import {
   type Level,
   type Tile,
   TILE_AIR,
+  TILE_BRICK,
+  TILE_CERAMIC,
   TILE_CHEST,
+  TILE_DIRT,
   TILE_ENEMY,
   TILE_ENEMY_FLYING,
   TILE_KEY,
   TILE_PORTAL,
+  TILE_SAND,
   TILE_SIZE,
   TILE_SPAWN,
+  TILE_STONE,
+  TILE_WOOD,
   type Point,
   type Season,
   type TileCell,
@@ -632,6 +638,46 @@ describe('createWorld', () => {
         ),
       ),
     ).toBe(true);
+  });
+
+  it('should lay sand in every level when it deals a summer day', () => {
+    const summerLevels = flatMap(filterWorldsOf('SUMMER'), (world) =>
+      map(world.levels, (level) => level.tiles),
+    );
+
+    expect(size(summerLevels)).toBeGreaterThan(0);
+    expect(
+      filter(summerLevels, (tiles) => !includes(flatten(tiles), TILE_SAND)),
+    ).toEqual([]);
+  });
+
+  it('should turn other blocks to sand from level to level when it deals a summer day', () => {
+    const missingBlocks = map(filterWorldsOf('SUMMER'), (world) =>
+      size(
+        uniq(
+          map(world.levels, (level) =>
+            join(
+              filter(
+                [TILE_DIRT, TILE_BRICK, TILE_STONE, TILE_WOOD, TILE_CERAMIC],
+                (block) => !includes(flatten(level.tiles), block),
+              ),
+              ',',
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(every(missingBlocks, (count) => count > 1)).toBe(true);
+  });
+
+  it('should lay no sand when it deals a day outside summer', () => {
+    const others = flatMap(
+      filter(WORLDS, (world) => world.season !== 'SUMMER'),
+      (world) => flatMap(world.levels, (level) => flatten(level.tiles)),
+    );
+
+    expect(includes(others, TILE_SAND)).toBe(false);
   });
 
   it('should deal the recorded world when it is given the first day of 2026', () => {

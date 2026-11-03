@@ -1,22 +1,58 @@
 import type { Cannon } from '@mander/model';
+import { indexOf } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { drawRecorded } from '../../test/draw-recorded';
 import { createCannonStep } from './create-cannon-step';
 
 const CHARGING_CANNON: Cannon = {
+  kind: 'REGULAR',
+  barrelAngle: 0,
+  roundIndex: 0,
   position: { x: 64, y: 96 },
   timers: { reload: 0.2 },
   statuses: { isFacingRight: true },
 };
 
 const RELOADING_CANNON: Cannon = {
+  kind: 'REGULAR',
+  barrelAngle: 0,
+  roundIndex: 0,
   position: { x: 32, y: 0 },
   timers: { reload: 3 },
   statuses: { isFacingRight: false },
 };
 
 describe('createCannonStep', () => {
+  it('should draw exactly what a regular cannon draws when the cannon is triple', () => {
+    expect(
+      drawRecorded(createCannonStep({ ...RELOADING_CANNON, kind: 'TRIPLE' })),
+    ).toEqual(drawRecorded(createCannonStep(RELOADING_CANNON)));
+  });
+
+  it('should turn the barrel after flipping to the facing when the barrel is aimed away from level', () => {
+    const calls = drawRecorded(
+      createCannonStep({ ...RELOADING_CANNON, barrelAngle: -0.25 }),
+    );
+
+    expect(calls[indexOf(calls, 'rotate(-0.25)') - 1]).toBe('scale(-1, 1)');
+  });
+
+  it('should draw the barrel and the charge but not the mount turned when the barrel is aimed away from level', () => {
+    const calls = drawRecorded(
+      createCannonStep({ ...CHARGING_CANNON, barrelAngle: -0.25 }),
+    );
+    const turn = indexOf(calls, 'rotate(-0.25)');
+
+    expect(indexOf(calls, 'roundRect(-15, -15, 30, 30, 5)')).toBeLessThan(turn);
+    expect(indexOf(calls, 'roundRect(-5, -6.5, 28, 13, 3)')).toBeGreaterThan(
+      turn,
+    );
+    expect(indexOf(calls, 'arc(22, 0, 4.2857, 0, 6.2832)')).toBeGreaterThan(
+      turn,
+    );
+  });
+
   it('should draw the cannon facing right with a glowing charge when it is about to fire', () => {
     const calls = drawRecorded(createCannonStep(CHARGING_CANNON));
 
@@ -50,6 +86,7 @@ describe('createCannonStep', () => {
       'arc(11, 11, 1.5, 0, 6.2832)',
       'fill()',
       'scale(1, 1)',
+      'rotate(0)',
       'beginPath()',
       'roundRect(-5, -6.5, 28, 13, 3)',
       'roundRect(18, -9, 5, 18, 2)',
@@ -118,6 +155,7 @@ describe('createCannonStep', () => {
       'arc(11, 11, 1.5, 0, 6.2832)',
       'fill()',
       'scale(-1, 1)',
+      'rotate(0)',
       'beginPath()',
       'roundRect(-5, -6.5, 28, 13, 3)',
       'roundRect(18, -9, 5, 18, 2)',

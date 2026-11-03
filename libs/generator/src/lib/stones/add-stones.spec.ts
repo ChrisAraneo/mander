@@ -6,6 +6,7 @@ import {
   TILE_BRICK,
   TILE_DIRT,
   TILE_ICE,
+  TILE_SAND,
   TILE_SPIKE,
   TILE_STONE,
 } from '@mander/model';
@@ -278,7 +279,7 @@ describe('addStones', () => {
     ).toEqual([]);
   });
 
-  it('should settle stone into every level when a day is dealt, frozen over as ice in winter', () => {
+  it('should settle stone into every level when a day is dealt, turned to ice in winter and sometimes to sand in summer', () => {
     const settled = flatten(
       map(
         times(10, (day) => new Date(Date.UTC(2026, 7, 1 + day))),
@@ -287,7 +288,9 @@ describe('addStones', () => {
             map(levels, (level, index) => ({
               index,
               isFrozen: season === 'WINTER',
-              stones: size(filterCells(level.tiles, TILE_STONE)),
+              stones:
+                size(filterCells(level.tiles, TILE_STONE)) +
+                size(filterCells(level.tiles, TILE_SAND)),
               ice: size(filterCells(level.tiles, TILE_ICE)),
             })),
           ),

@@ -1,6 +1,7 @@
 import {
   TILE_BEARTRAP,
   TILE_CANNON,
+  TILE_CANNON_TRIPLE,
   TILE_FIREBALL,
   TILE_ICEBALL,
   TILE_PINKBALL,
@@ -21,7 +22,7 @@ import type { StructureChoice } from './types/structure-choice';
 import type { LevelCategory } from './world/types/level-category';
 
 const HAZARDS: readonly (readonly Tile[])[] = [
-  [TILE_CANNON],
+  [TILE_CANNON, TILE_CANNON_TRIPLE],
   [TILE_FIREBALL, TILE_ICEBALL, TILE_PINKBALL],
   [TILE_BEARTRAP],
   [TILE_SPIKE],

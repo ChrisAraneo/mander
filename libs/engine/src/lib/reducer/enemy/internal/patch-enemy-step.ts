@@ -1,5 +1,6 @@
 import { type Enemy, TILE_SIZE } from '@mander/model';
 import { match } from 'ts-pattern';
+import { computeEnemyWalkSpeed } from './compute-enemy-walk-speed';
 import { ENEMY_PIT_DEPTH_TILES } from './consts';
 import { finishEnemyDeath } from './finish-enemy-death';
 import type { EnemyStepVerticalMove } from './types/enemy-step-vertical-move';
@@ -20,7 +21,7 @@ export const patchEnemyStep = ({
       position: { x: nextX, y: nextY },
       velocity: {
         x: {
-          current: facing * enemy.velocity.x.max,
+          current: facing * computeEnemyWalkSpeed(level, enemy),
           max: enemy.velocity.x.max,
         },
         y: { current: velocityY, max: enemy.velocity.y.max },

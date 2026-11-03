@@ -8,5 +8,9 @@ export interface Cannonball {
       current: number;
       max: number;
     };
+    y: {
+      current: number;
+      max: number;
+    };
   };
 }

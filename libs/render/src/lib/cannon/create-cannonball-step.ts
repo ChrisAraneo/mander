@@ -3,8 +3,9 @@ import type { Cannonball } from '@mander/model';
 import { createProjectileStep } from '../projectile/create-projectile-step';
 import { createShadedSphereStep } from '../sphere/create-shaded-sphere-step';
 import type { SphereColors } from '../sphere/types/sphere-colors';
-import { createTrailStep } from '../trail/create-trail-step';
+import { createAngledTrailStep } from '../trail/create-angled-trail-step';
 import type { CanvasStep } from '../types/canvas-step';
+import { computeCannonballTrailAngle } from './internal/compute-cannonball-trail-angle';
 
 const CANNONBALL_RADIUS = CANNONBALL_SIZE / 2;
 
@@ -25,6 +26,11 @@ export const createCannonballStep = (cannonball: Cannonball): CanvasStep =>
     cannonball.position,
     CANNONBALL_RADIUS,
     cannonball.velocity.x.current,
-    createTrailStep(TRAIL_COLOR, TRAIL_LENGTH, TRAIL_HEIGHT),
+    createAngledTrailStep(
+      TRAIL_COLOR,
+      TRAIL_LENGTH,
+      TRAIL_HEIGHT,
+      computeCannonballTrailAngle(cannonball),
+    ),
     createShadedSphereStep(0, 0, CANNONBALL_RADIUS, CANNONBALL_IRON),
   );

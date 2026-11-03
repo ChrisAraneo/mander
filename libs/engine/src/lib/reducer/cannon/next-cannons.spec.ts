@@ -11,7 +11,11 @@ import { describe, expect, it } from 'vitest';
 import type { GameLevel } from '../../types/game-level';
 import { BASE_HEARTS } from '../player/consts';
 import { createPlayer } from '../player/create-player';
-import { CANNON_RELOAD_SECONDS, CANNONBALL_SPEED } from './consts';
+import {
+  CANNON_RELOAD_SECONDS,
+  CANNONBALL_SPEED,
+  TRIPLE_CANNON_SHOT_GAP_SECONDS,
+} from './consts';
 import { nextCannons } from './next-cannons';
 
 const LEGEND: Record<string, Tile> = { '.': TILE_AIR, '#': TILE_DIRT };
@@ -38,6 +42,9 @@ const createPlayerAt = (left: number): Player => ({
 });
 
 const createCannon = (reload: number, isFacingRight: boolean): Cannon => ({
+  kind: 'REGULAR',
+  barrelAngle: 0,
+  roundIndex: 0,
   position: { x: 320, y: 64 },
   timers: { reload },
   statuses: { isFacingRight },
@@ -79,6 +86,9 @@ describe('nextCannons', () => {
     expect(barrage).toEqual({
       cannons: [
         {
+          kind: 'REGULAR',
+          barrelAngle: 0,
+          roundIndex: 0,
           position: { x: 320, y: 64 },
           timers: { reload: CANNON_RELOAD_SECONDS },
           statuses: { isFacingRight: true },
@@ -87,10 +97,27 @@ describe('nextCannons', () => {
       cannonballs: [
         {
           position: { x: 330, y: 74 },
-          velocity: { x: { current: CANNONBALL_SPEED, max: CANNONBALL_SPEED } },
+          velocity: {
+            x: { current: CANNONBALL_SPEED, max: CANNONBALL_SPEED },
+            y: { current: 0, max: CANNONBALL_SPEED },
+          },
         },
       ],
     });
+  });
+
+  it('should fire one cannonball and wait a short gap when a triple cannon has just loaded', () => {
+    const cannons: Cannon[] = [
+      { ...createCannon(0.02, false), kind: 'TRIPLE' },
+    ];
+
+    const barrage = nextCannons(cannons, createPlayerAt(400), 0.02);
+
+    expect(size(barrage.cannonballs)).toBe(1);
+    expect(barrage.cannons[0].timers.reload).toBeCloseTo(
+      TRIPLE_CANNON_SHOT_GAP_SECONDS,
+      6,
+    );
   });
 
   it('should carry the time it overshot into the next reload when the cannon fires', () => {
@@ -139,6 +166,9 @@ describe('nextCannons', () => {
     expect(barrage).toEqual({
       cannons: [
         {
+          kind: 'REGULAR',
+          barrelAngle: 0,
+          roundIndex: 0,
           position: { x: 320, y: 64 },
           timers: { reload: 0 },
           statuses: { isFacingRight: true },

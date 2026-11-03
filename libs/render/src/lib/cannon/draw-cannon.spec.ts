@@ -5,6 +5,9 @@ import { drawRecorded } from '../../test/draw-recorded';
 import { drawCannon } from './draw-cannon';
 
 const CANNON: Cannon = {
+  kind: 'REGULAR',
+  barrelAngle: 0,
+  roundIndex: 0,
   position: { x: 128, y: 64 },
   timers: { reload: 0.5 },
   statuses: { isFacingRight: true },
@@ -44,6 +47,7 @@ describe('drawCannon', () => {
       'arc(11, 11, 1.5, 0, 6.2832)',
       'fill()',
       'scale(1, 1)',
+      'rotate(0)',
       'beginPath()',
       'roundRect(-5, -6.5, 28, 13, 3)',
       'roundRect(18, -9, 5, 18, 2)',

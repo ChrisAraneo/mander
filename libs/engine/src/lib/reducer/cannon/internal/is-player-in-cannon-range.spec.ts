@@ -37,6 +37,9 @@ const createPlayerAt = (left: number, top: number): Player => ({
 });
 
 const CANNON: Cannon = {
+  kind: 'REGULAR',
+  barrelAngle: 0,
+  roundIndex: 0,
   position: { x: 320, y: 64 },
   timers: { reload: 0 },
   statuses: { isFacingRight: true },

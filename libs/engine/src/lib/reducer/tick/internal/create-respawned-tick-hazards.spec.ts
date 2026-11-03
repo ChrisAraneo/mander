@@ -48,7 +48,7 @@ const LEVEL = createLevel(['..c.....', '...v..f.', 's...e...', '########']);
 
 const CANNONBALL: Cannonball = {
   position: { x: 100, y: 10 },
-  velocity: { x: { current: 200, max: 200 } },
+  velocity: { x: { current: 200, max: 200 }, y: { current: 0, max: 200 } },
 };
 
 const BULLET: Bullet = {

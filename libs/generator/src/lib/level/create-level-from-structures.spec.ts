@@ -1,14 +1,31 @@
 import { createRandom } from '@mander/engine';
-import { findTile, type Season, TILE_PORTAL, TILE_SPAWN } from '@mander/model';
 import {
+  findTile,
+  type Season,
+  TILE_CANNON,
+  TILE_CANNON_TRIPLE,
+  TILE_PORTAL,
+  TILE_SAND,
+  TILE_SPAWN,
+} from '@mander/model';
+import {
+  getFront,
   NORMAL_STRUCTURES,
   type Sector,
   VERTICAL_STRUCTURES,
 } from '@mander/structures';
-import { cloneDeep, map, size, take } from 'lodash-es';
+import {
+  cloneDeep,
+  filter,
+  flatten,
+  includes,
+  map,
+  size,
+  take,
+} from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { STRUCTURES_PER_LEVEL } from '../consts';
+import { LEVELS_PER_DAY, STRUCTURES_PER_LEVEL } from '../consts';
 import { createLevelFromStructures } from './create-level-from-structures';
 
 const SEED = 'DAY-1';
@@ -18,6 +35,22 @@ const SPRING: Season = 'SPRING';
 const ACROSS: Sector[] = take([...NORMAL_STRUCTURES], STRUCTURES_PER_LEVEL);
 
 const UPWARD: Sector[] = take([...VERTICAL_STRUCTURES], STRUCTURES_PER_LEVEL);
+
+const WITH_CANNONS: Sector[] = take(
+  filter([...NORMAL_STRUCTURES], (structure) =>
+    includes(flatten(getFront(structure)), TILE_CANNON),
+  ),
+  STRUCTURES_PER_LEVEL,
+);
+
+const buildCannonLevel = (season: Season) =>
+  createLevelFromStructures(
+    LEVELS_PER_DAY,
+    'NORMAL',
+    season,
+    WITH_CANNONS,
+    createRandom(SEED),
+  );
 
 describe('createLevelFromStructures', () => {
   it('should lay down a way in and a way out in a horizontal level when it builds one', () => {
@@ -178,6 +211,79 @@ describe('createLevelFromStructures', () => {
     expect(summer.fastEnemyChance).toBe(0);
     expect(summer.shooterEnemyChance).toBe(0);
     expect(summer.freezingEnemyChance).toBe(0);
+  });
+
+  it('should build both kinds of cannon when the season is summer', () => {
+    const tiles = flatten(buildCannonLevel('SUMMER').tiles);
+
+    expect(includes(tiles, TILE_CANNON_TRIPLE)).toBe(true);
+    expect(includes(tiles, TILE_CANNON)).toBe(true);
+  });
+
+  it('should build only regular cannons when the season is spring', () => {
+    const tiles = flatten(buildCannonLevel('SPRING').tiles);
+
+    expect(includes(tiles, TILE_CANNON_TRIPLE)).toBe(false);
+    expect(includes(tiles, TILE_CANNON)).toBe(true);
+  });
+
+  it('should build only regular cannons when the season is autumn', () => {
+    const tiles = flatten(buildCannonLevel('AUTUMN').tiles);
+
+    expect(includes(tiles, TILE_CANNON_TRIPLE)).toBe(false);
+    expect(includes(tiles, TILE_CANNON)).toBe(true);
+  });
+
+  it('should build only regular cannons when the season is winter', () => {
+    const tiles = flatten(buildCannonLevel('WINTER').tiles);
+
+    expect(includes(tiles, TILE_CANNON_TRIPLE)).toBe(false);
+    expect(includes(tiles, TILE_CANNON)).toBe(true);
+  });
+
+  it('should lay sand when the season is summer', () => {
+    const level = createLevelFromStructures(
+      1,
+      'NORMAL',
+      'SUMMER',
+      ACROSS,
+      createRandom(SEED),
+    );
+
+    expect(includes(flatten(level.tiles), TILE_SAND)).toBe(true);
+  });
+
+  it('should lay no sand when the season is not summer', () => {
+    const seasons: Season[] = ['SPRING', 'AUTUMN', 'WINTER'];
+
+    expect(
+      map(seasons, (season) =>
+        includes(
+          flatten(
+            createLevelFromStructures(
+              1,
+              'NORMAL',
+              season,
+              ACROSS,
+              createRandom(SEED),
+            ).tiles,
+          ),
+          TILE_SAND,
+        ),
+      ),
+    ).toEqual([false, false, false]);
+  });
+
+  it('should give back an empty level when there are no structures and the season is summer', () => {
+    const level = createLevelFromStructures(
+      1,
+      'NORMAL',
+      'SUMMER',
+      [],
+      createRandom(SEED),
+    );
+
+    expect(level.tiles).toEqual([]);
   });
 
   it('should not change the old structures when it builds a level', () => {

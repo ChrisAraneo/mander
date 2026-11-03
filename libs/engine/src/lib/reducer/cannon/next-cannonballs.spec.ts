@@ -35,7 +35,10 @@ const LEVEL_RIGHT_EDGE = size(head(ROWS)) * TILE_SIZE;
 
 const createCannonball = (start: number, speed: number): Cannonball => ({
   position: { x: start, y: TILE_SIZE },
-  velocity: { x: { current: speed, max: CANNONBALL_SPEED } },
+  velocity: {
+    x: { current: speed, max: CANNONBALL_SPEED },
+    y: { current: 0, max: CANNONBALL_SPEED },
+  },
 });
 
 const createCannonballs = (): Cannonball[] => [

@@ -4,12 +4,14 @@ import {
   type Tile,
   TILE_AIR,
   TILE_DIRT,
+  TILE_SAND,
 } from '@mander/model';
 import { head, map, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import type { GameLevel } from '../../types/game-level';
 import type { InputState } from '../../types/input-state';
+import { SAND_MOVE_FACTOR } from '../sand/consts';
 import {
   ACCELERATION_SECONDS,
   PLAYER_MAX_JUMP_VELOCITY,
@@ -82,6 +84,26 @@ const createAirbornePlayer = (
 });
 
 describe('nextPlayer', () => {
+  it('should set the player off at 0.65 of the usual speed when they stand on sand and right is held', () => {
+    const sandLevel: GameLevel = {
+      ...LEVEL,
+      tiles: map(
+        ['..........', '..........', '..........', '..........', '..........'],
+        (row) => map(row, (symbol) => LEGEND[symbol]),
+      ).concat([map('ssssssssss', () => TILE_SAND)]),
+    };
+    const player = createStandingPlayer(100, false);
+
+    const stepped = nextPlayer(sandLevel, player, RIGHT_INPUT, DELTA_SECONDS);
+
+    expect(stepped.velocity.x.current).toBeCloseTo(STEP * SAND_MOVE_FACTOR, 10);
+    expect(stepped.position.x).toBeCloseTo(
+      100 + STEP * SAND_MOVE_FACTOR * DELTA_SECONDS,
+      10,
+    );
+    expect(stepped.velocity.x.max).toBe(PLAYER_MAX_MOVE_VELOCITY);
+  });
+
   it('should set the player off to the right when only right is held', () => {
     const player = createStandingPlayer(100, false);
 
