@@ -274,6 +274,11 @@ const formatPlayedWhen = (run: RunRecord): string =>
         A / D move · W jump · E interact · Space star · X shoot · Esc close ·
         Backspace respawn
       </p>
+
+      <footer class="credits">
+        <p>Game Design &amp; Development: Krzysztof "ChrisAraneo" Pająk</p>
+        <p>QA, Playtesting &amp; Game Design: GrzegorzusLudi</p>
+      </footer>
     </div>
   </div>
 </template>
@@ -553,6 +558,18 @@ h1 {
 .controls {
   color: #64758a;
   font-size: 13px;
+  margin: 0;
+}
+
+.credits {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: #9fb0c3;
+  font-size: 13px;
+}
+
+.credits p {
   margin: 0;
 }
 </style>
