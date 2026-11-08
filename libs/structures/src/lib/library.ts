@@ -325,6 +325,7 @@ import {
   NORMAL_270,
   NORMAL_271,
   NORMAL_272,
+  NORMAL_273,
 } from './normal';
 import type { Structure } from './types/structure';
 import type { VerticalStructure } from './types/vertical-structure';
@@ -712,6 +713,7 @@ export const NORMAL_LIBRARY = Object.freeze({
   NORMAL_270,
   NORMAL_271,
   NORMAL_272,
+  NORMAL_273,
 });
 
 export const NORMAL_STRUCTURES: readonly Structure[] = Object.freeze(
