@@ -66,6 +66,21 @@ const patchFloorlessTiles = (level: Level): Level => ({
 
 const createFloorlessRoom = (): Level => patchFloorlessTiles(createRoom());
 
+const SHIELD_ROW = 4;
+
+const patchShieldedTiles = (level: Level): Level => ({
+  ...level,
+  tiles: map(level.tiles, (tiles, rowIndex) =>
+    map(tiles, (tile, columnIndex) =>
+      match(rowIndex === SHIELD_ROW && columnIndex === SPIKE_COLUMN)
+        .with(true, (): Tile => TILE_DIRT)
+        .otherwise(() => tile),
+    ),
+  ),
+});
+
+const createShieldedRoom = (): Level => patchShieldedTiles(createRoom());
+
 const createPlayer = (tileX: number): Player => ({
   position: {
     x: tileX * TILE_SIZE,
@@ -252,6 +267,25 @@ describe('nextFallingSpike', () => {
 
     times(size(depths), (depthIndex) =>
       expect(heldSpikes[depthIndex], `depth ${depths[depthIndex]}`).toEqual(
+        createFallingSpike(level),
+      ),
+    );
+  });
+
+  it('should hold on when a solid block lies between it and the player below', () => {
+    const level = createShieldedRoom();
+    const gaps = [-TRIGGER_RANGE, 0, TRIGGER_RANGE];
+    const heldSpikes = map(gaps, (gap) =>
+      nextFallingSpike(
+        level,
+        createFallingSpike(level),
+        createPlayerAt(gap),
+        DELTA_SECONDS,
+      ),
+    );
+
+    times(size(gaps), (gapIndex) =>
+      expect(heldSpikes[gapIndex], `gap ${gaps[gapIndex]}`).toEqual(
         createFallingSpike(level),
       ),
     );
