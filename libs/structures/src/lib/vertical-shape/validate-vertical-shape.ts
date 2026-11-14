@@ -4,7 +4,7 @@ import type { Layer } from '../types/layer';
 import { VERTICAL_RULES } from './internal/consts';
 import { isVerticalRuleMet } from './internal/is-vertical-rule-met';
 
-export const findVerticalIssues = (structure: Layer): string[] =>
+export const validateVerticalShape = (structure: Layer): string[] =>
   pipe(
     VERTICAL_RULES,
     (rules) =>

@@ -1,4 +1,4 @@
-import { size } from 'lodash-es';
+import { head, last } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { getStructureName } from './get-structure-name';
@@ -9,11 +9,13 @@ import {
 } from './library';
 import type { Sector } from './types/sector';
 
+const EMPTY_STRUCTURE: Sector = [[], []];
+
 const getFirstStructure = (structures: readonly Sector[]): Sector =>
-  structures[0];
+  head(structures) ?? EMPTY_STRUCTURE;
 
 const getLastStructure = (structures: readonly Sector[]): Sector =>
-  structures[size(structures) - 1];
+  last(structures) ?? EMPTY_STRUCTURE;
 
 describe('getStructureName', () => {
   it('should return the pool name and padded position when the structure is the first of its pool', () => {
@@ -41,6 +43,6 @@ describe('getStructureName', () => {
   });
 
   it('should return unknown when the structure is not in the library', () => {
-    expect(getStructureName([[], []])).toBe('UNKNOWN');
+    expect(getStructureName(EMPTY_STRUCTURE)).toBe('UNKNOWN');
   });
 });

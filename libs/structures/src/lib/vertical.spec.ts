@@ -15,7 +15,7 @@ import { getFront } from './get-front';
 import { VERTICAL_STRUCTURES } from './library';
 import type { VerticalStructure } from './types/vertical-structure';
 import { VERTICAL_HEIGHT } from './vertical-shape/consts';
-import { findVerticalIssues } from './vertical-shape/find-vertical-issues';
+import { validateVerticalShape } from './vertical-shape/validate-vertical-shape';
 
 const formatVerticalName = (index: number): string =>
   `VERTICAL_${padStart(String(index + 1), 3, '0')}`;
@@ -32,7 +32,7 @@ describe('VERTICAL_STRUCTURES', () => {
     const issues = flatten(
       map(VERTICAL_STRUCTURES, (structure, index) =>
         map(
-          findVerticalIssues(getFront(structure)),
+          validateVerticalShape(getFront(structure)),
           (issue) => `${formatVerticalName(index)}: ${issue}`,
         ),
       ),

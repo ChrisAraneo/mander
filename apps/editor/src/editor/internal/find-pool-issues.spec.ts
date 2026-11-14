@@ -1,4 +1,4 @@
-import { findVerticalIssues } from '@mander/structures';
+import { validateVerticalShape } from '@mander/structures';
 import { describe, expect, it } from 'vitest';
 
 import { createSketch } from '../create-sketch';
@@ -9,7 +9,7 @@ describe('findPoolIssues', () => {
     const sketch = createSketch('vertical');
 
     expect(findPoolIssues(sketch, 'vertical')).toEqual(
-      findVerticalIssues(sketch.tiles),
+      validateVerticalShape(sketch.tiles),
     );
   });
 

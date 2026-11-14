@@ -12,7 +12,9 @@ import {
 } from '../consts';
 import { hasAnyLandingLedge } from './has-any-landing-ledge';
 
-const createStructure = (solidCells: [number, number][]): number[][] =>
+type SolidCell = [row: number, column: number];
+
+const createStructure = (solidCells: SolidCell[]): number[][] =>
   times(VERTICAL_HEIGHT, (row) =>
     times(STRUCTURE_WIDTH, (column) =>
       match(
@@ -25,9 +27,9 @@ const createStructure = (solidCells: [number, number][]): number[][] =>
     ),
   );
 
-const LEDGE_CELLS: [number, number][] = map(
+const LEDGE_CELLS: SolidCell[] = map(
   VERTICAL_LANDING_BANDS[0],
-  (column): [number, number] => [VERTICAL_LANDING_ROW, column],
+  (column): SolidCell => [VERTICAL_LANDING_ROW, column],
 );
 
 describe('hasAnyLandingLedge', () => {

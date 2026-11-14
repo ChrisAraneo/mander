@@ -4,7 +4,7 @@ import {
   STRUCTURE_HEIGHT,
   STRUCTURE_START,
   STRUCTURE_WIDTH,
-  findVerticalIssues,
+  validateVerticalShape,
 } from '@mander/structures';
 import { assign, tap } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
@@ -84,7 +84,7 @@ describe('findStructureIssues', () => {
     const sketch = createSketch('vertical');
 
     expect(findStructureIssues(sketch, 'vertical')).toEqual(
-      findVerticalIssues(sketch.tiles),
+      validateVerticalShape(sketch.tiles),
     );
   });
 });

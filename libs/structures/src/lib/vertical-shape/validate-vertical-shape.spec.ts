@@ -1,17 +1,21 @@
-import { size } from 'lodash-es';
+import { cloneDeep, size } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { getFront } from '../get-front';
 import { VERTICAL_STRUCTURES } from '../library';
-import { findVerticalIssues } from './find-vertical-issues';
+import type { Layer } from '../types/layer';
+import { validateVerticalShape } from './validate-vertical-shape';
 
-describe('findVerticalIssues', () => {
+const createStructure = (): Layer =>
+  cloneDeep(getFront(VERTICAL_STRUCTURES[0]));
+
+describe('validateVerticalShape', () => {
   it('should find no issues when the structure has the vertical shape', () => {
-    expect(findVerticalIssues(getFront(VERTICAL_STRUCTURES[0]))).toEqual([]);
+    expect(validateVerticalShape(createStructure())).toEqual([]);
   });
 
   it('should find the marker and platform issues when the structure is empty', () => {
-    expect(findVerticalIssues([])).toEqual([
+    expect(validateVerticalShape([])).toEqual([
       'the end must be marked in row 0, column 9, where the sector above is entered',
       'the start must be marked in row 21, column 9, where the sector below ends',
       'row 1 must carry a platform of at least 1 block from column 9, the ledge the player leaves from',
@@ -20,6 +24,14 @@ describe('findVerticalIssues', () => {
   });
 
   it('should give one message per issue when the structure breaks several rules', () => {
-    expect(size(findVerticalIssues([]))).toBe(4);
+    expect(size(validateVerticalShape([]))).toBe(4);
+  });
+
+  it('should leave the given structure as it was when it collects the issues', () => {
+    const structure = createStructure();
+
+    validateVerticalShape(structure);
+
+    expect(structure).toEqual(createStructure());
   });
 });

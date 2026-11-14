@@ -9,15 +9,19 @@ const STRUCTURE = [
 ];
 
 describe('hasAllEmptyCells', () => {
-  it('should return true when every given cell is empty', () => {
+  it('should find the whole patch empty when every given spot is air', () => {
     expect(hasAllEmptyCells(STRUCTURE, [0, 1], [0, 1])).toBe(true);
   });
 
-  it('should return false when one of the given cells holds a block', () => {
+  it('should find the patch not empty when one of the given spots holds a block', () => {
     expect(hasAllEmptyCells(STRUCTURE, [0, 1], [1, 2])).toBe(false);
   });
 
-  it('should treat cells outside the structure as air when the rows or columns run past it', () => {
+  it('should treat the spots outside the structure as air when the rows or columns run past it', () => {
     expect(hasAllEmptyCells(STRUCTURE, [5], [0, 9])).toBe(true);
+  });
+
+  it('should find the patch empty when no rows or columns are given', () => {
+    expect(hasAllEmptyCells(STRUCTURE, [], [])).toBe(true);
   });
 });
