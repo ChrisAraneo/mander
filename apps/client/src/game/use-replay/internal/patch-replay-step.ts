@@ -1,4 +1,4 @@
-import { getReplayProgress, isReplayFinished } from '@mander/engine';
+import { computeReplayProgress, isReplayFinished } from '@mander/engine';
 import { FIXED_STEP_SECONDS } from '@mander/model';
 import { tap } from 'lodash-es';
 import { pipe } from 'remeda';
@@ -18,7 +18,7 @@ export const patchReplayStep = (
       tap(next, () =>
         patchRef(
           session.progress,
-          getReplayProgress(session.recording.value, next.frame.playback),
+          computeReplayProgress(session.recording.value, next.frame.playback),
         ),
       ),
     (next) =>

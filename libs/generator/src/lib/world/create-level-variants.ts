@@ -1,4 +1,4 @@
-import type { Random } from '@mander/engine';
+import type { Random } from '@mander/common';
 import { drop, sortBy, take } from 'lodash-es';
 import { FIRST_HARD_LEVEL } from '../consts';
 import type { LevelVariant } from '../types/level-variant';

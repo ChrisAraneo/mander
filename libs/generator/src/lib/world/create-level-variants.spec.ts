@@ -1,4 +1,4 @@
-import { createRandom } from '@mander/engine';
+import { createRandom } from '@mander/common';
 import {
   countBy,
   join,

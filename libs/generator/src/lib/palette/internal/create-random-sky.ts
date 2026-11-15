@@ -1,4 +1,4 @@
-import { type Random, takeRandom, createRandomInt } from '@mander/engine';
+import { type Random, takeRandom, createRandomInt } from '@mander/common';
 import type { PaletteSky } from './types/palette-sky';
 
 const SKY_HUES = [

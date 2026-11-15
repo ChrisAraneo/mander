@@ -1,4 +1,4 @@
-import { createRandom } from '@mander/engine';
+import { createRandom } from '@mander/common';
 import { describe, expect, it } from 'vitest';
 
 import { hashLevelSeed } from './hash-level-seed';

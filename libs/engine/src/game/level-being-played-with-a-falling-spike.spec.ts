@@ -1,0 +1,97 @@
+import {
+  type Item,
+  type Level,
+  type Tile,
+  TILE_AIR,
+  TILE_DIRT,
+  TILE_SPAWN,
+  TILE_SPIKE_FALLING,
+} from '@mander/model';
+import { constant, map, reduce, times } from 'lodash-es';
+import { match } from 'ts-pattern';
+import { describe, expect, it } from 'vitest';
+
+import { HORNED_ENEMY_CHANCE } from '../enemy/consts';
+import { createFallingSpikes } from '../falling-spike/create-falling-spikes';
+import { FIRST_LEVEL_INDEX } from '../load-level/consts';
+import { BASE_HEARTS } from '../player/consts';
+import { createInitialState } from '../start/create-initial-state';
+import type { GameLevel } from '../state/types/game-level';
+import type { GameState } from '../state/types/game-state';
+import { nextGameState } from './next-game-state';
+
+const FALL_TICKS = 60;
+
+const CEILING_ROW = 1;
+
+const FLOOR_ROW = 8;
+
+const SPIKE_COLUMN = 5;
+
+const WIDTH = 12;
+
+const HEIGHT = 10;
+
+const createRoom = (): Level => ({
+  seed: 'SEED',
+  width: WIDTH,
+  height: HEIGHT,
+  tiles: times(HEIGHT, (row): Tile[] =>
+    times(WIDTH, (column) =>
+      match({
+        isDirt: row === 0 || row === FLOOR_ROW,
+        isSpike: row === CEILING_ROW && column === SPIKE_COLUMN,
+      })
+        .with({ isDirt: true }, (): Tile => TILE_DIRT)
+        .with({ isSpike: true }, (): Tile => TILE_SPIKE_FALLING)
+        .otherwise((): Tile => TILE_AIR),
+    ),
+  ),
+  chestItems: [],
+});
+
+const patchArenaSpawn = (level: Level): GameLevel => ({
+  ...level,
+  tiles: map(level.tiles, (tiles, rowIndex) =>
+    map(tiles, (tile, columnIndex) =>
+      match(rowIndex === FLOOR_ROW - 1 && columnIndex === SPIKE_COLUMN)
+        .with(true, () => TILE_SPAWN)
+        .otherwise(() => tile),
+    ),
+  ),
+  hornedEnemyChance: HORNED_ENEMY_CHANCE,
+  fastEnemyChance: 0,
+  shooterEnemyChance: 0,
+  freezingEnemyChance: 0,
+});
+
+const createArena = (): GameLevel => patchArenaSpawn(createRoom());
+
+const nextTick = (state: GameState): GameState =>
+  nextGameState(state, { type: 'TICK' }, constant(0));
+
+const nextTicks = (state: GameState, tickCount: number): GameState =>
+  reduce(times(tickCount), (current) => nextTick(current), state);
+
+const createPlayedState = (inventory: Item[], tickCount: number): GameState =>
+  nextTicks(
+    createInitialState(createArena(), FIRST_LEVEL_INDEX, inventory),
+    tickCount,
+  );
+
+describe('a level being played', () => {
+  it('should cost the player a heart and shatter on the floor when it lands on them', () => {
+    const struck = createPlayedState([], FALL_TICKS);
+
+    expect(struck.player.hearts.value).toBe(BASE_HEARTS - 1);
+    expect(struck.fallingSpikes).toEqual([]);
+  });
+
+  it('should hang again when the player respawns', () => {
+    const struck = createPlayedState([], FALL_TICKS);
+    const respawned = nextGameState(struck, { type: 'RESPAWN' }, constant(0));
+
+    expect(respawned.fallingSpikes).toEqual(createFallingSpikes(createArena()));
+    expect(respawned.enemies).toEqual([]);
+  });
+});

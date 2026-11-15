@@ -1,4 +1,4 @@
-import { createRandom } from '@mander/engine';
+import { createRandom } from '@mander/common';
 import type { RenderedWorld } from '@mander/render';
 import { pipe } from 'remeda';
 import { createWorldLevelVariants } from './internal/create-world-level-variants';

@@ -1,4 +1,4 @@
-import { isRollUnder, type Random } from '@mander/engine';
+import { isRollUnder, type Random } from '@mander/common';
 import { filter } from 'lodash-es';
 import type { Cell } from '../../types/cell';
 

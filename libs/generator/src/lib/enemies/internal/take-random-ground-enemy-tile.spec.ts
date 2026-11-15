@@ -1,4 +1,4 @@
-import { createRandom } from '@mander/engine';
+import { createRandom } from '@mander/common';
 import {
   TILE_ENEMY_FAST,
   TILE_ENEMY_HOPPING,

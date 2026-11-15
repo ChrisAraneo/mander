@@ -1,4 +1,4 @@
-import { getFireballPosition } from '@mander/engine';
+import { computeFireballPosition } from '@mander/engine';
 import type { Fireball } from '@mander/model';
 import type { CanvasStep } from '../types/canvas-step';
 import { createFireballFlameStep } from './internal/create-fireball-flame-step';
@@ -10,7 +10,7 @@ export const createFireballStep = (
 ): CanvasStep =>
   createFireballFlameStep(
     fireball,
-    getFireballPosition(fireball),
+    computeFireballPosition(fireball),
     time,
     getFireballColors(fireball),
   );

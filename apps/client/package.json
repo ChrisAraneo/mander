@@ -12,6 +12,7 @@
     "typecheck": "vue-tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
+    "@mander/common": "*",
     "@mander/engine": "*",
     "@mander/generator": "*",
     "@mander/model": "*",

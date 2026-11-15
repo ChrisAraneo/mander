@@ -1,4 +1,4 @@
-import type { Random } from '@mander/engine';
+import type { Random } from '@mander/common';
 import type { Season } from '@mander/model';
 import { createRandomBrick } from './create-random-brick';
 import { createRandomCeramic } from './create-random-ceramic';

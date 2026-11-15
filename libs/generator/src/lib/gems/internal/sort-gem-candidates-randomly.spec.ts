@@ -1,4 +1,4 @@
-import { createRandom } from '@mander/engine';
+import { createRandom } from '@mander/common';
 import { TILE_AIR, TILE_DIRT, type Tile } from '@mander/model';
 import { chunk, map, range, sortBy, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';

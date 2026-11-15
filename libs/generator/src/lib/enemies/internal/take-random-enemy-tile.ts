@@ -1,4 +1,4 @@
-import type { Random } from '@mander/engine';
+import type { Random } from '@mander/common';
 import { isGroundEnemyTile, type Tile, TILE_ENEMY_FLYING } from '@mander/model';
 import { match } from 'ts-pattern';
 import type { Cell } from '../../types/cell';

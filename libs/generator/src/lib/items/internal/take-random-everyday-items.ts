@@ -1,4 +1,4 @@
-import type { Random } from '@mander/engine';
+import type { Random } from '@mander/common';
 import type { Item, ItemRarity } from '@mander/model';
 import { reduce } from 'lodash-es';
 import { CHEST_ITEM_TYPES } from '../../consts';

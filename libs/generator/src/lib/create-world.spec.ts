@@ -1,11 +1,10 @@
+import { createRandom, hashString } from '@mander/common';
 import {
   createEnemies,
-  createRandom,
-  getSpawnPosition,
+  computeSpawnPosition,
   HORNED_ENEMY_CHANCE,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
-  hashString,
 } from '@mander/engine';
 import {
   type Enemy,
@@ -108,11 +107,13 @@ const computeTilesAcross = (start: number, span: number): number[] =>
   range(floor(start / TILE_SIZE), floor((start + span - 1) / TILE_SIZE) + 1);
 
 const isWalledIn = (level: Level): boolean =>
-  some(computeTilesAcross(getSpawnPosition(level).y, PLAYER_HEIGHT), (row) =>
-    some(
-      computeTilesAcross(getSpawnPosition(level).x, PLAYER_WIDTH),
-      (column) => isSolid(level, column, row),
-    ),
+  some(
+    computeTilesAcross(computeSpawnPosition(level).y, PLAYER_HEIGHT),
+    (row) =>
+      some(
+        computeTilesAcross(computeSpawnPosition(level).x, PLAYER_WIDTH),
+        (column) => isSolid(level, column, row),
+      ),
   );
 
 const formatGrid = (tiles: Tile[][]): string =>

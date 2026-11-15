@@ -1,4 +1,4 @@
-import { type Random, takeRandom } from '@mander/engine';
+import { type Random, takeRandom } from '@mander/common';
 import type { ItemRarity } from '@mander/model';
 import { concat, without } from 'lodash-es';
 import { CHEST_POOL_BY_TYPE } from '../../consts';

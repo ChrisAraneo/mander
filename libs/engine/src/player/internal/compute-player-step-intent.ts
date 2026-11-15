@@ -1,0 +1,40 @@
+import { pipe } from 'remeda';
+import { computePlayerJump } from './compute-player-jump';
+import { computePlayerVelocityX } from './compute-player-velocity-x';
+import { isFacingRightFor } from './is-facing-right-for';
+import { toHorizontalDirection } from './to-horizontal-direction';
+import type { PlayerStepDelta } from './types/player-step-delta';
+import type { PlayerStepIntent } from './types/player-step-intent';
+
+export const computePlayerStepIntent = ({
+  level,
+  player,
+  input,
+  deltaSeconds,
+}: PlayerStepDelta): PlayerStepIntent =>
+  pipe(
+    input,
+    toHorizontalDirection,
+    (direction) => ({
+      velocityX: computePlayerVelocityX(level, player, direction, deltaSeconds),
+      isFacingRight: isFacingRightFor(direction, player.statuses.isFacingRight),
+      jump: computePlayerJump(
+        {
+          velocityY: player.velocity.y.current,
+          isGrounded: player.statuses.isGrounded,
+        },
+        player,
+        input,
+      ),
+    }),
+    ({ velocityX, isFacingRight, jump }): PlayerStepIntent => ({
+      level,
+      player,
+      input,
+      deltaSeconds,
+      velocityX,
+      isFacingRight,
+      velocityY: jump.velocityY,
+      isGrounded: jump.isGrounded,
+    }),
+  );

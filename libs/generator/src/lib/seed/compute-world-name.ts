@@ -1,4 +1,4 @@
-import { hashString } from '@mander/engine';
+import { hashString } from '@mander/common';
 import { pipe } from 'remeda';
 import { formatDateSeed } from './internal/format-date-seed';
 

@@ -1,4 +1,4 @@
-import { isRollUnder, type Random } from '@mander/engine';
+import { isRollUnder, type Random } from '@mander/common';
 import {
   type Tile,
   TILE_ENEMY_FAST,

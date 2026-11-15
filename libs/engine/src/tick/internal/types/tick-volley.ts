@@ -1,0 +1,31 @@
+import type {
+  Bullet,
+  Cannon,
+  Cannonball,
+  Enemy,
+  FallingSpike,
+  Fireball,
+  Player,
+  Snowball,
+} from '@mander/model';
+import type { GameLevel } from '../../../state/types/game-level';
+import type { GameState } from '../../../state/types/game-state';
+import type { GameStatus } from '../../../state/types/game-status';
+
+export interface TickVolley {
+  state: GameState;
+  deltaSeconds: number;
+  cannons: Cannon[];
+  cannonballs: Cannonball[];
+  snowballs: Snowball[];
+  fireballs: Fireball[];
+  hits: Cannonball[];
+  chills: Snowball[];
+  player: Player;
+  deaths: number;
+  status: GameStatus;
+  bullets: Bullet[];
+  shot: Enemy[];
+  unshot: FallingSpike[];
+  level: GameLevel;
+}

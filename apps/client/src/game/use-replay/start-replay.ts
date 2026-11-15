@@ -1,4 +1,4 @@
-import { getReplayDuration } from '@mander/engine';
+import { computeReplayDuration } from '@mander/engine';
 import { tap } from 'lodash-es';
 import { pipe } from 'remeda';
 import { patchRef } from '../canvas';
@@ -25,7 +25,7 @@ export const startReplay = (session: ReplaySession): ReplaySession =>
       tap(current, () =>
         patchRef(
           current.durationSeconds,
-          getReplayDuration(current.recording.value) / MS_PER_SECOND,
+          computeReplayDuration(current.recording.value) / MS_PER_SECOND,
         ),
       ),
     (current) => tap(current, () => patchRef(current.speed, REPLAY_SPEEDS[0])),

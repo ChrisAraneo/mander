@@ -1,4 +1,4 @@
-import { type Random, takeRandom } from '@mander/engine';
+import { type Random, takeRandom } from '@mander/common';
 import type { Season } from '@mander/model';
 import type { PaletteMaterialTone } from './types/palette-material-tone';
 

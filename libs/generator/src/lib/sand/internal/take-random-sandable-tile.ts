@@ -1,4 +1,4 @@
-import { type Random, takeRandom } from '@mander/engine';
+import { type Random, takeRandom } from '@mander/common';
 import type { Tile } from '@mander/model';
 import { filter, includes, some } from 'lodash-es';
 import { SANDABLE_TILES } from '../consts';

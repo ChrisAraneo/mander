@@ -1,4 +1,4 @@
-import type { Random } from '@mander/engine';
+import type { Random } from '@mander/common';
 import type { Item } from '@mander/model';
 import { takeRandomChestRarities } from './internal/take-random-chest-rarities';
 import { takeRandomEverydayItems } from './internal/take-random-everyday-items';

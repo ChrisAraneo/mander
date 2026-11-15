@@ -1,4 +1,4 @@
-import type { Random } from '@mander/engine';
+import type { Random } from '@mander/common';
 import { type Tile, TILE_CANNON } from '@mander/model';
 import { pipe } from 'remeda';
 import { filterTileCells } from '../structures/filter-tile-cells';

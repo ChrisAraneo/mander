@@ -1,4 +1,4 @@
-import type { Random } from '@mander/engine';
+import type { Random } from '@mander/common';
 import type { Tile } from '@mander/model';
 import { pipe } from 'remeda';
 import { computeSmoothStoneCells } from './internal/compute-smooth-stone-cells';

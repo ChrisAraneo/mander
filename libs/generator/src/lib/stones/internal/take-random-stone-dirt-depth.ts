@@ -1,4 +1,4 @@
-import { type Random, isRollUnder } from '@mander/engine';
+import { type Random, isRollUnder } from '@mander/common';
 import type { Tile } from '@mander/model';
 import { match } from 'ts-pattern';
 import { DEEP_DIRT_DEPTH, DIRT_DEPTH } from '../../consts';

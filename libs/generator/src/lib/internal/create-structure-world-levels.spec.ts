@@ -1,4 +1,4 @@
-import { createRandom } from '@mander/engine';
+import { createRandom } from '@mander/common';
 import type { Season } from '@mander/model';
 import { find, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';

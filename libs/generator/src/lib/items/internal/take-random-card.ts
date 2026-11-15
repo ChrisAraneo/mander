@@ -1,4 +1,4 @@
-import { type Random, takeRandom } from '@mander/engine';
+import { type Random, takeRandom } from '@mander/common';
 import type { ItemRarity } from '@mander/model';
 import { takeRandomItemOfType } from './take-random-item-of-type';
 import type { ChestPicking } from './types/chest-picking';

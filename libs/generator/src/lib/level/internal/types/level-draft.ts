@@ -1,4 +1,4 @@
-import type { Random } from '@mander/engine';
+import type { Random } from '@mander/common';
 import type { Season, Tile } from '@mander/model';
 import type { Sector } from '@mander/structures';
 import type { LevelType } from '../../../types/level-type';

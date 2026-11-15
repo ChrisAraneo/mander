@@ -1,4 +1,4 @@
-import type { Random } from '@mander/engine';
+import type { Random } from '@mander/common';
 import { isEnemyTile, type Tile } from '@mander/model';
 import { filterCells } from '../../structures/filter-cells';
 import type { EnemyChances } from '../../types/enemy-chances';

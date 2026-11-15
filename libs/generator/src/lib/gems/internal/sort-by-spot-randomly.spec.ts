@@ -1,4 +1,4 @@
-import { createRandom } from '@mander/engine';
+import { createRandom } from '@mander/common';
 import { chunk, floor, map, range, sortBy } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 

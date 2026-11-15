@@ -1,4 +1,4 @@
-import { createRandom, type Random } from '@mander/engine';
+import { createRandom, type Random } from '@mander/common';
 import {
   type Tile,
   TILE_AIR,

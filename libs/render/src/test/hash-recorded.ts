@@ -1,4 +1,4 @@
-import { hashString } from '@mander/engine';
+import { hashString } from '@mander/common';
 import { join, size } from 'lodash-es';
 import { pipe } from 'remeda';
 import { drawRecorded } from './draw-recorded';

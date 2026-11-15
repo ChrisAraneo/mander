@@ -1,4 +1,4 @@
-import type { Random } from '@mander/engine';
+import type { Random } from '@mander/common';
 import { times } from 'lodash-es';
 import { CHEST_ITEM_COUNT } from '../../consts';
 import { toRarity } from './to-rarity';

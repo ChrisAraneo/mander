@@ -1,4 +1,4 @@
-import { createRandom } from '@mander/engine';
+import { createRandom } from '@mander/common';
 import type { Season } from '@mander/model';
 import { toWrappedHue } from '@mander/render';
 import { every, map, size, some, times, uniq } from 'lodash-es';

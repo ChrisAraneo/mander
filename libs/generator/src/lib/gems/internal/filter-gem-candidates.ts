@@ -1,4 +1,4 @@
-import type { Random } from '@mander/engine';
+import type { Random } from '@mander/common';
 import type { Tile } from '@mander/model';
 import { match } from 'ts-pattern';
 import { GEM_REST_HEIGHT } from '../../consts';

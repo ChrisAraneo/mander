@@ -16,6 +16,7 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "paths": {
+      "@mander/common": ["./libs/common/src/index.ts"],
       "@mander/engine": ["./libs/engine/src/index.ts"],
       "@mander/generator": ["./libs/generator/src/index.ts"],
       "@mander/model": ["./libs/model/src/index.ts"],

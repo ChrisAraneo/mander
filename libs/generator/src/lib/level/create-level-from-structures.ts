@@ -1,4 +1,5 @@
-import type { GameLevel, Random } from '@mander/engine';
+import type { Random } from '@mander/common';
+import type { GameLevel } from '@mander/engine';
 import type { Season } from '@mander/model';
 import type { Sector } from '@mander/structures';
 import { pipe } from 'remeda';

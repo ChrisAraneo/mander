@@ -1,4 +1,4 @@
-import type { Random } from '@mander/engine';
+import type { Random } from '@mander/common';
 import type { Sector } from '@mander/structures';
 import { ceil, flatMap, range, size, sortBy, take } from 'lodash-es';
 import { pipe } from 'remeda';
