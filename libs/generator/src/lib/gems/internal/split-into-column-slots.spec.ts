@@ -6,6 +6,10 @@ import { describe, expect, it } from 'vitest';
 import { GEMS_PER_STRUCTURE, SLOT_WIDTH } from '../../consts';
 import { splitIntoColumnSlots } from './split-into-column-slots';
 
+const PART_SLOT_WIDTH = 10;
+
+const THREE_SLOT_WIDTH = 12;
+
 const createLevel = (width: number): Tile[][] => [times(width, () => TILE_AIR)];
 
 const splitColumns = (width: number, columns: number[]): number[][] =>
@@ -31,7 +35,7 @@ describe('splitIntoColumnSlots', () => {
   });
 
   it('should cut the last slot short when the level ends inside it', () => {
-    expect(splitColumns(10, range(10))).toEqual([
+    expect(splitColumns(PART_SLOT_WIDTH, range(PART_SLOT_WIDTH))).toEqual([
       [0, 1, 2, 3],
       [4, 5, 6, 7],
       [8, 9],
@@ -39,12 +43,12 @@ describe('splitIntoColumnSlots', () => {
   });
 
   it('should leave a slot empty when none of its columns has a candidate', () => {
-    expect(splitColumns(12, [1, 9])).toEqual([[1], [], [9]]);
+    expect(splitColumns(THREE_SLOT_WIDTH, [1, 9])).toEqual([[1], [], [9]]);
   });
 
   it('should put the candidates of a slot in order from left to right when they stand at different heights', () => {
     expect(
-      splitIntoColumnSlots(createLevel(4), [
+      splitIntoColumnSlots(createLevel(SLOT_WIDTH), [
         { row: 1, column: 2 },
         { row: 3, column: 0 },
         { row: 5, column: 1 },

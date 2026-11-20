@@ -180,6 +180,10 @@ describe('createGameLevel', () => {
     expect(createOn(1).isOpenSided).toBe(false);
   });
 
+  it('should wall the sides in when the level is a hard one', () => {
+    expect(createOn(LAST_LEVEL, 'HARD').isOpenSided).toBe(false);
+  });
+
   it('should record the structures when it creates the level', () => {
     expect(createOn(1).meta).toEqual({
       structures: map(STRUCTURES, getStructureName),

@@ -10,9 +10,11 @@ import { filter, flatten, includes, size, times } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { LEVELS_PER_DAY } from '../consts';
-import { removeCannons } from './remove-cannons';
+import { patchCannons } from './patch-cannons';
 
 const FIRST_ARMED_LEVEL = 5;
+
+const SECOND_ARMED_LEVEL = 6;
 
 const FIRST_UNTOUCHED_LEVEL = 7;
 
@@ -30,14 +32,14 @@ const createEmplacement = (): Tile[][] => [
   [TILE_DIRT, TILE_DIRT, TILE_CANNON, TILE_DIRT],
 ];
 
-describe('removeCannons', () => {
+describe('patchCannons', () => {
   it('should fill every cannon in when the level is before the fifth', () => {
     times(FIRST_ARMED_LEVEL - 1, (index) => {
       const levelNumber = index + 1;
 
       expect(
         includes(
-          flatten(removeCannons(createEmplacement(), levelNumber)),
+          flatten(patchCannons(createEmplacement(), levelNumber)),
           TILE_CANNON,
         ),
         `level ${levelNumber} still armed`,
@@ -47,8 +49,12 @@ describe('removeCannons', () => {
 
   it('should fill the share the level was promised in when it thins the cannons', () => {
     expect(countCannons(createBattery())).toBe(4);
-    expect(countCannons(removeCannons(createBattery(), 5))).toBe(2);
-    expect(countCannons(removeCannons(createBattery(), 6))).toBe(3);
+    expect(countCannons(patchCannons(createBattery(), FIRST_ARMED_LEVEL))).toBe(
+      2,
+    );
+    expect(
+      countCannons(patchCannons(createBattery(), SECOND_ARMED_LEVEL)),
+    ).toBe(3);
   });
 
   it('should leave the cannons standing when the level is the seventh or later', () => {
@@ -56,14 +62,14 @@ describe('removeCannons', () => {
       const levelNumber = FIRST_UNTOUCHED_LEVEL + index;
 
       expect(
-        removeCannons(createEmplacement(), levelNumber),
+        patchCannons(createEmplacement(), levelNumber),
         `level ${levelNumber}`,
       ).toEqual(createEmplacement());
     });
   });
 
   it('should hand the cannon spot over to the blocks when they stand around it', () => {
-    expect(removeCannons(createEmplacement(), 1)).toEqual([
+    expect(patchCannons(createEmplacement(), 1)).toEqual([
       [TILE_AIR, TILE_DIRT, TILE_AIR, TILE_SPIKE],
       [TILE_DIRT, TILE_DIRT, TILE_DIRT, TILE_DIRT],
     ]);
@@ -71,7 +77,7 @@ describe('removeCannons', () => {
 
   it('should never hand the spot over to a cannon when one stands next door', () => {
     expect(
-      removeCannons(
+      patchCannons(
         [
           [TILE_CANNON, TILE_CANNON],
           [TILE_BRICK, TILE_CANNON],
@@ -86,7 +92,7 @@ describe('removeCannons', () => {
 
   it('should fall back to brick when no block stands anywhere near', () => {
     expect(
-      removeCannons(
+      patchCannons(
         [
           [TILE_AIR, TILE_AIR, TILE_AIR],
           [TILE_AIR, TILE_CANNON, TILE_AIR],
@@ -98,14 +104,14 @@ describe('removeCannons', () => {
   });
 
   it('should give back an empty grid when the grid is empty', () => {
-    expect(removeCannons([], 1)).toEqual([]);
+    expect(patchCannons([], 1)).toEqual([]);
   });
 
   it('should not change the old grid when it clears the cannons', () => {
     const tiles = createEmplacement();
 
-    removeCannons(tiles, 1);
-    removeCannons(tiles, FIRST_ARMED_LEVEL);
+    patchCannons(tiles, 1);
+    patchCannons(tiles, FIRST_ARMED_LEVEL);
 
     expect(tiles).toEqual(createEmplacement());
   });

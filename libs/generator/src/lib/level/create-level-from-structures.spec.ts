@@ -32,9 +32,18 @@ const SEED = 'DAY-1';
 
 const SPRING: Season = 'SPRING';
 
-const ACROSS: Sector[] = take([...NORMAL_STRUCTURES], STRUCTURES_PER_LEVEL);
+const LEVEL_NORMAL_STRUCTURES: Sector[] = take(
+  [...NORMAL_STRUCTURES],
+  STRUCTURES_PER_LEVEL,
+);
 
-const UPWARD: Sector[] = take([...VERTICAL_STRUCTURES], STRUCTURES_PER_LEVEL);
+const createNormalStructures = (): Sector[] =>
+  cloneDeep(LEVEL_NORMAL_STRUCTURES);
+
+const LEVEL_VERTICAL_STRUCTURES: Sector[] = take(
+  [...VERTICAL_STRUCTURES],
+  STRUCTURES_PER_LEVEL,
+);
 
 const WITH_CANNONS: Sector[] = take(
   filter([...NORMAL_STRUCTURES], (structure) =>
@@ -43,7 +52,7 @@ const WITH_CANNONS: Sector[] = take(
   STRUCTURES_PER_LEVEL,
 );
 
-const buildCannonLevel = (season: Season) =>
+const createCannonLevel = (season: Season) =>
   createLevelFromStructures(
     LEVELS_PER_DAY,
     'NORMAL',
@@ -58,7 +67,7 @@ describe('createLevelFromStructures', () => {
       1,
       'NORMAL',
       SPRING,
-      ACROSS,
+      LEVEL_NORMAL_STRUCTURES,
       createRandom(SEED),
     );
 
@@ -71,7 +80,7 @@ describe('createLevelFromStructures', () => {
       2,
       'VERTICAL',
       SPRING,
-      UPWARD,
+      LEVEL_VERTICAL_STRUCTURES,
       createRandom(SEED),
     );
 
@@ -84,7 +93,7 @@ describe('createLevelFromStructures', () => {
       1,
       'NORMAL',
       SPRING,
-      ACROSS,
+      LEVEL_NORMAL_STRUCTURES,
       createRandom(SEED),
     );
 
@@ -99,7 +108,7 @@ describe('createLevelFromStructures', () => {
       3,
       'MIRRORED',
       SPRING,
-      ACROSS,
+      LEVEL_NORMAL_STRUCTURES,
       createRandom(SEED),
     );
 
@@ -114,7 +123,7 @@ describe('createLevelFromStructures', () => {
       2,
       'VERTICAL',
       SPRING,
-      UPWARD,
+      LEVEL_VERTICAL_STRUCTURES,
       createRandom(SEED),
     );
 
@@ -129,7 +138,7 @@ describe('createLevelFromStructures', () => {
       1,
       'NORMAL',
       SPRING,
-      ACROSS,
+      LEVEL_NORMAL_STRUCTURES,
       createRandom(SEED),
     );
 
@@ -142,7 +151,7 @@ describe('createLevelFromStructures', () => {
       2,
       'VERTICAL',
       SPRING,
-      UPWARD,
+      LEVEL_VERTICAL_STRUCTURES,
       createRandom(SEED),
     );
 
@@ -155,7 +164,7 @@ describe('createLevelFromStructures', () => {
         4,
         'NORMAL',
         SPRING,
-        ACROSS,
+        LEVEL_NORMAL_STRUCTURES,
         createRandom(SEED),
       ),
     ).toEqual(
@@ -163,7 +172,7 @@ describe('createLevelFromStructures', () => {
         4,
         'NORMAL',
         SPRING,
-        ACROSS,
+        LEVEL_NORMAL_STRUCTURES,
         createRandom(SEED),
       ),
     );
@@ -171,14 +180,19 @@ describe('createLevelFromStructures', () => {
 
   it('should fill the chest another way when the generator starts from another seed', () => {
     expect(
-      createLevelFromStructures(1, 'NORMAL', SPRING, ACROSS, createRandom(SEED))
-        .chestItems,
+      createLevelFromStructures(
+        1,
+        'NORMAL',
+        SPRING,
+        LEVEL_NORMAL_STRUCTURES,
+        createRandom(SEED),
+      ).chestItems,
     ).not.toEqual(
       createLevelFromStructures(
         1,
         'NORMAL',
         SPRING,
-        ACROSS,
+        LEVEL_NORMAL_STRUCTURES,
         createRandom('OTHER-SEED'),
       ).chestItems,
     );
@@ -203,7 +217,7 @@ describe('createLevelFromStructures', () => {
       8,
       'NORMAL',
       'SUMMER',
-      ACROSS,
+      LEVEL_NORMAL_STRUCTURES,
       createRandom(SEED),
     );
 
@@ -214,28 +228,28 @@ describe('createLevelFromStructures', () => {
   });
 
   it('should build both kinds of cannon when the season is summer', () => {
-    const tiles = flatten(buildCannonLevel('SUMMER').tiles);
+    const tiles = flatten(createCannonLevel('SUMMER').tiles);
 
     expect(includes(tiles, TILE_CANNON_TRIPLE)).toBe(true);
     expect(includes(tiles, TILE_CANNON)).toBe(true);
   });
 
   it('should build only regular cannons when the season is spring', () => {
-    const tiles = flatten(buildCannonLevel('SPRING').tiles);
+    const tiles = flatten(createCannonLevel('SPRING').tiles);
 
     expect(includes(tiles, TILE_CANNON_TRIPLE)).toBe(false);
     expect(includes(tiles, TILE_CANNON)).toBe(true);
   });
 
   it('should build only regular cannons when the season is autumn', () => {
-    const tiles = flatten(buildCannonLevel('AUTUMN').tiles);
+    const tiles = flatten(createCannonLevel('AUTUMN').tiles);
 
     expect(includes(tiles, TILE_CANNON_TRIPLE)).toBe(false);
     expect(includes(tiles, TILE_CANNON)).toBe(true);
   });
 
   it('should build only regular cannons when the season is winter', () => {
-    const tiles = flatten(buildCannonLevel('WINTER').tiles);
+    const tiles = flatten(createCannonLevel('WINTER').tiles);
 
     expect(includes(tiles, TILE_CANNON_TRIPLE)).toBe(false);
     expect(includes(tiles, TILE_CANNON)).toBe(true);
@@ -246,7 +260,7 @@ describe('createLevelFromStructures', () => {
       1,
       'NORMAL',
       'SUMMER',
-      ACROSS,
+      LEVEL_NORMAL_STRUCTURES,
       createRandom(SEED),
     );
 
@@ -264,7 +278,7 @@ describe('createLevelFromStructures', () => {
               1,
               'NORMAL',
               season,
-              ACROSS,
+              LEVEL_NORMAL_STRUCTURES,
               createRandom(SEED),
             ).tiles,
           ),
@@ -286,8 +300,21 @@ describe('createLevelFromStructures', () => {
     expect(level.tiles).toEqual([]);
   });
 
+  it('should lay down a way in and a way out in a hard level when it builds one', () => {
+    const level = createLevelFromStructures(
+      LEVELS_PER_DAY,
+      'HARD',
+      SPRING,
+      LEVEL_NORMAL_STRUCTURES,
+      createRandom(SEED),
+    );
+
+    expect(findTile(level, TILE_SPAWN)).not.toBeNull();
+    expect(findTile(level, TILE_PORTAL)).not.toBeNull();
+  });
+
   it('should not change the old structures when it builds a level', () => {
-    const structures = cloneDeep(ACROSS);
+    const structures = createNormalStructures();
 
     createLevelFromStructures(
       1,
@@ -297,6 +324,6 @@ describe('createLevelFromStructures', () => {
       createRandom(SEED),
     );
 
-    expect(structures).toEqual(ACROSS);
+    expect(structures).toEqual(createNormalStructures());
   });
 });

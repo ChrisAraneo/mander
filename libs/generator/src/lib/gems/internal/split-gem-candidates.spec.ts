@@ -7,6 +7,12 @@ import { splitGemCandidates } from './split-gem-candidates';
 
 const RANDOM = createRandom('SEED');
 
+const LEVEL_WIDTH = 8;
+
+const LEVEL_HEIGHT = 10;
+
+const SMALL_LEVEL_SIZE = 3;
+
 const createLevel = (width: number, height: number): Tile[][] =>
   times(height, () => times(width, () => TILE_AIR));
 
@@ -14,7 +20,7 @@ describe('splitGemCandidates', () => {
   it('should group the candidates by their columns in a horizontal level when they stand apart', () => {
     expect(
       splitGemCandidates({
-        tiles: createLevel(8, 10),
+        tiles: createLevel(LEVEL_WIDTH, LEVEL_HEIGHT),
         levelType: 'HORIZONTAL',
         candidates: [
           { row: 9, column: 1 },
@@ -28,7 +34,7 @@ describe('splitGemCandidates', () => {
   it('should group the candidates by their rows in a vertical level when they stand apart', () => {
     expect(
       splitGemCandidates({
-        tiles: createLevel(8, 10),
+        tiles: createLevel(LEVEL_WIDTH, LEVEL_HEIGHT),
         levelType: 'VERTICAL',
         candidates: [
           { row: 1, column: 6 },
@@ -51,7 +57,7 @@ describe('splitGemCandidates', () => {
   });
 
   it('should keep the grid the same when it groups', () => {
-    const tiles = createLevel(3, 3);
+    const tiles = createLevel(SMALL_LEVEL_SIZE, SMALL_LEVEL_SIZE);
 
     expect(
       splitGemCandidates({

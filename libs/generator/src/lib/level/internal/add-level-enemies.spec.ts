@@ -61,7 +61,7 @@ const addEnemiesIn = (
 const countTiles = (tiles: Tile[][], wanted: Tile): number =>
   size(filter(flatten(tiles), (tile) => tile === wanted));
 
-const takeEnemyKindsOn = (levelNumber: number, season: Season): Tile[] =>
+const computeEnemyKindsOn = (levelNumber: number, season: Season): Tile[] =>
   uniq(addEnemiesIn(createPatrolGround(), levelNumber, season).tiles[0]);
 
 describe('addLevelEnemies', () => {
@@ -106,21 +106,21 @@ describe('addLevelEnemies', () => {
     expect(
       uniq(
         flatten([
-          takeEnemyKindsOn(1, 'SPRING'),
-          takeEnemyKindsOn(2, 'SPRING'),
-          takeEnemyKindsOn(1, 'SUMMER'),
-          takeEnemyKindsOn(2, 'SUMMER'),
-          takeEnemyKindsOn(1, 'AUTUMN'),
-          takeEnemyKindsOn(2, 'AUTUMN'),
-          takeEnemyKindsOn(1, 'WINTER'),
-          takeEnemyKindsOn(2, 'WINTER'),
+          computeEnemyKindsOn(1, 'SPRING'),
+          computeEnemyKindsOn(2, 'SPRING'),
+          computeEnemyKindsOn(1, 'SUMMER'),
+          computeEnemyKindsOn(2, 'SUMMER'),
+          computeEnemyKindsOn(1, 'AUTUMN'),
+          computeEnemyKindsOn(2, 'AUTUMN'),
+          computeEnemyKindsOn(1, 'WINTER'),
+          computeEnemyKindsOn(2, 'WINTER'),
         ]),
       ),
     ).toEqual([TILE_ENEMY_HOPPING]);
   });
 
   it('should send out hopping and fast enemies only when the world is a spring one', () => {
-    const kinds = takeEnemyKindsOn(LAST_LEVEL, 'SPRING');
+    const kinds = computeEnemyKindsOn(LAST_LEVEL, 'SPRING');
 
     expect(kinds).toContain(TILE_ENEMY_HOPPING);
     expect(kinds).toContain(TILE_ENEMY_FAST);
@@ -130,7 +130,7 @@ describe('addLevelEnemies', () => {
   });
 
   it('should send out hopping and horned enemies only when the world is a summer one', () => {
-    const kinds = takeEnemyKindsOn(FIRST_HARD_LEVEL, 'SUMMER');
+    const kinds = computeEnemyKindsOn(FIRST_HARD_LEVEL, 'SUMMER');
 
     expect(kinds).toContain(TILE_ENEMY_HOPPING);
     expect(kinds).toContain(TILE_ENEMY_HORNED);
@@ -140,7 +140,7 @@ describe('addLevelEnemies', () => {
   });
 
   it('should send out hopping and freezing enemies only when the world is a winter one', () => {
-    const kinds = takeEnemyKindsOn(FIRST_HARD_LEVEL, 'WINTER');
+    const kinds = computeEnemyKindsOn(FIRST_HARD_LEVEL, 'WINTER');
 
     expect(kinds).toContain(TILE_ENEMY_HOPPING);
     expect(kinds).toContain(TILE_ENEMY_FREEZING);
@@ -150,7 +150,7 @@ describe('addLevelEnemies', () => {
   });
 
   it('should send out hopping and shooting enemies only when the world is an autumn one', () => {
-    const kinds = takeEnemyKindsOn(LAST_LEVEL, 'AUTUMN');
+    const kinds = computeEnemyKindsOn(LAST_LEVEL, 'AUTUMN');
 
     expect(kinds).toContain(TILE_ENEMY_HOPPING);
     expect(kinds).toContain(TILE_ENEMY_SHOOTER);
@@ -159,30 +159,30 @@ describe('addLevelEnemies', () => {
     expect(kinds).not.toContain(TILE_ENEMY_FREEZING);
   });
 
-  it('should hold the fast enemies back until the level they are unlocked on', () => {
-    expect(takeEnemyKindsOn(2, 'SPRING')).not.toContain(TILE_ENEMY_FAST);
-    expect(takeEnemyKindsOn(FIRST_HARD_LEVEL, 'SPRING')).toContain(
+  it('should hold the fast enemies back when the level comes before the one that unlocks them', () => {
+    expect(computeEnemyKindsOn(2, 'SPRING')).not.toContain(TILE_ENEMY_FAST);
+    expect(computeEnemyKindsOn(FIRST_HARD_LEVEL, 'SPRING')).toContain(
       TILE_ENEMY_FAST,
     );
   });
 
-  it('should hold the horned enemies back until the level they are unlocked on', () => {
-    expect(takeEnemyKindsOn(2, 'SUMMER')).not.toContain(TILE_ENEMY_HORNED);
-    expect(takeEnemyKindsOn(FIRST_HARD_LEVEL, 'SUMMER')).toContain(
+  it('should hold the horned enemies back when the level comes before the one that unlocks them', () => {
+    expect(computeEnemyKindsOn(2, 'SUMMER')).not.toContain(TILE_ENEMY_HORNED);
+    expect(computeEnemyKindsOn(FIRST_HARD_LEVEL, 'SUMMER')).toContain(
       TILE_ENEMY_HORNED,
     );
   });
 
-  it('should hold the freezing enemies back until the level they are unlocked on', () => {
-    expect(takeEnemyKindsOn(2, 'WINTER')).not.toContain(TILE_ENEMY_FREEZING);
-    expect(takeEnemyKindsOn(FIRST_HARD_LEVEL, 'WINTER')).toContain(
+  it('should hold the freezing enemies back when the level comes before the one that unlocks them', () => {
+    expect(computeEnemyKindsOn(2, 'WINTER')).not.toContain(TILE_ENEMY_FREEZING);
+    expect(computeEnemyKindsOn(FIRST_HARD_LEVEL, 'WINTER')).toContain(
       TILE_ENEMY_FREEZING,
     );
   });
 
-  it('should hold the shooters back until the level they are unlocked on', () => {
-    expect(takeEnemyKindsOn(5, 'AUTUMN')).not.toContain(TILE_ENEMY_SHOOTER);
-    expect(takeEnemyKindsOn(6, 'AUTUMN')).toContain(TILE_ENEMY_SHOOTER);
+  it('should hold the shooter enemies back when the level comes before the one that unlocks them', () => {
+    expect(computeEnemyKindsOn(5, 'AUTUMN')).not.toContain(TILE_ENEMY_SHOOTER);
+    expect(computeEnemyKindsOn(6, 'AUTUMN')).toContain(TILE_ENEMY_SHOOTER);
   });
 
   it('should draw the same enemies when the generator starts from the same seed', () => {

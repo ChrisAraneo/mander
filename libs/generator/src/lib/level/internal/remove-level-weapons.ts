@@ -1,4 +1,4 @@
-import { removeCannons } from '../../cannons/remove-cannons';
+import { patchCannons } from '../../cannons/patch-cannons';
 import { removeFireballs } from '../../fireballs/remove-fireballs';
 import type { LevelDraft } from './types/level-draft';
 
@@ -17,7 +17,7 @@ export const removeLevelWeapons = ({
   levelType,
   season,
   structures,
-  tiles: removeFireballs(removeCannons(tiles, levelNumber), levelNumber),
+  tiles: removeFireballs(patchCannons(tiles, levelNumber), levelNumber),
   backTiles,
   random,
 });

@@ -28,12 +28,14 @@ const LEDGE_ROW = GROUND_ROW - 1;
 
 const TRAP_COLUMN = 4;
 
-const createLayer = (marks: TilePatch[], fill: Tile): Tile[][] =>
+const SPIKE_COLUMN = TRAP_COLUMN + 2;
+
+const createLayer = (patches: TilePatch[], fill: Tile): Tile[][] =>
   times(STRUCTURE_HEIGHT, (row) =>
     times(
       STRUCTURE_WIDTH,
       (column) =>
-        find(marks, (mark) => mark.row === row && mark.column === column)
+        find(patches, (patch) => patch.row === row && patch.column === column)
           ?.tile ?? fill,
     ),
   );
@@ -46,7 +48,7 @@ const createSector = (): Sector => [
     [
       ...createGroundRow(TILE_DIRT),
       { row: LEDGE_ROW, column: TRAP_COLUMN, tile: TILE_BEARTRAP },
-      { row: LEDGE_ROW, column: TRAP_COLUMN + 2, tile: TILE_SPIKE },
+      { row: LEDGE_ROW, column: SPIKE_COLUMN, tile: TILE_SPIKE },
       { row: LEDGE_ROW, column: 0, tile: STRUCTURE_START },
       { row: LEDGE_ROW, column: STRUCTURE_WIDTH - 1, tile: STRUCTURE_END },
     ],
@@ -69,10 +71,10 @@ describe('a sector painted in two layers', () => {
   });
 
   it('should keep the spike in front of the wall when both are painted in the same cell', () => {
-    expect(createSectorLayers().tiles[LEDGE_ROW][TRAP_COLUMN + 2]).toBe(
+    expect(createSectorLayers().tiles[LEDGE_ROW][SPIKE_COLUMN]).toBe(
       TILE_SPIKE,
     );
-    expect(createSectorLayers().backTiles[LEDGE_ROW][TRAP_COLUMN + 2]).toBe(
+    expect(createSectorLayers().backTiles[LEDGE_ROW][SPIKE_COLUMN]).toBe(
       TILE_BRICK,
     );
   });

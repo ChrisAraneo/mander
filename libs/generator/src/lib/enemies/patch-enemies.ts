@@ -6,7 +6,7 @@ import { createEnemyPatches } from './internal/create-enemy-patches';
 import { filterEnemyCells } from './internal/filter-enemy-cells';
 import { patchEnemyTiles } from './internal/patch-enemy-tiles';
 
-export const randomizeEnemies = (
+export const patchEnemies = (
   tiles: Tile[][],
   chances: EnemyChances,
   random: Random,

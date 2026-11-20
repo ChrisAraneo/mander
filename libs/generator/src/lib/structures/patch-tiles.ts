@@ -1,4 +1,4 @@
-import { type Tile } from '@mander/model';
+import type { Tile } from '@mander/model';
 import { groupBy, map } from 'lodash-es';
 import { pipe } from 'remeda';
 import { match, P } from 'ts-pattern';

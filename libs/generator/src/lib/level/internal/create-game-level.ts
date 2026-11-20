@@ -1,5 +1,5 @@
 import type { GameLevel } from '@mander/engine';
-import { type Layers } from '@mander/model';
+import type { Layers } from '@mander/model';
 import { size } from 'lodash-es';
 import { pipe } from 'remeda';
 import { match } from 'ts-pattern';
@@ -13,7 +13,7 @@ import { getHornedEnemyChance } from './get-horned-enemy-chance';
 import { getShooterEnemyChance } from './get-shooter-enemy-chance';
 import { hashLevelSeed } from './hash-level-seed';
 import { toMirroredLayers } from './to-mirrored-layers';
-import type { FurnishedLevel } from './types/furnished-level';
+import type { LevelFurniture } from './types/level-furniture';
 
 export const createGameLevel = ({
   levelNumber,
@@ -23,7 +23,7 @@ export const createGameLevel = ({
   tiles,
   backTiles,
   random,
-}: FurnishedLevel): GameLevel =>
+}: LevelFurniture): GameLevel =>
   pipe(
     levelVariant,
     isMirrored,

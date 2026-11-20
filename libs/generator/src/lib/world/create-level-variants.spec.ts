@@ -11,16 +11,17 @@ import {
 } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
-import { FIRST_HARD_LEVEL, LEVELS_PER_DAY } from '../consts';
+import { LEVELS_PER_DAY } from '../consts';
+import type { LevelVariant } from '../types/level-variant';
+import { EARLY_LEVELS } from './consts';
 import { createLevelVariants } from './create-level-variants';
-
-const EARLY_LEVELS = FIRST_HARD_LEVEL - 1;
 
 const LATE_LEVELS = LEVELS_PER_DAY - EARLY_LEVELS;
 
 const SEEDS = map(times(20), (day) => `DAY-${day}`);
 
-const createOn = (seed: string) => createLevelVariants(createRandom(seed));
+const createOn = (seed: string): LevelVariant[] =>
+  createLevelVariants(createRandom(seed));
 
 describe('createLevelVariants', () => {
   it('should give a variant for every level of the day when it deals a world', () => {

@@ -6,7 +6,7 @@ import { getCannonRemovalRate } from './internal/get-cannon-removal-rate';
 import { patchCannonTiles } from './internal/patch-cannon-tiles';
 import { sliceCannonCells } from './internal/slice-cannon-cells';
 
-export const removeCannons = (tiles: Tile[][], levelNumber: number): Tile[][] =>
+export const patchCannons = (tiles: Tile[][], levelNumber: number): Tile[][] =>
   pipe(
     { tiles, levelNumber },
     getCannonRemovalRate,

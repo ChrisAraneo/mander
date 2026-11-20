@@ -1,7 +1,7 @@
 import type { Random } from '@mander/common';
 import { drop, sortBy, take } from 'lodash-es';
-import { FIRST_HARD_LEVEL } from '../consts';
 import type { LevelVariant } from '../types/level-variant';
+import { EARLY_LEVELS } from './consts';
 
 const LEVEL_VARIANTS: readonly LevelVariant[] = Object.freeze([
   'VERTICAL',
@@ -13,8 +13,6 @@ const LEVEL_VARIANTS: readonly LevelVariant[] = Object.freeze([
   'HARD',
   'HARD',
 ]);
-
-const EARLY_LEVELS = FIRST_HARD_LEVEL - 1;
 
 export const createLevelVariants = (random: Random): LevelVariant[] => [
   ...sortBy(take(LEVEL_VARIANTS, EARLY_LEVELS), () => random()),

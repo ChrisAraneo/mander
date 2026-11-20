@@ -21,7 +21,9 @@ const sortRandomlyWith = (seed: string) =>
 
 describe('sortSpikeCellsRandomly', () => {
   it('should keep every spot when it shuffles them', () => {
-    expect(sortBy(sortRandomlyWith('DAY-1'), 'column')).toEqual(CELLS);
+    expect(sortBy(sortRandomlyWith('DAY-1'), (cell) => cell.column)).toEqual(
+      CELLS,
+    );
   });
 
   it('should mix the spots up when it shuffles them', () => {

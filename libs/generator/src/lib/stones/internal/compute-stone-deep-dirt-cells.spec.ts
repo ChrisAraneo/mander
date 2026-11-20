@@ -8,8 +8,9 @@ import {
 import { describe, expect, it } from 'vitest';
 
 import { computeStoneDeepDirtCells } from './compute-stone-deep-dirt-cells';
+import type { Field } from './types/field';
 
-const computeCells = (tiles: Tile[][], depth: number) =>
+const computeCells = (tiles: Tile[][], depth: number): Field =>
   computeStoneDeepDirtCells({ tiles, depth }).cells;
 
 describe('computeStoneDeepDirtCells', () => {

@@ -2,10 +2,20 @@ import { times, toNumber } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { computeBlurredColumns } from './compute-blurred-columns';
+import {
+  BLUR_EDGE_WEIGHT,
+  BLUR_FAR_WEIGHT,
+  BLUR_MIDDLE_WEIGHT,
+  BLUR_NEAR_WEIGHT,
+  BLUR_REACH,
+  BLUR_TOTAL_WEIGHT,
+} from './consts';
 
-const TOTAL_WEIGHT = 118;
+const FIELD_HEIGHT = BLUR_REACH * 2 + 5;
 
-const EDGE_WEIGHT = 65;
+const MIDDLE_ROW = 10;
+
+const SHORT_FIELD_HEIGHT = 20;
 
 describe('computeBlurredColumns', () => {
   it('should keep a column the same when all of its cells are the same', () => {
@@ -14,19 +24,27 @@ describe('computeBlurredColumns', () => {
 
   it('should spread a lone cell out along its column when it blurs the field', () => {
     const blurred = computeBlurredColumns(
-      times(21, (row) => [toNumber(row === 10)]),
+      times(FIELD_HEIGHT, (row) => [toNumber(row === MIDDLE_ROW)]),
     );
 
-    expect(blurred[10][0]).toBeCloseTo(12 / TOTAL_WEIGHT);
-    expect(blurred[11][0]).toBeCloseTo(11 / TOTAL_WEIGHT);
-    expect(blurred[18][0]).toBeCloseTo(2 / TOTAL_WEIGHT);
-    expect(blurred[19][0]).toBe(0);
+    expect(blurred[MIDDLE_ROW][0]).toBeCloseTo(
+      BLUR_MIDDLE_WEIGHT / BLUR_TOTAL_WEIGHT,
+    );
+    expect(blurred[MIDDLE_ROW + 1][0]).toBeCloseTo(
+      BLUR_NEAR_WEIGHT / BLUR_TOTAL_WEIGHT,
+    );
+    expect(blurred[MIDDLE_ROW + BLUR_REACH][0]).toBeCloseTo(
+      BLUR_FAR_WEIGHT / BLUR_TOTAL_WEIGHT,
+    );
+    expect(blurred[MIDDLE_ROW + BLUR_REACH + 1][0]).toBe(0);
   });
 
   it('should repeat the edge cell when the blur reaches past the end of the column', () => {
     expect(
-      computeBlurredColumns(times(20, (row) => [toNumber(row === 0)]))[0][0],
-    ).toBeCloseTo(EDGE_WEIGHT / TOTAL_WEIGHT);
+      computeBlurredColumns(
+        times(SHORT_FIELD_HEIGHT, (row) => [toNumber(row === 0)]),
+      )[0][0],
+    ).toBeCloseTo(BLUR_EDGE_WEIGHT / BLUR_TOTAL_WEIGHT);
   });
 
   it('should not mix cells from other columns when it blurs the field', () => {

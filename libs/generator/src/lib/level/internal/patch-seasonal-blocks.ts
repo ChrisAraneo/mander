@@ -1,35 +1,42 @@
-import type { Tile } from '@mander/model';
-import { pipe } from 'remeda';
+import { identity } from 'lodash-es';
 import { match } from 'ts-pattern';
-import { bloomBlocks } from '../../bloom/bloom-blocks';
-import { freezeBlocks } from '../../ice/freeze-blocks';
+import { patchBloomedBlocks } from '../../bloom/patch-bloomed-blocks';
+import { patchFrozenBlocks } from '../../ice/patch-frozen-blocks';
 import { createSandPatch } from '../../sand/create-sand-patch';
-import type { FurnishedLevel } from './types/furnished-level';
+import type { LayerPatch } from '../../types/layer-patch';
+import type { LevelFurniture } from './types/level-furniture';
 
-const keepBlocks = (tiles: Tile[][]): Tile[][] => tiles;
+const getSeasonalPatch = ({
+  season,
+  tiles,
+  random,
+}: LevelFurniture): LayerPatch =>
+  match(season)
+    .with('WINTER', () => patchFrozenBlocks)
+    .with('SPRING', () => patchBloomedBlocks)
+    .with('SUMMER', () => createSandPatch(tiles, random))
+    .otherwise((): LayerPatch => identity);
 
-export const patchSeasonalBlocks = ({
+const patchSeasonalLayers = (
+  {
+    levelNumber,
+    levelVariant,
+    season,
+    structures,
+    tiles,
+    backTiles,
+    random,
+  }: LevelFurniture,
+  patch: LayerPatch,
+): LevelFurniture => ({
   levelNumber,
   levelVariant,
   season,
   structures,
-  tiles,
-  backTiles,
+  tiles: patch(tiles),
+  backTiles: patch(backTiles),
   random,
-}: FurnishedLevel): FurnishedLevel =>
-  pipe(
-    match(season)
-      .with('WINTER', () => freezeBlocks)
-      .with('SPRING', () => bloomBlocks)
-      .with('SUMMER', () => createSandPatch(tiles, random))
-      .otherwise(() => keepBlocks),
-    (patch): FurnishedLevel => ({
-      levelNumber,
-      levelVariant,
-      season,
-      structures,
-      tiles: patch(tiles),
-      backTiles: patch(backTiles),
-      random,
-    }),
-  );
+});
+
+export const patchSeasonalBlocks = (level: LevelFurniture): LevelFurniture =>
+  patchSeasonalLayers(level, getSeasonalPatch(level));

@@ -1,9 +1,9 @@
-import { randomizeEnemies } from '../../enemies/randomize-enemies';
+import { patchEnemies } from '../../enemies/patch-enemies';
 import { getFastEnemyChance } from './get-fast-enemy-chance';
 import { getFreezingEnemyChance } from './get-freezing-enemy-chance';
 import { getHornedEnemyChance } from './get-horned-enemy-chance';
 import { getShooterEnemyChance } from './get-shooter-enemy-chance';
-import type { FurnishedLevel } from './types/furnished-level';
+import type { LevelFurniture } from './types/level-furniture';
 
 export const addLevelEnemies = ({
   levelNumber,
@@ -13,12 +13,12 @@ export const addLevelEnemies = ({
   tiles,
   backTiles,
   random,
-}: FurnishedLevel): FurnishedLevel => ({
+}: LevelFurniture): LevelFurniture => ({
   levelNumber,
   levelVariant,
   season,
   structures,
-  tiles: randomizeEnemies(
+  tiles: patchEnemies(
     tiles,
     {
       horned: getHornedEnemyChance(levelNumber, season),

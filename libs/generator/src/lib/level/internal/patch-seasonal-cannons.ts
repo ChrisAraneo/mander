@@ -1,6 +1,6 @@
 import { match } from 'ts-pattern';
 import { patchTripleCannons } from '../../cannons/patch-triple-cannons';
-import type { FurnishedLevel } from './types/furnished-level';
+import type { LevelFurniture } from './types/level-furniture';
 
 export const patchSeasonalCannons = ({
   levelNumber,
@@ -10,7 +10,7 @@ export const patchSeasonalCannons = ({
   tiles,
   backTiles,
   random,
-}: FurnishedLevel): FurnishedLevel => ({
+}: LevelFurniture): LevelFurniture => ({
   levelNumber,
   levelVariant,
   season,

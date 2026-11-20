@@ -1,15 +1,16 @@
 import type { Random } from '@mander/common';
-import { type Tile, TILE_CANNON } from '@mander/model';
+import type { Tile } from '@mander/model';
 import { pipe } from 'remeda';
-import { filterTileCells } from '../structures/filter-tile-cells';
-import { patchTiles } from '../structures/patch-tiles';
 import { createTripleCannonPatches } from './internal/create-triple-cannon-patches';
+import { filterTripleCannonCells } from './internal/filter-triple-cannon-cells';
+import { patchCannonTiles } from './internal/patch-cannon-tiles';
 import { takeRandomTripleCannonCells } from './internal/take-random-triple-cannon-cells';
 
 export const patchTripleCannons = (tiles: Tile[][], random: Random): Tile[][] =>
   pipe(
-    filterTileCells(tiles, TILE_CANNON),
-    (cells) => takeRandomTripleCannonCells(cells, random),
+    { tiles, random },
+    filterTripleCannonCells,
+    takeRandomTripleCannonCells,
     createTripleCannonPatches,
-    (patches) => patchTiles(tiles, patches),
+    patchCannonTiles,
   );

@@ -17,8 +17,8 @@ describe('getCannonRemovalRate', () => {
   });
 
   it('should fill fewer cannons in when the level is the fifth or the sixth', () => {
-    expect(getRate(5)).toBe(0.5);
-    expect(getRate(6)).toBe(0.2);
+    expect(getRate(5)).toBeCloseTo(0.5);
+    expect(getRate(6)).toBeCloseTo(0.2);
   });
 
   it('should leave the cannons standing when the level is the seventh or later', () => {

@@ -6,21 +6,27 @@ import {
   type Tile,
 } from '@mander/model';
 import type { Sector } from '@mander/structures';
-import { flatten, includes, times } from 'lodash-es';
+import { flatten, includes, map, size, times, toString, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { patchSeasonalCannons } from './patch-seasonal-cannons';
-import type { FurnishedLevel } from './types/furnished-level';
+import type { LevelFurniture } from './types/level-furniture';
 
 const STRUCTURES: Sector[] = [];
 
 const BACK_TILES: Tile[][] = [[TILE_CANNON]];
 
-const TILES: Tile[][] = [times(40, () => TILE_CANNON)];
+const CANNON_ROW_WIDTH = 40;
+
+const SEEDS_TRIED = 20;
+
+const SEEDS = times(SEEDS_TRIED, (day) => `DAY-${day}`);
+
+const TILES: Tile[][] = [times(CANNON_ROW_WIDTH, () => TILE_CANNON)];
 
 const RANDOM: Random = createRandom('DAY-1');
 
-const createLevel = (season: Season, random: Random): FurnishedLevel => ({
+const createLevel = (season: Season, random: Random): LevelFurniture => ({
   levelNumber: 8,
   levelVariant: 'NORMAL',
   season,
@@ -30,8 +36,11 @@ const createLevel = (season: Season, random: Random): FurnishedLevel => ({
   random,
 });
 
-const patchIn = (season: Season): FurnishedLevel =>
+const patchIn = (season: Season): LevelFurniture =>
   patchSeasonalCannons(createLevel(season, createRandom('DAY-1')));
+
+const patchSummerWith = (seed: string): LevelFurniture =>
+  patchSeasonalCannons(createLevel('SUMMER', createRandom(seed)));
 
 describe('patchSeasonalCannons', () => {
   it('should swap in triple cannons and keep some regular ones when the season is summer', () => {
@@ -65,7 +74,7 @@ describe('patchSeasonalCannons', () => {
   });
 
   it('should not change the old level when the season is summer', () => {
-    const tiles = times(40, () => TILE_CANNON);
+    const tiles = times(CANNON_ROW_WIDTH, () => TILE_CANNON);
 
     patchSeasonalCannons({
       ...createLevel('SUMMER', createRandom('DAY-1')),
@@ -99,5 +108,32 @@ describe('patchSeasonalCannons', () => {
     expect(patchSeasonalCannons(createLevel('SUMMER', RANDOM)).random).toBe(
       RANDOM,
     );
+  });
+
+  it('should give back empty layers when the level holds no blocks', () => {
+    const level = patchSeasonalCannons({
+      ...createLevel('SUMMER', createRandom('DAY-1')),
+      tiles: [],
+      backTiles: [],
+    });
+
+    expect(level.tiles).toEqual([]);
+    expect(level.backTiles).toEqual([]);
+  });
+
+  it('should swap in the same cannons when the generator starts from the same seed', () => {
+    expect(patchSummerWith('DAY-1').tiles).toEqual(
+      patchSummerWith('DAY-1').tiles,
+    );
+  });
+
+  it('should swap in other cannons when the generator starts from other seeds', () => {
+    expect(
+      size(
+        uniq(
+          map(SEEDS, (seed) => toString(flatten(patchSummerWith(seed).tiles))),
+        ),
+      ),
+    ).toBeGreaterThan(1);
   });
 });

@@ -16,8 +16,8 @@ const createGrid = (rows: string[]): Tile[][] =>
 
 const filterCandidates = (
   rows: string[],
-  candidates: Spot[],
   levelType: LevelType,
+  candidates: Spot[],
 ) =>
   filterChestCandidatesByPortal({
     tiles: createGrid(rows),
@@ -29,8 +29,8 @@ const filterColumns = (rows: string[], columns: number[]): number[] =>
   map(
     filterCandidates(
       rows,
-      map(columns, (column) => ({ row: 2, column })),
       'HORIZONTAL',
+      map(columns, (column) => ({ row: 2, column })),
     ),
     'column',
   );
@@ -39,8 +39,8 @@ const filterRows = (rows: string[], spotRows: number[]): number[] =>
   map(
     filterCandidates(
       rows,
-      map(spotRows, (row) => ({ row, column: 0 })),
       'VERTICAL',
+      map(spotRows, (row) => ({ row, column: 0 })),
     ),
     'row',
   );
@@ -74,11 +74,11 @@ describe('filterChestCandidatesByPortal', () => {
   });
 
   it('should give nothing back in a horizontal level when there are no candidates', () => {
-    expect(filterCandidates(['..P.', '####'], [], 'HORIZONTAL')).toEqual([]);
+    expect(filterCandidates(['..P.', '####'], 'HORIZONTAL', [])).toEqual([]);
   });
 
   it('should give nothing back in a vertical level when there are no candidates', () => {
-    expect(filterCandidates(['..P.', '####'], [], 'VERTICAL')).toEqual([]);
+    expect(filterCandidates(['..P.', '####'], 'VERTICAL', [])).toEqual([]);
   });
 
   it('should keep the grid the same when it filters', () => {

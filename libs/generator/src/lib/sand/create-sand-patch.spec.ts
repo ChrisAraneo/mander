@@ -31,12 +31,12 @@ describe('createSandPatch', () => {
 
   it('should roll the dice once when it is applied to two layers', () => {
     const rolls: number[] = [];
-    const countingRandom: Random = () => {
+    const random: Random = () => {
       rolls.push(1);
 
       return 0;
     };
-    const patch = createSandPatch(createTiles(), countingRandom);
+    const patch = createSandPatch(createTiles(), random);
 
     patch(createTiles());
     patch(createTiles());

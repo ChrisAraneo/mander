@@ -1,5 +1,6 @@
 import { createRandom, type Random } from '@mander/common';
 import type { Season } from '@mander/model';
+import { map, size, times, toString, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { createPalette } from '../palette/create-palette';
@@ -9,6 +10,10 @@ import { createWorldLevelVariants } from './create-world-level-variants';
 const SPRING: Season = 'SPRING';
 
 const PALETTE = createPalette(SPRING, createRandom('DAY-1'));
+
+const SEEDS_TRIED = 20;
+
+const SEEDS = times(SEEDS_TRIED, (day) => `DAY-${day}`);
 
 const createWith = (random: Random) =>
   createWorldLevelVariants({
@@ -41,5 +46,17 @@ describe('createWorldLevelVariants', () => {
     const random = createRandom('DAY-1');
 
     expect(createWith(random).random).toBe(random);
+  });
+
+  it('should deal other variants when the generator starts from other seeds', () => {
+    expect(
+      size(
+        uniq(
+          map(SEEDS, (seed) =>
+            toString(createWith(createRandom(seed)).levelVariants),
+          ),
+        ),
+      ),
+    ).toBeGreaterThan(1);
   });
 });

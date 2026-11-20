@@ -22,11 +22,19 @@ import { takeRandomStructures } from './take-random-structures';
 
 const SEED = 'PROBE-SEED';
 
-const OVER_NORMAL = size(NORMAL_STRUCTURES) + 7;
+const OVER_BY = 7;
 
-const OVER_HARD = size(HARD_STRUCTURES) + 7;
+const HARD_HAND = 14;
 
-const SEEDS = times(20, (day) => `DAY-${day}`);
+const BIG_HAND = 42;
+
+const SEEDS_TRIED = 20;
+
+const OVER_NORMAL = size(NORMAL_STRUCTURES) + OVER_BY;
+
+const OVER_HARD = size(HARD_STRUCTURES) + OVER_BY;
+
+const SEEDS = times(SEEDS_TRIED, (day) => `DAY-${day}`);
 
 const hasDuplicates = (picked: Sector[]): boolean =>
   size(uniq(picked)) !== size(picked);
@@ -46,7 +54,7 @@ describe('takeRandomStructures', () => {
 
   it('should never pick the same structure twice when it picks out of the hard category', () => {
     const pickedBySeed = map(SEEDS, (seed) =>
-      takeRandomStructures(14, 'HARD', createRandom(seed)),
+      takeRandomStructures(HARD_HAND, 'HARD', createRandom(seed)),
     );
 
     expect(filter(pickedBySeed, hasDuplicates)).toEqual([]);
@@ -101,14 +109,16 @@ describe('takeRandomStructures', () => {
   });
 
   it('should pick the same hand when the generator starts from the same seed', () => {
-    expect(takeRandomStructures(42, 'NORMAL', createRandom(SEED))).toEqual(
-      takeRandomStructures(42, 'NORMAL', createRandom(SEED)),
-    );
+    expect(
+      takeRandomStructures(BIG_HAND, 'NORMAL', createRandom(SEED)),
+    ).toEqual(takeRandomStructures(BIG_HAND, 'NORMAL', createRandom(SEED)));
   });
 
   it('should pick a different hand when the generator starts from another seed', () => {
-    expect(takeRandomStructures(42, 'NORMAL', createRandom(SEED))).not.toEqual(
-      takeRandomStructures(42, 'NORMAL', createRandom('OTHER-SEED')),
+    expect(
+      takeRandomStructures(BIG_HAND, 'NORMAL', createRandom(SEED)),
+    ).not.toEqual(
+      takeRandomStructures(BIG_HAND, 'NORMAL', createRandom('OTHER-SEED')),
     );
   });
 
@@ -118,11 +128,11 @@ describe('takeRandomStructures', () => {
         seed,
         createRandom,
         (random) => ({
-          normal: takeRandomStructures(42, 'NORMAL', random),
+          normal: takeRandomStructures(BIG_HAND, 'NORMAL', random),
           random,
         }),
         ({ normal, random }) =>
-          normal[0] === takeRandomStructures(14, 'HARD', random)[0],
+          normal[0] === takeRandomStructures(HARD_HAND, 'HARD', random)[0],
       ),
     );
 
@@ -146,5 +156,9 @@ describe('takeRandomStructures', () => {
       'NORMAL_038',
       'NORMAL_135',
     ]);
+  });
+
+  it('should pick nothing when it is asked for no structures', () => {
+    expect(takeRandomStructures(0, 'NORMAL', createRandom(SEED))).toEqual([]);
   });
 });

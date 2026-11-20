@@ -1,5 +1,5 @@
-import type { Hsl } from '@mander/render';
 import type { PaletteSky } from './types/palette-sky';
+import type { SkyStops } from './types/sky-stops';
 
 const SKY_MIDDLE_LIGHTNESS_GAIN = 16;
 
@@ -7,7 +7,7 @@ const SKY_HORIZON_LIGHTNESS_GAIN = 30;
 
 const SKY_HAZE_SATURATION_RATIO = 0.8;
 
-export const computeSkyStops = (sky: PaletteSky): readonly [Hsl, Hsl, Hsl] => [
+export const computeSkyStops = (sky: PaletteSky): SkyStops => [
   { hue: sky.hue, saturation: sky.saturation, lightness: sky.topLightness },
   {
     hue: sky.glowHue,

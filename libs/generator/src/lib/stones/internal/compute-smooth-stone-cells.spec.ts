@@ -11,17 +11,26 @@ const SIZE = 30;
 
 const PILLAR_COLUMN = 15;
 
+const PILLAR_TOP_ROW = 2;
+
+const PILLAR_HEIGHT = 8;
+
+const BURIED_HALVES = 2;
+
 const createField = (value: number): Field =>
   times(SIZE, () => times(SIZE, () => value));
 
 const createBlockWithPillar = (): Field =>
   times(SIZE, (row) =>
     times(SIZE, (column) =>
-      toNumber(row >= SIZE / 2 || (row >= 2 && column === PILLAR_COLUMN)),
+      toNumber(
+        row >= SIZE / BURIED_HALVES ||
+          (row >= PILLAR_TOP_ROW && column === PILLAR_COLUMN),
+      ),
     ),
   );
 
-const computeSmoothed = (cells: Field) =>
+const computeSmoothed = (cells: Field): Field =>
   computeSmoothStoneCells({ tiles: LEVEL, cells }).cells;
 
 describe('computeSmoothStoneCells', () => {
@@ -36,9 +45,12 @@ describe('computeSmoothStoneCells', () => {
   it('should make no stone when the buried dirt is a thin pillar', () => {
     const stones = computeSmoothed(createBlockWithPillar());
 
-    expect(times(8, (row) => stones[row + 2][PILLAR_COLUMN])).toEqual(
-      times(8, () => 0),
-    );
+    expect(
+      times(
+        PILLAR_HEIGHT,
+        (row) => stones[row + PILLAR_TOP_ROW][PILLAR_COLUMN],
+      ),
+    ).toEqual(times(PILLAR_HEIGHT, () => 0));
     expect(stones[SIZE - 1][PILLAR_COLUMN]).toBe(1);
   });
 
@@ -57,5 +69,9 @@ describe('computeSmoothStoneCells', () => {
     expect(computeSmoothStoneCells({ tiles: LEVEL, cells: [[0]] }).tiles).toBe(
       LEVEL,
     );
+  });
+
+  it('should mark no stone when the field holds no rows at all', () => {
+    expect(computeSmoothed([])).toEqual([]);
   });
 });

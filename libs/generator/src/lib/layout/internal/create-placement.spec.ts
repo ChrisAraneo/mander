@@ -1,4 +1,4 @@
-import { type Sector } from '@mander/structures';
+import type { Sector } from '@mander/structures';
 import { describe, expect, it } from 'vitest';
 
 import { createPlacement } from './create-placement';

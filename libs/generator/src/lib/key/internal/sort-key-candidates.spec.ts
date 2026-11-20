@@ -12,8 +12,8 @@ const createLevel = (width: number, height: number): Tile[][] =>
 const sortCandidates = (
   width: number,
   height: number,
-  candidates: Spot[],
   levelType: LevelType,
+  candidates: Spot[],
 ) =>
   sortKeyCandidates({
     tiles: createLevel(width, height),
@@ -26,8 +26,8 @@ const sortColumns = (width: number, columns: number[]): number[] =>
     sortCandidates(
       width,
       1,
-      map(columns, (column) => ({ row: 3, column })),
       'HORIZONTAL',
+      map(columns, (column) => ({ row: 3, column })),
     ),
     'column',
   );
@@ -37,8 +37,8 @@ const sortRows = (height: number, rows: number[]): number[] =>
     sortCandidates(
       3,
       height,
-      map(rows, (row) => ({ row, column: 0 })),
       'VERTICAL',
+      map(rows, (row) => ({ row, column: 0 })),
     ),
     'row',
   );
@@ -62,15 +62,10 @@ describe('sortKeyCandidates', () => {
 
   it('should put the left column first in a horizontal level when two columns are as far from the seam', () => {
     expect(
-      sortCandidates(
-        60,
-        1,
-        [
-          { row: 1, column: 21 },
-          { row: 4, column: 19 },
-        ],
-        'HORIZONTAL',
-      ),
+      sortCandidates(60, 1, 'HORIZONTAL', [
+        { row: 1, column: 21 },
+        { row: 4, column: 19 },
+      ]),
     ).toEqual([
       { row: 4, column: 19 },
       { row: 1, column: 21 },
@@ -83,16 +78,11 @@ describe('sortKeyCandidates', () => {
 
   it('should keep the old order in a vertical level when two candidates are as far from the middle row', () => {
     expect(
-      sortCandidates(
-        3,
-        10,
-        [
-          { row: 7, column: 2 },
-          { row: 3, column: 0 },
-          { row: 7, column: 1 },
-        ],
-        'VERTICAL',
-      ),
+      sortCandidates(3, 10, 'VERTICAL', [
+        { row: 7, column: 2 },
+        { row: 3, column: 0 },
+        { row: 7, column: 1 },
+      ]),
     ).toEqual([
       { row: 7, column: 2 },
       { row: 3, column: 0 },
@@ -101,11 +91,11 @@ describe('sortKeyCandidates', () => {
   });
 
   it('should give nothing back in a horizontal level when there are no candidates', () => {
-    expect(sortCandidates(60, 1, [], 'HORIZONTAL')).toEqual([]);
+    expect(sortCandidates(60, 1, 'HORIZONTAL', [])).toEqual([]);
   });
 
   it('should give nothing back in a vertical level when there are no candidates', () => {
-    expect(sortCandidates(3, 10, [], 'VERTICAL')).toEqual([]);
+    expect(sortCandidates(3, 10, 'VERTICAL', [])).toEqual([]);
   });
 
   it('should keep the grid the same when it sorts', () => {

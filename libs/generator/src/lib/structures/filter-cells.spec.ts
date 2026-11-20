@@ -10,21 +10,21 @@ import { describe, expect, it } from 'vitest';
 
 import { filterCells } from './filter-cells';
 
-const GRID: Tile[][] = [
+const createGrid = (): Tile[][] => [
   [TILE_DIRT, TILE_AIR, TILE_STONE],
   [TILE_SPIKE, TILE_DIRT, TILE_AIR],
 ];
 
 describe('filterCells', () => {
-  it('should give the spot of every cell the test accepts when the grid holds them', () => {
-    expect(filterCells(GRID, isSolidTile)).toEqual([
+  it('should give a spot for every block the test accepts when the level holds them', () => {
+    expect(filterCells(createGrid(), isSolidTile)).toEqual([
       { row: 0, column: 0 },
       { row: 0, column: 2 },
       { row: 1, column: 1 },
     ]);
   });
 
-  it('should give no spots when the test accepts no cell of the grid', () => {
+  it('should give no spots when the test accepts no block of the level', () => {
     expect(filterCells([[TILE_AIR, TILE_AIR]], isSolidTile)).toEqual([]);
   });
 
@@ -33,11 +33,10 @@ describe('filterCells', () => {
   });
 
   it('should keep the grid the same when it looks through it', () => {
-    filterCells(GRID, isSolidTile);
+    const tiles = createGrid();
 
-    expect(GRID).toEqual([
-      [TILE_DIRT, TILE_AIR, TILE_STONE],
-      [TILE_SPIKE, TILE_DIRT, TILE_AIR],
-    ]);
+    filterCells(tiles, isSolidTile);
+
+    expect(tiles).toEqual(createGrid());
   });
 });

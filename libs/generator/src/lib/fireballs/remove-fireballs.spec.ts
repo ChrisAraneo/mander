@@ -16,6 +16,8 @@ import { removeFireballs } from './remove-fireballs';
 
 const FIRST_LIT_LEVEL = 4;
 
+const SECOND_LIT_LEVEL = 5;
+
 const FIRST_UNTOUCHED_LEVEL = 6;
 
 const createFurnace = (): Tile[][] => [
@@ -49,8 +51,12 @@ describe('removeFireballs', () => {
 
   it('should put the share the level was promised out when it thins the fireballs', () => {
     expect(countFireballs(createFurnace())).toBe(4);
-    expect(countFireballs(removeFireballs(createFurnace(), 4))).toBe(2);
-    expect(countFireballs(removeFireballs(createFurnace(), 5))).toBe(3);
+    expect(
+      countFireballs(removeFireballs(createFurnace(), FIRST_LIT_LEVEL)),
+    ).toBe(2);
+    expect(
+      countFireballs(removeFireballs(createFurnace(), SECOND_LIT_LEVEL)),
+    ).toBe(3);
   });
 
   it('should leave the fireballs burning when the level is the sixth or later', () => {

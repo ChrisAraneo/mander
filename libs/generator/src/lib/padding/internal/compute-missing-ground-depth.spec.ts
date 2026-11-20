@@ -23,4 +23,8 @@ describe('computeMissingGroundDepth', () => {
   it('should ask for nothing when there are more than four rows under the row', () => {
     expect(computeMissingGroundDepth(createLevel(8), 0)).toBe(0);
   });
+
+  it('should ask for the whole floor and one row more when the level holds no rows at all', () => {
+    expect(computeMissingGroundDepth([], 0)).toBe(5);
+  });
 });

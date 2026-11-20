@@ -12,7 +12,7 @@ const createPlacements = (
 ): StructurePlacement[] =>
   map(positions, ({ row, column }) => ({ structure: SECTOR, row, column }));
 
-const getPositions = (placements: StructurePlacement[]) =>
+const toPositions = (placements: StructurePlacement[]) =>
   map(toNormalisedPlacements(placements), ({ row, column }) => ({
     row,
     column,
@@ -21,7 +21,7 @@ const getPositions = (placements: StructurePlacement[]) =>
 describe('toNormalisedPlacements', () => {
   it('should move every placement down when one starts above the top row', () => {
     expect(
-      getPositions(
+      toPositions(
         createPlacements([
           { row: -2, column: 0 },
           { row: 0, column: 20 },
@@ -35,7 +35,7 @@ describe('toNormalisedPlacements', () => {
 
   it('should move every placement right when one starts left of the first column', () => {
     expect(
-      getPositions(
+      toPositions(
         createPlacements([
           { row: 0, column: -5 },
           { row: 3, column: 15 },
@@ -49,7 +49,7 @@ describe('toNormalisedPlacements', () => {
 
   it('should leave the placements where they are when they already start at the top left', () => {
     expect(
-      getPositions(
+      toPositions(
         createPlacements([
           { row: 0, column: 0 },
           { row: 4, column: 20 },

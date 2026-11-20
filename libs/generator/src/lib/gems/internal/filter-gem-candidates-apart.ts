@@ -2,8 +2,8 @@ import { find, reduce } from 'lodash-es';
 import { match, P } from 'ts-pattern';
 import type { Spot } from '../../types/spot';
 import { isGemApart } from './is-gem-apart';
-import type { ApartGemCandidates } from './types/apart-gem-candidates';
-import type { ShuffledGemSlots } from './types/shuffled-gem-slots';
+import type { GemApartCandidates } from './types/gem-apart-candidates';
+import type { GemShuffledSlots } from './types/gem-shuffled-slots';
 
 const { nullish } = P;
 
@@ -11,7 +11,7 @@ export const filterGemCandidatesApart = ({
   tiles,
   levelType,
   slots,
-}: ShuffledGemSlots): ApartGemCandidates => ({
+}: GemShuffledSlots): GemApartCandidates => ({
   tiles,
   candidates: reduce(
     slots,

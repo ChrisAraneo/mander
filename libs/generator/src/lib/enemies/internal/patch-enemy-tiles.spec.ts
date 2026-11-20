@@ -10,7 +10,7 @@ import { describe, expect, it } from 'vitest';
 
 import { patchEnemyTiles } from './patch-enemy-tiles';
 
-const GRID: Tile[][] = [
+const createGrid = (): Tile[][] => [
   [TILE_ENEMY, TILE_ENEMY],
   [TILE_DIRT, TILE_AIR],
 ];
@@ -19,7 +19,7 @@ describe('patchEnemyTiles', () => {
   it('should write every enemy in when the patches name them', () => {
     expect(
       patchEnemyTiles({
-        tiles: GRID,
+        tiles: createGrid(),
         patches: [
           { row: 0, column: 0, tile: TILE_ENEMY_HOPPING },
           { row: 0, column: 1, tile: TILE_ENEMY_FLYING },
@@ -32,18 +32,19 @@ describe('patchEnemyTiles', () => {
   });
 
   it('should give the grid back untouched when no patch names an enemy', () => {
-    expect(patchEnemyTiles({ tiles: GRID, patches: [] })).toEqual(GRID);
+    expect(patchEnemyTiles({ tiles: createGrid(), patches: [] })).toEqual(
+      createGrid(),
+    );
   });
 
   it('should not change the old grid when it writes the enemies in', () => {
+    const tiles = createGrid();
+
     patchEnemyTiles({
-      tiles: GRID,
+      tiles,
       patches: [{ row: 0, column: 0, tile: TILE_ENEMY_HOPPING }],
     });
 
-    expect(GRID).toEqual([
-      [TILE_ENEMY, TILE_ENEMY],
-      [TILE_DIRT, TILE_AIR],
-    ]);
+    expect(tiles).toEqual(createGrid());
   });
 });

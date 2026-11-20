@@ -21,6 +21,7 @@ import {
   isEqual,
   map,
   size,
+  sortBy,
   times,
   uniq,
 } from 'lodash-es';
@@ -29,6 +30,8 @@ import { describe, expect, it } from 'vitest';
 import { patchSeasonalBlocks } from './patch-seasonal-blocks';
 
 const STRUCTURES: Sector[] = [];
+
+const SEASONS_WITHOUT_SAND: Season[] = ['SPRING', 'AUTUMN', 'WINTER'];
 
 const createTiles = (): Tile[][] => [
   [TILE_AIR, TILE_BRICK],
@@ -49,7 +52,9 @@ const patchIn = (season: Season) =>
     random: createRandom('DAY-1'),
   });
 
-const SEEDS = times(50, (day) => `DAY-${day}`);
+const SEEDS_TRIED = 50;
+
+const SEEDS = times(SEEDS_TRIED, (day) => `DAY-${day}`);
 
 const createSummerBackTiles = (): Tile[][] => [
   [TILE_DIRT, TILE_BRICK, TILE_WOOD, TILE_FIREBALL],
@@ -66,7 +71,7 @@ const patchSummer = (seed: string) =>
     random: createRandom(seed),
   });
 
-const findGoneTiles = (tiles: Tile[][], patched: Tile[][]): Tile[] =>
+const filterGoneTiles = (tiles: Tile[][], patched: Tile[][]): Tile[] =>
   uniq(difference(flatten(tiles), flatten(patched)));
 
 describe('patchSeasonalBlocks', () => {
@@ -101,7 +106,7 @@ describe('patchSeasonalBlocks', () => {
 
   it('should turn all the blocks of exactly one kind to sand when the season is summer', () => {
     const gone = map(SEEDS, (seed) =>
-      size(findGoneTiles(createTiles(), patchSummer(seed).tiles)),
+      size(filterGoneTiles(createTiles(), patchSummer(seed).tiles)),
     );
 
     expect(uniq(gone)).toEqual([1]);
@@ -111,11 +116,11 @@ describe('patchSeasonalBlocks', () => {
   it('should take other kinds of block when the summer levels start from other seeds', () => {
     const kinds = map(
       SEEDS,
-      (seed) => findGoneTiles(createTiles(), patchSummer(seed).tiles)[0],
+      (seed) => filterGoneTiles(createTiles(), patchSummer(seed).tiles)[0],
     );
 
-    expect(uniq(kinds).sort()).toEqual(
-      [TILE_DIRT, TILE_BRICK, TILE_WOOD].sort(),
+    expect(sortBy(uniq(kinds))).toEqual(
+      sortBy([TILE_DIRT, TILE_BRICK, TILE_WOOD]),
     );
   });
 
@@ -131,8 +136,8 @@ describe('patchSeasonalBlocks', () => {
         layers,
         ({ tiles, backTiles }) =>
           !isEqual(
-            findGoneTiles(createTiles(), tiles),
-            findGoneTiles(createSummerBackTiles(), backTiles),
+            filterGoneTiles(createTiles(), tiles),
+            filterGoneTiles(createSummerBackTiles(), backTiles),
           ),
       ),
     ).toEqual([]);
@@ -182,9 +187,9 @@ describe('patchSeasonalBlocks', () => {
 
   it('should roll no dice when the season is not summer', () => {
     const rolls: number[] = [];
-    const countingRandom: Random = () => rolls.push(1);
+    const random: Random = () => rolls.push(1);
 
-    map(['SPRING', 'AUTUMN', 'WINTER'] as Season[], (season) =>
+    map(SEASONS_WITHOUT_SAND, (season) =>
       patchSeasonalBlocks({
         levelNumber: 1,
         levelVariant: 'NORMAL',
@@ -192,7 +197,7 @@ describe('patchSeasonalBlocks', () => {
         structures: STRUCTURES,
         tiles: createTiles(),
         backTiles: createBackTiles(),
-        random: countingRandom,
+        random,
       }),
     );
 
@@ -214,5 +219,36 @@ describe('patchSeasonalBlocks', () => {
     expect(level.levelVariant).toBe('NORMAL');
     expect(level.season).toBe('WINTER');
     expect(level.structures).toBe(STRUCTURES);
+  });
+
+  it('should pass the generator on when it patches the blocks', () => {
+    const random = createRandom('DAY-1');
+
+    expect(
+      patchSeasonalBlocks({
+        levelNumber: 1,
+        levelVariant: 'NORMAL',
+        season: 'WINTER',
+        structures: STRUCTURES,
+        tiles: createTiles(),
+        backTiles: createBackTiles(),
+        random,
+      }).random,
+    ).toBe(random);
+  });
+
+  it('should give back empty layers when the level holds no blocks', () => {
+    const level = patchSeasonalBlocks({
+      levelNumber: 1,
+      levelVariant: 'NORMAL',
+      season: 'WINTER',
+      structures: STRUCTURES,
+      tiles: [],
+      backTiles: [],
+      random: createRandom('DAY-1'),
+    });
+
+    expect(level.tiles).toEqual([]);
+    expect(level.backTiles).toEqual([]);
   });
 });

@@ -10,9 +10,11 @@ const WIDTH = 40;
 
 const LEVEL: Tile[][] = [times(WIDTH, () => TILE_AIR)];
 
+const SLOT_WIDTH = 4;
+
 const SLOTS: Spot[][] = chunk(
   map(range(WIDTH), (column) => ({ row: 5, column })),
-  4,
+  SLOT_WIDTH,
 );
 
 const sortRandomlyWith = (slots: Spot[][], seed = 'gems') =>

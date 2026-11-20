@@ -6,7 +6,7 @@ import type { Field } from './types/field';
 
 const LEVEL: Tile[][] = [[TILE_DIRT]];
 
-const removeIn = (cells: Field) =>
+const removeIn = (cells: Field): Field =>
   removeLoneStones({ tiles: LEVEL, cells }).cells;
 
 describe('removeLoneStones', () => {

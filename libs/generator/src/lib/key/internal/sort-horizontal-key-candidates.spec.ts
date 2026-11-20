@@ -15,9 +15,15 @@ const sortColumns = (width: number, columns: number[]): number[] =>
     (candidate) => candidate.column,
   );
 
+const WIDE_LEVEL_WIDTH = 60;
+
+const SEAM_COLUMN = 20;
+
 describe('sortHorizontalKeyCandidates', () => {
   it('should put the seam between the middle structures first when all columns are free', () => {
-    expect(sortColumns(60, range(60))[0]).toBe(20);
+    expect(sortColumns(WIDE_LEVEL_WIDTH, range(WIDE_LEVEL_WIDTH))[0]).toBe(
+      SEAM_COLUMN,
+    );
   });
 
   it('should put the columns nearest the seam first when it gets columns on both sides', () => {

@@ -24,7 +24,7 @@ const createSector = (marks: TilePatch[]): Sector => [
   [],
 ];
 
-const getPositions = (structures: Sector[]) =>
+const computePositions = (structures: Sector[]) =>
   map(computeJoinedPlacements(structures), ({ row, column }) => ({
     row,
     column,
@@ -32,12 +32,14 @@ const getPositions = (structures: Sector[]) =>
 
 describe('computeJoinedPlacements', () => {
   it('should start the first structure at the top left when it chains them', () => {
-    expect(getPositions([createSector([])])).toEqual([{ row: 0, column: 0 }]);
+    expect(computePositions([createSector([])])).toEqual([
+      { row: 0, column: 0 },
+    ]);
   });
 
   it('should put each structure right after the last when none carries markers', () => {
     expect(
-      getPositions([createSector([]), createSector([]), createSector([])]),
+      computePositions([createSector([]), createSector([]), createSector([])]),
     ).toEqual([
       { row: 0, column: 0 },
       { row: 0, column: STRUCTURE_WIDTH },
@@ -47,7 +49,7 @@ describe('computeJoinedPlacements', () => {
 
   it('should drop the next structure lower when its start sits higher than the end of the last', () => {
     expect(
-      getPositions([
+      computePositions([
         createSector([{ row: 15, column: 19, tile: STRUCTURE_END }]),
         createSector([{ row: 5, column: 0, tile: STRUCTURE_START }]),
       ]),
@@ -59,7 +61,7 @@ describe('computeJoinedPlacements', () => {
 
   it('should shift every structure down when the next one would start above the top row', () => {
     expect(
-      getPositions([
+      computePositions([
         createSector([{ row: 10, column: 19, tile: STRUCTURE_END }]),
         createSector([{ row: 12, column: 0, tile: STRUCTURE_START }]),
       ]),

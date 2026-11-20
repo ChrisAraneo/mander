@@ -9,6 +9,8 @@ const WIDTH = 4;
 
 const BEDROCK_DEPTH = 4;
 
+const DEEP_ENOUGH_ROWS = 5;
+
 const createRow = (tile: Tile): Tile[] => times(WIDTH, () => tile);
 
 const createGround = (): Tile[][] => [
@@ -40,7 +42,7 @@ describe('addPadding', () => {
   it('should add no bedrock when the level is already deep enough', () => {
     const tiles = [
       createRow(TILE_DIRT),
-      ...times(5, () => createRow(TILE_AIR)),
+      ...times(DEEP_ENOUGH_ROWS, () => createRow(TILE_AIR)),
     ];
 
     expect(size(addPadding(tiles))).toBe(SKY_HEIGHT + size(tiles));

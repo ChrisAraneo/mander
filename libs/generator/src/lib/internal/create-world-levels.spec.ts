@@ -41,7 +41,7 @@ describe('createWorldLevels', () => {
     expect(size(WORLD.levels)).toBe(LEVELS_PER_DAY);
   });
 
-  it('should stand a level up where the variants call for a vertical one', () => {
+  it('should stand a level up when the variants call for a vertical one', () => {
     expect(map(WORLD.levels, (level) => level.isOpenSided === true)).toEqual(
       map(LEVEL_VARIANTS, (levelVariant) => levelVariant === 'VERTICAL'),
     );
@@ -73,5 +73,20 @@ describe('createWorldLevels', () => {
 
   it('should start the score at nothing when it finishes a world', () => {
     expect(WORLD.score).toBe(0);
+  });
+
+  it('should still build every level of the day when the world holds no structures', () => {
+    const world = createWorldLevels({
+      name: 'WORLD',
+      season: SPRING,
+      palette: PALETTE,
+      levelVariants: [],
+      levelCategories: [],
+      worldStructures: { NORMAL: [], HARD: [], VERTICAL: [] },
+      random: createRandom('DAY-1'),
+    });
+
+    expect(size(world.levels)).toBe(LEVELS_PER_DAY);
+    expect(world.levels[0].tiles).toEqual([]);
   });
 });

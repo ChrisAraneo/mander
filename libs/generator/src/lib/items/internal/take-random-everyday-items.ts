@@ -1,17 +1,17 @@
-import type { Random } from '@mander/common';
-import type { Item, ItemRarity } from '@mander/model';
+import type { Item } from '@mander/model';
 import { reduce } from 'lodash-es';
 import { CHEST_ITEM_TYPES } from '../../consts';
-import { takeRandomCard } from './take-random-card';
+import { takeRandomItem } from './take-random-item';
 import type { ChestPicking } from './types/chest-picking';
+import type { ChestRarities } from './types/chest-rarities';
 
-export const takeRandomEverydayItems = (
-  rarities: ItemRarity[],
-  random: Random,
-): Item[] =>
+export const takeRandomEverydayItems = ({
+  rarities,
+  random,
+}: ChestRarities): Item[] =>
   reduce(
     rarities,
     (picking: ChestPicking, rarity): ChestPicking =>
-      takeRandomCard(picking, rarity, random),
+      takeRandomItem(picking, rarity, random),
     { picked: [], typesLeft: [...CHEST_ITEM_TYPES] },
   ).picked;

@@ -10,7 +10,7 @@ const LEVEL: Tile[][] = [[TILE_DIRT]];
 
 const WIDE_LEVEL: Tile[][] = [times(5, () => TILE_AIR)];
 
-const sortCandidates = (candidates: Spot[], levelType: LevelType) =>
+const sortCandidates = (candidates: Spot[], levelType: LevelType): Spot[] =>
   sortPlayerSpawnCandidates({ tiles: WIDE_LEVEL, levelType, candidates })
     .candidates;
 

@@ -34,19 +34,24 @@ import { takeRandomChestItems } from './take-random-chest-items';
 
 const SEED = 'PROBE-SEED';
 
-const SEEDS = times(400, (day) => `DAY-${day}`);
+const SEEDS_TRIED = 400;
+
+const LEAST_RARE_SHARE = 0.1;
+
+const SEEDS = times(SEEDS_TRIED, (day) => `DAY-${day}`);
 
 const takeRandomFrom = (seed: string): Item[] =>
   takeRandomChestItems(createRandom(seed));
 
-const takeRandomCards = (): Item[] => flatMap(SEEDS, takeRandomFrom);
+const takeRandomItems = (): Item[] => flatMap(SEEDS, takeRandomFrom);
 
-const getCardIds = (seed: string): string[] => map(takeRandomFrom(seed), 'id');
+const takeRandomItemIds = (seed: string): string[] =>
+  map(takeRandomFrom(seed), 'id');
 
-const getCardTypes = (seed: string): (ChestItemType | undefined)[] =>
+const takeRandomItemTypes = (seed: string): (ChestItemType | undefined)[] =>
   map(takeRandomFrom(seed), findChestType);
 
-const getLeadCards = (): Item[] =>
+const takeRandomLeadItems = (): Item[] =>
   map(SEEDS, (seed) => takeRandomFrom(seed)[0]);
 
 describe('takeRandomChestItems', () => {
@@ -55,7 +60,7 @@ describe('takeRandomChestItems', () => {
   });
 
   it('should lay the cards out differently when the generator starts from other seeds', () => {
-    const filled = map(SEEDS, getCardIds);
+    const filled = map(SEEDS, takeRandomItemIds);
 
     expect(size(uniq(map(filled, String)))).toBeGreaterThan(1);
   });
@@ -70,13 +75,16 @@ describe('takeRandomChestItems', () => {
   it('should pick a type of its own for each card when it fills a chest', () => {
     expect(CHEST_ITEM_TYPES).toEqual(['GEM', 'BULLET', 'HEART', 'STAR']);
     expect(
-      filter(SEEDS, (seed) => size(uniq(getCardTypes(seed))) !== 3),
+      filter(
+        SEEDS,
+        (seed) => size(uniq(takeRandomItemTypes(seed))) !== CHEST_ITEM_COUNT,
+      ),
       'no chest doubles up on a type',
     ).toEqual([]);
   });
 
   it('should reach for every type when enough chests are filled', () => {
-    expect(sortBy(uniq(map(takeRandomCards(), findChestType)))).toEqual(
+    expect(sortBy(uniq(map(takeRandomItems(), findChestType)))).toEqual(
       sortBy(CHEST_ITEM_TYPES),
     );
   });
@@ -85,17 +93,18 @@ describe('takeRandomChestItems', () => {
     expect(
       filter(
         SEEDS,
-        (seed) => size(uniq(getCardIds(seed))) !== size(getCardIds(seed)),
+        (seed) =>
+          size(uniq(takeRandomItemIds(seed))) !== size(takeRandomItemIds(seed)),
       ),
     ).toEqual([]);
   });
 
   it('should reach for every item in the pool when enough chests are filled', () => {
-    expect(size(countBy(takeRandomCards(), 'id'))).toBe(size(CHEST_ITEM_POOL));
+    expect(size(countBy(takeRandomItems(), 'id'))).toBe(size(CHEST_ITEM_POOL));
   });
 
   it('should lead the chest less often than a common one when the card is rare', () => {
-    const leading = countBy(getLeadCards(), 'rarity');
+    const leading = countBy(takeRandomLeadItems(), 'rarity');
 
     expect(leading['RARE']).toBeLessThan(leading['COMMON']);
   });
@@ -106,7 +115,7 @@ describe('takeRandomChestItems', () => {
   });
 
   it('should pick the cards close to those odds when enough chests are filled', () => {
-    const cards = takeRandomCards();
+    const cards = takeRandomItems();
 
     const share = mapValues(
       countBy(cards, 'rarity'),
@@ -133,6 +142,6 @@ describe('takeRandomChestItems', () => {
       some(takeRandomFrom(seed), { rarity: 'RARE' }),
     );
 
-    expect(size(withRare) / size(SEEDS)).toBeGreaterThan(0.1);
+    expect(size(withRare) / size(SEEDS)).toBeGreaterThan(LEAST_RARE_SHARE);
   });
 });

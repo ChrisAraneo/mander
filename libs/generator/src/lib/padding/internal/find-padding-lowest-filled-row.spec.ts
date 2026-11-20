@@ -31,11 +31,11 @@ describe('findPaddingLowestFilledRow', () => {
     expect(findLowest(['#...', '.o..', '....'])).toBe(1);
   });
 
-  it('should give -1 when the grid is all air', () => {
+  it('should find no filled row when the level holds nothing but air', () => {
     expect(findLowest(['....', '....'])).toBe(-1);
   });
 
-  it('should give -1 when the grid is empty', () => {
+  it('should find no filled row when the level is empty', () => {
     expect(findLowest([])).toBe(-1);
   });
 

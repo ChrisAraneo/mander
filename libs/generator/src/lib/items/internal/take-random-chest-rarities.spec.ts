@@ -1,10 +1,12 @@
 import { createRandom } from '@mander/common';
-import { map, size, times, uniq } from 'lodash-es';
+import { map, size, times, toString, uniq } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { CHEST_ITEM_COUNT } from '../../consts';
 import { takeRandomChestRarities } from './take-random-chest-rarities';
 import { toRarity } from './to-rarity';
+
+const SEEDS_TRIED = 50;
 
 const takeRandomFrom = (seed: string) =>
   takeRandomChestRarities({ random: createRandom(seed) }).rarities;
@@ -31,8 +33,8 @@ describe('takeRandomChestRarities', () => {
       size(
         uniq(
           map(
-            times(50, (day) => takeRandomFrom(`DAY-${day}`)),
-            String,
+            times(SEEDS_TRIED, (day) => takeRandomFrom(`DAY-${day}`)),
+            toString,
           ),
         ),
       ),

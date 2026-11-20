@@ -5,9 +5,18 @@ import { describe, expect, it } from 'vitest';
 import type { Spot } from '../../types/spot';
 import { sortBySpotRandomly } from './sort-by-spot-randomly';
 
+const CANDIDATES = 40;
+
+const LEVEL_WIDTH = 4;
+
+const SLOT_SIZE = 8;
+
 const SLOTS: Spot[][] = chunk(
-  map(range(40), (index) => ({ row: floor(index / 4), column: index % 4 })),
-  8,
+  map(range(CANDIDATES), (index) => ({
+    row: floor(index / LEVEL_WIDTH),
+    column: index % LEVEL_WIDTH,
+  })),
+  SLOT_SIZE,
 );
 
 const sortRandomlyWith = (slots: Spot[][], seed = 'gems') =>

@@ -37,18 +37,28 @@ import { createStructureLayers } from './create-structure-layers';
 
 const MARKERS = [STRUCTURE_START, STRUCTURE_END];
 
+const END_ROW = 10;
+
+const START_ROW = 12;
+
+const END_COLUMN = STRUCTURE_WIDTH - 1;
+
+const STACKED_SECTORS = 3;
+
+const PROPPED_ROWS = 2;
+
 const GROUND: TilePatch[] = map(range(STRUCTURE_WIDTH), (column) => ({
   row: STRUCTURE_HEIGHT - 1,
   column,
   tile: TILE_DIRT,
 }));
 
-const createSector = (marks: TilePatch[]): Sector => [
+const createSector = (patches: TilePatch[]): Sector => [
   times(STRUCTURE_HEIGHT, (row) =>
     times(
       STRUCTURE_WIDTH,
       (column) =>
-        find(marks, (mark) => mark.row === row && mark.column === column)
+        find(patches, (patch) => patch.row === row && patch.column === column)
           ?.tile ?? TILE_AIR,
     ),
   ),
@@ -57,17 +67,17 @@ const createSector = (marks: TilePatch[]): Sector => [
 
 const ENDING_SECTOR = createSector([
   ...GROUND,
-  { row: 10, column: 18, tile: TILE_BRICK },
-  { row: 10, column: 19, tile: STRUCTURE_END },
+  { row: END_ROW, column: END_COLUMN - 1, tile: TILE_BRICK },
+  { row: END_ROW, column: END_COLUMN, tile: STRUCTURE_END },
 ]);
 
 const STARTING_SECTOR = createSector([
   ...GROUND,
-  { row: 12, column: 0, tile: STRUCTURE_START },
-  { row: 12, column: 1, tile: TILE_BRICK },
+  { row: START_ROW, column: 0, tile: STRUCTURE_START },
+  { row: START_ROW, column: 1, tile: TILE_BRICK },
 ]);
 
-const SECTORS: Sector[] = take([...VERTICAL_STRUCTURES], 3);
+const SECTORS: Sector[] = take([...VERTICAL_STRUCTURES], STACKED_SECTORS);
 
 const STACKED = createStructureLayers(SECTORS, 'VERTICAL').tiles;
 
@@ -82,7 +92,7 @@ const computeTopRow = (band: number): number =>
 const computeBandRows = (band: number): number[] =>
   map(BAND_ROWS, (row) => computeTopRow(band) + row);
 
-const removeMarkers = (cells: readonly number[]): number[] =>
+const patchMarkers = (cells: readonly number[]): number[] =>
   map(cells, (cell) =>
     match(includes(MARKERS, cell))
       .with(true, () => TILE_AIR)
@@ -111,8 +121,8 @@ describe('createStructureLayers', () => {
       'HORIZONTAL',
     );
 
-    expect(tiles[12][18]).toBe(TILE_BRICK);
-    expect(tiles[12][STRUCTURE_WIDTH + 1]).toBe(TILE_BRICK);
+    expect(tiles[START_ROW][END_COLUMN - 1]).toBe(TILE_BRICK);
+    expect(tiles[START_ROW][STRUCTURE_WIDTH + 1]).toBe(TILE_BRICK);
   });
 
   it('should leave the markers out of the grid in a horizontal level when the structures carry them', () => {
@@ -121,8 +131,8 @@ describe('createStructureLayers', () => {
       'HORIZONTAL',
     );
 
-    expect(tiles[12][19]).toBe(TILE_AIR);
-    expect(tiles[12][STRUCTURE_WIDTH]).toBe(TILE_AIR);
+    expect(tiles[START_ROW][END_COLUMN]).toBe(TILE_AIR);
+    expect(tiles[START_ROW][STRUCTURE_WIDTH]).toBe(TILE_AIR);
   });
 
   it('should prop the higher structure up to the floor in a horizontal level when the next one hangs lower', () => {
@@ -131,10 +141,10 @@ describe('createStructureLayers', () => {
       'HORIZONTAL',
     );
 
-    expect(size(tiles)).toBe(STRUCTURE_HEIGHT + 2);
+    expect(size(tiles)).toBe(STRUCTURE_HEIGHT + PROPPED_ROWS);
     expect(
-      map(takeRight(tiles, 2), (cells) =>
-        every(takeRight(cells, STRUCTURE_WIDTH), (tile) => tile === TILE_DIRT),
+      map(takeRight(tiles, PROPPED_ROWS), (row) =>
+        every(takeRight(row, STRUCTURE_WIDTH), (tile) => tile === TILE_DIRT),
       ),
     ).toEqual([true, true]);
   });
@@ -182,7 +192,7 @@ describe('createStructureLayers', () => {
 
   it('should stand the sector at the bottom of the climb in a vertical level when it is the first', () => {
     expect(map(computeBandRows(0), (row) => STACKED[row])).toEqual(
-      map(BAND_ROWS, (row) => removeMarkers(getFront(SECTORS[0])[row])),
+      map(BAND_ROWS, (row) => patchMarkers(getFront(SECTORS[0])[row])),
     );
   });
 
@@ -191,7 +201,7 @@ describe('createStructureLayers', () => {
       map(computeBandRows(size(SECTORS) - 1), (row) => STACKED[row]),
     ).toEqual(
       map(BAND_ROWS, (row) =>
-        removeMarkers(getFront(SECTORS[size(SECTORS) - 1])[row]),
+        patchMarkers(getFront(SECTORS[size(SECTORS) - 1])[row]),
       ),
     );
   });

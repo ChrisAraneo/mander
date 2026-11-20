@@ -1,7 +1,6 @@
-import { type Random, takeRandom } from '@mander/common';
+import { type Random, tryTakeRandom } from '@mander/common';
 import type { Season } from '@mander/model';
-
-const SEASONS: Season[] = ['SPRING', 'SUMMER', 'AUTUMN', 'WINTER'];
+import { SEASONS } from './consts';
 
 export const takeRandomSeason = (random: Random): Season =>
-  takeRandom(SEASONS, random);
+  tryTakeRandom(SEASONS, random);

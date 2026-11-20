@@ -2,10 +2,14 @@ import { times, toNumber } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { computeBlurredField } from './compute-blurred-field';
+import {
+  BLUR_MIDDLE_WEIGHT,
+  BLUR_NEAR_WEIGHT,
+  BLUR_REACH,
+  BLUR_TOTAL_WEIGHT,
+} from './consts';
 
-const TOTAL_WEIGHT = 118;
-
-const SIZE = 21;
+const SIZE = BLUR_REACH * 2 + 5;
 
 const MIDDLE = 10;
 
@@ -30,20 +34,24 @@ describe('computeBlurredField', () => {
   it('should spread a lone cell out both across and down when it blurs the field', () => {
     const blurred = computeBlurredField(createDot());
 
-    expect(blurred[MIDDLE][MIDDLE]).toBeCloseTo((12 * 12) / TOTAL_WEIGHT ** 2);
+    expect(blurred[MIDDLE][MIDDLE]).toBeCloseTo(
+      (BLUR_MIDDLE_WEIGHT * BLUR_MIDDLE_WEIGHT) / BLUR_TOTAL_WEIGHT ** 2,
+    );
     expect(blurred[MIDDLE][MIDDLE + 1]).toBeCloseTo(
-      (12 * 11) / TOTAL_WEIGHT ** 2,
+      (BLUR_MIDDLE_WEIGHT * BLUR_NEAR_WEIGHT) / BLUR_TOTAL_WEIGHT ** 2,
     );
     expect(blurred[MIDDLE + 1][MIDDLE]).toBeCloseTo(
-      (11 * 12) / TOTAL_WEIGHT ** 2,
+      (BLUR_NEAR_WEIGHT * BLUR_MIDDLE_WEIGHT) / BLUR_TOTAL_WEIGHT ** 2,
     );
     expect(blurred[MIDDLE + 1][MIDDLE + 1]).toBeCloseTo(
-      (11 * 11) / TOTAL_WEIGHT ** 2,
+      (BLUR_NEAR_WEIGHT * BLUR_NEAR_WEIGHT) / BLUR_TOTAL_WEIGHT ** 2,
     );
   });
 
   it('should not reach farther than eight cells when it blurs a lone cell', () => {
-    expect(computeBlurredField(createDot())[MIDDLE][MIDDLE + 9]).toBe(0);
+    expect(
+      computeBlurredField(createDot())[MIDDLE][MIDDLE + BLUR_REACH + 1],
+    ).toBe(0);
   });
 
   it('should give back an empty field when the field is empty', () => {

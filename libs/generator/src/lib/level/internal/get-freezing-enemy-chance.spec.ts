@@ -10,7 +10,7 @@ const WINTER: Season = 'WINTER';
 
 const NO_FREEZING_ENEMIES_ALL_DAY = times(LEVELS_PER_DAY, constant(0));
 
-const takeEveryLevelOf = (season: Season): number[] =>
+const computeDayChances = (season: Season): number[] =>
   map(range(1, LEVELS_PER_DAY + 1), (levelNumber) =>
     getFreezingEnemyChance(levelNumber, season),
   );
@@ -31,7 +31,7 @@ describe('getFreezingEnemyChance', () => {
   });
 
   it('should keep the freezing enemies out of the first two levels when the world is a winter one', () => {
-    expect(takeEveryLevelOf(WINTER)).toEqual([
+    expect(computeDayChances(WINTER)).toEqual([
       0,
       0,
       FREEZING_ENEMY_CHANCE,
@@ -44,14 +44,14 @@ describe('getFreezingEnemyChance', () => {
   });
 
   it('should keep the freezing enemies out of the whole day when the world is a spring one', () => {
-    expect(takeEveryLevelOf('SPRING')).toEqual(NO_FREEZING_ENEMIES_ALL_DAY);
+    expect(computeDayChances('SPRING')).toEqual(NO_FREEZING_ENEMIES_ALL_DAY);
   });
 
   it('should keep the freezing enemies out of the whole day when the world is a summer one', () => {
-    expect(takeEveryLevelOf('SUMMER')).toEqual(NO_FREEZING_ENEMIES_ALL_DAY);
+    expect(computeDayChances('SUMMER')).toEqual(NO_FREEZING_ENEMIES_ALL_DAY);
   });
 
   it('should keep the freezing enemies out of the whole day when the world is an autumn one', () => {
-    expect(takeEveryLevelOf('AUTUMN')).toEqual(NO_FREEZING_ENEMIES_ALL_DAY);
+    expect(computeDayChances('AUTUMN')).toEqual(NO_FREEZING_ENEMIES_ALL_DAY);
   });
 });

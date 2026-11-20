@@ -44,6 +44,30 @@ const WIDTH = 24;
 
 const DEPTHS = [DIRT_DEPTH, DEEP_DIRT_DEPTH];
 
+const SEEDS_TRIED = 120;
+
+const FEWEST_PER_DEPTH = 30;
+
+const CELLAR_ROW = 19;
+
+const BRICK_ROW = 10;
+
+const BRICK_COLUMN = 3;
+
+const SPIKE_ROW = 11;
+
+const SPIKE_COLUMN = 4;
+
+const LEAST_LIP_DROP = 3;
+
+const DAYS_DEALT = 10;
+
+const DEALT_YEAR = 2026;
+
+const DEALT_MONTH_INDEX = 7;
+
+const FIRST_DEALT_DAY = 1;
+
 const TILES: Record<string, Tile> = {
   '#': TILE_DIRT,
 };
@@ -129,7 +153,7 @@ describe('addStones', () => {
   it('should pick the deeper start about half the time when the generator starts from many seeds', () => {
     const picked = countBy(
       map(
-        times(120, (day) =>
+        times(SEEDS_TRIED, (day) =>
           addStones(createGround(3, 14), createRandom(`DAY-${day}`)),
         ),
         (settled) => computeStoneDepth(settled, 2),
@@ -140,8 +164,8 @@ describe('addStones', () => {
       `${DIRT_DEPTH}`,
       `${DEEP_DIRT_DEPTH}`,
     ]);
-    expect(picked[DIRT_DEPTH]).toBeGreaterThan(30);
-    expect(picked[DEEP_DIRT_DEPTH]).toBeGreaterThan(30);
+    expect(picked[DIRT_DEPTH]).toBeGreaterThan(FEWEST_PER_DEPTH);
+    expect(picked[DEEP_DIRT_DEPTH]).toBeGreaterThan(FEWEST_PER_DEPTH);
   }, 120000);
 
   it('should lay the same stone twice over when the generator starts from the same seed', () => {
@@ -184,11 +208,11 @@ describe('addStones', () => {
     );
 
     const roof = computeStoneDepth(settled, 0);
-    const cellar = findStoneRow(settled, 0, 19) - 19;
+    const cellar = findStoneRow(settled, 0, CELLAR_ROW) - CELLAR_ROW;
 
     expect(includes(DEPTHS, roof)).toBe(true);
     expect(includes(DEPTHS, cellar)).toBe(true);
-    expect(settled[19][0]).toBe(TILE_DIRT);
+    expect(settled[CELLAR_ROW][0]).toBe(TILE_DIRT);
   });
 
   it('should keep three blocks of cover over the stone when it settles one', () => {
@@ -204,13 +228,13 @@ describe('addStones', () => {
 
   it('should leave the tile where it lay when it is not dirt', () => {
     const tiles = createGround(4, 12);
-    tiles[10][3] = TILE_BRICK;
-    tiles[11][4] = TILE_SPIKE;
+    tiles[BRICK_ROW][BRICK_COLUMN] = TILE_BRICK;
+    tiles[SPIKE_ROW][SPIKE_COLUMN] = TILE_SPIKE;
 
     const settled = addStones(tiles, createRandom(SEED));
 
-    expect(settled[10][3]).toBe(TILE_BRICK);
-    expect(settled[11][4]).toBe(TILE_SPIKE);
+    expect(settled[BRICK_ROW][BRICK_COLUMN]).toBe(TILE_BRICK);
+    expect(settled[SPIKE_ROW][SPIKE_COLUMN]).toBe(TILE_SPIKE);
   });
 
   it('should smooth the line when the depth rule cuts it ragged', () => {
@@ -260,7 +284,7 @@ describe('addStones', () => {
     const bend = findIndex(lip, (row) => row > lip[0]);
 
     expect(settled[5][brink - 1]).toBe(TILE_DIRT);
-    expect(lip[brink - 1] - lip[0]).toBeGreaterThanOrEqual(3);
+    expect(lip[brink - 1] - lip[0]).toBeGreaterThanOrEqual(LEAST_LIP_DROP);
     expect(bend).toBeLessThanOrEqual(brink / 2);
     expect(every(times(brink - 1, (step) => lip[step] <= lip[step + 1]))).toBe(
       true,
@@ -282,7 +306,13 @@ describe('addStones', () => {
   it('should settle stone into every level when a day is dealt, turned to ice in winter and sometimes to sand in summer', () => {
     const settled = flatten(
       map(
-        times(10, (day) => new Date(Date.UTC(2026, 7, 1 + day))),
+        times(
+          DAYS_DEALT,
+          (day) =>
+            new Date(
+              Date.UTC(DEALT_YEAR, DEALT_MONTH_INDEX, FIRST_DEALT_DAY + day),
+            ),
+        ),
         (date) =>
           pipe(createWorld(date), ({ season, levels }) =>
             map(levels, (level, index) => ({

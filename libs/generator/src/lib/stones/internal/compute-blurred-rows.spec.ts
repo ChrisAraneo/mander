@@ -2,10 +2,20 @@ import { times, toNumber } from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
 import { computeBlurredRows } from './compute-blurred-rows';
+import {
+  BLUR_EDGE_WEIGHT,
+  BLUR_FAR_WEIGHT,
+  BLUR_MIDDLE_WEIGHT,
+  BLUR_NEAR_WEIGHT,
+  BLUR_REACH,
+  BLUR_TOTAL_WEIGHT,
+} from './consts';
 
-const TOTAL_WEIGHT = 118;
+const FIELD_WIDTH = BLUR_REACH * 2 + 5;
 
-const EDGE_WEIGHT = 65;
+const MIDDLE_COLUMN = 10;
+
+const NARROW_FIELD_WIDTH = 20;
 
 describe('computeBlurredRows', () => {
   it('should keep a row the same when all of its cells are the same', () => {
@@ -14,19 +24,27 @@ describe('computeBlurredRows', () => {
 
   it('should spread a lone cell out along its row when it blurs the field', () => {
     const blurred = computeBlurredRows([
-      times(21, (column) => toNumber(column === 10)),
+      times(FIELD_WIDTH, (column) => toNumber(column === MIDDLE_COLUMN)),
     ]);
 
-    expect(blurred[0][10]).toBeCloseTo(12 / TOTAL_WEIGHT);
-    expect(blurred[0][9]).toBeCloseTo(11 / TOTAL_WEIGHT);
-    expect(blurred[0][2]).toBeCloseTo(2 / TOTAL_WEIGHT);
-    expect(blurred[0][1]).toBe(0);
+    expect(blurred[0][MIDDLE_COLUMN]).toBeCloseTo(
+      BLUR_MIDDLE_WEIGHT / BLUR_TOTAL_WEIGHT,
+    );
+    expect(blurred[0][MIDDLE_COLUMN - 1]).toBeCloseTo(
+      BLUR_NEAR_WEIGHT / BLUR_TOTAL_WEIGHT,
+    );
+    expect(blurred[0][MIDDLE_COLUMN - BLUR_REACH]).toBeCloseTo(
+      BLUR_FAR_WEIGHT / BLUR_TOTAL_WEIGHT,
+    );
+    expect(blurred[0][MIDDLE_COLUMN - BLUR_REACH - 1]).toBe(0);
   });
 
   it('should repeat the edge cell when the blur reaches past the end of the row', () => {
     expect(
-      computeBlurredRows([times(20, (column) => toNumber(column === 0))])[0][0],
-    ).toBeCloseTo(EDGE_WEIGHT / TOTAL_WEIGHT);
+      computeBlurredRows([
+        times(NARROW_FIELD_WIDTH, (column) => toNumber(column === 0)),
+      ])[0][0],
+    ).toBeCloseTo(BLUR_EDGE_WEIGHT / BLUR_TOTAL_WEIGHT);
   });
 
   it('should not mix cells from other rows when it blurs the field', () => {

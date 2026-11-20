@@ -6,9 +6,13 @@ import { describe, expect, it } from 'vitest';
 import { DEEP_DIRT_DEPTH, DIRT_DEPTH } from '../../consts';
 import { takeRandomStoneDirtDepth } from './take-random-stone-dirt-depth';
 
+const GROUND_WIDTH = 8;
+
+const SEEDS_TRIED = 40;
+
 const createGround = (): Tile[][] => [
-  times(8, (): Tile => TILE_AIR),
-  times(8, (): Tile => TILE_DIRT),
+  times(GROUND_WIDTH, (): Tile => TILE_AIR),
+  times(GROUND_WIDTH, (): Tile => TILE_DIRT),
 ];
 
 const takeRandomFrom = (seed: string): number =>
@@ -34,7 +38,7 @@ describe('takeRandomStoneDirtDepth', () => {
 
   it('should give both depths when the generator starts from many seeds', () => {
     expect(
-      sortBy(uniq(times(40, (day) => takeRandomFrom(`DAY-${day}`)))),
+      sortBy(uniq(times(SEEDS_TRIED, (day) => takeRandomFrom(`DAY-${day}`)))),
     ).toEqual([DIRT_DEPTH, DEEP_DIRT_DEPTH]);
   });
 

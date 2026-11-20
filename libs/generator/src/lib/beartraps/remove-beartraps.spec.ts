@@ -12,6 +12,14 @@ const JAWS = 200;
 
 const FIRST_UNTOUCHED_LEVEL = 5;
 
+const THINNED_LEVELS = 4;
+
+const SECOND_LEVEL_SHARE = 0.4;
+
+const THIRD_LEVEL_SHARE = 0.6;
+
+const FOURTH_LEVEL_SHARE = 0.8;
+
 const createTrapline = (): Tile[][] => [
   times(JAWS, (): Tile => TILE_BEARTRAP),
   times(JAWS, (): Tile => TILE_DIRT),
@@ -47,13 +55,13 @@ describe('removeBeartraps', () => {
 
   it('should pull the share the level was promised when it thins one', () => {
     expect(countTrapsLeft(1)).toBe(0);
-    expect(countTrapsLeft(2)).toBe(JAWS * 0.4);
-    expect(countTrapsLeft(3)).toBe(JAWS * 0.6);
-    expect(countTrapsLeft(4)).toBe(JAWS * 0.8);
+    expect(countTrapsLeft(2)).toBe(JAWS * SECOND_LEVEL_SHARE);
+    expect(countTrapsLeft(3)).toBe(JAWS * THIRD_LEVEL_SHARE);
+    expect(countTrapsLeft(4)).toBe(JAWS * FOURTH_LEVEL_SHARE);
   });
 
   it('should leave every trap set when the level is the fifth or later', () => {
-    times(4, (index) => {
+    times(THINNED_LEVELS, (index) => {
       const levelNumber = FIRST_UNTOUCHED_LEVEL + index;
 
       expect(
@@ -65,7 +73,7 @@ describe('removeBeartraps', () => {
   });
 
   it('should thin the level the same way when the generator starts from the same seed', () => {
-    times(4, (index) => {
+    times(THINNED_LEVELS, (index) => {
       const levelNumber = index + 1;
 
       expect(

@@ -21,9 +21,9 @@ const SPRING: Season = 'SPRING';
 
 const STRUCTURES: Sector[] = [];
 
-const BACK_LEVEL: Tile[][] = [[TILE_AIR]];
+const BACK_TILES: Tile[][] = [[TILE_AIR]];
 
-const createLevel = (): Tile[][] => [
+const createTiles = (): Tile[][] => [
   times(TRAPS, (): Tile => TILE_SPIKE),
   times(TRAPS, (): Tile => TILE_BEARTRAP),
   times(TRAPS, (): Tile => TILE_DIRT),
@@ -39,8 +39,8 @@ const removeOn = (levelNumber: number, random = createRandom('DAY-1')) =>
     levelType: 'HORIZONTAL',
     season: SPRING,
     structures: STRUCTURES,
-    tiles: createLevel(),
-    backTiles: BACK_LEVEL,
+    tiles: createTiles(),
+    backTiles: BACK_TILES,
     random,
   });
 
@@ -53,7 +53,7 @@ describe('removeLevelTraps', () => {
   });
 
   it('should leave every trap set when the level is the sixth or later', () => {
-    expect(removeOn(FIRST_UNTOUCHED_LEVEL).tiles).toEqual(createLevel());
+    expect(removeOn(FIRST_UNTOUCHED_LEVEL).tiles).toEqual(createTiles());
   });
 
   it('should clear the traps the same way when the generator starts from the same seed', () => {
@@ -108,6 +108,6 @@ describe('removeLevelTraps', () => {
   });
 
   it('should keep the back layer the same when it clears the traps', () => {
-    expect(removeOn(1).backTiles).toBe(BACK_LEVEL);
+    expect(removeOn(1).backTiles).toBe(BACK_TILES);
   });
 });

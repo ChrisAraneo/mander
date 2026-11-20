@@ -5,20 +5,28 @@ import { describe, expect, it } from 'vitest';
 
 import { findChestType } from './find-chest-type';
 import { takeRandomItemOfType } from './take-random-item-of-type';
+import type { ChestPicking } from './types/chest-picking';
 
 const RANDOM_SEED = 'DAY-1';
+
+const SEEDS_TRIED = 30;
+
+const HEART_AND_STAR: ChestPicking = {
+  picked: [],
+  typesLeft: ['HEART', 'STAR'],
+};
 
 describe('takeRandomItemOfType', () => {
   it('should add a card of the type and the rarity when the type holds one', () => {
     const { picked } = takeRandomItemOfType(
-      { picked: [], typesLeft: ['HEART', 'STAR'] },
+      HEART_AND_STAR,
       'HEART',
       'RARE',
       createRandom(RANDOM_SEED),
     );
 
     expect(map(picked, findChestType)).toEqual(['HEART']);
-    expect(map(picked, 'rarity')).toEqual(['RARE']);
+    expect(map(picked, (item) => item.rarity)).toEqual(['RARE']);
   });
 
   it('should add other cards when the generator starts from other seeds', () => {
@@ -26,7 +34,7 @@ describe('takeRandomItemOfType', () => {
       size(
         uniq(
           times(
-            30,
+            SEEDS_TRIED,
             (index) =>
               takeRandomItemOfType(
                 { picked: [], typesLeft: ['GEM'] },
@@ -43,7 +51,7 @@ describe('takeRandomItemOfType', () => {
   it('should take the type out of the types left when it adds the card', () => {
     expect(
       takeRandomItemOfType(
-        { picked: [], typesLeft: ['HEART', 'STAR'] },
+        HEART_AND_STAR,
         'HEART',
         'COMMON',
         createRandom(RANDOM_SEED),

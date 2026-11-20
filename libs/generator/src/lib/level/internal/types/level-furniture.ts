@@ -3,7 +3,7 @@ import type { Season, Tile } from '@mander/model';
 import type { Sector } from '@mander/structures';
 import type { LevelVariant } from '../../../types/level-variant';
 
-export interface FurnishedLevel {
+export interface LevelFurniture {
   levelNumber: number;
   levelVariant: LevelVariant;
   season: Season;

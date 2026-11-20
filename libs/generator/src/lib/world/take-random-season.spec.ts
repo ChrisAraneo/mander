@@ -1,11 +1,18 @@
 import { createRandom } from '@mander/common';
-import type { Season } from '@mander/model';
-import { countBy, every, includes, map, size, times, uniq } from 'lodash-es';
+import {
+  countBy,
+  every,
+  includes,
+  map,
+  size,
+  sortBy,
+  times,
+  uniq,
+} from 'lodash-es';
 import { describe, expect, it } from 'vitest';
 
+import { SEASONS } from './consts';
 import { takeRandomSeason } from './take-random-season';
-
-const SEASONS: Season[] = ['SPRING', 'SUMMER', 'AUTUMN', 'WINTER'];
 
 const DRAWS = 2000;
 
@@ -24,7 +31,7 @@ describe('takeRandomSeason', () => {
   });
 
   it('should draw every season when it turns the year many times', () => {
-    expect(uniq(DRAWN).sort()).toEqual([...SEASONS].sort());
+    expect(sortBy(uniq(DRAWN))).toEqual(sortBy([...SEASONS]));
   });
 
   it('should give every season the same share when it turns the year many times', () => {
@@ -41,5 +48,9 @@ describe('takeRandomSeason', () => {
     expect(takeRandomSeason(createRandom('WORLD-1'))).toBe(
       takeRandomSeason(createRandom('WORLD-1')),
     );
+  });
+
+  it('should draw another season when the generator starts from another seed', () => {
+    expect(size(uniq(DRAWN))).toBeGreaterThan(1);
   });
 });

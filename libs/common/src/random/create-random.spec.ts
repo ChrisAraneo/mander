@@ -4,13 +4,18 @@ import { describe, expect, it } from 'vitest';
 import { createRandom } from './create-random';
 import { createRandomInt } from './create-random-int';
 import { isRollUnder } from './is-roll-under';
-import { takeRandom } from './take-random';
+import { tryTakeRandom } from './try-take-random';
 
 const FIRST_MANDER_ROLL = 0.4134875510353595;
+
 const DICE_LOWEST = 1;
+
 const DICE_HIGHEST = 6;
-const EVEN_CHANCE = 0.5;
+
+const EVEN_PROBABILITY = 0.5;
+
 const VALUES = ['a', 'b', 'c'];
+
 const ROLL_COUNT = 1000;
 
 describe('createRandom', () => {
@@ -36,8 +41,8 @@ describe('createRandom', () => {
     expect(roll).toBeCloseTo(FIRST_MANDER_ROLL);
     expect([
       createRandomInt(DICE_LOWEST, DICE_HIGHEST, random),
-      isRollUnder(EVEN_CHANCE, random),
-      takeRandom(VALUES, random),
+      isRollUnder(EVEN_PROBABILITY, random),
+      tryTakeRandom(VALUES, random),
     ]).toEqual([5, true, 'a']);
   });
 

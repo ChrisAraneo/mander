@@ -10,7 +10,7 @@ const SPRING: Season = 'SPRING';
 
 const NO_FAST_ENEMIES_ALL_DAY = times(LEVELS_PER_DAY, constant(0));
 
-const takeEveryLevelOf = (season: Season): number[] =>
+const computeDayChances = (season: Season): number[] =>
   map(range(1, LEVELS_PER_DAY + 1), (levelNumber) =>
     getFastEnemyChance(levelNumber, season),
   );
@@ -31,7 +31,7 @@ describe('getFastEnemyChance', () => {
   });
 
   it('should keep the fast enemies out of the first two levels when the world is a spring one', () => {
-    expect(takeEveryLevelOf(SPRING)).toEqual([
+    expect(computeDayChances(SPRING)).toEqual([
       0,
       0,
       FAST_ENEMY_CHANCE,
@@ -44,14 +44,14 @@ describe('getFastEnemyChance', () => {
   });
 
   it('should keep the fast enemies out of the whole day when the world is a summer one', () => {
-    expect(takeEveryLevelOf('SUMMER')).toEqual(NO_FAST_ENEMIES_ALL_DAY);
+    expect(computeDayChances('SUMMER')).toEqual(NO_FAST_ENEMIES_ALL_DAY);
   });
 
   it('should keep the fast enemies out of the whole day when the world is an autumn one', () => {
-    expect(takeEveryLevelOf('AUTUMN')).toEqual(NO_FAST_ENEMIES_ALL_DAY);
+    expect(computeDayChances('AUTUMN')).toEqual(NO_FAST_ENEMIES_ALL_DAY);
   });
 
   it('should keep the fast enemies out of the whole day when the world is a winter one', () => {
-    expect(takeEveryLevelOf('WINTER')).toEqual(NO_FAST_ENEMIES_ALL_DAY);
+    expect(computeDayChances('WINTER')).toEqual(NO_FAST_ENEMIES_ALL_DAY);
   });
 });

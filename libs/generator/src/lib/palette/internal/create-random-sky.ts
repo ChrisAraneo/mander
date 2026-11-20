@@ -1,4 +1,4 @@
-import { type Random, takeRandom, createRandomInt } from '@mander/common';
+import { type Random, tryTakeRandom, createRandomInt } from '@mander/common';
 import type { PaletteSky } from './types/palette-sky';
 
 const SKY_HUES = [
@@ -21,8 +21,8 @@ const SKY_TOP_LIGHTNESS_MIN = 26;
 const SKY_TOP_LIGHTNESS_MAX = 34;
 
 export const createRandomSky = (random: Random): PaletteSky => ({
-  hue: takeRandom(SKY_HUES, random),
-  glowHue: takeRandom(GLOW_HUES, random),
+  hue: tryTakeRandom(SKY_HUES, random),
+  glowHue: tryTakeRandom(GLOW_HUES, random),
   saturation: createRandomInt(SKY_SATURATION_MIN, SKY_SATURATION_MAX, random),
   glowSaturation: createRandomInt(
     GLOW_SATURATION_MIN,

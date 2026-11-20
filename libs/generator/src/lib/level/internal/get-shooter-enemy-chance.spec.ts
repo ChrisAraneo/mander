@@ -8,9 +8,9 @@ import { getShooterEnemyChance } from './get-shooter-enemy-chance';
 
 const AUTUMN: Season = 'AUTUMN';
 
-const NO_SHOOTERS_ALL_DAY = times(LEVELS_PER_DAY, constant(0));
+const NO_SHOOTER_ENEMIES_ALL_DAY = times(LEVELS_PER_DAY, constant(0));
 
-const takeEveryLevelOf = (season: Season): number[] =>
+const computeDayChances = (season: Season): number[] =>
   map(range(1, LEVELS_PER_DAY + 1), (levelNumber) =>
     getShooterEnemyChance(levelNumber, season),
   );
@@ -35,7 +35,7 @@ describe('getShooterEnemyChance', () => {
   });
 
   it('should keep the shooters to the last three levels when the world is an autumn one', () => {
-    expect(takeEveryLevelOf(AUTUMN)).toEqual([
+    expect(computeDayChances(AUTUMN)).toEqual([
       0,
       0,
       0,
@@ -48,14 +48,14 @@ describe('getShooterEnemyChance', () => {
   });
 
   it('should keep the shooters out of the whole day when the world is a spring one', () => {
-    expect(takeEveryLevelOf('SPRING')).toEqual(NO_SHOOTERS_ALL_DAY);
+    expect(computeDayChances('SPRING')).toEqual(NO_SHOOTER_ENEMIES_ALL_DAY);
   });
 
   it('should keep the shooters out of the whole day when the world is a summer one', () => {
-    expect(takeEveryLevelOf('SUMMER')).toEqual(NO_SHOOTERS_ALL_DAY);
+    expect(computeDayChances('SUMMER')).toEqual(NO_SHOOTER_ENEMIES_ALL_DAY);
   });
 
   it('should keep the shooters out of the whole day when the world is a winter one', () => {
-    expect(takeEveryLevelOf('WINTER')).toEqual(NO_SHOOTERS_ALL_DAY);
+    expect(computeDayChances('WINTER')).toEqual(NO_SHOOTER_ENEMIES_ALL_DAY);
   });
 });

@@ -8,13 +8,15 @@ const SIZE = 41;
 
 const MIDDLE = 20;
 
+const PAST_ONE_BLUR = 12;
+
 const createDot = (): number[][] =>
   times(SIZE, (row) =>
     times(SIZE, (column) => toNumber(row === MIDDLE && column === MIDDLE)),
   );
 
 describe('computeSoftenedField', () => {
-  it('should keep the field the same when all of its cells are the same', () => {
+  it('should keep the field the same when every spot of it holds the same value', () => {
     expect(
       computeSoftenedField([
         [1, 1],
@@ -33,9 +35,11 @@ describe('computeSoftenedField', () => {
   });
 
   it('should reach farther than one blur when it softens a lone cell', () => {
-    expect(computeBlurredField(createDot())[MIDDLE][MIDDLE + 12]).toBe(0);
     expect(
-      computeSoftenedField(createDot())[MIDDLE][MIDDLE + 12],
+      computeBlurredField(createDot())[MIDDLE][MIDDLE + PAST_ONE_BLUR],
+    ).toBe(0);
+    expect(
+      computeSoftenedField(createDot())[MIDDLE][MIDDLE + PAST_ONE_BLUR],
     ).toBeGreaterThan(0);
   });
 

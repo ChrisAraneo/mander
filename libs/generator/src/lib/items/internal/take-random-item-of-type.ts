@@ -1,4 +1,4 @@
-import { type Random, takeRandom } from '@mander/common';
+import { type Random, tryTakeRandom } from '@mander/common';
 import type { ItemRarity } from '@mander/model';
 import { concat, without } from 'lodash-es';
 import { CHEST_POOL_BY_TYPE } from '../../consts';
@@ -14,7 +14,10 @@ export const takeRandomItemOfType = (
 ): ChestPicking => ({
   picked: concat(
     picking.picked,
-    takeRandom(filterItemsOfRarity(CHEST_POOL_BY_TYPE[type], rarity), random),
+    tryTakeRandom(
+      filterItemsOfRarity(CHEST_POOL_BY_TYPE[type], rarity),
+      random,
+    ),
   ),
   typesLeft: without(picking.typesLeft, type),
 });

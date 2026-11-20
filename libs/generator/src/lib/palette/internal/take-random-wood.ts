@@ -1,4 +1,4 @@
-import { type Random, takeRandom } from '@mander/common';
+import { type Random, tryTakeRandom } from '@mander/common';
 import type { Season } from '@mander/model';
 import type { PaletteMaterialTone } from './types/palette-material-tone';
 
@@ -82,7 +82,7 @@ const WOOD_TONES: Readonly<Record<Season, PaletteMaterialTone[]>> =
     WINTER: WINTER_WOOD_TONES,
   });
 
-export const createRandomWood = (
+export const takeRandomWood = (
   season: Season,
   random: Random,
-): PaletteMaterialTone => ({ ...takeRandom(WOOD_TONES[season], random) });
+): PaletteMaterialTone => ({ ...tryTakeRandom(WOOD_TONES[season], random) });

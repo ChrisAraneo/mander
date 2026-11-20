@@ -44,6 +44,18 @@ describe('createLevelLayers', () => {
     ).toBe('VERTICAL');
   });
 
+  it('should mark the level horizontal when the variant is a hard one', () => {
+    expect(
+      createLevelLayers({
+        levelNumber: 7,
+        levelVariant: 'HARD',
+        season: SPRING,
+        structures: [],
+        random: RANDOM,
+      }).levelType,
+    ).toBe('HORIZONTAL');
+  });
+
   it('should join the structures across in a horizontal level when it lays them out', () => {
     const { tiles, backTiles } = createLevelLayers({
       levelNumber: 1,

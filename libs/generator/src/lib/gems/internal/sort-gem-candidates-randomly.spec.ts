@@ -13,9 +13,11 @@ const LEVEL: Tile[][] = [
   times(WIDTH, () => TILE_DIRT),
 ];
 
+const SLOT_WIDTH = 4;
+
 const SLOTS = chunk(
   map(range(WIDTH), (column) => ({ row: 1, column })),
-  4,
+  SLOT_WIDTH,
 );
 
 const RANDOM = createRandom('SEED');

@@ -11,8 +11,18 @@ import { describe, expect, it } from 'vitest';
 
 import { patchTripleCannons } from './patch-triple-cannons';
 
+const CANNON_ROWS = 20;
+
+const CANNON_COLUMNS = 50;
+
+const CANNONS = CANNON_ROWS * CANNON_COLUMNS;
+
+const FEWEST_TRIPLED = 450;
+
+const MOST_TRIPLED = 550;
+
 const createCannonRows = (): Tile[][] =>
-  times(20, () => times(50, () => TILE_CANNON));
+  times(CANNON_ROWS, () => times(CANNON_COLUMNS, () => TILE_CANNON));
 
 const countTiles = (tiles: Tile[][], tile: Tile): number =>
   size(filter(flatten(tiles), (cell) => cell === tile));
@@ -24,12 +34,14 @@ describe('patchTripleCannons', () => {
       createRandom('DAY-1'),
     );
 
-    expect(countTiles(patched, TILE_CANNON_TRIPLE)).toBeGreaterThan(450);
-    expect(countTiles(patched, TILE_CANNON_TRIPLE)).toBeLessThan(550);
+    expect(countTiles(patched, TILE_CANNON_TRIPLE)).toBeGreaterThan(
+      FEWEST_TRIPLED,
+    );
+    expect(countTiles(patched, TILE_CANNON_TRIPLE)).toBeLessThan(MOST_TRIPLED);
     expect(
       countTiles(patched, TILE_CANNON) +
         countTiles(patched, TILE_CANNON_TRIPLE),
-    ).toBe(1000);
+    ).toBe(CANNONS);
   });
 
   it('should leave every other tile alone when it patches the cannons', () => {

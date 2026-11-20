@@ -1,6 +1,6 @@
 import { match } from 'ts-pattern';
-import type { LevelVariant } from '../types/level-variant';
 import type { LevelType } from '../types/level-type';
+import type { LevelVariant } from '../types/level-variant';
 import { isVertical } from './is-vertical';
 
 export const toLevelType = (levelVariant: LevelVariant): LevelType =>

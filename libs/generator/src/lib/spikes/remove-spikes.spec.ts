@@ -34,6 +34,10 @@ const TEETH = 300;
 
 const FIRST_UNTOUCHED_LEVEL = 6;
 
+const UNTOUCHED_LEVELS = 3;
+
+const THINNED_LEVELS = 4;
+
 const createToothyFloor = (): Tile[][] => [
   times(TEETH, (): Tile => TILE_SPIKE),
   times(TEETH, (): Tile => TILE_DIRT),
@@ -98,7 +102,7 @@ describe('removeSpikes', () => {
   });
 
   it('should leave every tooth standing when the level is the sixth or later', () => {
-    times(3, (index) => {
+    times(UNTOUCHED_LEVELS, (index) => {
       const levelNumber = FIRST_UNTOUCHED_LEVEL + index;
 
       expect(
@@ -110,7 +114,7 @@ describe('removeSpikes', () => {
   });
 
   it('should thin the level the same way when the generator starts from the same seed', () => {
-    times(4, (index) => {
+    times(THINNED_LEVELS, (index) => {
       const levelNumber = index + 1;
 
       expect(

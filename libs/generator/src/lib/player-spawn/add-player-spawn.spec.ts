@@ -21,7 +21,7 @@ const TILES: Record<string, Tile> = {
 const createGrid = (rows: string[]): Tile[][] =>
   map(rows, (row) => map([...row], (cell) => TILES[cell] ?? TILE_AIR));
 
-const addSpawn = (rows: string[], levelType: LevelType) =>
+const addSpawn = (rows: string[], levelType: LevelType): Tile[][] =>
   addPlayerSpawn(createGrid(rows), levelType);
 
 const HORIZONTAL_LEVEL = ['....', '....', '####'];

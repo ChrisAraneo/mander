@@ -45,4 +45,12 @@ describe('filterStandingSurfaceSpots', () => {
   it('should give no spots when the grid is empty', () => {
     expect(filterStandingSurfaceSpots([], 1)).toEqual([]);
   });
+
+  it('should not change the old level when it looks for the surface spots', () => {
+    const tiles = createGrid(['..', '##']);
+
+    filterStandingSurfaceSpots(tiles, 1);
+
+    expect(tiles).toEqual(createGrid(['..', '##']));
+  });
 });

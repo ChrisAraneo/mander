@@ -6,8 +6,11 @@ import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
 import { ENTITY_HUE } from '../../consts';
+import { GROUND_SHADES } from './consts';
 import { createRandomGround } from './create-random-ground';
 import type { PaletteGround } from './types/palette-ground';
+import type { PaletteGroundShades } from './types/palette-ground-shades';
+import type { PaletteShadeRange } from './types/palette-shade-range';
 
 const SPRING: Season = 'SPRING';
 
@@ -33,8 +36,20 @@ const CYAN_HUE = 186;
 
 const VIOLET_HUE = 292;
 
+const SEEDS_TRIED = 200;
+
+const GREY_SATURATION_MAX = 4;
+
+const NEARLY_BLACK_LIGHTNESS_MAX = 18;
+
+const ENTITY_HUE_GAP_MIN = 30;
+
+const ENTITY_HUE_GAP_MAX = 330;
+
 const createGrounds = (season: Season): PaletteGround[] =>
-  times(200, (day) => createRandomGround(season, createRandom(`WORLD-${day}`)));
+  times(SEEDS_TRIED, (day) =>
+    createRandomGround(season, createRandom(`WORLD-${day}`)),
+  );
 
 const SPRING_GROUNDS = createGrounds(SPRING);
 
@@ -50,6 +65,18 @@ const GROUNDS = [
   ...AUTUMN_GROUNDS,
   ...WINTER_GROUNDS,
 ];
+
+const isWithin = (value: number, { min, max }: PaletteShadeRange): boolean =>
+  value >= min && value <= max;
+
+const isWithinShades = (
+  { saturation, lightness, capSaturation, capLightness }: PaletteGround,
+  shades: PaletteGroundShades,
+): boolean =>
+  isWithin(saturation, shades.saturation) &&
+  isWithin(lightness, shades.lightness) &&
+  isWithin(capSaturation, shades.capSaturation) &&
+  isWithin(capLightness, shades.capLightness);
 
 const isGrowing = (hue: number): boolean =>
   hue >= YELLOW_HUE && hue <= GREEN_HUE;
@@ -173,66 +200,50 @@ describe('createRandomGround', () => {
 
   it('should keep the ground and its cap between their shades when the season is spring', () => {
     expect(
-      every(
-        SPRING_GROUNDS,
-        ({ saturation, lightness, capSaturation, capLightness }) =>
-          saturation >= 18 &&
-          saturation <= 30 &&
-          lightness >= 28 &&
-          lightness <= 36 &&
-          capSaturation >= 34 &&
-          capSaturation <= 50 &&
-          capLightness >= 44 &&
-          capLightness <= 54,
+      every(SPRING_GROUNDS, (ground) =>
+        isWithinShades(ground, GROUND_SHADES.SPRING),
       ),
     ).toBe(true);
   });
 
   it('should keep the ground and its cap bright when the season is summer', () => {
     expect(
-      every(
-        SUMMER_GROUNDS,
-        ({ saturation, lightness, capSaturation, capLightness }) =>
-          saturation >= 40 &&
-          saturation <= 56 &&
-          lightness >= 38 &&
-          lightness <= 48 &&
-          capSaturation >= 56 &&
-          capSaturation <= 72 &&
-          capLightness >= 56 &&
-          capLightness <= 66,
+      every(SUMMER_GROUNDS, (ground) =>
+        isWithinShades(ground, GROUND_SHADES.SUMMER),
       ),
     ).toBe(true);
   });
 
   it('should keep the ground and its cap dark when the season is autumn', () => {
     expect(
-      every(
-        AUTUMN_GROUNDS,
-        ({ saturation, lightness, capSaturation, capLightness }) =>
-          saturation >= 0 &&
-          saturation <= 30 &&
-          lightness >= 14 &&
-          lightness <= 36 &&
-          capSaturation >= 0 &&
-          capSaturation <= 50 &&
-          capLightness >= 38 &&
-          capLightness <= 54,
+      every(AUTUMN_GROUNDS, (ground) =>
+        isWithinShades(ground, GROUND_SHADES.AUTUMN),
       ),
     ).toBe(true);
   });
 
   it('should wash the colour out of some grounds and leave them grey when the season is autumn', () => {
-    expect(some(AUTUMN_GROUNDS, ({ saturation }) => saturation <= 4)).toBe(
-      true,
-    );
     expect(
-      some(AUTUMN_GROUNDS, ({ capSaturation }) => capSaturation <= 4),
+      some(
+        AUTUMN_GROUNDS,
+        ({ saturation }) => saturation <= GREY_SATURATION_MAX,
+      ),
+    ).toBe(true);
+    expect(
+      some(
+        AUTUMN_GROUNDS,
+        ({ capSaturation }) => capSaturation <= GREY_SATURATION_MAX,
+      ),
     ).toBe(true);
   });
 
   it('should sink some grounds to nearly black when the season is autumn', () => {
-    expect(some(AUTUMN_GROUNDS, ({ lightness }) => lightness <= 18)).toBe(true);
+    expect(
+      some(
+        AUTUMN_GROUNDS,
+        ({ lightness }) => lightness <= NEARLY_BLACK_LIGHTNESS_MAX,
+      ),
+    ).toBe(true);
   });
 
   it('should drain the colour out of the earth when the season is winter', () => {
@@ -240,10 +251,8 @@ describe('createRandomGround', () => {
       every(
         WINTER_GROUNDS,
         ({ saturation, lightness }) =>
-          saturation >= 14 &&
-          saturation <= 24 &&
-          lightness >= 30 &&
-          lightness <= 38,
+          isWithin(saturation, GROUND_SHADES.WINTER.saturation) &&
+          isWithin(lightness, GROUND_SHADES.WINTER.lightness),
       ),
     ).toBe(true);
   });
@@ -253,10 +262,8 @@ describe('createRandomGround', () => {
       every(
         WINTER_GROUNDS,
         ({ capSaturation, capLightness }) =>
-          capSaturation >= 12 &&
-          capSaturation <= 24 &&
-          capLightness >= 74 &&
-          capLightness <= 84,
+          isWithin(capSaturation, GROUND_SHADES.WINTER.capSaturation) &&
+          isWithin(capLightness, GROUND_SHADES.WINTER.capLightness),
       ),
     ).toBe(true);
   });
@@ -273,7 +280,7 @@ describe('createRandomGround', () => {
         pipe(
           capHue - ENTITY_HUE,
           toWrappedHue,
-          (gap) => gap >= 30 && gap <= 330,
+          (gap) => gap >= ENTITY_HUE_GAP_MIN && gap <= ENTITY_HUE_GAP_MAX,
         ),
       ),
     ).toBe(true);

@@ -1,6 +1,6 @@
 import { createRandom } from '@mander/common';
 import type { Season } from '@mander/model';
-import { parseHsl } from '@mander/render';
+import { type Palette, parseHsl } from '@mander/render';
 import { every, map, size, times, uniq } from 'lodash-es';
 import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
@@ -19,9 +19,10 @@ const WINTER: Season = 'WINTER';
 
 const SEEDS = times(50, (day) => `WORLD-${day}`);
 
-const createWith = (seed: string) => createPalette(SPRING, createRandom(seed));
+const createWith = (seed: string): Palette =>
+  createPalette(SPRING, createRandom(seed));
 
-const readGroundHues = (season: Season, seed: string): number[] =>
+const parseGroundHues = (season: Season, seed: string): number[] =>
   pipe(createPalette(season, createRandom(seed)), (palette) =>
     map(
       [palette.block, palette.blockCap, palette.blockCapHighlight],
@@ -29,21 +30,52 @@ const readGroundHues = (season: Season, seed: string): number[] =>
     ),
   );
 
-const readMaterials = (season: Season, seed: string): string[] =>
+const getMaterials = (season: Season, seed: string): string[] =>
   pipe(createPalette(season, createRandom(seed)), ({ materials }) => [
     materials?.brick ?? '',
     materials?.wood ?? '',
     materials?.ceramic ?? '',
   ]);
 
-const readMaterialHue = (season: Season, seed: string, index: number): number =>
-  parseHsl(readMaterials(season, seed)[index])?.hue ?? 0;
+const parseMaterialHue = (
+  season: Season,
+  seed: string,
+  index: number,
+): number => parseHsl(getMaterials(season, seed)[index])?.hue ?? 0;
 
 const BRICK = 0;
 
 const WOOD = 1;
 
 const CERAMIC = 2;
+
+const SPRING_HUE_LOW = 50;
+
+const SPRING_HUE_HIGH = 152;
+
+const SUMMER_WARM_HUE_HIGH = 70;
+
+const SUMMER_WARM_HUE_LOW = 316;
+
+const AUTUMN_WARM_HUE_HIGH = 68;
+
+const AUTUMN_WARM_HUE_LOW = 336;
+
+const WINTER_HUE_LOW = 186;
+
+const WINTER_HUE_HIGH = 292;
+
+const CLAY_HUE_HIGH = 48;
+
+const CLAY_HUE_LOW = 326;
+
+const TIMBER_HUE_LOW = 6;
+
+const TIMBER_HUE_HIGH = 52;
+
+const GLAZE_HUE_LOW = 128;
+
+const GLAZE_HUE_HIGH = 330;
 
 describe('createPalette', () => {
   it('should paint the world the same way when the generator starts from the same seed', () => {
@@ -74,7 +106,7 @@ describe('createPalette', () => {
           palette.block,
           palette.blockCap,
           palette.blockCapHighlight,
-          ...readMaterials(SPRING, 'WORLD-1'),
+          ...getMaterials(SPRING, 'WORLD-1'),
         ],
         (colour) => HSL_PATTERN.test(colour),
       ),
@@ -98,7 +130,10 @@ describe('createPalette', () => {
   it('should grow the ground and its cap in green, lime and yellow when the season is spring', () => {
     expect(
       every(SEEDS, (seed) =>
-        every(readGroundHues(SPRING, seed), (hue) => hue >= 50 && hue <= 152),
+        every(
+          parseGroundHues(SPRING, seed),
+          (hue) => hue >= SPRING_HUE_LOW && hue <= SPRING_HUE_HIGH,
+        ),
       ),
     ).toBe(true);
   });
@@ -106,7 +141,10 @@ describe('createPalette', () => {
   it('should turn the ground and its cap red, orange and gold when the season is autumn', () => {
     expect(
       every(SEEDS, (seed) =>
-        every(readGroundHues(AUTUMN, seed), (hue) => hue <= 68 || hue >= 336),
+        every(
+          parseGroundHues(AUTUMN, seed),
+          (hue) => hue <= AUTUMN_WARM_HUE_HIGH || hue >= AUTUMN_WARM_HUE_LOW,
+        ),
       ),
     ).toBe(true);
   });
@@ -114,7 +152,10 @@ describe('createPalette', () => {
   it('should leave the green out of the ground when the season is autumn', () => {
     expect(
       every(SEEDS, (seed) =>
-        every(readGroundHues(AUTUMN, seed), (hue) => !(hue > 68 && hue < 336)),
+        every(
+          parseGroundHues(AUTUMN, seed),
+          (hue) => !(hue > AUTUMN_WARM_HUE_HIGH && hue < AUTUMN_WARM_HUE_LOW),
+        ),
       ),
     ).toBe(true);
   });
@@ -124,8 +165,8 @@ describe('createPalette', () => {
       every(SEEDS, (seed) =>
         every([SPRING, SUMMER, AUTUMN, WINTER], (season) =>
           pipe(
-            readMaterialHue(season, seed, BRICK),
-            (hue) => hue <= 48 || hue >= 326,
+            parseMaterialHue(season, seed, BRICK),
+            (hue) => hue <= CLAY_HUE_HIGH || hue >= CLAY_HUE_LOW,
           ),
         ),
       ),
@@ -137,8 +178,8 @@ describe('createPalette', () => {
       every(SEEDS, (seed) =>
         every([SPRING, SUMMER, AUTUMN, WINTER], (season) =>
           pipe(
-            readMaterialHue(season, seed, WOOD),
-            (hue) => hue >= 6 && hue <= 52,
+            parseMaterialHue(season, seed, WOOD),
+            (hue) => hue >= TIMBER_HUE_LOW && hue <= TIMBER_HUE_HIGH,
           ),
         ),
       ),
@@ -150,23 +191,23 @@ describe('createPalette', () => {
       every(SEEDS, (seed) =>
         every([SPRING, SUMMER, AUTUMN, WINTER], (season) =>
           pipe(
-            readMaterialHue(season, seed, CERAMIC),
-            (hue) => hue >= 128 && hue <= 330,
+            parseMaterialHue(season, seed, CERAMIC),
+            (hue) => hue >= GLAZE_HUE_LOW && hue <= GLAZE_HUE_HIGH,
           ),
         ),
       ),
     ).toBe(true);
   });
 
-  it('should give the worlds more than one brick, more than one wood and more than one ceramic', () => {
+  it('should give the worlds more than one brick, wood and ceramic when it paints many of them', () => {
     expect(
-      size(uniq(map(SEEDS, (seed) => readMaterials(SPRING, seed)[BRICK]))),
+      size(uniq(map(SEEDS, (seed) => getMaterials(SPRING, seed)[BRICK]))),
     ).toBeGreaterThan(1);
     expect(
-      size(uniq(map(SEEDS, (seed) => readMaterials(SPRING, seed)[WOOD]))),
+      size(uniq(map(SEEDS, (seed) => getMaterials(SPRING, seed)[WOOD]))),
     ).toBeGreaterThan(1);
     expect(
-      size(uniq(map(SEEDS, (seed) => readMaterials(SPRING, seed)[CERAMIC]))),
+      size(uniq(map(SEEDS, (seed) => getMaterials(SPRING, seed)[CERAMIC]))),
     ).toBeGreaterThan(1);
   });
 
@@ -176,8 +217,8 @@ describe('createPalette', () => {
         SEEDS,
         (seed) =>
           !every(
-            readMaterials(SPRING, seed),
-            (colour, index) => colour === readMaterials(AUTUMN, seed)[index],
+            getMaterials(SPRING, seed),
+            (colour, index) => colour === getMaterials(AUTUMN, seed)[index],
           ),
       ),
     ).toBe(true);
@@ -228,7 +269,10 @@ describe('createPalette', () => {
   it('should freeze the ground and its cap in cyan, blue and violet when the season is winter', () => {
     expect(
       every(SEEDS, (seed) =>
-        every(readGroundHues(WINTER, seed), (hue) => hue >= 186 && hue <= 292),
+        every(
+          parseGroundHues(WINTER, seed),
+          (hue) => hue >= WINTER_HUE_LOW && hue <= WINTER_HUE_HIGH,
+        ),
       ),
     ).toBe(true);
   });
@@ -237,8 +281,8 @@ describe('createPalette', () => {
     expect(
       every(SEEDS, (seed) =>
         every(
-          readGroundHues(WINTER, seed),
-          (hue) => !(hue <= 152 || hue >= 336),
+          parseGroundHues(WINTER, seed),
+          (hue) => !(hue <= SPRING_HUE_HIGH || hue >= AUTUMN_WARM_HUE_LOW),
         ),
       ),
     ).toBe(true);
@@ -262,7 +306,10 @@ describe('createPalette', () => {
   it('should bake the ground and its cap in yellow, gold, orange and pink when the season is summer', () => {
     expect(
       every(SEEDS, (seed) =>
-        every(readGroundHues(SUMMER, seed), (hue) => hue <= 70 || hue >= 316),
+        every(
+          parseGroundHues(SUMMER, seed),
+          (hue) => hue <= SUMMER_WARM_HUE_HIGH || hue >= SUMMER_WARM_HUE_LOW,
+        ),
       ),
     ).toBe(true);
   });
@@ -270,7 +317,10 @@ describe('createPalette', () => {
   it('should leave the green, the blue and the violet out of the ground when the season is summer', () => {
     expect(
       every(SEEDS, (seed) =>
-        every(readGroundHues(SUMMER, seed), (hue) => !(hue > 70 && hue < 316)),
+        every(
+          parseGroundHues(SUMMER, seed),
+          (hue) => !(hue > SUMMER_WARM_HUE_HIGH && hue < SUMMER_WARM_HUE_LOW),
+        ),
       ),
     ).toBe(true);
   });

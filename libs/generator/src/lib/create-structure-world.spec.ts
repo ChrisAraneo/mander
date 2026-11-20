@@ -11,7 +11,16 @@ import {
   type Tile,
 } from '@mander/model';
 import { getFront } from '@mander/structures';
-import { every, filter, find, flatten, includes, map, size } from 'lodash-es';
+import {
+  cloneDeep,
+  every,
+  filter,
+  find,
+  flatten,
+  includes,
+  map,
+  size,
+} from 'lodash-es';
 import { pipe } from 'remeda';
 import { describe, expect, it } from 'vitest';
 
@@ -38,6 +47,9 @@ const countAnyTiles = (
 
 const filterChoices = (category: LevelCategory): StructureChoice[] =>
   filter(STRUCTURE_CHOICES, (choice) => choice.category === category);
+
+const createChoice = (): StructureChoice =>
+  cloneDeep(filterChoices('NORMAL')[0]);
 
 const getLevelTiles = (choice: StructureChoice): Tile[][] =>
   createStructureWorld(choice).levels[0].tiles;
@@ -116,5 +128,13 @@ describe('createStructureWorld', () => {
     const [first, second] = filterChoices('NORMAL');
 
     expect(getLevelTiles(first)).not.toEqual(getLevelTiles(second));
+  });
+
+  it('should not change the old structure choice when it builds the world', () => {
+    const choice = createChoice();
+
+    createStructureWorld(choice);
+
+    expect(choice).toEqual(createChoice());
   });
 });

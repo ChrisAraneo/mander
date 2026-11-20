@@ -51,6 +51,7 @@ import {
   range,
   size,
   some,
+  sortBy,
   startsWith,
   take,
   takeRight,
@@ -172,19 +173,19 @@ const isSpawnAtHome = (level: Level, spawn: TileCell): boolean =>
 
 const SEASONS: Season[] = ['SPRING', 'SUMMER', 'AUTUMN', 'WINTER'];
 
-const readWorldMaterials = ({ palette }: RenderedWorld): string[] => [
+const getWorldMaterials = ({ palette }: RenderedWorld): string[] => [
   palette.materials?.brick ?? '',
   palette.materials?.wood ?? '',
   palette.materials?.ceramic ?? '',
 ];
 
-const readWorldMaterialHues = (world: RenderedWorld): number[] =>
-  map(readWorldMaterials(world), (colour) => parseHsl(colour)?.hue ?? 0);
+const parseWorldMaterialHues = (world: RenderedWorld): number[] =>
+  map(getWorldMaterials(world), (colour) => parseHsl(colour)?.hue ?? 0);
 
-const readWorldMaterialShades = (world: RenderedWorld): number[] =>
-  map(readWorldMaterials(world), (colour) => parseHsl(colour)?.lightness ?? 0);
+const parseWorldMaterialShades = (world: RenderedWorld): number[] =>
+  map(getWorldMaterials(world), (colour) => parseHsl(colour)?.lightness ?? 0);
 
-const readWorldGroundHues = (world: RenderedWorld): number[] =>
+const parseWorldGroundHues = (world: RenderedWorld): number[] =>
   map(
     [
       world.palette.block,
@@ -220,16 +221,18 @@ const createSeasonEnemies = (season: Season, indexes: number[]): Enemy[] =>
     flatMap(indexes, (index) => createEnemies(world.levels[index])),
   );
 
-const takeWalkingKindsOf = (season: Season): EnemyKind[] =>
-  uniq(
-    filter(
-      map(
-        createSeasonEnemies(season, range(LEVELS_PER_DAY)),
-        (enemy) => enemy.kind,
+const filterWalkingKindsOf = (season: Season): EnemyKind[] =>
+  sortBy(
+    uniq(
+      filter(
+        map(
+          createSeasonEnemies(season, range(LEVELS_PER_DAY)),
+          (enemy) => enemy.kind,
+        ),
+        (kind) => includes(WALKING_KINDS, kind),
       ),
-      (kind) => includes(WALKING_KINDS, kind),
     ),
-  ).sort();
+  );
 
 const hasKindOn = (
   season: Season,
@@ -238,11 +241,56 @@ const hasKindOn = (
 ): boolean =>
   some(createSeasonEnemies(season, indexes), (enemy) => enemy.kind === kind);
 
-const FIRST_TWO_INDEXES = range(2);
+const OPENING_LEVELS = 2;
 
-const THIRD_ONWARD_INDEXES = range(2, LEVELS_PER_DAY);
+const CLOSING_LEVELS = 3;
 
-const LAST_THREE_INDEXES = range(LEVELS_PER_DAY - 3, LEVELS_PER_DAY);
+const FIRST_TWO_INDEXES = range(OPENING_LEVELS);
+
+const THIRD_ONWARD_INDEXES = range(OPENING_LEVELS, LEVELS_PER_DAY);
+
+const LAST_THREE_INDEXES = range(
+  LEVELS_PER_DAY - CLOSING_LEVELS,
+  LEVELS_PER_DAY,
+);
+
+const FIRST_FIVE_INDEXES = range(LEVELS_PER_DAY - CLOSING_LEVELS);
+
+const SPRING_HUE_LOW = 50;
+
+const SPRING_HUE_HIGH = 152;
+
+const SUMMER_WARM_HUE_HIGH = 70;
+
+const SUMMER_WARM_HUE_LOW = 316;
+
+const AUTUMN_WARM_HUE_HIGH = 68;
+
+const AUTUMN_WARM_HUE_LOW = 336;
+
+const WINTER_HUE_LOW = 186;
+
+const WINTER_HUE_HIGH = 292;
+
+const CLAY_HUE_HIGH = 48;
+
+const CLAY_HUE_LOW = 326;
+
+const TIMBER_HUE_LOW = 6;
+
+const TIMBER_HUE_HIGH = 52;
+
+const GLAZE_HUE_LOW = 128;
+
+const GLAZE_HUE_HIGH = 330;
+
+const SPRING_SHADE_LOW = 42;
+
+const SUMMER_SHADE_LOW = 52;
+
+const WINTER_SHADE_LOW = 58;
+
+const AUTUMN_SHADE_HIGH = 44;
 
 describe('createWorld', () => {
   it('should build every level out of its own structures when it deals a day', () => {
@@ -288,24 +336,24 @@ describe('createWorld', () => {
   });
 
   it('should send out hopping and fast enemies only when it deals a spring day', () => {
-    expect(takeWalkingKindsOf('SPRING')).toEqual(['FAST', 'HOPPING']);
+    expect(filterWalkingKindsOf('SPRING')).toEqual(['FAST', 'HOPPING']);
   });
 
   it('should send out hopping and horned enemies only when it deals a summer day', () => {
-    expect(takeWalkingKindsOf('SUMMER')).toEqual(['HOPPING', 'HORNED']);
+    expect(filterWalkingKindsOf('SUMMER')).toEqual(['HOPPING', 'HORNED']);
   });
 
   it('should send out hopping and shooting enemies only when it deals an autumn day', () => {
-    expect(takeWalkingKindsOf('AUTUMN')).toEqual(['HOPPING', 'SHOOTER']);
+    expect(filterWalkingKindsOf('AUTUMN')).toEqual(['HOPPING', 'SHOOTER']);
   });
 
   it('should send out hopping and freezing enemies only when it deals a winter day', () => {
-    expect(takeWalkingKindsOf('WINTER')).toEqual(['FREEZING', 'HOPPING']);
+    expect(filterWalkingKindsOf('WINTER')).toEqual(['FREEZING', 'HOPPING']);
   });
 
   it('should send no horned enemy out when the level is one of the first two of the day', () => {
     const early = flatMap(WORLDS, (world) =>
-      flatMap(times(2), (index) => createEnemies(world.levels[index])),
+      flatMap(FIRST_TWO_INDEXES, (index) => createEnemies(world.levels[index])),
     );
 
     expect(some(early, (enemy) => enemy.kind === 'HORNED')).toBe(false);
@@ -313,7 +361,7 @@ describe('createWorld', () => {
 
   it('should send no fast enemy out when the level is one of the first two of the day', () => {
     const early = flatMap(WORLDS, (world) =>
-      flatMap(times(2), (index) => createEnemies(world.levels[index])),
+      flatMap(FIRST_TWO_INDEXES, (index) => createEnemies(world.levels[index])),
     );
 
     expect(some(early, (enemy) => enemy.kind === 'FAST')).toBe(false);
@@ -337,7 +385,7 @@ describe('createWorld', () => {
 
   it('should send no shooter out when the level is one of the first five of the day', () => {
     const early = flatMap(WORLDS, (world) =>
-      flatMap(times(LEVELS_PER_DAY - 3), (index) =>
+      flatMap(FIRST_FIVE_INDEXES, (index) =>
         createEnemies(world.levels[index]),
       ),
     );
@@ -583,7 +631,7 @@ describe('createWorld', () => {
   });
 
   it('should deal every season when it deals the days of a fortnight', () => {
-    expect(uniq(map(WORLDS, (world) => world.season)).sort()).toEqual([
+    expect(sortBy(uniq(map(WORLDS, (world) => world.season)))).toEqual([
       'AUTUMN',
       'SPRING',
       'SUMMER',
@@ -600,12 +648,25 @@ describe('createWorld', () => {
   it('should colour the ground after the season of the world when it deals a day', () => {
     expect(
       every(WORLDS, (world) =>
-        every(readWorldGroundHues(world), (hue) =>
+        every(parseWorldGroundHues(world), (hue) =>
           match(world.season)
-            .with('SPRING', () => hue >= 50 && hue <= 152)
-            .with('SUMMER', () => hue <= 70 || hue >= 316)
-            .with('WINTER', () => hue >= 186 && hue <= 292)
-            .otherwise(() => hue <= 68 || hue >= 336),
+            .with(
+              'SPRING',
+              () => hue >= SPRING_HUE_LOW && hue <= SPRING_HUE_HIGH,
+            )
+            .with(
+              'SUMMER',
+              () => hue <= SUMMER_WARM_HUE_HIGH || hue >= SUMMER_WARM_HUE_LOW,
+            )
+            .with(
+              'WINTER',
+              () => hue >= WINTER_HUE_LOW && hue <= WINTER_HUE_HIGH,
+            )
+            .with(
+              'AUTUMN',
+              () => hue <= AUTUMN_WARM_HUE_HIGH || hue >= AUTUMN_WARM_HUE_LOW,
+            )
+            .exhaustive(),
         ),
       ),
     ).toBe(true);
@@ -615,13 +676,13 @@ describe('createWorld', () => {
     expect(
       every(WORLDS, (world) =>
         pipe(
-          readWorldMaterialHues(world),
+          parseWorldMaterialHues(world),
           ([brick, wood, ceramic]) =>
-            (brick <= 48 || brick >= 326) &&
-            wood >= 6 &&
-            wood <= 52 &&
-            ceramic >= 128 &&
-            ceramic <= 330,
+            (brick <= CLAY_HUE_HIGH || brick >= CLAY_HUE_LOW) &&
+            wood >= TIMBER_HUE_LOW &&
+            wood <= TIMBER_HUE_HIGH &&
+            ceramic >= GLAZE_HUE_LOW &&
+            ceramic <= GLAZE_HUE_HIGH,
         ),
       ),
     ).toBe(true);
@@ -630,12 +691,21 @@ describe('createWorld', () => {
   it('should build the walls light in spring, hot in summer, deep in autumn and pale in winter when it deals a day', () => {
     expect(
       every(WORLDS, (world) =>
-        pipe(readWorldMaterialShades(world), (shades) =>
+        pipe(parseWorldMaterialShades(world), (shades) =>
           match(world.season)
-            .with('SPRING', () => every(shades, (shade) => shade >= 42))
-            .with('SUMMER', () => every(shades, (shade) => shade >= 52))
-            .with('WINTER', () => every(shades, (shade) => shade >= 58))
-            .otherwise(() => every(shades, (shade) => shade <= 44)),
+            .with('SPRING', () =>
+              every(shades, (shade) => shade >= SPRING_SHADE_LOW),
+            )
+            .with('SUMMER', () =>
+              every(shades, (shade) => shade >= SUMMER_SHADE_LOW),
+            )
+            .with('WINTER', () =>
+              every(shades, (shade) => shade >= WINTER_SHADE_LOW),
+            )
+            .with('AUTUMN', () =>
+              every(shades, (shade) => shade <= AUTUMN_SHADE_HIGH),
+            )
+            .exhaustive(),
         ),
       ),
     ).toBe(true);

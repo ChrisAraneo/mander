@@ -29,16 +29,14 @@ import { describe, expect, it } from 'vitest';
 
 import { GEM_REST_HEIGHT, GEMS_PER_STRUCTURE } from '../consts';
 import { createWorld } from '../create-world';
+import type { Spot } from '../types/spot';
 import { addGems } from './add-gems';
-
-interface Cell {
-  row: number;
-  column: number;
-}
 
 const SEED = 'DAY-1';
 
-const WIDTH = STRUCTURE_WIDTH * 5;
+const STRUCTURES_ACROSS = 5;
+
+const WIDTH = STRUCTURE_WIDTH * STRUCTURES_ACROSS;
 
 const HEIGHT = 14;
 
@@ -46,7 +44,23 @@ const CLIMB_WIDTH = 5;
 
 const FLOOR_ROWS = [4, 8, 12, 16, 20];
 
-const SPIKED_COLUMNS = range(4, 8);
+const FIRST_SPIKED_COLUMN = 4;
+
+const SPIKE_BED_WIDTH = 4;
+
+const PAST_SPIKE_BED = FIRST_SPIKED_COLUMN + SPIKE_BED_WIDTH;
+
+const CROWDED_FLOOR_ROWS = [0, 3, 6, 9, 12, 15, 18];
+
+const DAYS_DEALT = 10;
+
+const DEALT_YEAR = 2026;
+
+const DEALT_MONTH_INDEX = 7;
+
+const FIRST_DEALT_DAY = 1;
+
+const SPIKED_COLUMNS = range(FIRST_SPIKED_COLUMN, PAST_SPIKE_BED);
 
 const TILES: Record<string, Tile> = {
   '#': TILE_DIRT,
@@ -66,7 +80,7 @@ const createGround = (): Tile[][] =>
 const createSpikedGround = (): Tile[][] =>
   createGrid([
     ...times(HEIGHT - 2, () => repeat('.', WIDTH)),
-    `${repeat('.', 4)}${repeat('^', 4)}${repeat('.', WIDTH - 8)}`,
+    `${repeat('.', FIRST_SPIKED_COLUMN)}${repeat('^', SPIKE_BED_WIDTH)}${repeat('.', WIDTH - PAST_SPIKE_BED)}`,
     repeat('#', WIDTH),
   ]);
 
@@ -79,7 +93,7 @@ const createFloors = (floorRows: number[]): Tile[][] =>
     ),
   );
 
-const filterGems = (tiles: Tile[][]): Cell[] =>
+const filterGems = (tiles: Tile[][]): Spot[] =>
   flatten(
     map(tiles, (cells, row) =>
       map(
@@ -89,7 +103,7 @@ const filterGems = (tiles: Tile[][]): Cell[] =>
     ),
   );
 
-const isResting = (tiles: Tile[][], { row, column }: Cell): boolean =>
+const isResting = (tiles: Tile[][], { row, column }: Spot): boolean =>
   isSolidTile(tiles[row + GEM_REST_HEIGHT][column]) &&
   tiles[row + 1][column] === TILE_AIR;
 
@@ -210,7 +224,7 @@ describe('addGems', () => {
     expect(
       filterGems(
         addGems(
-          createFloors([0, 3, 6, 9, 12, 15, 18]),
+          createFloors(CROWDED_FLOOR_ROWS),
           'VERTICAL',
           createRandom(SEED),
         ),
@@ -249,7 +263,13 @@ describe('addGems', () => {
   it('should hand every level its gems when a day is dealt', () => {
     const bare = filter(
       flatMap(
-        times(10, (day) => new Date(Date.UTC(2026, 7, 1 + day))),
+        times(
+          DAYS_DEALT,
+          (day) =>
+            new Date(
+              Date.UTC(DEALT_YEAR, DEALT_MONTH_INDEX, FIRST_DEALT_DAY + day),
+            ),
+        ),
         (date) =>
           map(createWorld(date).levels, (level, index) => ({
             index,

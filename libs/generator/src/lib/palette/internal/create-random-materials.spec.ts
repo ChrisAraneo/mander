@@ -2,7 +2,7 @@ import { createRandom } from '@mander/common';
 import type { Season } from '@mander/model';
 import { describe, expect, it } from 'vitest';
 
-import { createRandomBrick } from './create-random-brick';
+import { takeRandomBrick } from './take-random-brick';
 import { createRandomMaterials } from './create-random-materials';
 
 const SPRING: Season = 'SPRING';
@@ -18,7 +18,7 @@ describe('createRandomMaterials', () => {
     const materials = createRandomMaterials(SPRING, createRandom('DAY-1'));
 
     expect(materials.brick).toEqual(
-      createRandomBrick(SPRING, createRandom('DAY-1')),
+      takeRandomBrick(SPRING, createRandom('DAY-1')),
     );
     expect(materials.wood).not.toEqual(materials.brick);
     expect(materials.ceramic).not.toEqual(materials.wood);

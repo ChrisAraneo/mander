@@ -26,4 +26,12 @@ describe('computeMiddleColumn', () => {
   it('should give the first column when the grid is empty', () => {
     expect(computeMiddleColumn([])).toBe(0);
   });
+
+  it('should not change the old level when it works the middle column out', () => {
+    const tiles = [createRow(5)];
+
+    computeMiddleColumn(tiles);
+
+    expect(tiles).toEqual([createRow(5)]);
+  });
 });
